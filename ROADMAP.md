@@ -140,3 +140,15 @@
 **Próximo trabalho recomendado: Etapa 0 — Estabilização.** Antes de criar modelos mais ambiciosos, confirmar a versão 0.7 rodando de ponta a ponta (compra de LMG, 15 ondas, morte, revive, reforços e menu). Registrar erros do Godot e medir FPS. Depois planejar e aprovar a **Etapa 1 — Armas e FPS** com referências visuais próprias e orçamento de assets.
 
 **Status das tarefas acima:** todas pendentes por padrão. Nada foi marcado como concluído sem execução e testes correspondentes.
+
+## 7. Especificações e registro de decisões (planejamento)
+
+Os documentos abaixo detalham critérios e hipóteses sem autorizar implementação automática:
+
+- [Etapa 0 — Estabilização e qualidade](docs/ETAPA_0_ESTABILIZACAO.md): matriz de testes, sessão de 15 ondas, defeitos bloqueantes e desempenho.
+- [Etapa 1 — FPS, armas e animações](docs/ETAPA_1_FPS_ARMAS.md): direção visual proposta, arma piloto, feedback, áudio e critérios de aceitação.
+- [Registro de decisões e propostas](docs/REGISTRO_DECISOES.md): requisitos já estabelecidos versus ideias pendentes.
+- [Plano de mapas](docs/PLANO_MAPAS.md): Campo de Testes permanente e proposta de mapa multissetores.
+- [Testes de regressão existentes da 0.7](docs/TESTES_0_7.md): roteiro técnico anterior, complementado pela Etapa 0.
+
+**Observação:** nenhuma tarefa de QA foi marcada como concluída apenas por escrever estes documentos. Não foram alterados scripts, cenas, modelos ou áudio nesta atualização documental.
