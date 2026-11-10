@@ -40,7 +40,7 @@ Estas são características descritas no código/README, não equivalem a compro
 
 | Código | Proposta | Documento | Decisão necessária |
 | --- | --- | --- | --- |
-| P-001 | Matriz de 24 testes e validação de 15 ondas | [Etapa 0](ETAPA_0_ESTABILIZACAO.md) | Aprovar padrão de QA e executar |
+| P-001 | Matriz de 27 testes e validação de 15 ondas | [Etapa 0](ETAPA_0_ESTABILIZACAO.md) | Aprovar padrão de QA e executar |
 | P-002 | Meta inicial de 30 FPS em 720p baixo, buscando 60 nas situações comuns | [Etapa 0](ETAPA_0_ESTABILIZACAO.md) | Medir e decidir compromisso visual |
 | P-003 | Estilo "realismo estilizado" militar de geração PS3/Xbox 360 | [Etapa 1](ETAPA_1_FPS_ARMAS.md) | Aprovar direção visual |
 | P-004 | Fuzil como arma piloto da biblioteca de animações | [Etapa 1](ETAPA_1_FPS_ARMAS.md) | Aprovar ordem de produção |
