@@ -1,0 +1,18 @@
+# Godot 4 - generated editor cache (do not commit)
+.godot/
+# Local exports, build outputs and temp files
+build/
+dist/
+exports/
+*.tmp
+*.bak
+# Python helper caches
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+# OS/editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

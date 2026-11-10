@@ -69,3 +69,7 @@ A versão 0.7 atualiza a base 0.6, sem trocar o mapa nem alterar a economia das 
 **Limites de verificação:** os arquivos, malhas e sons foram validados por scripts locais, mas o executável do Godot **não está disponível neste ambiente**. Logo, esta versão **não foi executada no Godot aqui** e ainda requer teste no notebook para confirmar compilação dos scripts, importação dos GLBs e jogabilidade. O verificador estático **não substitui esse teste**.
 
 Leia `docs/TESTES_0_7.md` para uma sequência rápida de testes e como identificar eventuais erros.
+
+## Planejamento das próximas versões
+
+As melhorias propostas, etapas, prioridades, critérios de aceite e regras de desenvolvimento estão em **[ROADMAP.md](ROADMAP.md)**. Antes de programar novas funcionalidades, validar a etapa correspondente neste planejamento.
