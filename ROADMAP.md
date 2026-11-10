@@ -147,8 +147,23 @@ Os documentos abaixo detalham critérios e hipóteses sem autorizar implementaç
 
 - [Etapa 0 — Estabilização e qualidade](docs/ETAPA_0_ESTABILIZACAO.md): matriz de testes, sessão de 15 ondas, defeitos bloqueantes e desempenho.
 - [Etapa 1 — FPS, armas e animações](docs/ETAPA_1_FPS_ARMAS.md): direção visual proposta, arma piloto, feedback, áudio e critérios de aceitação.
+- [Etapa 2 — Inimigos, IA e progressão de ondas](docs/ETAPA_2_INIMIGOS_ONDAS.md): arquétipos, faixas de armas, diretor de ondas, spawn seguro, navegação e matriz de testes.
 - [Registro de decisões e propostas](docs/REGISTRO_DECISOES.md): requisitos já estabelecidos versus ideias pendentes.
 - [Plano de mapas](docs/PLANO_MAPAS.md): Campo de Testes permanente e proposta de mapa multissetores.
 - [Testes de regressão existentes da 0.7](docs/TESTES_0_7.md): roteiro técnico anterior, complementado pela Etapa 0.
 
 **Observação:** nenhuma tarefa de QA foi marcada como concluída apenas por escrever estes documentos. Não foram alterados scripts, cenas, modelos ou áudio nesta atualização documental.
+
+## 8. Acompanhamento da pré-produção
+
+| Documento | Situação documental | Implementação e QA |
+| --- | --- | --- |
+| Etapa 0 — Estabilidade | Especificada; 27 verificações de QA | **Pendente de execução no Godot/notebook** |
+| Etapa 1 — Armas e FPS | Especificada; propostas aguardam aprovação | Não iniciada |
+| Etapa 2 — Inimigos e ondas | **Especificada em 10/11/2026**; propostas aguardam aprovação | Não iniciada |
+| Etapa 3 — Economia e reforços | Próxima especificação detalhada | Não iniciada |
+| Etapa 4 — Mapas | Diretrizes iniciais; falta especificação de setores | Não iniciada |
+| Etapas 5–6 | Visão geral no roadmap; detalhamento pendente | Não iniciadas |
+| GDD consolidado | **Ainda não concluído**; consolidar após as etapas | Não aplicável |
+
+**Último avanço documental:** definição da Etapa 2 com matriz E2-01 a E2-12, orientações de spawn e IA de baixo custo. O planejamento não significa validação em execução. **Próxima rodada sugerida:** Etapa 3 — economia, estações e suporte.
