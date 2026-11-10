@@ -48,6 +48,10 @@ Estas são características descritas no código/README, não equivalem a compro
 | P-006 | Faixas iniciais de capacidade, cadência e comportamento por classe | [Etapa 1](ETAPA_1_FPS_ARMAS.md) | Validar após testes de sensação |
 | P-007 | Primeiro mapa definitivo "Complexo Industrial" com setores definidos | [Plano de mapas](PLANO_MAPAS.md) | Aprovar layout depois do núcleo |
 | P-008 | Separar main.gd em módulos após estabilizar | [Etapa 0](ETAPA_0_ESTABILIZACAO.md) | Decidir necessidade a partir de bugs |
+| P-009 | Manter até 12 inimigos ativos inicialmente, aguardando benchmark | [Etapa 2](ETAPA_2_INIMIGOS_ONDAS.md) | Medir FPS/CPU em 720p antes de elevar teto |
+| P-010 | Composição gradual por armamento e ondas marco 10/15/20 com pesado anunciado | [Etapa 2](ETAPA_2_INIMIGOS_ONDAS.md) | Aprovar faixas, marcos e regras de contrajogo |
+| P-011 | IA com percepção, navegação anti-travamento e flanco simples | [Etapa 2](ETAPA_2_INIMIGOS_ONDAS.md) | Validar custo e implementação incremental |
+| P-012 | Spawn contextual com distância mínima inicial sugerida de 10 metros | [Etapa 2](ETAPA_2_INIMIGOS_ONDAS.md) | Ajustar pelo mapa e executar 100 testes de spawn |
 
 ## D. Fora de escopo por enquanto
 
@@ -68,4 +72,4 @@ Estas são características descritas no código/README, não equivalem a compro
 
 ## F. Próxima rodada de planejamento
 
-Após revisar Etapas 0 e 1, detalhar em documentos separados: **Etapa 2 — inimigos e progressão de ondas; Etapa 3 — economia/estações/reforços; Etapa 4 — arquitetura e mapa multissetores**, com regras mensuráveis e decisões marcadas antes de qualquer implementação.
+A **Etapa 2 — inimigos e progressão de ondas** foi especificada em 10/11/2026, sem implementação e sem aprovação das propostas. Próximas lacunas: **Etapa 3 — economia, estações e reforços**; depois **Etapa 4 — arquitetura e mapa multissetores**. As Etapas 0 e 1 continuam especificadas, mas ainda não testadas/aprovadas para implementação.
