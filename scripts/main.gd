@@ -1,5 +1,7 @@
 extends Node3D
 
+const RoundCue = preload("res://scripts/round_cue.gd")
+
 const MAX_ACTIVE_ENEMIES := 12
 const INITIAL_PREPARATION_SECONDS := 25.0
 const TEST_STARTING_CREDITS := 1200
@@ -51,8 +53,6 @@ var shop_id: String = ""
 var shops: Array = []
 var status_text: String = ""
 var status_timer: float = 0.0
-var hit_flash: float = 0.0
-var headshot_flash: float = 0.0
 var threat_indicators: Array[ColorRect] = []
 var threat_durations: Array[float] = [0.0, 0.0, 0.0, 0.0]
 var hud: Label
@@ -78,12 +78,10 @@ var shop_option_buttons: Array[Button] = []
 var shop_tab_buttons: Dictionary = {}
 var health_text_hud: Label
 var armor_text_hud: Label
-var crosshair_h: ColorRect
-var crosshair_v: ColorRect
 var damage_overlay: ColorRect
 var death_panel: ColorRect
 var death_hud: Label
-var hit_audio: AudioStreamPlayer
+var round_audio: AudioStreamPlayer
 var purchase_audio: AudioStreamPlayer
 var explosion_audio: AudioStreamPlayer
 const RECORD_PATH := "user://frontline_best_wave.txt"
@@ -97,12 +95,11 @@ func _ready() -> void:
     add_child(player)
     player.grenade_requested.connect(_throw_grenade)
     player.player_died.connect(_on_player_died)
-    player.hit_confirmed.connect(_on_hit)
     player.headshot_confirmed.connect(_on_headshot)
     player.shot_fired.connect(_on_shot_fired)
     player.damage_received.connect(_on_player_damage)
-    hit_audio = _make_audio("res://assets/audio/hit.wav", -15.0, "UI")
-    purchase_audio = _make_audio("res://assets/audio/purchase.wav", -9.0, "UI")
+    round_audio = RoundCue.create(self)
+    purchase_audio = _make_audio("res://assets/audio/purchase.wav", -16.0, "UI")
     explosion_audio = _make_audio("res://assets/audio/explosion.wav", -9.0, "SFX")
     _create_ui()
     game_menu = SurvivalGameMenu.new()
@@ -132,8 +129,6 @@ func _restart_game() -> void:
 func _process(delta: float) -> void:
     if status_timer > 0.0:
         status_timer -= delta
-    hit_flash = maxf(0.0, hit_flash - delta)
-    headshot_flash = maxf(0.0, headshot_flash - delta)
     for i in range(threat_durations.size()):
         threat_durations[i] = maxf(0.0, threat_durations[i] - delta)
     reward_timer = maxf(0.0, reward_timer - delta)
@@ -429,6 +424,7 @@ func _end_wave() -> void:
     var bonus := 60 + wave * 20
     wallet += bonus
     player.heal(15.0)
+    round_audio.play()
     _show_banner("ONDA %02d CONCLUIDA" % wave, "+$%d BONUS  |  +15 VIDA  |  %d ELIMINACOES" % [bonus, previous_wave_kills], 5.0)
     _notify("ONDA CONCLUIDA! TEMPO PARA COMPRAS: %s" % _clock(break_remaining), 5.0)
 
@@ -682,13 +678,7 @@ func _revive_training_player() -> void:
     _show_banner("REANIMADO", "O progresso foi mantido. Continue a onda %d." % maxi(wave, 1), 2.3)
     _notify("VIDA RESTAURADA  |  5s DE PROTECAO", 3.0)
 
-func _on_hit() -> void:
-    hit_flash = 0.10
-    hit_audio.stop()
-    hit_audio.play()
-
 func _on_headshot() -> void:
-    headshot_flash = 0.22
     wallet += 12
     reward_hud.text = "+$12  |  TIRO NA CABECA"
     reward_timer = 1.15
@@ -850,18 +840,6 @@ func _create_ui() -> void:
     banner_heading.add_theme_color_override("font_color", Color(0.47, 0.91, 0.86))
     banner_caption = _add_label(banner_panel, Vector2(12, 58), Vector2(502, 32), 16)
     banner_caption.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-    crosshair_h = ColorRect.new()
-    crosshair_h.color = Color(1, 1, 1, 0.9)
-    crosshair_h.position = Vector2(632, 359)
-    crosshair_h.size = Vector2(16, 2)
-    crosshair_h.mouse_filter = Control.MOUSE_FILTER_IGNORE
-    root.add_child(crosshair_h)
-    crosshair_v = ColorRect.new()
-    crosshair_v.color = Color(1, 1, 1, 0.9)
-    crosshair_v.position = Vector2(639, 352)
-    crosshair_v.size = Vector2(2, 16)
-    crosshair_v.mouse_filter = Control.MOUSE_FILTER_IGNORE
-    root.add_child(crosshair_v)
     damage_overlay = ColorRect.new()
     damage_overlay.color = Color(0.65, 0.04, 0.03, 0.0)
     damage_overlay.position = Vector2.ZERO
@@ -1019,19 +997,6 @@ func _refresh_ui() -> void:
         banner_heading.text = banner_title
         banner_caption.text = banner_subtitle
         banner_panel.modulate.a = minf(1.0, banner_timer * 1.6)
-    crosshair_h.visible = not shop_open and not player.dead
-    crosshair_v.visible = not shop_open and not player.dead
-    var running := player.velocity.length() > 6.0
-    var radius: float = 3.0 if player.aim else (11.0 if running else 7.0)
-    # A reticula abre durante o disparo automatico e volta conforme o recuo estabiliza.
-    radius += player.shot_spread_kick * (250.0 if player.aim else 650.0)
-    crosshair_h.position = Vector2(640.0 - radius, 359.0)
-    crosshair_h.size = Vector2(radius * 2.0, 2.0)
-    crosshair_v.position = Vector2(639.0, 360.0 - radius)
-    crosshair_v.size = Vector2(2.0, radius * 2.0)
-    var reticle_color := Color(1.0, 0.87, 0.28) if headshot_flash > 0.0 else (Color(1.0, 0.32, 0.24) if hit_flash > 0.0 else Color.WHITE)
-    crosshair_h.color = reticle_color
-    crosshair_v.color = reticle_color
     for i in range(threat_indicators.size()):
         var opacity := minf(0.88, threat_durations[i] * 1.30)
         threat_indicators[i].color = Color(1.0, 0.29, 0.18, opacity)
