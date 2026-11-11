@@ -2,9 +2,15 @@ extends Node3D
 
 const SpawnSelector = preload("res://scripts/spawn_selector.gd")
 const WaveRules = preload("res://scripts/wave_rules.gd")
+const HitMarkerUI = preload("res://scripts/hit_marker.gd")
+const BloodImpact = preload("res://scripts/blood_impact.gd")
+const WorldPickup = preload("res://scripts/loot_pickup.gd")
 
 
 const MAX_ACTIVE_ENEMIES := 12
+const MAX_CORPSES := 12
+const MAX_LOOT := 18
+const MAX_BLOOD_EFFECTS := 14
 const INITIAL_PREPARATION_SECONDS := 25.0
 const TEST_STARTING_CREDITS := 1200
 const MAP_ID := "campo_de_testes"
@@ -56,7 +62,8 @@ var shop_id: String = ""
 var shops: Array = []
 var status_text: String = ""
 var status_timer: float = 0.0
-var threat_indicators: Array[ColorRect] = []
+var threat_indicators: Array[Line2D] = []
+var hitmarker: Control
 var threat_durations: Array[float] = [0.0, 0.0, 0.0, 0.0]
 var hud: Label
 var ammo_hud: Label
@@ -96,6 +103,7 @@ func _ready() -> void:
     player.grenade_requested.connect(_throw_grenade)
     player.player_died.connect(_on_player_died)
     player.headshot_confirmed.connect(_on_headshot)
+    player.hit_confirmed.connect(_on_hit_confirmed)
     player.shot_fired.connect(_on_shot_fired)
     player.damage_received.connect(_on_player_damage)
     _create_ui()
@@ -420,6 +428,7 @@ func _spawn_enemy() -> bool:
     enemy.configure(kind, wave, player, _select_enemy_weapon(wave))
     enemy.position = pick
     enemy.defeated.connect(_on_enemy_defeated)
+    enemy.loot_dropped.connect(_on_enemy_loot_dropped)
     add_child(enemy)
     alive += 1
     spawn_remaining -= 1
@@ -693,7 +702,13 @@ func _revive_training_player() -> void:
     _show_banner("REANIMADO", "O progresso foi mantido. Continue a onda %d." % maxi(wave, 1), 2.3)
     _notify("VIDA RESTAURADA  |  5s DE PROTECAO", 3.0)
 
+func _on_hit_confirmed() -> void:
+    if is_instance_valid(hitmarker):
+        hitmarker.call("flash", false)
+
 func _on_headshot() -> void:
+    if is_instance_valid(hitmarker):
+        hitmarker.call("flash", true)
     wallet += 12
     reward_hud.text = "+$12  |  TIRO NA CABECA"
     reward_timer = 1.15
@@ -809,6 +824,10 @@ func _create_ui() -> void:
     root.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
     root.mouse_filter = Control.MOUSE_FILTER_IGNORE
     layer.add_child(root)
+    # Only flashes when damage is actually dealt: no persistent crosshair.
+    hitmarker = HitMarkerUI.new()
+    root.add_child(hitmarker)
+    hitmarker.position = Vector2(640, 360)
     # HUD enxuto: placar, proxima onda, vitalidade, armamento e contexto.
     _hud_panel(root, Vector2(16, 16), Vector2(242, 65))
     hud = _add_label(root, Vector2(30, 29), Vector2(218, 46), 19)
@@ -854,21 +873,19 @@ func _create_ui() -> void:
     damage_overlay.size = Vector2(1280, 720)
     damage_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
     root.add_child(damage_overlay)
-    # Indicadores direcionais nao persistentes: aparecem apenas ao receber tiro.
-    var threat_shapes := [
-        [Vector2(592, 209), Vector2(96, 6)],
-        [Vector2(848, 315), Vector2(6, 90)],
-        [Vector2(592, 502), Vector2(96, 6)],
-        [Vector2(426, 315), Vector2(6, 90)]
-    ]
-    for shape in threat_shapes:
-        var threat := ColorRect.new()
-        threat.position = shape[0]
-        threat.size = shape[1]
-        threat.color = Color(1.0, 0.30, 0.19, 0.0)
-        threat.mouse_filter = Control.MOUSE_FILTER_IGNORE
-        root.add_child(threat)
-        threat_indicators.append(threat)
+    # Curved, round-ended arcs read as incoming-fire direction, not square bars.
+    # 0 front, 1 right, 2 rear, 3 left (same order as damage logic).
+    for angle_deg in [-90.0, 0.0, 90.0, 180.0]:
+        var arc := Line2D.new()
+        arc.width = 6.0
+        arc.default_color = Color(0.96, 0.27, 0.19, 0.95)
+        var angle_mid: float = deg_to_rad(angle_deg)
+        for point_index in range(13):
+            var angle: float = angle_mid + deg_to_rad(-20.0 + point_index * (40.0 / 12.0))
+            arc.add_point(Vector2(640.0 + cos(angle) * 150.0, 360.0 + sin(angle) * 150.0))
+        arc.visible = false
+        root.add_child(arc)
+        threat_indicators.append(arc)
     # Loja com abas e botoes clicaveis; durante ela o mouse fica visivel.
     shop_panel = ColorRect.new()
     shop_panel.position = Vector2(335, 132)
@@ -1007,7 +1024,7 @@ func _refresh_ui() -> void:
         banner_panel.modulate.a = minf(1.0, banner_timer * 1.6)
     for i in range(threat_indicators.size()):
         var opacity := minf(0.88, threat_durations[i] * 1.30)
-        threat_indicators[i].color = Color(1.0, 0.29, 0.18, opacity)
+        threat_indicators[i].modulate.a = opacity
         threat_indicators[i].visible = opacity > 0.0 and not shop_open and not player.dead
     damage_overlay.color.a = (1.0 - player.health / 100.0) * 0.09 + player.damage_anim * 0.12
     death_panel.visible = player.dead and not GameSettings.training_respawns
