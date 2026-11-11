@@ -134,6 +134,77 @@ func _ready() -> void:
     _update_shot_audio()
     Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 
+func _can_expand_to_height(target_height: float) -> bool:
+    var probe := CapsuleShape3D.new()
+    probe.radius = 0.35
+    probe.height = target_height
+    var params := PhysicsShapeQueryParameters3D.new()
+    params.shape = probe
+    params.transform = Transform3D(global_transform.basis,
+        global_position + Vector3(0.0, (target_height - 1.8) * 0.5, 0.0))
+    params.exclude = [get_rid()]
+    params.collision_mask = 1
+    return get_world_3d().direct_space_state.intersect_shape(params, 1).is_empty()
+
+func _update_posture(delta: float, crouch_pressed: bool) -> void:
+    var desired_state := "downed" if downed else ("prone" if prone_requested else ("crouch" if crouch_pressed else "stand"))
+    var desired_height := 0.75 if desired_state in ["downed", "prone"] else (1.18 if desired_state == "crouch" else 1.8)
+    if desired_height > current_body_height + 0.025 and not _can_expand_to_height(desired_height):
+        # Stand-up is rejected under a low roof, so the capsule never phases
+        # through overhead geometry.
+        desired_state = posture
+        desired_height = current_body_height
+    posture = desired_state
+    current_body_height = move_toward(current_body_height, desired_height, delta * 3.6)
+    capsule_shape.height = maxf(0.72, current_body_height)
+    collider_node.position.y = (current_body_height - 1.8) * 0.5
+    var sight_level: float = camera_stand_height + (current_body_height - 1.8) * 0.88
+    camera.position.y = lerpf(camera.position.y, sight_level, minf(1.0, delta * 12.0))
+
+func has_attachment(slot: String, id: String) -> bool:
+    return str(weapon_attachments.get(weapon_id, {}).get(slot, "")) == id
+
+func install_attachment(slot: String, id: String) -> bool:
+    if slot == "optic" and id not in ["red_dot", "holo"]:
+        return false
+    if slot == "muzzle" and id not in ["suppressor", "compensator"]:
+        return false
+    var selections: Dictionary = weapon_attachments.get(weapon_id, {"optic":"", "muzzle":""})
+    if selections.get(slot, "") == id:
+        return false
+    selections[slot] = id
+    weapon_attachments[weapon_id] = selections
+    _update_gun_mesh()
+    _update_shot_audio()
+    return true
+
+func select_perk(id: String) -> bool:
+    if not PERKS.has(id) or active_perk == id:
+        return false
+    active_perk = id
+    return true
+
+func recover_downed(using_kit: bool = false) -> void:
+    if not downed or dead:
+        return
+    downed = false
+    downed_seconds = 0.0
+    prone_requested = false
+    health = 35.0 if not using_kit else 50.0
+    invulnerability_timer = 1.3
+    if last_primary != "" and owned_weapons.has(last_primary):
+        switch_weapon(last_primary, true)
+    downed_recovered.emit()
+
+func _die_finally() -> void:
+    downed = false
+    dead = true
+    reload_sound.stop()
+    controls_locked = true
+    if not GameSettings.training_respawns:
+        Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+    player_died.emit()
+
 func _physics_process(delta: float) -> void:
     if dead:
         return
@@ -187,7 +258,7 @@ func _physics_process(delta: float) -> void:
     move_and_slide()
     # A slight sprint FOV extension sells momentum; ADS always takes priority.
     var target_fov: float = GameSettings.field_of_view * (0.70 if aim else (1.045 if sprint_blend > 0.55 else 1.0))
-    camera.fov = lerpf(camera.fov, target_fov, minf(1.0, delta * 10.0))
+    camera.fov = lerpf(camera.fov, target_fov, minf(1.0, delta * (14.0 if active_perk == "fast_ads" else 10.0)))
     walk_clock += delta * movement.length() * (12.0 if sprinting else 8.0)
     shot_spread_kick = move_toward(shot_spread_kick, 0.0, delta * 1.25)
     # Align the physical front/rear sight with the camera's central ray.
@@ -252,6 +323,8 @@ func _input(event: InputEvent) -> void:
 func shoot() -> void:
     if dead or controls_locked or reloading or sprint_blend > 0.22 or fire_timer > 0.0:
         return
+    if downed and weapon_id != "pistol":
+        return
     if magazines[weapon_id] <= 0:
         start_reload()
         return
@@ -259,7 +332,9 @@ func shoot() -> void:
     shot_serial += 1
     fire_timer = WEAPONS[weapon_id]["rate"]
     recoil = 0.13 if weapon_id == "shotgun" else (0.075 if weapon_id == "lmg" else 0.055)
-    shot_spread_kick = minf(0.015, shot_spread_kick + 0.002)
+    if has_attachment("muzzle", "compensator"):
+        recoil *= 0.80
+    shot_spread_kick = minf(0.015, shot_spread_kick + (0.0015 if has_attachment("muzzle", "compensator") else 0.002))
     var kick_degrees := 0.55 if weapon_id == "shotgun" else (0.22 if weapon_id == "smg" else 0.32)
     if aim:
         kick_degrees *= 0.78
@@ -296,9 +371,13 @@ func shoot() -> void:
                 if target is SurvivalEnemy and result["position"].y > target.global_position.y + 0.53:
                     multiplier = 1.75
                     did_headshot = true
-                target.take_damage(base_damage * multiplier * (1.0 + 0.24 * upgrades))
-                did_hit = true
+                if target is SurvivalEnemy:
+                    target.take_damage(base_damage * multiplier * (1.0 + 0.24 * upgrades), "player", multiplier > 1.0, shot_serial)
+                    did_hit = true
+                else:
+                    target.take_damage(base_damage * multiplier * (1.0 + 0.24 * upgrades))
     shot_fired.emit(impact_point, did_hit)
+    shot_resolved.emit(did_hit, did_headshot)
     # Recoil occurs AFTER the raycast so a first shot goes through the sight,
     # not through the already-kicked camera direction.
     camera.rotation.x = clampf(camera.rotation.x + deg_to_rad(kick_degrees), -1.45, 1.45)
@@ -454,6 +533,22 @@ func _build_muzzle_flash() -> ArrayMesh:
 func _update_shot_audio() -> void:
     shot_sound.stream = WeaponAudio.shot_for(weapon_id)
     reload_sound.stream = WeaponAudio.reload_for(weapon_id)
+    if has_attachment("muzzle", "suppressor"):
+        if AudioServer.get_bus_index("SUPPRESSED") < 0:
+            AudioServer.add_bus()
+            var idx: int = AudioServer.bus_count - 1
+            AudioServer.set_bus_name(idx, "SUPPRESSED")
+            AudioServer.set_bus_send(idx, "SFX")
+            var low_pass := AudioEffectLowPassFilter.new()
+            low_pass.cutoff_hz = 1400.0
+            AudioServer.add_bus_effect(idx, low_pass)
+        # Real recorded weapon WAV routed through a low-pass effect. No
+        # synthesizer or artificial beep is introduced.
+        shot_sound.bus = "SUPPRESSED"
+        shot_sound.volume_db = -14.0
+    else:
+        shot_sound.bus = "SFX"
+        shot_sound.volume_db = -6.0
 
 func _update_gun_mesh() -> void:
     for child in gun.get_children():
@@ -510,7 +605,61 @@ func _update_gun_mesh() -> void:
     var muzzle_z: float = viewmodel_depth + viewmodel_scale * float({"pistol": -0.29, "smg": -0.69, "rifle": -0.95, "shotgun": -1.04, "lmg": -1.13}.get(weapon_id, -0.69))
     var muzzle_height := float({"pistol": 0.061, "rifle": 0.039, "shotgun": 0.065}.get(weapon_id, 0.018))
     muzzle_flash.position = Vector3(0, viewmodel_scale * muzzle_height, muzzle_z)
+    _build_attachment_models()
     equip_anim_timer = 0.34
+
+func _build_attachment_models() -> void:
+    var attach: Dictionary = weapon_attachments.get(weapon_id, {})
+    var optic: String = str(attach.get("optic", ""))
+    var muzzle: String = str(attach.get("muzzle", ""))
+    if optic != "":
+        var optic_root := Node3D.new()
+        optic_root.name = "Attachment_Optic_" + optic
+        viewmodel_root.add_child(optic_root)
+        var sight_height: float = float({"pistol":0.121,"smg":0.232,"rifle":0.177,"shotgun":0.140,"lmg":0.232}.get(weapon_id, 0.18))
+        var y: float = sight_height * viewmodel_scale
+        var z: float = viewmodel_depth + (-0.11 if weapon_id == "pistol" else -0.08) * viewmodel_scale
+        var sight := MeshInstance3D.new()
+        var casing := BoxMesh.new()
+        casing.size = Vector3(0.09, 0.095, 0.08)
+        sight.mesh = casing
+        sight.position = Vector3(0.0, y - 0.01, z)
+        var mat := StandardMaterial3D.new()
+        mat.albedo_color = Color(0.12, 0.15, 0.15)
+        mat.roughness = 0.58
+        sight.material_override = mat
+        optic_root.add_child(sight)
+        var glass := MeshInstance3D.new()
+        var lens := SphereMesh.new()
+        lens.radius = 0.024
+        lens.height = 0.05
+        glass.mesh = lens
+        glass.position = Vector3(0.0, y + 0.028, z - 0.044)
+        var glass_mat := StandardMaterial3D.new()
+        glass_mat.albedo_color = Color(0.18, 0.43, 0.42, 0.75)
+        glass_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+        glass_mat.roughness = 0.2
+        glass.material_override = glass_mat
+        optic_root.add_child(glass)
+    if muzzle != "":
+        var tube := MeshInstance3D.new()
+        tube.name = "Attachment_Muzzle_" + muzzle
+        var cylinder := CylinderMesh.new()
+        cylinder.top_radius = 0.033 if muzzle == "suppressor" else 0.044
+        cylinder.bottom_radius = cylinder.top_radius
+        cylinder.height = 0.30 if muzzle == "suppressor" else 0.11
+        tube.mesh = cylinder
+        tube.rotation.x = PI * 0.5
+        var front_z: float = float({"pistol":-0.29,"smg":-0.69,"rifle":-0.95,"shotgun":-1.04,"lmg":-1.13}.get(weapon_id, -0.75))
+        tube.position = Vector3(0.0, 0.04 * viewmodel_scale, viewmodel_depth + front_z * viewmodel_scale - cylinder.height * 0.48)
+        var barrel_mat := StandardMaterial3D.new()
+        barrel_mat.albedo_color = Color(0.12, 0.135, 0.14)
+        barrel_mat.metallic = 0.55
+        barrel_mat.roughness = 0.72
+        tube.material_override = barrel_mat
+        viewmodel_root.add_child(tube)
+        if muzzle == "suppressor":
+            muzzle_flash.visible = false
 
 func _animate_viewmodel(delta: float, sprinting: bool) -> void:
     if not is_instance_valid(viewmodel_root) or not is_instance_valid(hand_rig):
