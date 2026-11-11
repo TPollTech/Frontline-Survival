@@ -89,11 +89,34 @@ jobs:
           fi
           cp README.md dist/LEIA-ME.md
 
-      - name: Upload playable Windows ZIP
+      - name: Package standalone ZIP with version
+        id: package
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION="$(sed -n 's/^application\/product_version="\([^"]*\)"/\1/p' export_presets.cfg | head -n 1)"
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Invalid application/product_version in export_presets.cfg: $VERSION"
+            exit 1
+          fi
+          TAG="v$VERSION"
+          ASSET="FrontlineSurvival-${TAG}-Windows.zip"
+          test -s dist/FrontlineSurvival.exe
+          test -s dist/FrontlineSurvival.pck
+          (cd dist && zip -q -9 "../$ASSET" FrontlineSurvival.exe FrontlineSurvival.pck LEIA-ME.md)
+          test -s "$ASSET"
+          sha256sum "$ASSET" > "$ASSET.sha256"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "asset=$ASSET" >> "$GITHUB_OUTPUT"
+          echo "Created $ASSET and SHA-256"
+
+      - name: Upload temporary workflow artifact
         uses: actions/upload-artifact@v4
         with:
-          name: FrontlineSurvival-0.9-Windows
-          path: dist/*
+          name: FrontlineSurvival-${{ steps.package.outputs.tag }}-Windows
+          path: |
+            ${{ steps.package.outputs.asset }}
+            ${{ steps.package.outputs.asset }}.sha256
           retention-days: 30
           if-no-files-found: error
 
@@ -112,3 +135,30 @@ jobs:
             git pull --rebase origin main
             git push origin HEAD:main
           fi
+
+      - name: Publish immutable numbered GitHub Release
+        if: github.ref == 'refs/heads/main'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          TAG: ${{ steps.package.outputs.tag }}
+          ASSET: ${{ steps.package.outputs.asset }}
+        run: |
+          set -euo pipefail
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "Release $TAG already exists. Keeping its files unchanged; bump application/product_version for the next release."
+            exit 0
+          fi
+          NOTES="docs/releases/${TAG}.md"
+          if [ ! -f "$NOTES" ]; then
+            NOTES="release-notes.txt"
+            printf "Versão de testes para Windows.\n\nExtraia o ZIP completo e execute FrontlineSurvival.exe com o arquivo .pck na mesma pasta.\n\nConsulte docs/CHANGELOG.md e ROADMAP.md para as mudanças e limitações.\n\nBuild validada em Godot CI, mas ainda requer teste visual e de jogabilidade no Windows.\n" > "$NOTES"
+          fi
+          gh release create "$TAG" "$ASSET" "$ASSET.sha256" \
+            --target "$(git rev-parse HEAD)" \
+            --title "Frontline Survival ${TAG} — Testes Windows" \
+            --notes-file "$NOTES" \
+            --prerelease --latest=false
+          gh release view "$TAG" --json url,assets --jq '{url: .url, assets: [.assets[].name]}'
+          echo "Release $TAG published successfully."
