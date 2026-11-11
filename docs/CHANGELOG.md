@@ -8,6 +8,8 @@
 - Indicadores de direção do tiro recebido: frente, direita, trás e esquerda, temporários, sem ocupar permanentemente o HUD.
 - O inimigo informa sua posição ao causar dano; aviso só aparece se o ataque efetivamente causar dano.
 - Headshot realça por instantes a retícula em âmbar; o bônus existente permanece.
+- Mira ADS com deslocamento mais cauteloso e redução moderada do recuo.
+- Retícula com expansão dinâmica conforme dispersão das rajadas e retorno ao centro.
 - Atualização da identificação de versão no jogo.
 - Novo workflow de importação, verificação estática e exportação do Windows em GitHub Actions.
 - Instruções de teste sem abrir o Godot em [BUILD_WINDOWS.md](BUILD_WINDOWS.md).
