@@ -10,6 +10,10 @@ var skeleton: Skeleton3D
 var imported_model: Node3D
 var gait_clock: float = 0.0
 var arm_pose: Dictionary = {}
+# Godot's imported Skeleton3D bone poses already contain its REST rotations.
+# All custom posing must be composed onto these base rotations or the
+# humanoid twists its limbs into unnatural orientations.
+var base_bone_rotations: Dictionary = {}
 
 func _ready() -> void:
     imported_model = HUMAN_GLTF.instantiate() as Node3D
@@ -33,6 +37,10 @@ func _ready() -> void:
             imported_model.queue_free()
             return
     _paint_character_meshes(imported_model)
+    for bone_name in ["upperarm_l", "upperarm_r", "lowerarm_l", "lowerarm_r", "thigh_l", "thigh_r", "calf_l", "calf_r", "spine_03"]:
+        var bone_index: int = skeleton.find_bone(bone_name)
+        if bone_index != -1:
+            base_bone_rotations[bone_name] = skeleton.get_bone_pose_rotation(bone_index)
     _pose_weapon_arms()
     _create_tactical_equipment()
     valid = true
@@ -75,8 +83,13 @@ func _bone_toward(name: String, direction: Vector3) -> void:
     var rotation_global := Quaternion(current_axis, target_axis)
     var global_rest_quaternion := global_basis.get_rotation_quaternion()
     var relative_pose: Quaternion = global_rest_quaternion.inverse() * rotation_global * global_rest_quaternion
-    skeleton.set_bone_pose_rotation(idx, relative_pose.normalized())
-    arm_pose[name] = relative_pose.normalized()
+    # Key fix: never overwrite imported rest pose with a naked quaternion.
+    # A small delta over the original bone pose keeps elbows, shoulders and
+    # skinned mesh physically connected instead of raising arms vertically.
+    var safe_delta: Quaternion = Quaternion.IDENTITY.slerp(relative_pose.normalized(), 0.12)
+    var base: Quaternion = base_bone_rotations.get(name, skeleton.get_bone_pose_rotation(idx))
+    skeleton.set_bone_pose_rotation(idx, (base * safe_delta).normalized())
+    arm_pose[name] = safe_delta
 
 func _pose_weapon_arms() -> void:
     # Character's native +Z is forward; imported scene is rotated to -Z.
@@ -145,7 +158,8 @@ func animate(delta: float, moving: bool, speed: float, weapon_kick: float) -> vo
     for name in ["thigh_l", "thigh_r"]:
         var idx: int = skeleton.find_bone(name)
         var opposite: float = 1.0 if name == "thigh_l" else -1.0
-        var target: Quaternion = Quaternion(Vector3.RIGHT, gait * leg_swing * opposite)
+        var rest: Quaternion = base_bone_rotations.get(name, Quaternion.IDENTITY)
+        var target: Quaternion = (rest * Quaternion(Vector3.RIGHT, gait * leg_swing * opposite)).normalized()
         skeleton.set_bone_pose_rotation(
             idx,
             skeleton.get_bone_pose_rotation(idx).slerp(target, smooth)
@@ -154,14 +168,16 @@ func animate(delta: float, moving: bool, speed: float, weapon_kick: float) -> vo
         var idx: int = skeleton.find_bone(name)
         var phase: float = -gait if name == "calf_l" else gait
         var bend := maxf(0.0, phase) * 0.24
-        var target := Quaternion(Vector3.RIGHT, bend)
+        var rest: Quaternion = base_bone_rotations.get(name, Quaternion.IDENTITY)
+        var target: Quaternion = (rest * Quaternion(Vector3.RIGHT, bend)).normalized()
         skeleton.set_bone_pose_rotation(
             idx,
             skeleton.get_bone_pose_rotation(idx).slerp(target, smooth)
         )
     # Arm aiming pose stays while firing; recoil gives a small upper-body shift.
     var spine_idx: int = skeleton.find_bone("spine_03")
-    var spine_target := Quaternion(Vector3.RIGHT, -0.07 * weapon_kick)
+    var spine_rest: Quaternion = base_bone_rotations.get("spine_03", Quaternion.IDENTITY)
+    var spine_target: Quaternion = (spine_rest * Quaternion(Vector3.RIGHT, -0.07 * weapon_kick)).normalized()
     skeleton.set_bone_pose_rotation(
         spine_idx,
         skeleton.get_bone_pose_rotation(spine_idx).slerp(spine_target, smooth)
