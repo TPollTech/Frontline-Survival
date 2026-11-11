@@ -481,14 +481,18 @@ func _collect_loot(item: Node3D) -> void:
     if not SurvivalPlayer.WEAPONS.has(id):
         return
     if str(item.get("pickup_type")) == "ammo":
-        var current_id: String = player.weapon_id
-        var maximum: int = int(SurvivalPlayer.WEAPONS[current_id]["reserve"])
-        if player.reserves[current_id] >= maximum:
-            _notify("MUNICAO JA ESTA COMPLETA", 1.5)
+        # Ammo belongs to the fallen enemy's weapon, not whichever gun the
+        # player happens to be holding. Do not silently convert calibers.
+        if not player.owned_weapons.has(id):
+            _notify("MUNICAO DE %s  |  PEGUE A ARMA PRIMEIRO" % id.to_upper(), 1.8)
             return
-        var received: int = mini(int(item.get("amount")), maximum - int(player.reserves[current_id]))
-        player.reserves[current_id] += received
-        _notify("+%d MUNICAO PARA %s" % [received, current_id.to_upper()], 1.6)
+        var maximum: int = int(SurvivalPlayer.WEAPONS[id]["reserve"])
+        if player.reserves[id] >= maximum:
+            _notify("MUNICAO DE %s JA ESTA COMPLETA" % id.to_upper(), 1.5)
+            return
+        var received: int = mini(int(item.get("amount")), maximum - int(player.reserves[id]))
+        player.reserves[id] += received
+        _notify("+%d MUNICAO PARA %s" % [received, id.to_upper()], 1.6)
     elif player.owned_weapons.has(id):
         var maximum: int = int(SurvivalPlayer.WEAPONS[id]["reserve"])
         var received: int = mini(int(SurvivalPlayer.WEAPONS[id]["mag"]), maximum - int(player.reserves[id]))
