@@ -225,7 +225,7 @@ func _physics_process(delta: float) -> void:
     shot_anim = maxf(0.0, shot_anim - delta * 13.5)
     melee_anim_timer = maxf(0.0, melee_anim_timer - delta)
     damage_anim = maxf(0.0, damage_anim - delta * 3.4)
-    muzzle_flash.visible = flash_timer > 0.0
+    muzzle_flash.visible = flash_timer > 0.0 and not has_attachment("muzzle", "suppressor")
     if reloading:
         reload_elapsed += delta
         reload_timer -= delta
@@ -340,7 +340,7 @@ func shoot() -> void:
         kick_degrees *= 0.78
     flash_timer = 0.047 if weapon_id != "shotgun" else 0.080
     shot_anim = 1.0
-    muzzle_flash.visible = true
+    muzzle_flash.visible = not has_attachment("muzzle", "suppressor")
     shot_sound.play()
     var origin := camera.global_position
     var space := get_world_3d().direct_space_state
@@ -389,7 +389,7 @@ func shoot() -> void:
         start_reload()
 
 func melee() -> void:
-    if dead or controls_locked or reloading or melee_timer > 0.0:
+    if dead or controls_locked or downed or reloading or melee_timer > 0.0:
         return
     melee_timer = 0.65
     melee_anim_timer = 0.40
@@ -408,7 +408,7 @@ func melee() -> void:
             hit_confirmed.emit()
 
 func start_reload() -> void:
-    if reloading or magazines[weapon_id] >= WEAPONS[weapon_id]["mag"] or reserves[weapon_id] <= 0:
+    if reloading or downed or magazines[weapon_id] >= WEAPONS[weapon_id]["mag"] or reserves[weapon_id] <= 0:
         return
     reloading = true
     reload_timer = WEAPONS[weapon_id]["reload"] * (0.80 if active_perk == "quick_reload" else 1.0)
@@ -464,18 +464,37 @@ func take_damage(amount: float, source_position: Vector3 = Vector3.ZERO) -> void
         return
     if GameSettings.training_respawns:
         amount *= 0.68 # Campo de Testes prioriza experimentar sistemas, nao perder partidas.
+    if active_perk == "resistance":
+        amount *= 0.86
+    if downed:
+        downed_seconds -= amount * 0.12
+        damage_received.emit(source_position, amount)
+        if downed_seconds <= 0.0:
+            if self_revive_kits > 0:
+                self_revive_kits -= 1
+                recover_downed(true)
+            else:
+                _die_finally()
+        return
     var absorbed := minf(armor, amount * 0.65)
     armor -= absorbed
     health = maxf(0.0, health - (amount - absorbed))
     damage_anim = minf(1.0, damage_anim + amount * 0.015)
-    damage_received.emit(source_position, amount - absorbed)
+    damage_received.emit(source_position, amount)
     if health <= 0.0:
-        dead = true
-        reload_sound.stop()
-        controls_locked = true
-        if not GameSettings.training_respawns:
-            Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
-        player_died.emit()
+        if last_stand_available:
+            last_stand_available = false
+            downed = true
+            health = 1.0
+            downed_seconds = 10.0
+            reloading = false
+            reload_sound.stop()
+            if not owned_weapons.has("pistol"):
+                owned_weapons.append("pistol")
+            switch_weapon("pistol", true)
+            downed_started.emit()
+        else:
+            _die_finally()
 
 func revive_for_testing() -> void:
     # Reanimacao sem reload: dinheiro, armas, pontuacao e onda continuam intactos.
