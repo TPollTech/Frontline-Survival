@@ -1,0 +1,15 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://bajentt21r1dl"
+path="res://.godot/imported/smg.wav-5d4f3aee77f4e7d31b765e9306a56f2e.sample"
+
+[deps]
+
+source_file="res://assets/audio/reloads/smg.wav"
+dest_files=["res://.godot/imported/smg.wav-5d4f3aee77f4e7d31b765e9306a56f2e.sample"]
+
+[params]
+
+compress/mode=0

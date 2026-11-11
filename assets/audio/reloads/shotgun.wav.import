@@ -1,0 +1,15 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://cndlap8tmm4c1"
+path="res://.godot/imported/shotgun.wav-e14d34f835e42adb5d9aae30f8260cc4.sample"
+
+[deps]
+
+source_file="res://assets/audio/reloads/shotgun.wav"
+dest_files=["res://.godot/imported/shotgun.wav-e14d34f835e42adb5d9aae30f8260cc4.sample"]
+
+[params]
+
+compress/mode=0

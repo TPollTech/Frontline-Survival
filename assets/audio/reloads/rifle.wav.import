@@ -1,0 +1,15 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://dvd6810qhy1hd"
+path="res://.godot/imported/rifle.wav-97f16f3d8478b13bb652cbb9bcf948e7.sample"
+
+[deps]
+
+source_file="res://assets/audio/reloads/rifle.wav"
+dest_files=["res://.godot/imported/rifle.wav-97f16f3d8478b13bb652cbb9bcf948e7.sample"]
+
+[params]
+
+compress/mode=0

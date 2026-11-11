@@ -1,0 +1,15 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://bhstsrbtd6ojl"
+path="res://.godot/imported/lmg.wav-20e057b66f53f34bf57aa6d9e1162e90.sample"
+
+[deps]
+
+source_file="res://assets/audio/reloads/lmg.wav"
+dest_files=["res://.godot/imported/lmg.wav-20e057b66f53f34bf57aa6d9e1162e90.sample"]
+
+[params]
+
+compress/mode=0

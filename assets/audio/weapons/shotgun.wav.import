@@ -1,0 +1,15 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://dwekda28ogvev"
+path="res://.godot/imported/shotgun.wav-c4d0a08c30b2dbd8881fc546646cee0b.sample"
+
+[deps]
+
+source_file="res://assets/audio/weapons/shotgun.wav"
+dest_files=["res://.godot/imported/shotgun.wav-c4d0a08c30b2dbd8881fc546646cee0b.sample"]
+
+[params]
+
+compress/mode=0

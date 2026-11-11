@@ -70,9 +70,11 @@ func _run_tests() -> void:
         var shot: AudioStreamWAV = game.player.shot_sound.stream as AudioStreamWAV
         _expect(shot != null and shot.resource_path == "res://assets/audio/weapons/%s.wav" % weapon,
                 "player shot does not use the expected recording: " + weapon)
+        _expect(_matches_source_pcm(shot), "import changed shot PCM: " + weapon)
         var reload_clip := game.player.reload_sound.stream as AudioStreamWAV
         _expect(reload_clip != null and reload_clip.resource_path == "res://assets/audio/reloads/%s.wav" % weapon,
                 "player reload does not use the expected recording: " + weapon)
+        _expect(_matches_source_pcm(reload_clip), "import changed reload PCM: " + weapon)
     game.player.weapon_id = starting_weapon
     game.player._update_shot_audio()
 
@@ -160,3 +162,13 @@ func _run_tests() -> void:
     else:
         print("QA_RUNTIME_FAIL %s" % str(failures))
         quit(1)
+
+
+func _matches_source_pcm(clip: AudioStreamWAV) -> bool:
+    if clip == null or clip.format != AudioStreamWAV.FORMAT_16_BITS:
+        return false
+    var source := FileAccess.get_file_as_bytes(clip.resource_path)
+    # Project WAVs are written as PCM with a canonical 44-byte header.
+    if source.size() < 44 or source.slice(36, 40).get_string_from_ascii() != "data":
+        return false
+    return clip.data == source.slice(44)

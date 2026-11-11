@@ -1,0 +1,15 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://lt1lxslopu2e"
+path="res://.godot/imported/pistol.wav-e47336b9283e237c1b06473ce60f8ad7.sample"
+
+[deps]
+
+source_file="res://assets/audio/weapons/pistol.wav"
+dest_files=["res://.godot/imported/pistol.wav-e47336b9283e237c1b06473ce60f8ad7.sample"]
+
+[params]
+
+compress/mode=0

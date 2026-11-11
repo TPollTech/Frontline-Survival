@@ -1,0 +1,15 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://d3m1tq5dgvcjk"
+path="res://.godot/imported/rifle.wav-778ca96dd69037a3558635ff40839d6b.sample"
+
+[deps]
+
+source_file="res://assets/audio/weapons/rifle.wav"
+dest_files=["res://.godot/imported/rifle.wav-778ca96dd69037a3558635ff40839d6b.sample"]
+
+[params]
+
+compress/mode=0

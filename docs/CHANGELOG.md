@@ -1,5 +1,11 @@
 # Frontline Survival — Histórico de versões
 
+## 0.9.10 — Áudio PCM sem perdas
+
+- WAVs de disparo e recarga importados como PCM de 16 bits, sem QOA. O teste em Godot compara os dados das amostras importadas com os WAVs de origem.
+
+---
+
 ## 0.9.9 — Som restrito a disparo e recarga
 
 - Removidos os efeitos antigos de fim de onda, compra e explosão. A pasta de áudio contém apenas os dez WAVs de disparo e recarga.

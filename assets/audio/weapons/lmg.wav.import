@@ -1,0 +1,15 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://4y160qv2god5"
+path="res://.godot/imported/lmg.wav-c52e1ba6f59d07fb30c4c96baa1bbc6b.sample"
+
+[deps]
+
+source_file="res://assets/audio/weapons/lmg.wav"
+dest_files=["res://.godot/imported/lmg.wav-c52e1ba6f59d07fb30c4c96baa1bbc6b.sample"]
+
+[params]
+
+compress/mode=0
