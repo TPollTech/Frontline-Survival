@@ -117,3 +117,32 @@ A **Etapa 2 — inimigos e progressão de ondas** foi especificada em 10/11/2026
 ## H. Direção de polimento M0 — registro de 11/11/2026
 
 **Origem:** [M0 — Campo de Testes](M0_POLIMENTO_CAMPO_TESTES.md), que registra feedback e prioridade definidos pelo usuário após sessão real até a onda 10. **ESTABELECIDO como prioridade:** polir o Campo de Testes antes de abrir mapas ou ampliar a composição das ondas; adiar veículos terrestres, helicópteros e inimigos especiais adicionais. **Feedback solicitado:** sprint com sensação de corrida, hitmarker discreto apenas no acerto e sem som, sangue no impacto, cadáveres temporários, coleta de arma/munição com F e indicador curvo de direção do dano. A documentação de M0 registra implementação/CI parcial na 0.9.12; isso **não** equivale a aprovação visual, teste de 15 ondas ou homologação de desempenho. O hitmarker contextual **não é crosshair permanente**: manter D-016. O uso de F para loot deve ser conciliado com F nas estações por prioridade contextual, sem substituir compras. As dez propostas V1-P01–V1-P10 continuam **PROPOSTAS**; nenhuma foi aprovada por inferência.
+
+
+## I. Requisitos novos observados pelo usuário no MW3 Survival (11/11/2026)
+
+**Evidência:** usuário pediu explicitamente incorporar perks compráveis, Last Stand/segunda chance de se levantar, metas que pagam dinheiro, sumário de onda (precisão/headshots/kills), attachments comprados separadamente em todas as armas, agachamento e deitar. Observou também que o intervalo original é por volta de 30 s. **Pesquisado e confirmado** em matérias de junho/2011 e guias de janeiro/2012. [Pesquisa com links](PESQUISA_MW3_SURVIVAL_MECANICAS.md). [Especificação completa](NUCLEO_SURVIVAL_PERKS_ATTACHMENTS_MOVIMENTO.md).
+
+| Código | Definição | Categoria | Estado do código |
+| --- | --- | --- | --- |
+| D-017 | Perks realmente compráveis com efeitos úteis no Survival | **REQUISITO PEDIDO** | **PENDENTE** |
+| D-018 | "Última Chance" com pistola e chance de recuperação, diferenciada de um Kit de Reanimação comprável | **REQUISITO PEDIDO**; custos e limites propostos | **PENDENTE** |
+| D-019 | Desafios de combate com bônus ($500 como referência), incluindo quadkill e killstreak | **REQUISITO PEDIDO**; fórmula/metas definitivas propostas | **PENDENTE** |
+| D-020 | Relatório de precisão, eliminações, headshots e dinheiro em cada onda | **REQUISITO PEDIDO** | **PENDENTE** |
+| D-021 | Compras de attachment para toda arma, começando sem nenhum; red dot e silenciador | **REQUISITO PEDIDO**; silenciador é adição autoral, não reproduzir item histórico sem evidência | **PENDENTE** |
+| D-022 | Agachar e deitar como posturas físicas completas | **REQUISITO PEDIDO**; atalho exato proposto | **AGACHAR PARCIAL**, deitar **PENDENTE** |
+| D-023 | Intervalo de **30 s no MW3** confirmado; avaliar mudar o padrão Frontline 75→30, preservando opções mais longas | **PROPOSTA DE REVISÃO de D-004**, não decisão de implementação automática | **75 s configurado hoje**, mínimo 45 |
+| D-024 | Prioridade permanece **Campo de Testes primeiro**, sem aumentar mapa, ondas/veículos; o núcleo deve comportar perks e attachments antes de novas arenas | **REQUISITO/PREFERÊNCIA ESTABELECIDA** | Planejamento |
+
+### Como conciliar com decisões anteriores
+
+- **D-004 (75 s)** está historicamente registrado e **ainda está no executável**. O novo pedido é fidelidade a MW3 (30 s); a proposta é mudar o **valor padrão para instalações novas**, oferecer 30/45/60/75/90/120 e não apagar 75 s já salvos.
+- **D-016 (sem crosshair)** permanece. Red Dot é mira **física na arma** e não retícula 2D fixa.
+- **F nas três lojas** permanece; perks entram na estação física de suporte e equipamentos de reanimação na estação de equipamentos. Nenhum menu global B.
+- **GDD v1.0:** regras de compra de attachments e posturas passam a ser requisito de produto, porém **valores de dinheiro, durações e nomes autorais** continuam propostas a validar.
+- **Self Revive não é sinônimo de perk:** no MW3 2011 é item de equipamentos; perks de suporte substituem uns aos outros. Separar também o Last Stand do multiplayer da queda/recuperação em Survival.
+- **Nenhum código foi alterado por este registro.** Não anunciar nova release Windows até uma sprint de implementação passar por CI e avaliação visual.
+
+### Revisão documental necessária antes de codificar
+
+[CT-01 a CT-07](NUCLEO_SURVIVAL_PERKS_ATTACHMENTS_MOVIMENTO.md) serão as próximas entregas no Campo de Testes. A inclusão de metas monetárias precisa de um \`WaveStats\` e contrato de eventos único; a compra de acessórios precisa de slots por arma; prone requer controle de colisão em \`_physics_process\`, não só mudança de velocidade.
