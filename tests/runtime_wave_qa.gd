@@ -76,9 +76,27 @@ func _run_tests() -> void:
     var fallen_script: Script = load("res://scripts/enemy.gd")
     var fallen: Variant = fallen_script.new()
     fallen.configure("soldier", 1, game.player, "rifle")
+    fallen.preview_quaternius = true
     fallen.position = Vector3(11.0, 1.5, 11.0)
     fallen.loot_dropped.connect(game._on_enemy_loot_dropped)
     game.add_child(fallen)
+    _expect(fallen.humanoid_visual != null, "Quaternius model did not replace selected soldier")
+    if fallen.humanoid_visual != null:
+        var preview: Node3D = fallen.humanoid_visual
+        _expect(preview.get("valid"), "Quaternius imported character skeleton is invalid")
+        var rig: Skeleton3D = preview.get("skeleton")
+        _expect(rig != null and rig.get_bone_count() >= 50,
+            "Quaternius model is missing its humanoid bone structure")
+        if rig != null:
+            for required_bone in ["Head", "spine_03", "upperarm_l", "upperarm_r", "thigh_l", "thigh_r"]:
+                _expect(rig.find_bone(required_bone) >= 0,
+                    "Quaternius model missing required bone " + required_bone)
+        var legacy_torso := fallen.get_node_or_null("VisualRig/Spine/TacticalJacket") as MeshInstance3D
+        _expect(legacy_torso != null and not legacy_torso.visible,
+            "Original blocky enemy body must be hidden for Quaternius preview")
+        _expect(is_instance_valid(fallen.weapon_pivot) and fallen.weapon_pivot.visible,
+            "Existing weapon was hidden by humanoid replacement")
+    await physics_frame
     fallen.take_damage(9999.0)
     _expect(fallen.dead and fallen.is_in_group("fallen_soldiers"), "enemy corpse not preserved")
     _expect(not fallen.is_queued_for_deletion(), "corpse despawned immediately")
