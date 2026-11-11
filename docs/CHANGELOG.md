@@ -1,5 +1,11 @@
 # Frontline Survival — Histórico de versões
 
+## 0.9.7 — Limpeza de áudio legado
+
+- Removidos os WAVs genéricos de disparo, impacto e recarga. Disparos e recargas usam os WAVs próprios de cada arma.
+
+---
+
 ## 0.9.6 — Disparos gravados
 
 - Gravações carregadas explicitamente por classe, incluindo uma aproximação de 5,56 mm para a LMG.

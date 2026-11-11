@@ -200,7 +200,7 @@ require('HeadPivot' in ally and 'NeckCollar' in ally,
         "Support soldier head could separate from collar again")
 require('ObstacleSteering.choose_detour' in enemy and 'ObstacleSteering.choose_detour' in ally,
         "Local obstacle-recovery steering must work for enemies and allies")
-require('reload_sound.stream = load(reload_path)' in player,
+require('reload_sound.stream = WeaponAudio.reload_for(weapon_id)' in player,
         "Different weapon reloads should use their own mechanical WAV")
 require('material.albedo_texture = load(' in material_code and 'material.uv1_triplanar = true' in material_code,
         "Textured gun materials with triplanar mapping missing")

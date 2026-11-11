@@ -70,11 +70,11 @@ func _run_tests() -> void:
         var shot: AudioStreamWAV = game.player.shot_sound.stream as AudioStreamWAV
         _expect(shot != null and shot.resource_path == "res://assets/audio/weapons/%s.wav" % weapon,
                 "player shot does not use the expected recording: " + weapon)
+        var reload_clip := game.player.reload_sound.stream as AudioStreamWAV
+        _expect(reload_clip != null and reload_clip.resource_path == "res://assets/audio/reloads/%s.wav" % weapon,
+                "player reload does not use the expected recording: " + weapon)
     game.player.weapon_id = starting_weapon
     game.player._update_shot_audio()
-    var reload_clip: AudioStream = game.player.reload_sound.stream
-    _expect(reload_clip != null, "mechanical pistol reload is missing")
-    _expect(reload_clip.resource_path.contains("/reloads/"), "old synthesized reload beep restored")
 
     var stations: Array[Vector3] = []
     for station in game.shops:
