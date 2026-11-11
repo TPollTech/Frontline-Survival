@@ -16,7 +16,7 @@
 
 **Etapas do ROADMAP:** Etapa 1 (armas/mira), Etapa 2 (representação dos aliados e inimigos) e Etapa 5 (HUD e áudio) **PARCIAIS** até validação jogando. Etapa 0 (estabilidade) também **PARCIAL**; sessão de 15 ondas ainda pendente.
 
-**QA:** [TESTES_0_9_1.md](TESTES_0_9_1.md). A build só será marcada **CONCLUÍDA (CI + RELEASES)** quando a exportação Windows passar e a [release v0.9.1](https://github.com/TPollTech/Frontline-Survival/releases/tag/v0.9.1) contiver o ZIP.
+**QA:** [TESTES_0_9_1.md](TESTES_0_9_1.md). **Exportação: CONCLUÍDA (CI + RELEASES)** — [compilação aprovada](https://github.com/TPollTech/Frontline-Survival/actions/runs/42945928310), ZIP Windows + SHA-256 publicados na [release v0.9.1](https://github.com/TPollTech/Frontline-Survival/releases/tag/v0.9.1). **Visual, mira, sons e aliados: PARCIAIS**, aguardando teste no Windows real.
 
 ---
 
