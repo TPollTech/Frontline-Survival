@@ -1,6 +1,6 @@
 # Frontline Survival — Planejamento e Roadmap
 
-**Documento mestre do projeto** · Atualizado: 10/11/2026 · **Base de referência:** protótipo `0.7`; **versão de desenvolvimento:** `0.9.11` · **Situação:** planejamento; novas mecânicas somente após aprovação da etapa.
+**Documento mestre do projeto** · Atualizado: 10/11/2026 · **Base de referência:** protótipo `0.7`; **versão de desenvolvimento:** `0.9.12` · **Situação:** planejamento; novas mecânicas somente após aprovação da etapa.
 
 > **Visão:** FPS 3D offline de sobrevivência por ondas, com combate satisfatório, progressão, dinheiro, compras em estações e suporte tático. Inspiração de mecânicas: Survival dos FPS militares da geração PS3, com identidade, modelos, efeitos e sons próprios. **Não** copiar mapas, arquivos ou personagens de Call of Duty.
 
@@ -334,3 +334,28 @@ A [Etapa 6](docs/ETAPA_6_DESEMPENHO_TESTES_DISTRIBUICAO.md) especifica métricas
 **Versão 1.0:** não alterar a definição de pronto: G1–G12 e aceite do jogo real continuam obrigatórios.
 
 [QA v0.9.11](docs/QA_V0_9_11.md) · [Notas de release](docs/releases/v0.9.11.md)
+
+## 17. Prioridade M0/M1: Campo de Testes polido — v0.9.12 (11/11/2026)
+
+**Decisão direta do usuário:** antes de ampliar mapas, ondas e spawns por helicópteros/transportes, terminar e homologar a sensação de jogar o **Campo de Testes**. Evidência real: usuário jogou **até a onda 10** e considera o loop funcional, mas apontou falta de corrida convincente, hitmarker, sangue, corpos, loot, indicador de dano mais orgânico e humanoides melhores.
+
+**Estado atual:** a versão 0.9.11 ajustou composição de ondas; **não continuar expansão de ondas nesta fase**. A 0.9.12 é uma sprint de polimento, não conteúdo novo de mapa.
+
+| ID | Alteração | Estado de implementação | Pendência |
+|---|---|---|---|
+| V0912-01 | Corrida tática: arma inclinada para baixo, transição e braço de apoio separado | **CONCLUÍDO (CÓDIGO/CI)** | Aprovar visual e feeling no Windows |
+| V0912-02 | Hitmarker breve e discreto; cor diferenciada em headshot, **sem som** | **CONCLUÍDO (CÓDIGO/CI)** | Aprovar no Windows |
+| V0912-03 | Sangue de impacto breve e com orçamento limitado | **CONCLUÍDO (CÓDIGO/CI)** | Aprovar visual e FPS |
+| V0912-04 | Corpo no mapa até 17 s e máximo 12; desativar colisão ao morrer | **PARCIAL** — script e regressão CI | Verificar queda real, 17s, 12 corpos e FPS |
+| V0912-05 | Armas dos inimigos recolhíveis por F e munição ocasional; máximo 18 itens, limpeza em 20s | **CONCLUÍDO (CÓDIGO/CI)** — coleta testada | Verificar UX/F junto às lojas e otimização |
+| V0912-06 | Indicador de tiro substituído por quatro arcos vermelhos curvos | **CONCLUÍDO (CÓDIGO/CI)** | Aprovar forma e transparência no Windows |
+| V0912-07 | Silhueta dos inimigos e aliados mais arredondada e arma deslocada à frente | **PARCIAL** — cápsulas e grip ajustados | Ainda precisa **rig humanoide real** e revisão visual |
+| V0912-08 | Testes integrados: hitmarker, sprint, drops, sangue, corpos e 2 ondas; 50 composições sem jogar | **CONCLUÍDO (CI)** | 15 ondas reais ainda pendentes |
+| V0912-09 | Exportar ZIP Windows v0.9.12 e publicar em GitHub Releases | **AGUARDANDO CI FINAL** | Marcar concluído somente após ZIP verificado |
+
+**Mantidos:** Campo de Testes, asfalto, três estações por F, 75s entre ondas, sem crosshair permanente, sons WAV PCM da v0.9.10, reforços e waves atuais. **Sem novas fases, mapas, helicópteros ou caminhões nesta sprint.**
+
+**Próximas decisões pós-polimento (registradas, NÃO implementadas):** soldados humanoides com esqueleto/rig, animações reais, queda física/ragdoll se desempenho permitir; mais tarde chegadas por transporte terrestre e aéreo e unidades blindadas especiais. A proposta de personagens CC0 (Quaternius) deve ser testada isoladamente no Godot 4.4.1 antes de substituir os NPCs.
+
+[Checklist do Campo de Testes](docs/M0_POLIMENTO_CAMPO_TESTES.md) • [QA 0.9.12](docs/QA_V0_9_12.md) • [Release notes](docs/releases/v0.9.12.md)
+
