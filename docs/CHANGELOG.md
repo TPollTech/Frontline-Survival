@@ -1,5 +1,21 @@
 # Frontline Survival — Histórico de versões
 
+## 0.9.11 — Ondas especiais com aviso e testes de progressão
+
+**Avanço:** M0 (qualidade/CI) e M2 (diretor de ondas, **PARCIAL**). Builds anteriores v0.9.4–v0.9.10, gravações de áudio, materiais e alterações das armas permanecem intactas.
+
+- Nova `scripts/wave_rules.gd`: limites de quantidade, composição de tipos e ameaças blindadas anunciadas.
+- Primeira onda com **um pesado na 10**; um pesado na onda 15; dois nas ondas-marco a partir da 20. Fora desses marcos, sem pesado aleatório inesperado.
+- Aviso visual de ameaça blindada, **sem áudio novo ou apitos**.
+- `tests/wave_rules_qa.gd` simula 50 composições, 2.416 assertions, 2.150 inimigos planejados e 16 pesados de marco (não são 50 ondas jogadas).
+- `tests/runtime_wave_qa.gd`: duas ondas com inimigos reais + conferência do HUD da onda 10.
+- Pipeline do GitHub Actions passa a exigir o novo teste antes de gerar o executável.
+- Revisão do README: áudio atual é **gravado e importado sem perdas (PCM)**, não os efeitos sintetizados da versão antiga.
+
+**QA:** [checklist v0.9.11](QA_V0_9_11.md). O teste de 15 ondas no Windows, desempenho real, rig e modelos continuam pendentes; não considerar M0/M2 100% concluídos.
+
+---
+
 ## 0.9.10 — Áudio PCM sem perdas
 
 - WAVs de disparo e recarga importados como PCM de 16 bits, sem QOA. O teste em Godot compara os dados das amostras importadas com os WAVs de origem.
