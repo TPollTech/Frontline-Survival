@@ -1,6 +1,6 @@
 # Frontline Survival — Planejamento e Roadmap
 
-**Documento mestre do projeto** · Atualizado: 10/11/2026 · **Base de referência:** protótipo `0.7`; **versão de desenvolvimento:** `0.9.3` · **Situação:** planejamento; novas mecânicas somente após aprovação da etapa.
+**Documento mestre do projeto** · Atualizado: 10/11/2026 · **Base de referência:** protótipo `0.7`; **versão de desenvolvimento:** `0.9.11` · **Situação:** planejamento; novas mecânicas somente após aprovação da etapa.
 
 > **Visão:** FPS 3D offline de sobrevivência por ondas, com combate satisfatório, progressão, dinheiro, compras em estações e suporte tático. Inspiração de mecânicas: Survival dos FPS militares da geração PS3, com identidade, modelos, efeitos e sons próprios. **Não** copiar mapas, arquivos ou personagens de Call of Duty.
 
@@ -311,3 +311,26 @@ A [Etapa 6](docs/ETAPA_6_DESEMPENHO_TESTES_DISTRIBUICAO.md) especifica métricas
 
 **Próxima sprint real recomendada:** **M0**, primeiro homologar v0.9.3 e corrigir armas, cabeça/mãos dos aliados, recargas e linha de visão antes de aumentar a complexidade dos mapas. **Próxima rodada documental:** números de balanceamento e critérios de progressão com simulação, mantendo propostas identificadas.
 
+
+## 16. Sprint v0.9.11 — M0 QA e M2 diretor de ondas
+
+**Base real auditada:** main já estava na v0.9.10, com alterações de modelagem/mira e áudio gravado em WAV PCM feitas posteriormente à v0.9.3. Esta sprint foi feita sobre esse estado, preservando modelos, gravações, scripts de áudio e demais alterações dos colaboradores.
+
+**Referência histórica:** o Survival de MW3 (2011) usa ondas especiais cuja sequência muda por dificuldade/mapa. A distribuição abaixo é uma **regra original do Frontline**, não a alegação de uma sequência oficial do MW3. [Pesquisa](docs/PESQUISA_MW3_SURVIVAL_2011.md).
+
+| ID | Entrega | Estado | Evidência |
+|---|---|---|---|
+| V0911-01 | Centralizar regras de quantidade e tipos em `wave_rules.gd` | **CONCLUÍDO (CI)** | Integração Godot e teste das regras |
+| V0911-02 | Um pesado anunciado na onda 10 e um na 15; dois a partir da 20 nas ondas-marco | **PARCIAL (IMPLEMENTADO/CI)** | Simulação aprovada; avaliação real da curva pendente |
+| V0911-03 | Aviso textual discreto antes de combates com pesados, sem novos apitos | **PARCIAL (IMPLEMENTADO/CI)** | Cena headless verifica o aviso na onda 10; teste visual pendente |
+| V0911-04 | Testar composição de 50 ondas (limites de 55 por onda e 12 simultâneos) | **CONCLUÍDO (CI)** | 2.416 afirmações e 2.150 posições simuladas; **não** 50 ondas jogadas |
+| V0911-05 | Manter teste integrado de duas ondas reais e verificar gatilho da onda 10 | **CONCLUÍDO (CI)** | 475+ verificações do runtime |
+| V0911-06 | Preservar gravações de disparo/recarga, modelos e materiais da v0.9.10 | **CONCLUÍDO (REVISÃO DE ESCOPO)** | Nenhum WAV/GLB/material/script de áudio alterado nesta sprint |
+| V0911-07 | ZIP Windows v0.9.11 em GitHub Releases | **AGUARDANDO PUBLICAÇÃO** | Confirmar CI verde e assets da release |
+| V0911-08 | Jogar 15 ondas, ajustar balanceamento e avaliar FPS/áudio/rig no Windows | **PENDENTE** | Homologação real necessária |
+
+**M0:** permanece **PARCIAL**; a QA automatizada cresceu, mas G1 e teste de 15 ondas no Windows ainda faltam.  
+**M2 / Etapa 2:** permanece **PARCIAL**; composição de ondas-marco implementada, mas IA completa, navegação e balanceamento por mapa exigem trabalho futuro.  
+**Versão 1.0:** não alterar a definição de pronto: G1–G12 e aceite do jogo real continuam obrigatórios.
+
+[QA v0.9.11](docs/QA_V0_9_11.md) · [Notas de release](docs/releases/v0.9.11.md)
