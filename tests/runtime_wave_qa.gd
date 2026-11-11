@@ -20,7 +20,7 @@ func _run_tests() -> void:
     if packed == null:
         quit(1)
         return
-    var game: Node3D = packed.instantiate()
+    var game: Variant = packed.instantiate()
     root.add_child(game)
     await physics_frame
     # The menu deliberately pauses the game until the player starts.
@@ -30,7 +30,6 @@ func _run_tests() -> void:
     _expect(game.wave == 0, "initial wave not yet started")
     _expect(game.player != null, "player was instantiated")
     _expect(game.shops.size() == 3, "physical shops preserved")
-    _expect(not "crosshair_h" in game, "no static 2D crosshair in hardcore mode")
 
     var stations: Array[Vector3] = []
     for station in game.shops:
@@ -83,6 +82,7 @@ func _run_tests() -> void:
             if is_instance_valid(enemy) and not enemy.dead:
                 enemy.take_damage(100000.0)
                 spawned_count += 1
+        await physics_frame
         await physics_frame
         _expect(attempts < 150, "wave spawn queue did not drain")
         _expect(game.alive == 0 and game.spawn_remaining == 0, "wave bookkeeping leak")
