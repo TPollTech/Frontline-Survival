@@ -42,8 +42,31 @@ func _ready() -> void:
         if bone_index != -1:
             base_bone_rotations[bone_name] = skeleton.get_bone_pose_rotation(bone_index)
     _pose_weapon_arms()
+    if not _looks_like_a_person():
+        # Never show a broken humanoid to players. Enemy.gd will keep its
+        # existing procedural soldier body visible when valid is false.
+        push_warning("Quaternius rig failed pose sanity check; using fallback enemy")
+        imported_model.queue_free()
+        return
     _create_tactical_equipment()
     valid = true
+
+func _looks_like_a_person() -> bool:
+    skeleton.force_update_all_bone_transforms()
+    var bone_names: Array[String] = ["Head", "pelvis", "foot_l", "foot_r", "hand_l", "hand_r"]
+    var bone_y: Dictionary = {}
+    for name in bone_names:
+        var index: int = skeleton.find_bone(name)
+        if index < 0:
+            return false
+        bone_y[name] = skeleton.to_global(skeleton.get_bone_global_pose(index).origin).y
+    var head_y: float = bone_y["Head"]
+    var pelvis_y: float = bone_y["pelvis"]
+    var feet_y: float = (float(bone_y["foot_l"]) + float(bone_y["foot_r"])) * 0.5
+    return head_y > pelvis_y + 0.25 and pelvis_y > feet_y + 0.25 \
+        and head_y - feet_y < 2.4 and head_y - feet_y > 0.9 \
+        and float(bone_y["hand_l"]) < head_y - 0.04 \
+        and float(bone_y["hand_r"]) < head_y - 0.04
 
 func _find_skeleton(root: Node) -> Skeleton3D:
     if root is Skeleton3D:
