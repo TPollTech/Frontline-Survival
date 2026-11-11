@@ -137,9 +137,9 @@
 
 ## 6. Próxima decisão
 
-**Próximo trabalho recomendado: Etapa 0 — Estabilização.** Antes de criar modelos mais ambiciosos, confirmar a versão 0.7 rodando de ponta a ponta (compra de LMG, 15 ondas, morte, revive, reforços e menu). Registrar erros do Godot e medir FPS. Depois planejar e aprovar a **Etapa 1 — Armas e FPS** com referências visuais próprias e orçamento de assets.
+**Próximo trabalho recomendado: validar a build Windows 0.8 no notebook.** O GitHub Actions já confirmou importação, verificação estática e exportação, mas ainda faltam iniciar o executável no Windows, testar 15 ondas, compras, morte, revive, reforços, menus e registrar FPS. Depois corrigir eventuais bugs P0 antes de avançar para IA/armas mais ambiciosas.
 
-**Status das tarefas acima:** todas pendentes por padrão. Nada foi marcado como concluído sem execução e testes correspondentes.
+**Status:** entregas pequenas comprovadas em CI são **CONCLUÍDAS (CI)**; funcionalidades implementadas sem teste de partida são **PARCIAIS**; uma etapa inteira não é marcada como concluída sem seus critérios de aceite.
 
 ## 7. Especificações e registro de decisões (planejamento)
 
@@ -160,12 +160,28 @@ Os documentos abaixo detalham critérios e hipóteses sem autorizar implementaç
 
 | Documento | Situação documental | Implementação e QA |
 | --- | --- | --- |
-| Etapa 0 — Estabilidade | Especificada; 27 verificações de QA | **Pendente de execução no Godot/notebook** |
-| Etapa 1 — Armas e FPS | Especificada; propostas aguardam aprovação | Não iniciada |
+| Etapa 0 — Estabilidade | Especificada; 27 verificações de QA | **PARCIAL** — importação Godot 4.4.1, análise de scripts, integridade estática e exportação Windows passaram no CI; teste jogando 15 ondas no notebook pendente |
+| Etapa 1 — Armas e FPS | Especificada; propostas aguardam aprovação | **PARCIAL** — headshot visual âmbar na 0.8; rig profissional, armas e playtest pendentes |
 | Etapa 2 — Inimigos e ondas | **Especificada em 10/11/2026**; propostas aguardam aprovação | Não iniciada |
 | Etapa 3 — Economia e reforços | **Especificada em 10/11/2026**; preços finais e propostas pendentes de aprovação | Não iniciada |
 | Etapa 4 — Mapas | **Especificada em 10/11/2026**; layout de cinco setores e arquitetura ainda sujeitos a aprovação | Não iniciada |
-| Etapas 5–6 | Visão geral no roadmap; detalhamento pendente | Não iniciadas |
+| Etapas 5–6 | Visão geral no roadmap; detalhamento pendente | **PARCIAL** — aviso direcional do HUD e pipeline de exportação Windows 0.8, ainda sem teste real no Windows |
 | GDD consolidado | **Ainda não concluído**; consolidar após as etapas | Não aplicável |
 
-**Último avanço documental:** Etapa 4 especificada com Complexo Industrial multissetorial, mapa de conexões, arquitetura reutilizável, 18 testes M4 e decisões ainda abertas. Nenhum teste no Godot foi realizado. **Próxima rodada sugerida:** Etapa 5 — HUD, menus, áudio, estatísticas e acessibilidade.
+**Último avanço de produto:** versão 0.8 com indicador direcional de dano, feedback de headshot, workflow CI Godot e exportação Windows. A importação em Godot headless e o empacotamento passaram; **testes reais de gameplay permanecem pendentes**. O planejamento deve continuar pela Etapa 5 sem alterar o código automaticamente.
+
+## 9. Registro de implementação e evidências — 0.8 (10/11/2026)
+
+| ID | Incremento | Estado verificável | Evidência / pendência |
+| --- | --- | --- | --- |
+| V08-01 | Indicadores de ataque frente/direita/trás/esquerda | **PARCIAL** | Implementado em player.gd, enemy.gd e main.gd; ainda não observado no Windows real |
+| V08-02 | Feedback âmbar de headshot na retícula | **PARCIAL** | Implementado em main.gd; validar acertando a cabeça em jogo |
+| V08-03 | Menu e título com versão 0.8 | **PARCIAL** | Código atualizado; verificar aparência ao jogar |
+| V08-04 | Exportador automático Windows via GitHub Actions | **CONCLUÍDO (CI)** | [Execução bem-sucedida](https://github.com/TPollTech/Frontline-Survival/actions/runs/42935826696), com artefato EXE + PCK |
+| V08-05 | Importação Godot e checagens estáticas no CI | **CONCLUÍDO (CI)** | Steps de importação, testes e exportação aprovados na mesma execução |
+| V08-06 | Executável jogado e aprovado no Windows | **PENDENTE** | Requer teste em notebook Ryzen 5 7530U, 8 GB; captura de erros e métricas |
+| V08-07 | Estabilidade de 15 ondas com compras/reforços | **PENDENTE** | Regressão longa da Etapa 0 ainda não executada pelo jogador |
+
+**Regra das próximas versões:** entregar, quando houver build bem-sucedida, um ZIP Windows com EXE + PCK (se separado); anexar o link de build, changelog, status de cada tarefa e evidências. Se o workflow falhar, não chamar a versão de jogável. Documentos de planejamento continuam separados das entregas codificadas.
+
+[Download/testes do executável](docs/BUILD_WINDOWS.md) · [Histórico de versões](docs/CHANGELOG.md)
