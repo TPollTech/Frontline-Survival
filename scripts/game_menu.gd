@@ -126,7 +126,7 @@ func _build_options() -> void:
     _slider("Sensibilidade do mouse", "sensitivity", GameSettings.mouse_sensitivity, 0.35, 3.0, 0.05)
     _slider("Campo de visao (FOV)", "fov", GameSettings.field_of_view, 60.0, 100.0, 1.0)
     var layout_keys := Label.new()
-    layout_keys.text = "TECLADO: mouse atira/mira  |  F interage  |  E corpo a corpo\n1/2 armas  |  G granada  |  3 esquadrao  |  4 ataque aereo\nR recarga  |  C agachar  |  Shift correr  |  Esc pausar"
+    layout_keys.text = "TECLADO: mouse atira/mira  |  F interage  |  E corpo a corpo\n1/2 armas  |  G granada  |  3 esquadrao  |  4 ataque aereo\nR recarga  |  C/Ctrl agachar  |  Z deitar  |  Shift correr  |  Esc pausar"
     layout_keys.add_theme_color_override("font_color", Color(0.68, 0.78, 0.79))
     layout_keys.add_theme_font_size_override("font_size", 13)
     options.add_child(layout_keys)
@@ -138,7 +138,7 @@ func _build_options() -> void:
     game.text = "PARTIDA / ONDAS"
     game.add_theme_font_size_override("font_size", 16)
     options.add_child(game)
-    _slider("Intervalo entre ondas", "intermission", float(GameSettings.intermission_seconds), 45, 120, 15)
+    _slider("Intervalo entre ondas", "intermission", float(GameSettings.intermission_seconds), 30, 120, 15)
     _toggle("Reanimacao automatica no Campo de Testes", "training_respawns", GameSettings.training_respawns)
     var tip := Label.new()
     tip.text = "Teste: ondas sem limite e retorno ao combate apos cair.\nDesative a reanimacao para testar o modo classico (uma vida)."
