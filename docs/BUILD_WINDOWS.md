@@ -3,7 +3,7 @@
 **Projeto:** Frontline Survival  
 **Versão de desenvolvimento:** 0.9  
 **Entrega esperada:** arquivo ZIP contendo FrontlineSurvival.exe, FrontlineSurvival.pck (se o exportador usar pacote separado) e LEIA-ME.md.  
-**Status:** a [execução 0.9](https://github.com/TPollTech/Frontline-Survival/actions/runs/42941790033) concluiu importação, smoke test, integridade e exportação Windows; a experiência visual/jogabilidade no notebook ainda está em validação.
+**Status:** a [execução da release 0.9](https://github.com/TPollTech/Frontline-Survival/actions/runs/42943797046) concluiu importação, smoke test, integridade e exportação Windows, e publicou a [Release v0.9.0](https://github.com/TPollTech/Frontline-Survival/releases/tag/v0.9.0). A experiência visual/jogabilidade no notebook ainda está em validação.
 
 ## Baixar pelo GitHub Releases (padrão)
 
@@ -27,7 +27,7 @@ O download é público e não depende do link de anexo do ChatGPT. As releases s
 - Commits de documentação de planejamento não disparam exportações desnecessárias. O workflow também pode ser iniciado manualmente na aba Actions.
 - Não marcar uma etapa do ROADMAP como 100% concluída sem teste real de jogo. CI verde comprova compilação/exportação, não gameplay.
 
-**Aviso:** a primeira publicação em Releases depende de o job GitHub Actions ter permissão de criar tags e releases com seu `GITHUB_TOKEN`; o workflow foi configurado para usar apenas `contents: write`.
+**Publicação confirmada:** a primeira release v0.9.0 foi criada automaticamente pelo GitHub Actions com permissão `contents: write`, contendo ZIP Windows e arquivo SHA-256 de integridade. Novas versões usarão esse mesmo processo quando o número de versão for incrementado e o CI passar.
 
 ## O que significa teste concluído
 
