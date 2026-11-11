@@ -1,10 +1,18 @@
-# Frontline Survival 0.9.3 — Campo de Testes
+# Frontline Survival 0.9.11 — Campo de Testes
 
 **Projeto Godot 4.x Standard, FPS 3D offline para Windows**, com renderizador **Compatibility** e alvo inicial Ryzen 5 7530U / 8 GB RAM. Projeto original inspirado em mecânicas do gênero *Survival por ondas*. **Não contém modelos, áudio ou outros arquivos do Call of Duty.**
 
-A versão **0.9.3** preserva o sistema de spawns e o ciclo das ondas e corrige três problemas relatados: cabeça solta do suporte aliado, armas visualmente geométricas e som de recarga irritante. Agora há texturas originais, detalhes 3D, cinco sons mecânicos e recuperação de NPCs presos em obstáculos. **O acabamento visual e sonoro ainda precisa de avaliação jogando.**
+A versão **0.9.11** preserva as melhorias do Astra e do Sol nas armas e nos **sons gravados em PCM sem perdas** da v0.9.10. Este incremento aprimora o diretor de ondas: um pesado anunciado na onda 10, um na 15 e dois nas ondas-marco a partir da 20, com avisos visuais discretos. Inclui teste de 50 composições simuladas e mantém os testes de duas ondas reais no Godot. **A aparência, o áudio no Windows e 15 ondas jogadas ainda precisam de homologação.**
 
-## Novidades pontuais da 0.9.3
+## Novidades da 0.9.11
+
+- **Ondas especiais:** ameaças blindadas anunciadas por texto (sem apitos), com progressão mais justa.
+- **Regras separadas:** scripts próprios para composição, quantidade e limites das ondas.
+- **Mais QA:** 50 ondas simuladas e duas ondas reais no teste automatizado, preservando o limite simultâneo de 12 inimigos.
+- **Áudio preservado:** cinco disparos e cinco recargas com gravações WAV/PCM da versão 0.9.10, sem ressuscitar sons antigos.
+- **Objetivo v1.0:** continuar M0 (estabilização) e M2 (diretor de ondas) mantendo o mapa de testes e o hardware-alvo.
+
+## Histórico da 0.9.3
 
 - **Suporte aliado:** cabeça, capacete e máscara conectados ao torso com pescoço/gola.
 - **Armas texturizadas:** metal e polímero com mapas procedurais, preservando cores originais e o desempenho.
@@ -27,7 +35,7 @@ A versão **0.9.3** preserva o sistema de spawns e o ciclo das ondas e corrige t
 - **Cinco armas com modelos 3D modulares**: corpo, carregador (quando aplicável) e mecanismo móvel (ferrolho/corrediça ou pump). São arquivos GLB gerados do zero, leves, e não cópias de outras franquias.
 - **Recarga em estágios**: inclina o conjunto, desloca o carregador, reinsere e movimenta o mecanismo. A escopeta movimenta o guarda-mão/pump. Ainda é uma animação procedural simplificada, não captura de movimento profissional.
 - **Animações contextuais**: troca de arma, recuo por disparo, balanço ao andar, arma abaixada ao correr, movimento de mão durante a recarga e golpe corpo a corpo.
-- **Cinco sons originais sintetizados** de tiro (pistola, SMG, fuzil, escopeta e metralhadora). São sons provisórios e foram normalizados com margem contra clipping. Volumes continuam ajustáveis no menu.
+- **Áudio atual:** cinco disparos e cinco recargas gravados em WAV PCM (atualizados nas versões 0.9.4–0.9.10). Os sons sintetizados anteriores foram substituídos; fontes e licenças das gravações estão documentadas nas notas da v0.9.5. Volumes continuam ajustáveis no menu. Volumes continuam ajustáveis no menu.
 
 ### Soldados e feedback de combate
 - Inimigos com **quadril, joelhos, ombros e cotovelos animados**: caminhada com flexão de joelho, arma posicionada à frente, recuo, breve reação a impactos e queda ao morrer.
