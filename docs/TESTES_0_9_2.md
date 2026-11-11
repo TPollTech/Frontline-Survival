@@ -12,7 +12,7 @@
 | 092-04 | Cena real + duas ondas completas | Instancia NPCs e contabiliza abates, fila, vivos e preparação | **CONCLUÍDO (CI)** |
 | 092-05 | Paleta importada da arma inicial | Runtime testa material que habilita cores COLOR_0 | **CONCLUÍDO (CI)**, visual ainda pendente |
 | 092-06 | Dois soldados aliados | Instancia equipe e processa 12 quadros de animação | **CONCLUÍDO (CI)**, pose visual ainda pendente |
-| 092-07 | GitHub Release Windows | ZIP, EXE, PCK e SHA256 publicados após CI verde | **A confirmar na release v0.9.2** |
+| 092-07 | GitHub Release Windows | ZIP, EXE, PCK e SHA256 publicados após CI verde | **CONCLUÍDO (CI + RELEASES)** — [build aprovada](https://github.com/TPollTech/Frontline-Survival/actions/runs/42949035024) e [ZIP v0.9.2](https://github.com/TPollTech/Frontline-Survival/releases/tag/v0.9.2) |
 | 092-08 | Jogar 15 ondas com compras e reforços | Sessão completa com queda de FPS e RAM | **PENDENTE** |
 | 092-09 | Spawn justo durante combate real | Jogar perto das bordas e estações com 12 inimigos ativos | **PENDENTE** |
 | 092-10 | Ausência de regressões da 0.9.1 | Cores das cinco armas, mira sem crosshair, aliados e sons | **PENDENTE** |
