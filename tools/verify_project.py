@@ -96,6 +96,16 @@ for fragment in (
 ):
     require(fragment in main, f"Missing continuous-survival feature: {fragment}")
 require("KEY_B" not in main, "Fast-shop B was restored by mistake")
+# Wave-rule regression: specials are declared, limited and tested without
+# reverting any recorded weapon audio or the most recent model updates.
+require("WaveRules.total_enemies(wave)" in main, "Wave Director batch rule not connected")
+require("WaveRules.kind_for_spawn(" in main, "Wave Director enemy composition not connected")
+require("WaveRules.wave_alert(wave)" in main, "Milestone heavy needs a visual warning")
+rules = sources.get("wave_rules", "")
+require("func heavy_count(" in rules and "func total_enemies(" in rules,
+        "Pure wave rule model is missing")
+require((ROOT / "tests/wave_rules_qa.gd").is_file(),
+        "Deterministic 50-wave CI regression is missing")
 require("crosshair_h" not in main and "crosshair_v" not in main,
         "Hardcore aiming: 2D crosshair accidentally restored")
 require("sight_height" in player and "camera.rotation.x = clampf" in player,
