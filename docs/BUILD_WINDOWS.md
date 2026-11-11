@@ -45,7 +45,7 @@ Se a exportação falhar, verificar os logs da execução, corrigir e recompilar
 - [ ] Abre pelo EXE, sem Godot.
 - [ ] Menu inicial, configurações e pausa aparecem.
 - [ ] Movimento WASD, mouse esquerdo/direito e F em lojas.
-- [ ] Na onda 1, eliminar todos os inimigos inicia os 75 segundos de preparação, não encerra a partida.
+- [ ] Na onda 1, eliminar todos os inimigos inicia 30 segundos de preparação por padrão (ou o intervalo salvo no menu), sem encerrar a partida. Conferir resumo de onda e metas sem bloquear a loja.
 - [ ] As armas, especialmente a escopeta, estão inteiras e opacas, sem faces vazadas.
 - [ ] As mãos do jogador e dos soldados estão próximas das regiões corretas de empunhadura.
 - [ ] Ao tomar tiro, aparece brevemente o indicador de direção no centro da tela (frente/direita/trás/esquerda).
@@ -65,3 +65,14 @@ O EXE não está assinado digitalmente. O Windows pode apresentar aviso de reput
 ## Integração de duas ondas na 0.9.2
 
 A partir da 0.9.2, o workflow exige `tests/runtime_wave_qa.gd` antes de exportar: abre o Campo de Testes em modo headless, verifica pontos de spawn, bloqueios e duas transições de onda com sinais de abate. Uma falha interrompe o ZIP e a release. O teste é automatizado e **não substitui sessão real de 15 ondas nem validação de FPS/qualidade visual**.
+
+
+## QA acrescentada na v0.9.15 — Núcleo Survival e Quaternius renderizado
+
+A pipeline agora executa \`tests/survival_features_qa.gd\` para validar dinheiro por kills/challenges, precisão e headshot, além da integração de lojas, attachments, perks, prone e Última Chance. Um estágio Xvfb renderiza um humanoide Quaternius para produzir \`docs/qa/humanoid_current.png\`. **O teste de ossos da v0.9.14 não bastou para garantir aparência correta**; inspecionar o PNG gerado e solicitar avaliação em Windows.
+
+- Não publicar release se GDScript não importar ou teste falhar.
+- Conferir log \`QA_SURVIVAL_FEATURES_PASS\`, \`QA_RUNTIME_PASS\`, \`QA_HUMANOID_SNAPSHOT_PASS\` e exportação Windows.
+- A captura de imagem verifica a malha real, mas não garante animação profissional, FPS ou mãos corretamente empunhando em todas as poses.
+- Entregar sempre ZIP Windows/EXE/PCK/SHA256 em Releases numeradas.
+- Após lançar, testar 15 ondas com configuração 30 s e também 75 s já salva, combinando perks, acessórios, compras de kit e Last Stand.
