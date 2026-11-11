@@ -272,8 +272,8 @@ A [Etapa 6](docs/ETAPA_6_DESEMPENHO_TESTES_DISTRIBUICAO.md) especifica métricas
 | V093-05 | IA: sondar paredes e desviar lateralmente sem teleportar inimigos | **PARCIAL** — código integrado, precisa de teste de obstáculos |
 | V093-06 | IA: detectar perseguição sem avanço e disparar recuperação | **PARCIAL** — código integrado, precisa de playtest |
 | V093-07 | Aliados: desvio leve e recuperação ao seguir jogador/inimigos | **PARCIAL** — código integrado; teste em jogo pendente |
-| V093-08 | Integridade: 100+ spawns, duas ondas, dois aliados, textura e áudio | **CONCLUÍDO (CI)** após job verde |
-| V093-09 | Release Windows v0.9.3 com ZIP/EXE/PCK/SHA-256 | **CONCLUÍDO (CI + RELEASES)** após publicação |
+| V093-08 | Integridade: 100+ spawns, duas ondas, dois aliados, textura e áudio | **CONCLUÍDO (CI)** — [testes aprovados](https://github.com/TPollTech/Frontline-Survival/actions/runs/43009563242) |
+| V093-09 | Release Windows v0.9.3 com ZIP/EXE/PCK/SHA-256 | **CONCLUÍDO (CI + RELEASES)** — [publicação verificada](https://github.com/TPollTech/Frontline-Survival/releases/tag/v0.9.3) |
 | V093-10 | Inspeção visual e sessão real de 15 ondas | **PENDENTE** |
 
 **Auditoria e proteção:** a 0.9.3 foi aplicada sobre a branch \`main\` atual do repositório, sem substituir o jogo pelo patch antigo feito a partir do 0.7. O código, os GLBs, os WAVs e as texturas são enviados ao GitHub; o pipeline exporta somente depois que os testes passam. **Etapas 1, 2 e 3 seguem parciais** até a homologação jogando.
