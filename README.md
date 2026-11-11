@@ -35,7 +35,7 @@ A versão **0.9.11** preserva as melhorias do Astra e do Sol nas armas e nos **s
 - **Cinco armas com modelos 3D modulares**: corpo, carregador (quando aplicável) e mecanismo móvel (ferrolho/corrediça ou pump). São arquivos GLB gerados do zero, leves, e não cópias de outras franquias.
 - **Recarga em estágios**: inclina o conjunto, desloca o carregador, reinsere e movimenta o mecanismo. A escopeta movimenta o guarda-mão/pump. Ainda é uma animação procedural simplificada, não captura de movimento profissional.
 - **Animações contextuais**: troca de arma, recuo por disparo, balanço ao andar, arma abaixada ao correr, movimento de mão durante a recarga e golpe corpo a corpo.
-- **Áudio atual:** cinco disparos e cinco recargas gravados em WAV PCM (atualizados nas versões 0.9.4–0.9.10). Os sons sintetizados anteriores foram substituídos; fontes e licenças das gravações estão documentadas nas notas da v0.9.5. Volumes continuam ajustáveis no menu. Volumes continuam ajustáveis no menu.
+- **Áudio atual:** cinco disparos e cinco recargas gravados em WAV PCM (atualizados nas versões 0.9.4–0.9.10). Os sons sintetizados anteriores foram substituídos; fontes e licenças das gravações estão documentadas nas notas da v0.9.5. Volumes continuam ajustáveis no menu.
 
 ### Soldados e feedback de combate
 - Inimigos com **quadril, joelhos, ombros e cotovelos animados**: caminhada com flexão de joelho, arma posicionada à frente, recuo, breve reação a impactos e queda ao morrer.
@@ -58,8 +58,8 @@ A versão **0.9.11** preserva as melhorias do Astra e do Sol nas armas e nos **s
 **Download principal: [Releases do Frontline Survival](https://github.com/TPollTech/Frontline-Survival/releases).** Versões publicadas possuem número, changelog e ZIP próprio.
 
 1. Entre em **[Releases](https://github.com/TPollTech/Frontline-Survival/releases)**.
-2. Abra a versão mais recente, atualmente `v0.9.3` (pré-lançamento de testes).
-3. Na seção **Assets**, baixe **FrontlineSurvival-v0.9.3-Windows.zip** (o nome acompanha o número da versão futura).
+2. Abra a versão mais recente, atualmente `v0.9.11` (pré-lançamento de testes).
+3. Na seção **Assets**, baixe **FrontlineSurvival-v0.9.11-Windows.zip** (o nome acompanha o número da versão futura).
 4. Extraia o ZIP inteiro para uma pasta, mantendo `FrontlineSurvival.exe` e `FrontlineSurvival.pck` juntos.
 5. Execute `FrontlineSurvival.exe`. **Não é necessário abrir o editor Godot.**
 
