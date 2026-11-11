@@ -99,12 +99,20 @@ require("KEY_B" not in main, "Fast-shop B was restored by mistake")
 require("KEY_F" not in player, "F should be interaction only, never shoot")
 for fragment in ('func _animate_viewmodel(', 'magazine_part.position', 'action_part.position', 'reload_elapsed', 'shot_anim'):
     require(fragment in player, f"Weapon animation missing: {fragment}")
-for fragment in ('LeftHip', 'RightHip', 'Knee', 'Elbow', 'func take_damage(', 'stagger_remaining', 'visual_root', 'func _pose_weapon_arm('):
+for fragment in ('LeftHip', 'RightHip', 'Knee', 'Elbow', 'func take_damage(', 'stagger_remaining', 'visual_root', 'ArmPose.align_hand('):
     require(fragment in enemy, f"Articulated enemy animation missing: {fragment}")
-for fragment in ('LeftHip', 'RightHip', 'FriendlyPatch', 'func _physics_process(', 'func _pose_support_arm('):
+for fragment in ('LeftHip', 'RightHip', 'FriendlyPatch', 'func _physics_process(', 'ArmPose.align_hand('):
     require(fragment in ally, f"Ally visual or AI missing: {fragment}")
-for fragment in ('viewmodel_scale', 'viewmodel_depth'):
-    require(fragment in player, f"Weapon viewmodel clipping fix missing: {fragment}")
+for fragment in ('viewmodel_scale', 'viewmodel_depth', 'GunMaterials.apply_colors'):
+    require(fragment in player, f"Weapon viewmodel repair missing: {fragment}")
+require("GunMaterials.apply_colors" in enemy and "GunMaterials.apply_colors" in ally,
+        "NPC weapon palette setup missing")
+material_code = (ROOT / 'scripts/weapon_materials.gd').read_text(encoding='utf-8')
+require('vertex_color_use_as_albedo = true' in material_code,
+        "Godot imported weapon models must use glTF vertex color attribute COLOR_0")
+pose_code = (ROOT / 'scripts/weapon_pose.gd').read_text(encoding='utf-8')
+require('func align_hand(' in pose_code and 'upper_length' in pose_code,
+        "Shared two-bone arm solver missing")
 require('intermission_seconds: int = 75' in settings, "Default break should still be 75 seconds")
 require('training_respawns: bool = true' in settings, "Training respawn should remain enabled")
 require('1280' in (ROOT / 'project.godot').read_text(), "Missing 720p target")
