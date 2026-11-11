@@ -1,10 +1,25 @@
-# Frontline Survival 0.9.14 — Campo de Testes
+# Frontline Survival 0.9.15 — Campo de Testes
 
 **Projeto Godot 4.x Standard, FPS 3D offline para Windows**, com renderizador **Compatibility** e alvo inicial Ryzen 5 7530U / 8 GB RAM. Projeto original inspirado em mecânicas do gênero *Survival por ondas*. **Não contém modelos, áudio ou outros arquivos do Call of Duty.**
 
-A versão **0.9.14** corrige um problema grave da 0.9.13, identificado em screenshot do usuário: o humanoide do Quaternius aparecia com os braços para cima e a malha deformada. A causa era uma substituição incorreta das rotações de repouso dos ossos. Agora a animação preserva a pose original, os testes conferem posições de cabeça, pés e mãos, e o personagem volta ao soldado antigo se o rig ficar inválido. **Não use a 0.9.13; a 0.9.14 está disponível no GitHub Releases.** A avaliação visual da nova pose no Windows ainda é necessária.
+A versão **0.9.15** implementa os recursos centrais pedidos: **perks, Última Chance, recompensas de metas, relatório estatístico ao concluir ondas, 30 segundos de intervalo padrão, Red Dot/Silenciador compráveis em todas as cinco armas, agachar e deitar**. Os modelos e WAVs gravados anteriores foram preservados. O soldado Quaternius continua experimental; esta versão acrescenta uma **captura renderizada de QA** para verificar a malha além das coordenadas dos ossos. **A jogabilidade real e o visual ainda precisam de avaliação no Windows.**
 
-## Hotfix 0.9.14 — Esqueleto humano corrigido
+## Novidades da 0.9.15 — Núcleo Survival
+
+- **Preparação entre ondas:** 30 segundos padrão em novas instalações; preferência antiga (como 75 s) continua salva; N antecipa.
+- **Relatório:** abates pessoais, headshots fatais, precisão por disparo, tempo, dano e dinheiro por fonte.
+- **Metas:** Rampage, Killstreak, Headshots, Quad Kill; duas por onda, +$500 cada quando alcançada.
+- **Armas:** Red Dot, Holográfica, Silenciador e Compensador, adquiridos na estação **Armas** por arma, sem acessórios no início. Silenciador filtra o WAV gravado, sem efeitos sintetizados.
+- **Perks:** Recarga Ágil, Mira Firme, Reação Rápida, Mobilidade e Resistência na estação de Suporte; um ativo por vez.
+- **Última Chance:** cair, usar pistola de emergência por dez segundos e tentar eliminar um inimigo para se levantar; Kit de Reanimação pode ser comprado em Equipamentos.
+- **Posturas:** C/Ctrl agacha e Z deita; colisão e altura da câmera acompanham o movimento.
+- **Lojas paginadas:** teclas Q/E ou botões Anterior/Próxima para acessar todos os itens.
+- **Quaternius:** ainda um único soldado por onda, com captura visual renderizada no CI e fallback ao modelo anterior se o rig falhar.
+- **Sem novos mapas nem ondas:** prioridade em aperfeiçoar o Campo de Testes.
+
+[Notas v0.9.15](docs/releases/v0.9.15.md) · [Checklist de QA](docs/QA_V0_9_15.md).
+
+## Histórico: Hotfix 0.9.14 — Esqueleto humano corrigido
 
 - Corrigidas rotações dos ossos: a animação agora parte da pose original, sem torcer braços, pernas e tronco.
 - Adicionados testes estruturais de posição das mãos e das articulações, e fallback ao soldado antigo se o modelo deformar.
@@ -73,7 +88,7 @@ A versão **0.9.14** corrige um problema grave da 0.9.13, identificado em screen
 ### Funcionalidades intencionalmente mantidas
 - **Campo de Testes permanente**, incluindo **a textura original do asfalto** e as três estações físicas.
 - **Sem menu rápido pelo B**: use **F perto da estação** de armas, equipamentos ou suporte.
-- **Ondas sucessivas/infinitas**, sem encerrar automaticamente depois da primeira. Entre ondas, **75 s** por padrão, configuráveis de 45 a 120 s; tecla **N** opcional para antecipar.
+- **Ondas sucessivas/infinitas**, sem encerrar automaticamente depois da primeira. Entre ondas, **30 s** por padrão em novas instalações, configuráveis de 30 a 120 s (preferências antigas preservadas); tecla **N** opcional para antecipar.
 - **Modo de testes com reanimação**, mantendo número da onda, armas, dinheiro e abates. Modo de uma vida continua disponível nas configurações.
 - **$1.200** iniciais no Campo de Testes para experimentar armas.
 - Inimigos mudam de armamento por faixa de ondas (escopeta → SMG → fuzil → LMG).
@@ -85,8 +100,8 @@ A versão **0.9.14** corrige um problema grave da 0.9.13, identificado em screen
 **Download principal: [Releases do Frontline Survival](https://github.com/TPollTech/Frontline-Survival/releases).** Versões publicadas possuem número, changelog e ZIP próprio.
 
 1. Entre em **[Releases](https://github.com/TPollTech/Frontline-Survival/releases)**.
-2. Abra a versão mais recente, atualmente `v0.9.14` (pré-lançamento de testes).
-3. Na seção **Assets**, baixe **FrontlineSurvival-v0.9.14-Windows.zip** (o nome acompanha o número da versão futura).
+2. Abra a versão mais recente, atualmente `v0.9.15` (pré-lançamento de testes).
+3. Na seção **Assets**, baixe **FrontlineSurvival-v0.9.15-Windows.zip** (o nome acompanha o número da versão futura).
 4. Extraia o ZIP inteiro para uma pasta, mantendo `FrontlineSurvival.exe` e `FrontlineSurvival.pck` juntos.
 5. Execute `FrontlineSurvival.exe`. **Não é necessário abrir o editor Godot.**
 
