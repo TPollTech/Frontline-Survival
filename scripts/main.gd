@@ -87,6 +87,7 @@ var threat_durations: Array[float] = [0.0, 0.0, 0.0, 0.0]
 var hud: Label
 var ammo_hud: Label
 var support_hud: Label
+var challenges_hud: Label
 var waves_hud: Label
 var wave_progress: ProgressBar
 var health_bar: ProgressBar
@@ -1032,9 +1033,11 @@ func _create_ui() -> void:
     _hud_panel(root, Vector2(976, 614), Vector2(288, 93))
     ammo_hud = _add_label(root, Vector2(996, 626), Vector2(252, 75), 21)
     ammo_hud.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-    support_hud = _add_label(root, Vector2(962, 57), Vector2(299, 35), 14)
+    support_hud = _add_label(root, Vector2(960, 60), Vector2(304, 54), 13)
     support_hud.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
     support_hud.add_theme_color_override("font_color", Color(0.70, 0.86, 0.87))
+    challenges_hud = _add_label(root, Vector2(20, 115), Vector2(530, 36), 15)
+    challenges_hud.add_theme_color_override("font_color", Color(0.73, 0.84, 0.72))
     help_hud = _add_label(root, Vector2(406, 667), Vector2(474, 30), 18)
     help_hud.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
     help_hud.add_theme_color_override("font_color", Color(0.93, 0.87, 0.65))
@@ -1215,10 +1218,17 @@ func _refresh_ui() -> void:
         wave_progress.value = 100.0 * (1.0 - float(alive + spawn_remaining) / float(maxi(total, 1)))
     var gun_name: String = SurvivalPlayer.WEAPONS[player.weapon_id]["name"]
     ammo_hud.text = "%s\n%d  /  %d%s" % [gun_name.to_upper(), player.magazines[player.weapon_id], player.reserves[player.weapon_id], "   RECARREGANDO" if player.reloading else ""]
-    support_hud.text = "G %d  |  3 REFORCO %d  |  4 AEREO %d  |  KIT %d  |  %s" % [
+    support_hud.text = "G %d  |  3 REFORCO %d  |  4 AEREO %d\nKIT %d  |  PERK: %s" % [
         grenades, ally_tokens, airstrike_tokens, player.self_revive_kits,
-        player.active_perk.to_upper() if player.active_perk != "" else "SEM PERK"
+        player.active_perk.to_upper() if player.active_perk != "" else "NENHUM"
     ]
+    if phase == "wave" and not player.downed:
+        challenges_hud.text = "METAS (+$500): %s  /  %s" % [
+            round_stats.active_challenges[0], round_stats.active_challenges[1]
+        ]
+    else:
+        challenges_hud.text = ""
+    challenges_hud.visible = phase == "wave" and not shop_open and not player.dead
     var shop_near := _nearest_shop() if not player.dead else ""
     var loot_near := _nearest_loot() if not player.dead else null
     if shop_open:
