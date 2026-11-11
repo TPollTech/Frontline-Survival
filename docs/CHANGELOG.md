@@ -2,7 +2,7 @@
 
 ## 0.9 — Correção visual de armas e empunhadura (em validação)
 
-**Estado inicial:** implementação no código e gerador de modelos, aguardando conclusão de CI e testes visuais no Windows. **Etapa 1: PARCIAL. Etapa 2 (representação dos soldados): PARCIAL.** Não considerar aprovado apenas por compilar.
+**Estado de entrega:** **CI CONCLUÍDO** na [execução Windows 0.9](https://github.com/TPollTech/Frontline-Survival/actions/runs/42941790033): modelos regenerados, importação Godot 4.4.1, smoke test headless, integridade estática, exportação e artifact ZIP aprovados. Os 19 GLBs corrigidos foram [commitados no GitHub](https://github.com/TPollTech/Frontline-Survival/commit/680a86643ac51841cbe835d8dd8e194b4079c8f7). **Etapas 1 e 2: PARCIAIS**, pois visual, animação e jogabilidade real ainda precisam de aprovação do jogador.
 
 **Correções:**
 - Corrigida a orientação invertida das faces dos blocos chanfrados e dos anéis da boca do cano no gerador 3D: faces antes ocultas pelo backface culling devem voltar a aparecer.
