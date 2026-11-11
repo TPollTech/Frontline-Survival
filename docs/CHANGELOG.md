@@ -2,7 +2,7 @@
 
 ## 0.8 — Feedback tático e pipeline Windows (em validação)
 
-**Status técnico:** recursos implementados no código, ainda exigem validação do workflow Godot e teste real no Windows. **Etapas 1 e 5: PARCIAIS. Etapa 0: EM TESTES.**
+**Status técnico:** recursos implementados e exportados com êxito pelo Godot 4.4.1 no GitHub Actions; importação, smoke test headless e integridade estática aprovados. **Etapas 1 e 5: PARCIAIS (teste real pendente). Etapa 0: PARCIAL (CI aprovado, sessão de 15 ondas pendente). Exportação Windows: CONCLUÍDA (CI).** [Execução validada](https://github.com/TPollTech/Frontline-Survival/actions/runs/42936566841).
 
 ### Entregas neste incremento
 - Indicadores de direção do tiro recebido: frente, direita, trás e esquerda, temporários, sem ocupar permanentemente o HUD.
