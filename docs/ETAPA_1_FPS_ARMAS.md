@@ -207,3 +207,41 @@ Nesta etapa, validar:
 | Modelos externos | Apenas originais ou licenciados com registro | Regra de produção proposta |
 
 **Próximo passo após Etapa 0:** aprovar estética, arma piloto e lista de estados de animação antes de criar modelos ou alterar scripts.
+
+
+---
+
+## 13. Revisão de escopo — attachments e posturas (11/11/2026)
+
+**Solicitação expressa:** personalização das cinco armas por compras individuais na estação física do arsenal, Red Dot/Silenciador inicialmente ausentes, além de agachar e deitar realmente. A aparência de arma "quadrada" e as deformações de humanoide ainda exigem qualidade antes de expandir mapas. [Especificação integral](NUCLEO_SURVIVAL_PERKS_ATTACHMENTS_MOVIMENTO.md).
+
+### Attachments obrigatórios no núcleo
+
+1. Toda arma comprada e toda arma básica recolhida inicia **sem attachment**.
+2. **Todas as cinco famílias** (pistola, SMG, fuzil, shotgun, LMG) precisam suportar *Red Dot + Silenciador* comprados separadamente e equipáveis juntos.
+3. Holográfica, grip, compensador ou choke podem ser alternativas compatíveis por classe; não é necessário um gunsmith complexo.
+4. A mira adicional existe como **modelo 3D**, alinhado ao disparo em ADS. Proibida retícula fixa no centro da tela, conforme decisão anterior.
+5. Silenciador com modelo próprio, **efeito e áudio WAV apropriado**; não reutilizar som sintetizado inadequado ou apenas reduzir volume sem verificar o resultado.
+6. Trocar arma preserva os attachments dessa arma na sessão, sem multiplicar estatísticas. Arma do chão não herda acessório do jogador por engano.
+7. Preços/atributos numéricos são **propostas** até balanceamento real.
+
+### Agachado / deitado
+
+- \`C\`/\`Ctrl\` agachar, \`Z\` deitar como configuração proposta. Implementação atual de \`C\`/\`Ctrl\` só altera velocidade — **incompleta**.
+- A postura deve reconfigurar altura da câmera e da \`CapsuleShape3D\`, a origem do tiro e ADS, com interpolação suave e teste de teto para levantar.
+- Deitar não permite correr/saltar; rastejamento lento, recoil e visão específicos. Não escalar colisor global nem atravessar sólidos.
+- Validar cinco armas e anexos em pé/agachado/deitado.
+
+### Critérios de aceite adicionais
+
+| ID | Verificação | Status |
+| --- | --- | --- |
+| A1-13 | cinco armas básicas sem mira extra/silenciador no início | **PENDENTE** |
+| A1-14 | Red Dot + Silenciador juntos por arma; compra sem saldo, troca e drop | **PENDENTE** |
+| A1-15 | visor e ponto de tiro alinhados em ADS para cada arma e acessório | **PENDENTE** |
+| A1-16 | sons e visual do disparo com silenciador coerentes, sem beep | **PENDENTE** |
+| A1-17 | agachar muda altura física, não só movimento | **PARCIAL** (só velocidade hoje) |
+| A1-18 | deitar/rastejar e levantar sem atravessar teto ou atravessar obstáculos | **PENDENTE** |
+| A1-19 | FPS e estabilidade com os acessórios equipados + NPCs no Campo de Testes | **PENDENTE** |
+
+**Ordem:** CT-03 (posturas) e CT-04 (attachments), depois de garantir o básico do Campo de Testes; sem implementar nova arena nesta etapa. **Nenhuma mudança de código nesta rodada documental.**
