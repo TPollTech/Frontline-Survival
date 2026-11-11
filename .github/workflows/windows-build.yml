@@ -106,6 +106,24 @@ jobs:
             exit 1
           fi
 
+      - name: Rendered humanoid QA - actual GLB skinning under Xvfb
+        shell: bash
+        run: |
+          set -o pipefail
+          command -v xvfb-run
+          timeout 55s xvfb-run -a -s '-screen 0 1280x720x24' \
+            godot --path . --rendering-driver opengl3 --script res://tests/humanoid_qa_snapshot.gd 2>&1 | tee godot-humanoid-render.log
+          grep -q 'QA_HUMANOID_SNAPSHOT_PASS' godot-humanoid-render.log
+          test -s docs/qa/humanoid_current.png
+
+      - name: Upload rendered soldier QA screenshot
+        uses: actions/upload-artifact@v4
+        with:
+          name: Frontline-Humanoid-QA-${{ github.sha }}
+          path: docs/qa/humanoid_current.png
+          retention-days: 30
+          if-no-files-found: error
+
       - name: Static integrity tests
         run: |
           python tools/verify_project.py
@@ -162,7 +180,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add assets/models/*.glb assets/textures/weapon_*.png assets/audio/reloads/*.wav
+          git add assets/models/*.glb assets/textures/weapon_*.png assets/audio/reloads/*.wav docs/qa/humanoid_current.png
           if git diff --cached --quiet; then
             echo "Generated game assets already synchronized."
           else
