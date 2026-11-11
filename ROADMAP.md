@@ -279,3 +279,35 @@ A [Etapa 6](docs/ETAPA_6_DESEMPENHO_TESTES_DISTRIBUICAO.md) especifica métricas
 **Auditoria e proteção:** a 0.9.3 foi aplicada sobre a branch \`main\` atual do repositório, sem substituir o jogo pelo patch antigo feito a partir do 0.7. O código, os GLBs, os WAVs e as texturas são enviados ao GitHub; o pipeline exporta somente depois que os testes passam. **Etapas 1, 2 e 3 seguem parciais** até a homologação jogando.
 
 [QA v0.9.3](docs/TESTES_0_9_3.md) · [Notas de release](docs/releases/v0.9.3.md).
+
+## 15. Plano fechado proposto para o lançamento v1.0 (11/11/2026)
+
+**Objetivo:** terminar um jogo Survival completo, não um projeto com atualizações infinitas. As ondas do modo clássico continuam ilimitadas; **o desenvolvimento da v1.0 termina quando os 12 gates de qualidade do GDD são cumpridos.**
+
+### Documentos novos e sua função
+
+| Documento | Função | Estado |
+| --- | --- | --- |
+| [Pesquisa de MW3 Survival 2011](docs/PESQUISA_MW3_SURVIVAL_2011.md) | Manual oficial, cobertura contemporânea e guias; fatos separados de propostas | **CONCLUÍDO (PESQUISA)** |
+| [GDD mestre v1.0](docs/GDD_V1_0.md) | O que entra/não entra, começo/meio/fim da experiência, conteúdo e 12 gates de aceitação | **CONCLUÍDO (DOCUMENTAÇÃO); PROPOSTAS NÃO APROVADAS** |
+| [Plano M0–M8](docs/PLANO_ENTREGA_V1_0.md) | Implementação sequenciada, dependências, aceitação e critérios para v1.0.0 | **CONCLUÍDO (DOCUMENTAÇÃO)** |
+| [Backlog v1.1+](docs/BACKLOG_1_1_PLUS.md) | Expansões separadas para não atrasar 1.0 | **CONCLUÍDO (DOCUMENTAÇÃO)** |
+
+### Limite de escopo proposto
+
+- **Versão 1.0:** 1 mapa definitivo **Complexo Industrial**, mais Campo de Testes; cinco famílias de armas realmente distintas; inimigos básicos/corredor/fuzileiro/pesado; três lojas físicas; três apoios; ondas infinitas; duas dificuldades; recordes/patentes offline; Windows Releases.
+- **Depois da 1.0:** novos mapas, helicópteros, cães/bombas, multiplayer, veículos, grandes árvores de acessórios e outros conteúdos não essenciais.
+- **Não perder decisões estabelecidas:** solo offline, 75 s de preparação configurável 45–120, F nas lojas, sem crosshair 2D, asfalto do Campo de Testes preservado e reforços 3/4.
+
+### Marcos de produção
+
+| Ato | Marcos | Resultado |
+| --- | --- | --- |
+| Início | **M0–M2** | Estabilidade, armas/aliados/áudio aprovados; IA e ondas confiáveis |
+| Meio | **M3–M5** | Economia/suporte, mapa definitivo, menus, XP/recordes/salvamento |
+| Fim | **M6–M8** | Performance, RC com 12 gates de aceite e release estável v1.0.0 |
+
+**Estado do jogo hoje:** versões 0.9.x ainda **PARCIAIS** nas Etapas 0–6. A pesquisa e o planejamento não significam implementação. Falta aceitar 10 propostas V1-P01–10, validar tabelas de balanceamento, finalizar layout e executar Windows QA (15 ondas no mínimo).
+
+**Próxima sprint real recomendada:** **M0**, primeiro homologar v0.9.3 e corrigir armas, cabeça/mãos dos aliados, recargas e linha de visão antes de aumentar a complexidade dos mapas. **Próxima rodada documental:** números de balanceamento e critérios de progressão com simulação, mantendo propostas identificadas.
+
