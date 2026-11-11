@@ -1,5 +1,13 @@
 # Frontline Survival — Histórico de versões
 
+## 0.9.4 — Armas e mira
+
+- Pistola e AK-47 remodeladas, com alinhamento das miras e da boca do cano atualizado.
+- Alça da LMG deslocada do eixo da mira.
+- Quatro disparos gravados com reprodução polifônica. Créditos e teste manual nas [notas da versão](releases/v0.9.4.md).
+
+---
+
 ## 0.9.3 — Suporte articulado, materiais, foley e IA local
 
 **Estado:** implementação submetida aos testes do Godot; apresentação de armas/aliados e IA permanecem **PARCIAIS** até validação jogando.

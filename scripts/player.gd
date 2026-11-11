@@ -90,6 +90,7 @@ func _ready() -> void:
     shot_sound = AudioStreamPlayer.new()
     shot_sound.stream = load("res://assets/audio/gunshot.wav")
     shot_sound.volume_db = -14.0
+    shot_sound.max_polyphony = 8
     shot_sound.bus = "SFX"
     add_child(shot_sound)
     reload_sound = AudioStreamPlayer.new()
@@ -148,7 +149,7 @@ func _physics_process(delta: float) -> void:
     shot_spread_kick = move_toward(shot_spread_kick, 0.0, delta * 1.25)
     # Align the physical front/rear sight with the camera's central ray.
     # No on-screen crosshair: the actual sight must indicate point of aim.
-    var sight_height: float = float({"pistol": 0.115, "smg": 0.232, "rifle": 0.232, "shotgun": 0.140, "lmg": 0.232}.get(weapon_id, 0.20))
+    var sight_height: float = float({"pistol": 0.121, "smg": 0.232, "rifle": 0.177, "shotgun": 0.140, "lmg": 0.232}.get(weapon_id, 0.20))
     var sight_y := -viewmodel_scale * sight_height
     var gun_target := Vector3(0.0, sight_y, -0.62) if aim else Vector3(0.34, -0.27, -0.63)
     gun_target.y += sin(walk_clock) * 0.007 * movement.length()
@@ -218,8 +219,7 @@ func shoot() -> void:
     flash_timer = 0.047 if weapon_id != "shotgun" else 0.080
     shot_anim = 1.0
     muzzle_flash.visible = true
-    shot_sound.pitch_scale = 0.82 if weapon_id == "shotgun" else (1.20 if weapon_id == "smg" else (0.85 if weapon_id == "lmg" else (0.94 if weapon_id == "rifle" else 1.08)))
-    shot_sound.stop()
+    shot_sound.pitch_scale = 0.85 if weapon_id == "lmg" else randf_range(0.98, 1.02)
     shot_sound.play()
     var origin := camera.global_position
     var space := get_world_3d().direct_space_state
@@ -455,8 +455,9 @@ func _update_gun_mesh() -> void:
     _add_first_person_arm(Vector3(0.30, -0.53, 0.52), Vector3(0.070, -0.18, grip_z), true)
     if long_gun:
         _add_first_person_arm(Vector3(-0.36, -0.54, 0.37), Vector3(-0.075, -0.13, support_z), false)
-    var muzzle_z: float = viewmodel_depth + viewmodel_scale * float({"pistol": -0.31, "smg": -0.69, "rifle": -0.95, "shotgun": -1.04, "lmg": -1.13}.get(weapon_id, -0.69))
-    muzzle_flash.position = Vector3(0, viewmodel_scale * (0.065 if weapon_id == "shotgun" else 0.02), muzzle_z)
+    var muzzle_z: float = viewmodel_depth + viewmodel_scale * float({"pistol": -0.29, "smg": -0.69, "rifle": -0.95, "shotgun": -1.04, "lmg": -1.13}.get(weapon_id, -0.69))
+    var muzzle_height := float({"pistol": 0.061, "rifle": 0.039, "shotgun": 0.065}.get(weapon_id, 0.018))
+    muzzle_flash.position = Vector3(0, viewmodel_scale * muzzle_height, muzzle_z)
     equip_anim_timer = 0.34
 
 func _animate_viewmodel(delta: float, sprinting: bool) -> void:

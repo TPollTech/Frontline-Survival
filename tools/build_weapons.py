@@ -15,6 +15,7 @@ MAT = {
     'receiver':(73, 81, 84, 255), 'steel':(103, 111, 112, 255),
     'edge':(118, 126, 127, 255), 'tan':(138, 131, 107, 255),
     'darktan':(82, 77, 63, 255), 'brass':(166, 128, 64, 255),
+    'walnut':(126,73,40,255), 'walnut_dark':(86,49,29,255),
     'glass':(48, 93, 92, 255), 'recess':(18, 24, 27, 255),
 }
 
@@ -91,6 +92,38 @@ class Gun:
         if m.volume <= 0:
             raise ValueError('Invalid muzzle ring orientation')
         self.add(m,color,name)
+    def curved_magazine(self):
+        outline = [(-.038,-.063),(-.027,-.074),(.027,-.074),(.038,-.063),
+                   (.038,.063),(.027,.074),(-.027,.074),(-.038,.063)]
+        vertices = []
+        for t in np.linspace(0,1,9):
+            a = .52 * t
+            center_y = -.056 - .36 * t
+            center_z = -.162 - .136 * t * t
+            vertices.extend((x, center_y + z*np.sin(a), center_z + z*np.cos(a))
+                            for x,z in outline)
+        faces = []
+        for ring in range(8):
+            for i in range(8):
+                a = ring*8+i
+                b = ring*8+(i+1)%8
+                faces.extend(((a,b,b+8),(a,b+8,a+8)))
+        for i in range(1,7):
+            faces.extend(((0,i,i+1),(64,64+i+1,64+i)))
+        mesh = trimesh.Trimesh(vertices=vertices,faces=faces,process=False)
+        trimesh.repair.fix_normals(mesh)
+        if not mesh.is_watertight or mesh.volume <= 0:
+            raise ValueError('Invalid curved magazine')
+        self.add(mesh,'black','magazine')
+        for x in (-.038,.038):
+            for z in (-.040,.0,.040):
+                for t in np.linspace(.14,.82,5):
+                    self.chamfer((x,-.056-.36*t,-.162-.136*t*t+z),
+                                 (.007,.056,.010),'receiver',.003,
+                                 angles=(-.61*t,0,0),name='magazine_rib')
+        self.chamfer((0,-.417,-.298),(.083,.026,.155),'steel',.007,
+                     angles=(-.52,0,0),name='magazine_heel')
+
     def save(self,name):
         # Concatena geometrias em 1 mesh colorida: 1 draw call aproximada por arma.
         merged = trimesh.util.concatenate(list(self.scene.geometry.values()))
@@ -113,23 +146,31 @@ def hardware(g,zfront):
 
 def pistol():
     g=Gun()
-    g.chamfer((0,.055,-.12),(.16,.105,.34),'receiver',.018,name='slide')
-    g.chamfer((0,.035,-.13),(.145,.050,.32),'black',.007,name='frame')
-    g.chamfer((0,-.12,.015),(.107,.26,.13),'polymer',.025,angles=(-.19,0,0),name='grip')
-    g.chamfer((0,-.20,.035),(.11,.018,.13),'black',.006,name='grip_base')
-    g.chamfer((0,-.205,.024),(.079,.18,.091),'black',.005,name='pistol_magazine')
-    g.chamfer((0,-.315,.024),(.098,.017,.11),'steel',.005,name='magazine_heel')
-    g.chamfer((0,.115,-.28),(.042,.035,.040),'recess',.006,name='front_sight')
-    g.chamfer((0,.115,.02),(.10,.035,.034),'recess',.006,name='rear_sight')
-    g.chamfer((.083,.080,-.105),(.006,.031,.09),'recess',.002,name='ejection')
-    for j in range(5): g.chamfer((.082,.064,.005-j*.017),(.007,.052,.008),'black',.002,name='slide_groove')
-    for z in (-.07, -.11, -.15):
-        g.chamfer((0,-.010,z),(.070,.012,.035),'recess',.003,name='dust_cover')
-    g.chamfer((0,-.03,.08),(.11,.028,.05),'polymer',.008,name='beavertail')
-    g.rod((-.065,-.06,-.08),(-.065,-.145,-.08),.009,'steel',name='trigger_guard')
-    g.rod((-.065,-.145,-.08),(.065,-.145,-.08),.009,'steel',name='trigger_guard')
-    g.rod((.015,-.07,-.10),(.025,-.115,-.08),.008,'steel',name='trigger')
-    hardware(g,-.308); g.save('pistol')
+    # Compact striker-fired silhouette: a slim slide over a sculpted frame.
+    g.chamfer((0,.062,-.113),(.105,.074,.343),'receiver',.012,name='slide')
+    g.chamfer((0,.096,-.105),(.082,.022,.315),'steel',.009,name='slide_top')
+    g.chamfer((0,.008,-.095),(.105,.050,.30),'black',.009,name='frame')
+    g.chamfer((0,-.012,-.207),(.092,.045,.122),'polymer',.010,name='dust_cover')
+    g.chamfer((0,-.123,.012),(.087,.245,.112),'polymer',.019,angles=(-.28,0,0),name='grip')
+    g.chamfer((0,-.227,.047),(.087,.037,.111),'black',.009,name='grip_heel')
+    g.chamfer((0,-.154,.040),(.066,.179,.076),'black',.006,angles=(-.28,0,0),name='pistol_magazine')
+    g.chamfer((0,-.257,.049),(.088,.018,.104),'polymer',.005,name='magazine_heel')
+    g.chamfer((0,.112,-.257),(.019,.018,.026),'black',.003,name='front_sight')
+    for x in (-.032,.032):
+        g.chamfer((x,.112,.031),(.019,.019,.025),'black',.003,name='rear_sight')
+        for j in range(7):
+            g.chamfer((x*1.65,.060,.038-j*.013),(.004,.045,.005),'recess',.002,angles=(.24,0,0),name='slide_groove')
+        for j in range(7):
+            g.chamfer((x*1.32,-.089-j*.019,.010+j*.006),(.005,.008,.065),'recess',.002,name='grip_texture')
+    g.chamfer((.044,.099,-.103),(.040,.014,.066),'recess',.004,name='ejection')
+    g.chamfer((.044,.106,-.123),(.030,.009,.022),'steel',.003,name='ejection_barrel_hood')
+    guard=[(0,-.014,-.169),(0,-.078,-.147),(0,-.094,-.098),(0,-.068,-.048)]
+    for start,end in zip(guard,guard[1:]):
+        g.rod(start,end,.010,'polymer',name='trigger_guard')
+    g.rod((0,-.023,-.082),(0,-.065,-.086),.006,'steel',name='trigger')
+    g.ring((0,.061,-.277),.029,.014,.027,'steel','slide_muzzle')
+    g.cylinder((0,.061,-.278),.013,.004,'recess',name='bore')
+    g.save('pistol')
 
 def common_receiver(g,back,front,main_color='receiver',body=(.20,.16)):
     length=back-front
@@ -150,7 +191,7 @@ def optic(g,z):
     g.ring((0,.232,z),.073,.045,.07,'black',name='holo_sight')
     # The previous fully opaque glass disk hid the aiming point. Use an
     # open aperture and a narrow real 3D post instead of a 2D crosshair.
-    g.chamfer((0,.210,z-.048),(.008,.034,.010),'brass',.003,name='aiming_post')
+    g.chamfer((0,.2095,z-.048),(.008,.045,.010),'brass',.003,name='aiming_post')
     g.chamfer((0,.27,z),(.026,.024,.06),'edge',.004,name='adjust_knob')
 
 def smg():
@@ -173,25 +214,40 @@ def smg():
 
 def rifle():
     g=Gun()
-    common_receiver(g,.26,-.25,'receiver',(.205,.17))
-    g.chamfer((0,0,-.45),(.215,.155,.49),'tan',.032,name='m_lok_handguard')
-    for x in [-.109,.109]:
-        for z in [-.32,-.39,-.46,-.53,-.60]:
-            g.chamfer((x,.025,z),(.009,.032,.043),'recess',.004,name='handguard_slot')
-    g.chamfer((0,-.19,.00),(.10,.32,.11),'polymer',.02,angles=(-.15,0,0),name='magazine')
-    g.chamfer((0,-.34,-.015),(.115,.055,.115),'recess',.012,name='magazine_heel')
-    g.chamfer((0,.013,.41),(.105,.10,.31),'black',.015,name='buffer_tube')
-    g.chamfer((0,-.015,.62),(.20,.22,.31),'polymer',.032,name='adjustable_stock')
-    g.chamfer((0,-.015,.79),(.21,.24,.06),'recess',.02,name='rubber_pad')
-    for x in [-.073,.073]:
-        g.rod((x,.08,.48),(x,-.08,.72),.011,'steel',name='stock_brace')
-    g.cylinder((0,.018,-.79),.027,.29,'steel',name='barrel')
-    g.chamfer((.115,.045,.10),(.028,.031,.067),'steel',.005,name='charging_handle')
-    g.chamfer((0,-.10,-.33),(.09,.18,.10),'darktan',.018,angles=(.55,0,0),name='angled_grip')
-    g.chamfer((.108,.048,.02),(.024,.042,.12),'steel',.005,name='forward_assist')
-    g.chamfer((-.11,.03,-.08),(.015,.045,.22),'recess',.004,name='dust_cover')
-    g.chamfer((0,.03,-.64),(.05,.06,.04),'steel',.004,name='gas_block')
-    optic(g,.08); hardware(g,-.95); g.save('rifle')
+    # Stamped receiver, wooden furniture and continuous curved magazine.
+    g.chamfer((0,.009,.016),(.150,.147,.522),'receiver',.010,name='receiver')
+    g.chamfer((0,.096,.014),(.139,.089,.466),'black',.023,name='top_cover')
+    g.chamfer((0,.019,.399),(.105,.096,.299),'walnut_dark',.013,name='stock_wrist')
+    g.chamfer((0,-.004,.589),(.136,.175,.353),'walnut',.024,angles=(.13,0,0),name='wood_stock')
+    g.chamfer((0,-.035,.769),(.139,.174,.031),'steel',.006,name='butt_plate')
+    g.chamfer((0,-.188,.184),(.092,.216,.111),'walnut_dark',.013,angles=(-.26,0,0),name='grip')
+    for x in (-.078,.078):
+        for z in (-.169,.144,.213):
+            g.cylinder((x,.011,z),.010,.009,'steel',angles=(0,np.pi/2,0),name='receiver_rivet')
+    g.chamfer((.077,.056,-.067),(.009,.034,.234),'recess',.003,name='bolt_track')
+    g.chamfer((.091,.058,.004),(.026,.023,.069),'steel',.005,name='charging_handle')
+    g.chamfer((.081,.008,.058),(.009,.026,.215),'black',.005,angles=(-.19,0,0),name='selector')
+    g.rod((0,-.063,.099),(0,-.164,.069),.009,'steel',name='guard')
+    g.rod((0,-.164,.069),(0,-.164,-.078),.009,'steel',name='guard')
+    g.rod((0,-.164,-.078),(0,-.074,-.10),.009,'steel',name='guard')
+    g.rod((0,-.072,.016),(0,-.132,.029),.008,'black',name='trigger')
+    # Sweep the full magazine cross-section along an arc, avoiding stacked-box seams.
+    g.curved_magazine()
+    g.chamfer((0,.005,-.419),(.148,.121,.334),'walnut',.022,name='lower_handguard')
+    g.chamfer((0,.104,-.438),(.108,.071,.272),'walnut_dark',.014,name='upper_handguard')
+    for x in (-.073,.073):
+        for z in (-.35,-.41,-.47,-.53):
+            g.chamfer((x,.021,z),(.009,.021,.041),'walnut_dark',.004,name='wood_relief')
+    g.cylinder((0,.039,-.690),.023,.454,'steel',name='barrel')
+    g.cylinder((0,.105,-.552),.025,.234,'black',name='gas_tube')
+    g.chamfer((0,.075,-.663),(.076,.118,.064),'steel',.009,name='gas_block')
+    g.chamfer((0,.093,-.797),(.059,.109,.066),'black',.008,name='front_block')
+    for x in (-.025,.025):
+        g.chamfer((x,.150,-.803),(.009,.051,.037),'steel',.003,name='iron_sight_wing')
+        g.chamfer((x,.163,-.218),(.012,.024,.035),'steel',.003,name='iron_sight_notch')
+    g.chamfer((0,.163,-.803),(.009,.028,.016),'steel',.003,name='iron_sight_post')
+    g.ring((0,.039,-.914),.032,.016,.070,'steel','muzzle_brake')
+    g.save('rifle')
 
 def shotgun():
     g=Gun()
@@ -221,9 +277,10 @@ def lmg():
     g.cylinder((.11,-.27,-.035),.12,.009,'black',sections=16,angles=(0,np.pi/2,0),name='drum_hub')
     g.chamfer((0,.00,.52),(.24,.21,.48),'polymer',.035,name='heavy_stock')
     g.chamfer((0,-.015,.79),(.265,.245,.052),'recess',.018,name='butt_pad')
-    g.rod((-.11,.16,-.13),(-.10,.31,.07),.014,'steel',name='carry_handle')
-    g.rod((-.10,.31,.07),(.10,.31,.07),.014,'steel',name='carry_handle')
-    g.rod((.10,.31,.07),(.11,.16,-.13),.014,'steel',name='carry_handle')
+    # Offset the carry handle so it never crosses the optic's viewing axis.
+    g.rod((-.128,.14,-.17),(-.174,.275,-.12),.013,'steel',name='carry_handle')
+    g.rod((-.174,.275,-.12),(-.174,.275,.12),.013,'steel',name='carry_handle')
+    g.rod((-.174,.275,.12),(-.127,.14,.16),.013,'steel',name='carry_handle')
     g.rod((-.08,-.07,-.78),(-.20,-.43,-.83),.016,'black',name='bipod')
     g.rod((.08,-.07,-.78),(.20,-.43,-.83),.016,'black',name='bipod')
     g.chamfer((.146,.035,.18),(.038,.035,.10),'steel',.006,name='charging_handle')
