@@ -1,8 +1,8 @@
-# Frontline Survival 0.9 — Campo de Testes
+# Frontline Survival 0.9.1 — Campo de Testes
 
 **Projeto Godot 4.x Standard, FPS 3D offline para Windows**, com renderizador **Compatibility** e alvo inicial Ryzen 5 7530U / 8 GB RAM. Projeto original inspirado em mecânicas do gênero *Survival por ondas*. **Não contém modelos, áudio ou outros arquivos do Call of Duty.**
 
-A versão **0.9** concentra-se nas correções visuais reportadas na build 0.8: faces ocultas nas armas, enquadramento das armas longas e postura de empunhadura dos soldados. O usuário já conseguiu iniciar a 0.8 no Windows e alcançar a preparação para a onda 2. **A build 0.9 precisa de validação visual e testes de gameplay antes de ser considerada final.**
+A versão **0.9.1** corrige problemas observados jogando a 0.9.0: armas brancas, aliados desarticulados, visor fora do centro e som irritante de acertos/transição. A versão mantém o foco em computadores modestos e adiciona mira hardcore **sem crosshair 2D**. **A compilação automática não substitui o teste visual e de jogabilidade no Windows.**
 
 ## Mudanças da 0.7
 
@@ -33,8 +33,8 @@ A versão **0.9** concentra-se nas correções visuais reportadas na build 0.8: 
 **Download principal: [Releases do Frontline Survival](https://github.com/TPollTech/Frontline-Survival/releases).** Versões publicadas possuem número, changelog e ZIP próprio.
 
 1. Entre em **[Releases](https://github.com/TPollTech/Frontline-Survival/releases)**.
-2. Abra a versão mais recente, inicialmente `v0.9.0` (pré-lançamento de testes).
-3. Na seção **Assets**, baixe **FrontlineSurvival-v0.9.0-Windows.zip** (o nome acompanha o número da versão futura).
+2. Abra a versão mais recente, atualmente `v0.9.1` (pré-lançamento de testes).
+3. Na seção **Assets**, baixe **FrontlineSurvival-v0.9.1-Windows.zip** (o nome acompanha o número da versão futura).
 4. Extraia o ZIP inteiro para uma pasta, mantendo `FrontlineSurvival.exe` e `FrontlineSurvival.pck` juntos.
 5. Execute `FrontlineSurvival.exe`. **Não é necessário abrir o editor Godot.**
 
@@ -46,17 +46,17 @@ A versão **0.9** concentra-se nas correções visuais reportadas na build 0.8: 
 2. Pressione F5 e entre na partida.
 3. Teste mira, recarga, compra por F, as ondas contínuas e a indicação direcional de ataques.
 
-### Correções visuais da 0.9
+### Correções da 0.9.1
 
-- Malhas 3D regeneradas com orientação correta das superfícies e anéis do cano, para evitar aparência transparente/incompleta.
-- Escopeta, SMG, fuzil e LMG redimensionadas/reposicionadas na câmera para evitar clipping da coronha.
-- Mãos do jogador alinhadas aos pontos de gatilho e guarda-mão de cada arma.
-- Soldados e aliados com armas centralizadas e braços que acompanham dois pontos de empunhadura.
-- Retidos os indicadores de dano, headshot âmbar e retícula dinâmica introduzidos na 0.8.
-- [Checklist visual e regressão da 0.9](docs/TESTES_0_9.md).
+- Armas agora aplicam as **cores COLOR_0 existentes** nos modelos GLB por meio de material Godot opaco. Corrige a aparência branca da 0.9.0.
+- Braços de aliados e inimigos com posicionamento de cotovelo em dois segmentos e proporções mais naturais, mantendo colete e distintivos azuis.
+- **Sem crosshair de HUD**: alinhamento da mira pelo visor 3D ao centro da câmera; recuo apenas depois de calcular o tiro.
+- Visores com abertura real e poste fino 3D, sem lente sólida bloqueando a visão.
+- Removido o som agudo a cada acerto; conclusão da onda com batida grave curta e compra mais discreta.
+- [Checklist visual e regressão da 0.9.1](docs/TESTES_0_9_1.md).
 - [CHANGELOG.md](docs/CHANGELOG.md) especifica a situação de cada incremento.
 
-**As correções da 0.9 representam implementação parcial das Etapas 1 e 2 (apresentação de soldados).** A estabilidade geral e a postura visual só serão consideradas concluídas após teste real no Windows.
+**As correções da 0.9.1 representam implementação parcial das Etapas 1 (armas/mira), 2 (soldados) e 5 (HUD/áudio).** A estabilidade completa e a aprovação visual exigem teste real no Windows.
 
 ## Controles
 
