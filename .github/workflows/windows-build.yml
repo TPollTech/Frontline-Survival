@@ -48,10 +48,15 @@ jobs:
             exit 1
           fi
 
+      - name: Setup Python for static tests
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
       - name: Static integrity tests
         run: |
-          python3 -m pip install --user numpy trimesh
-          python3 tools/verify_project.py
+          python -m pip install numpy trimesh
+          python tools/verify_project.py
 
       - name: Export Windows release
         shell: bash
@@ -67,16 +72,10 @@ jobs:
           fi
           cp README.md dist/LEIA-ME.md
 
-      - name: Package Windows build
-        shell: bash
-        run: |
-          cd dist
-          zip -9 -r ../FrontlineSurvival-Windows.zip .
-
       - name: Upload playable Windows ZIP
         uses: actions/upload-artifact@v4
         with:
-          name: FrontlineSurvival-Windows
-          path: FrontlineSurvival-Windows.zip
+          name: FrontlineSurvival-0.8-Windows
+          path: dist/*
           retention-days: 30
           if-no-files-found: error
