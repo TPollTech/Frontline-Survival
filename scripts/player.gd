@@ -6,6 +6,7 @@ signal hit_confirmed
 signal headshot_confirmed
 signal shot_fired(at: Vector3, hit_enemy: bool)
 signal player_died
+signal damage_received(source_position: Vector3, damage: float)
 
 const WEAPONS = {
     "pistol": {"name":"Pistola", "damage":30.0, "mag":15, "reserve":90, "rate":0.20, "reload":1.25, "spread":0.008, "auto":false, "pellets":1},
@@ -313,7 +314,7 @@ func heal(amount: float) -> void:
 func add_armor(amount: float) -> void:
     armor = minf(100.0, armor + amount)
 
-func take_damage(amount: float) -> void:
+func take_damage(amount: float, source_position: Vector3 = Vector3.ZERO) -> void:
     if dead or invulnerability_timer > 0.0:
         return
     if GameSettings.training_respawns:
@@ -322,6 +323,7 @@ func take_damage(amount: float) -> void:
     armor -= absorbed
     health = maxf(0.0, health - (amount - absorbed))
     damage_anim = minf(1.0, damage_anim + amount * 0.015)
+    damage_received.emit(source_position, amount - absorbed)
     if health <= 0.0:
         dead = true
         controls_locked = true
