@@ -152,6 +152,7 @@ Os documentos abaixo detalham critérios e hipóteses sem autorizar implementaç
 - [Etapa 4 — Mapas multissetoriais e arquitetura](docs/ETAPA_4_MAPAS_ARQUITETURA.md): Complexo Industrial (cinco setores propostos), rotas, lojas, spawn, MapLoader, desempenho e 18 cenários de QA.
 - [Etapa 5 — HUD, menus, áudio e acessibilidade](docs/ETAPA_5_HUD_AUDIO_ACESSIBILIDADE.md): hierarquia de informações, estados, mixagem, configurações, acessibilidade e 18 testes pendentes.
 - [Etapa 6 — Desempenho, testes e distribuição Windows](docs/ETAPA_6_DESEMPENHO_TESTES_DISTRIBUICAO.md): orçamento proposto de FPS/RAM, 18 testes, gates CI/Windows/15 ondas/release e dependências.
+- [GDD mestre — pronto para revisão](docs/GDD_MESTRE.md): síntese do jogo base, dependências, conflitos C-01–C-06 e checklist de consistência; **não aprovado**.
 - [Registro de decisões e propostas](docs/REGISTRO_DECISOES.md): requisitos já estabelecidos versus ideias pendentes.
 - [Plano de mapas](docs/PLANO_MAPAS.md): Campo de Testes permanente e proposta de mapa multissetores.
 - [Testes de regressão existentes da 0.7](docs/TESTES_0_7.md): roteiro técnico anterior, complementado pela Etapa 0.
@@ -169,9 +170,9 @@ Os documentos abaixo detalham critérios e hipóteses sem autorizar implementaç
 | Etapa 4 — Mapas | **Especificada em 10/11/2026**; layout de cinco setores e arquitetura ainda sujeitos a aprovação | Não iniciada |
 | Etapa 5 — HUD, áudio e UX | **Especificada em 10/11/2026**; propostas aguardam aprovação | **PARCIAL** — v0.9.1 retira crosshair/hit beep e adiciona som grave de fim de onda; validação auditiva pendente |
 | Etapa 6 — desempenho e distribuição | **Especificada em 10/11/2026**; metas e gates pendentes de aprovação | **PARCIAL** — release [v0.9.1](https://github.com/TPollTech/Frontline-Survival/releases/tag/v0.9.1) e CI aprovados; benchmark/15 ondas pendentes |
-| GDD consolidado | **Ainda não concluído**; consolidar após as etapas | Não aplicável |
+| GDD consolidado | **GDD PRONTO PARA REVISÃO**; síntese documental das Etapas 0–6, aprovação pendente | Não aplicável |
 
-**Último avanço de produto:** versão 0.9 compilada e publicada no GitHub Actions, com 19 arquivos GLB regenerados e sincronizados na main. A versão 0.8 foi executada pelo usuário até a preparação da onda 2; a 0.9 exige validação visual/jogabilidade no Windows. Etapa 6 especificada documentalmente; próximo passo é consolidar o GDD mestre e conferir decisões pendentes. Sem alteração de código nesta rodada documental.
+**Último avanço de produto:** versão 0.9 compilada e publicada no GitHub Actions, com 19 arquivos GLB regenerados e sincronizados na main. A versão 0.8 foi executada pelo usuário até a preparação da onda 2; a 0.9 exige validação visual/jogabilidade no Windows. Etapa 6 especificada documentalmente; GDD mestre consolidado em 11/11/2026, pronto para revisão documental; conflitos C-01/C-02 e aprovações pendentes. Sem alteração de código nesta rodada documental.
 
 ## 9. Registro de implementação e evidências — 0.8 (10/11/2026)
 
