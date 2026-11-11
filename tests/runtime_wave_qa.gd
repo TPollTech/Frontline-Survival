@@ -54,6 +54,18 @@ func _run_tests() -> void:
     for frame in range(12):
         await physics_frame
     _expect(get_nodes_in_group("allies").size() == 2, "allies crashed during procedural animation")
+    # Screenshot regression: the support soldier's head must be attached to
+    # the torso by a collar and use the same pivot as the helmet/mask.
+    for support in get_nodes_in_group("allies"):
+        var head: Node3D = support.get_node_or_null("AllyVisual/HeadPivot")
+        var neck: Node3D = support.get_node_or_null("AllyVisual/NeckCollar")
+        _expect(head != null and neck != null, "support head or collar missing")
+        if head != null:
+            _expect(head.position.y <= 0.69, "support head disconnected from torso silhouette")
+        _expect(is_instance_valid(support.muzzle), "support rifle or muzzle missing")
+    var reload_clip: AudioStream = game.player.reload_sound.stream
+    _expect(reload_clip != null, "mechanical pistol reload is missing")
+    _expect(reload_clip.resource_path.contains("/reloads/"), "old synthesized reload beep restored")
 
     var stations: Array[Vector3] = []
     for station in game.shops:
