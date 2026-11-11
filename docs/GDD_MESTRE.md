@@ -63,3 +63,7 @@ Cada incremento futuro: aprovação explícita → branch de implementação →
 
 ## 7. Expansões (fora do jogo base)
 Novos mapas urbanos/montanha/porto, coop, campanha, clima dinâmico, chefes adicionais, veículos, perks extensos e ranking online. Exigem planejamento e aprovação próprios, sem comprometer o núcleo solo.
+
+## 8. Atualização de coerência — prioridade M0 (11/11/2026)
+
+O [registro de polimento do Campo de Testes](M0_POLIMENTO_CAMPO_TESTES.md) contém nova direção estabelecida: **polimento e validação real antes de expansão de mapa, ondas ou veículos**. A sessão Windows relatada chegou à onda 10; ainda não substitui o gate de 15 ondas. Hitmarker curto, **somente após acerto e sem áudio**, é compatível com a proibição de crosshair 2D permanente (C-01); a revisão dos textos antigos sobre retícula continua pendente. Loot por F exige prioridade contextual frente às estações físicas; não autoriza compras remotas. Corpos e pickups temporários exigem medição de RAM/FPS com 12 inimigos no hardware-alvo. Modelos humanoides com rig permanecem sujeitos a protótipo, licenças e validação, não a aprovação automática. O escopo V1-P01–V1-P10 continua proposto; C-02 e demais pendências não foram resolvidos. **GDD PRONTO PARA REVISÃO**, não aprovado.
