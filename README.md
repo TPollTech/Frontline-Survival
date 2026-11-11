@@ -1,10 +1,18 @@
-# Frontline Survival 0.9.13 — Campo de Testes
+# Frontline Survival 0.9.14 — Campo de Testes
 
 **Projeto Godot 4.x Standard, FPS 3D offline para Windows**, com renderizador **Compatibility** e alvo inicial Ryzen 5 7530U / 8 GB RAM. Projeto original inspirado em mecânicas do gênero *Survival por ondas*. **Não contém modelos, áudio ou outros arquivos do Call of Duty.**
 
-A versão **0.9.13** integra um **humanoide com esqueleto real do Quaternius (CC0)** como protótipo em um soldado comum por onda. O objetivo é comparar anatomia, movimento e desempenho com os inimigos antigos sem perder os sistemas de ondas, IA, compra, hitmarker ou áudios gravados. A animação é procedural nesta fase, não a biblioteca profissional de animações. **A qualidade visual precisa ser avaliada no Windows antes de migrar todos os NPCs.**
+A versão **0.9.14** corrige um problema grave da 0.9.13, identificado em screenshot do usuário: o humanoide do Quaternius aparecia com os braços para cima e a malha deformada. A causa era uma substituição incorreta das rotações de repouso dos ossos. Agora a animação preserva a pose original, os testes conferem posições de cabeça, pés e mãos, e o personagem volta ao soldado antigo se o rig ficar inválido. **Não use a 0.9.13; a 0.9.14 está disponível no GitHub Releases.** A avaliação visual da nova pose no Windows ainda é necessária.
 
-## Protótipo visual da 0.9.13
+## Hotfix 0.9.14 — Esqueleto humano corrigido
+
+- Corrigidas rotações dos ossos: a animação agora parte da pose original, sem torcer braços, pernas e tronco.
+- Adicionados testes estruturais de posição das mãos e das articulações, e fallback ao soldado antigo se o modelo deformar.
+- A 0.9.13 falhou na inspeção visual do jogador e não deve ser usada para comparar personagens.
+- **Nenhum mapa, arma, áudio ou regra de ondas foi alterado.**
+- [Correção técnica e QA](docs/QA_V0_9_14.md) · [Release Windows](https://github.com/TPollTech/Frontline-Survival/releases/tag/v0.9.14).
+
+## Histórico da 0.9.13
 
 - **Um soldado humanoide por onda:** malha do Quaternius com esqueleto de 65 ossos em vez de primitivas geométricas.
 - **Visual militar original:** colete, capacete, máscara/visor e bolsas discretos no modelo.
@@ -77,8 +85,8 @@ A versão **0.9.13** integra um **humanoide com esqueleto real do Quaternius (CC
 **Download principal: [Releases do Frontline Survival](https://github.com/TPollTech/Frontline-Survival/releases).** Versões publicadas possuem número, changelog e ZIP próprio.
 
 1. Entre em **[Releases](https://github.com/TPollTech/Frontline-Survival/releases)**.
-2. Abra a versão mais recente, atualmente `v0.9.13` (pré-lançamento de testes).
-3. Na seção **Assets**, baixe **FrontlineSurvival-v0.9.13-Windows.zip** (o nome acompanha o número da versão futura).
+2. Abra a versão mais recente, atualmente `v0.9.14` (pré-lançamento de testes).
+3. Na seção **Assets**, baixe **FrontlineSurvival-v0.9.14-Windows.zip** (o nome acompanha o número da versão futura).
 4. Extraia o ZIP inteiro para uma pasta, mantendo `FrontlineSurvival.exe` e `FrontlineSurvival.pck` juntos.
 5. Execute `FrontlineSurvival.exe`. **Não é necessário abrir o editor Godot.**
 
