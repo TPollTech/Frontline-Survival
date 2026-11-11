@@ -16,6 +16,8 @@ var left_knee: Node3D
 var right_knee: Node3D
 var left_shoulder: Node3D
 var right_shoulder: Node3D
+var left_elbow: Node3D
+var right_elbow: Node3D
 var gun_mount: Node3D
 
 func configure(target: SurvivalPlayer) -> void:
@@ -96,28 +98,28 @@ func _ready() -> void:
         _capsule(shoulder, Vector3(0, -0.18, 0), 0.12, 0.45, uniform, "UpperArm")
         _box(shoulder, Vector3(0, -0.055, -0.04), Vector3(0.245, 0.17, 0.23), armor, "ShoulderArmor")
         _box(shoulder, Vector3(0, -0.085, -0.165), Vector3(0.13, 0.095, 0.02), patch, "FriendlyPatch")
-        var elbow := _joint(shoulder, Vector3(0, -0.31, 0), "Elbow")
-        _capsule(elbow, Vector3(0, -0.11, 0), 0.10, 0.29, uniform, "Forearm")
-        _box(elbow, Vector3(0, -0.24, -0.02), Vector3(0.15, 0.11, 0.14), boots, "Glove")
-        elbow.rotation.x = -0.36
-        shoulder.rotation.x = 0.85
+        var elbow := _joint(shoulder, Vector3(0, -0.33, 0), "Elbow")
+        _capsule(elbow, Vector3(0, -0.15, 0), 0.10, 0.35, uniform, "Forearm")
+        _box(elbow, Vector3(0, -0.30, -0.02), Vector3(0.16, 0.14, 0.15), boots, "Glove")
         if side < 0.0:
             left_shoulder = shoulder
+            left_elbow = elbow
         else:
             right_shoulder = shoulder
-    gun_mount = _joint(visual, Vector3(0, 0.10, -0.21), "WeaponRig")
+            right_elbow = elbow
+    gun_mount = _joint(visual, Vector3(0, 0.10, -0.14), "WeaponRig")
     var rifle_source: PackedScene = load("res://assets/models/rifle.glb")
     if rifle_source != null:
         var model := rifle_source.instantiate() as Node3D
         if model != null:
-            model.position = Vector3(0.14, -0.06, -0.08)
-            model.scale = Vector3.ONE * 0.70
+            model.position = Vector3(0.0, -0.06, -0.04)
+            model.scale = Vector3.ONE * 0.72
             gun_mount.add_child(model)
     var flash_mesh := CylinderMesh.new()
     flash_mesh.top_radius = 0.005
     flash_mesh.bottom_radius = 0.023
     flash_mesh.height = 0.16
-    muzzle = _piece(gun_mount, flash_mesh, Vector3(0.14, -0.01, -0.78), Color(1.0, 0.53, 0.23), "MuzzleFlash")
+    muzzle = _piece(gun_mount, flash_mesh, Vector3(0.0, -0.02, -0.04 - 0.72 * 0.95), Color(1.0, 0.53, 0.23), "MuzzleFlash")
     muzzle.rotation.x = PI * 0.5
     var flash_mat := muzzle.material_override as StandardMaterial3D
     flash_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
@@ -169,10 +171,12 @@ func _physics_process(delta: float) -> void:
     right_hip.rotation.x = lerpf(right_hip.rotation.x, -gait * 0.36, minf(1.0, delta * 11.0))
     left_knee.rotation.x = lerpf(left_knee.rotation.x, maxf(0.0, -gait) * 0.55, minf(1.0, delta * 11.0))
     right_knee.rotation.x = lerpf(right_knee.rotation.x, maxf(0.0, gait) * 0.55, minf(1.0, delta * 11.0))
-    left_shoulder.rotation.x = lerpf(left_shoulder.rotation.x, 0.83 - gait * 0.10, minf(1.0, delta * 10.0))
-    right_shoulder.rotation.x = lerpf(right_shoulder.rotation.x, 0.79 + gait * 0.10, minf(1.0, delta * 10.0))
     gun_mount.rotation.x = lerpf(gun_mount.rotation.x, gun_kick * 0.09, minf(1.0, delta * 14.0))
-    gun_mount.position.z = lerpf(gun_mount.position.z, -0.21 + gun_kick * 0.075, minf(1.0, delta * 13.0))
+    gun_mount.position.z = lerpf(gun_mount.position.z, -0.14 + gun_kick * 0.075, minf(1.0, delta * 13.0))
+    var trigger_grip := gun_mount.position + gun_mount.basis * Vector3(0.06, -0.16, 0.03)
+    var support_grip := gun_mount.position + gun_mount.basis * Vector3(-0.06, -0.095, -0.40)
+    _pose_support_arm(right_shoulder, right_elbow, trigger_grip, 1.0, delta)
+    _pose_support_arm(left_shoulder, left_elbow, support_grip, -1.0, delta)
     if is_instance_valid(nearest) and nearest_distance < 23.0 and cooldown <= 0.0:
         var origin := global_position + Vector3(0, 0.40, 0)
         var target := nearest.global_position + Vector3(0, 0.38, 0)
@@ -185,3 +189,15 @@ func _physics_process(delta: float) -> void:
             flash_time = 0.045
             gun_kick = 1.0
             cooldown = 0.72
+
+func _pose_support_arm(shoulder: Node3D, elbow: Node3D, grip: Vector3, side: float, delta: float) -> void:
+    # Two-handed posture: off-hand holds the fore-end while the right hand
+    # follows the trigger. Align both elbow segments each physics frame.
+    var elbow_hint := shoulder.position.lerp(grip, 0.53) + Vector3(side * 0.08, -0.035, 0.015)
+    var upper_dir := (elbow_hint - shoulder.position).normalized()
+    var shoulder_target := Quaternion(Vector3.DOWN, upper_dir)
+    shoulder.quaternion = shoulder.quaternion.slerp(shoulder_target, minf(1.0, delta * 13.0))
+    var actual_elbow := shoulder.position + shoulder.basis * elbow.position
+    var forearm_dir := shoulder.basis.inverse() * (grip - actual_elbow).normalized()
+    var elbow_target := Quaternion(Vector3.DOWN, forearm_dir)
+    elbow.quaternion = elbow.quaternion.slerp(elbow_target, minf(1.0, delta * 13.0))
