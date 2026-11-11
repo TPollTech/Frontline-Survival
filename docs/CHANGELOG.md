@@ -1,5 +1,22 @@
 # Frontline Survival — Histórico de versões
 
+## 0.9.12 — Corrida tática, acertos, sangue, corpos e coleta
+
+**Prioridade:** polimento do Campo de Testes (M0/M1). Usuário confirma ter alcançado a onda 10; expansões de mapas, ondas e transporte ficam em espera até o protótipo ficar convincente. **Estado da jogabilidade: PARCIAL**, ainda que CI passe.
+
+- Corrida com arma inclinada/baixada, sway mais marcado e mão esquerda de suporte afastada; interpolação para não parecer caminhada acelerada.
+- Hitmarker branco/âmbar com quatro traços pequenos e duração 160 ms, **sem mira estática nem sinal sonoro**.
+- Pequenos efeitos transitórios de sangue nos impactos (limite de 14).
+- Inimigos deixam corpos sem colisão por até 17 s (máximo 12), arma e ocasional munição coletáveis por F. Loot limitado a 18 itens por 20 s.
+- Quatro indicadores curvos e discretos de direção de dano substituem barras retas.
+- Silhuetas de coletes e mochilas arredondadas; armas de soldados posicionadas mais à frente. Isso não substitui rig humanoide profissional.
+- QA de runtime ampliada para corrida sem disparo, hitmarker, drops, sangue, corpo após morte, 2 ondas e integridade do áudio gravado.
+- **Sem alteração** dos arquivos de áudio gravado, das armas do jogador ou da economia/arquitetura de ondas anterior.
+
+[Plano de polimento](M0_POLIMENTO_CAMPO_TESTES.md) • [QA 0.9.12](QA_V0_9_12.md) • [Notas da release](releases/v0.9.12.md)
+
+---
+
 ## 0.9.11 — Ondas especiais com aviso e testes de progressão
 
 **Avanço:** M0 (qualidade/CI) e M2 (diretor de ondas, **PARCIAL**). Builds anteriores v0.9.4–v0.9.10, gravações de áudio, materiais e alterações das armas permanecem intactas.
