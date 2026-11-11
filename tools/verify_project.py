@@ -98,10 +98,6 @@ for fragment in (
 require("KEY_B" not in main, "Fast-shop B was restored by mistake")
 require("crosshair_h" not in main and "crosshair_v" not in main,
         "Hardcore aiming: 2D crosshair accidentally restored")
-require("hit_audio" not in main and "round_audio.play()" in main,
-        "Irritating hit-confirmation beep must stay disabled; soft wave cue required")
-require('res://assets/audio/round_clear.wav' in main and (ROOT / "assets/audio/round_clear.wav").is_file(),
-        "Soft synthesized wave cue missing")
 require("sight_height" in player and "camera.rotation.x = clampf" in player,
         "Physical sight alignment and camera recoil fix missing")
 require("KEY_F" not in player, "F should be interaction only, never shoot")
@@ -129,6 +125,10 @@ require((ROOT / 'scenes/main.tscn').exists(), "Missing main scene")
 
 models = ROOT / 'assets/models'
 weapons = ['pistol','smg','rifle','shotgun','lmg']
+require({file.relative_to(ROOT / "assets" / "audio").as_posix()
+         for file in (ROOT / "assets" / "audio").rglob("*") if file.is_file() and file.suffix != ".import"}
+        == {f"{group}/{weapon}.wav" for group in ("weapons", "reloads") for weapon in weapons},
+        "Only recorded weapon and reload WAVs may be present in assets/audio")
 # Godot can render imported GLBs white unless COLOR_0 is enabled by a material.
 # All source geometry is expected to preserve the color attribute.
 for weapon in weapons:

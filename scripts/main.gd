@@ -83,9 +83,6 @@ var armor_text_hud: Label
 var damage_overlay: ColorRect
 var death_panel: ColorRect
 var death_hud: Label
-var round_audio: AudioStreamPlayer
-var purchase_audio: AudioStreamPlayer
-var explosion_audio: AudioStreamPlayer
 const RECORD_PATH := "user://frontline_best_wave.txt"
 
 func _ready() -> void:
@@ -100,9 +97,6 @@ func _ready() -> void:
     player.headshot_confirmed.connect(_on_headshot)
     player.shot_fired.connect(_on_shot_fired)
     player.damage_received.connect(_on_player_damage)
-    round_audio = _make_audio("res://assets/audio/round_clear.wav", -13.0, "UI")
-    purchase_audio = _make_audio("res://assets/audio/purchase.wav", -16.0, "UI")
-    explosion_audio = _make_audio("res://assets/audio/explosion.wav", -9.0, "SFX")
     _create_ui()
     game_menu = SurvivalGameMenu.new()
     add_child(game_menu)
@@ -450,7 +444,6 @@ func _end_wave() -> void:
     var bonus := 60 + wave * 20
     wallet += bonus
     player.heal(15.0)
-    round_audio.play()
     _show_banner("ONDA %02d CONCLUIDA" % wave, "+$%d BONUS  |  +15 VIDA  |  %d ELIMINACOES" % [bonus, previous_wave_kills], 5.0)
     _notify("ONDA CONCLUIDA! TEMPO PARA COMPRAS: %s" % _clock(break_remaining), 5.0)
 
@@ -536,7 +529,6 @@ func _buy(index: int) -> void:
         _notify("Limite de 2 torretas ativas!", 2.0)
         return
     wallet -= price
-    purchase_audio.play()
     match id:
         "smg", "rifle", "shotgun", "lmg":
             player.equip(id)
@@ -624,7 +616,6 @@ func _airstrike_impact(at: Vector3, marker: MeshInstance3D) -> void:
         marker.queue_free()
     if not is_inside_tree():
         return
-    explosion_audio.play()
     var defeated_count := 0
     for enemy in get_tree().get_nodes_in_group("enemies"):
         var victim := enemy as SurvivalEnemy
@@ -655,8 +646,6 @@ func _throw_grenade() -> void:
         _notify("Sem granadas. Compre mais no SUPORTE.", 2.5)
         return
     grenades -= 1
-    explosion_audio.stop()
-    explosion_audio.play()
     var origin := player.camera.global_position
     var direction := -player.camera.global_transform.basis.z
     var target := origin + direction * 18.0
@@ -796,13 +785,6 @@ func _on_shot_fired(at: Vector3, hit_enemy: bool) -> void:
     impact_tween.chain().tween_callback(impact.queue_free)
 
 
-func _make_audio(path: String, volume: float, bus_name: String = "SFX") -> AudioStreamPlayer:
-    var player_audio := AudioStreamPlayer.new()
-    player_audio.stream = load(path)
-    player_audio.volume_db = volume
-    player_audio.bus = bus_name
-    add_child(player_audio)
-    return player_audio
 
 func _load_record() -> void:
     if FileAccess.file_exists(RECORD_PATH):

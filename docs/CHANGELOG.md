@@ -1,5 +1,11 @@
 # Frontline Survival — Histórico de versões
 
+## 0.9.9 — Som restrito a disparo e recarga
+
+- Removidos os efeitos antigos de fim de onda, compra e explosão. A pasta de áudio contém apenas os dez WAVs de disparo e recarga.
+
+---
+
 ## 0.9.8 — Áudio somente por WAV
 
 - Aviso de fim de onda carregado de WAV, sem geração de áudio durante o jogo.
