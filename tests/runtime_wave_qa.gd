@@ -95,7 +95,10 @@ func _run_tests() -> void:
             var head_y: float = rig.to_global(rig.get_bone_global_pose(rig.find_bone("Head")).origin).y
             var pelvis_y: float = rig.to_global(rig.get_bone_global_pose(rig.find_bone("pelvis")).origin).y
             var left_foot_y: float = rig.to_global(rig.get_bone_global_pose(rig.find_bone("foot_l")).origin).y
-            print("QUATERNIUS_GEOMETRY head_y=%.3f pelvis_y=%.3f foot_y=%.3f" % [head_y, pelvis_y, left_foot_y])
+            var left_hand: Vector3 = rig.to_global(rig.get_bone_global_pose(rig.find_bone("hand_l")).origin)
+            var right_hand: Vector3 = rig.to_global(rig.get_bone_global_pose(rig.find_bone("hand_r")).origin)
+            var shoulder: Vector3 = rig.to_global(rig.get_bone_global_pose(rig.find_bone("upperarm_l")).origin)
+            print("QUATERNIUS_GEOMETRY head_y=%.3f pelvis_y=%.3f foot_y=%.3f hands=%.3f,%.3f shoulder=%.3f" % [head_y, pelvis_y, left_foot_y, left_hand.y, right_hand.y, shoulder.y])
             _expect(head_y > pelvis_y + 0.25, "BUG: inverted Quaternius torso/head")
             _expect(pelvis_y > left_foot_y + 0.25, "BUG: inverted Quaternius legs")
             _expect(head_y - left_foot_y > 0.90 and head_y - left_foot_y < 2.40, "BUG: distorted Quaternius body height")
