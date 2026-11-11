@@ -30,6 +30,46 @@ func _run_tests() -> void:
     _expect(game.wave == 0, "initial wave not yet started")
     _expect(game.player != null, "player was instantiated")
     _expect(game.shops.size() == 3, "physical shops preserved")
+    # Tactical sprint suppresses fire, distinct from merely speeding up walking.
+    var original_ammo: int = int(game.player.magazines[game.player.weapon_id])
+    game.player.sprint_blend = 1.0
+    game.player.shoot()
+    _expect(game.player.magazines[game.player.weapon_id] == original_ammo,
+        "sprinting should keep the gun lowered rather than firing")
+    game.player.sprint_blend = 0.0
+    # Hitmarker must not be an always-on crosshair, and requires no audio.
+    _expect(not game.hitmarker.visible, "hitmarker is displayed permanently")
+    game._on_hit_confirmed()
+    _expect(game.hitmarker.visible, "confirmed enemy hit is not visible")
+    game._on_headshot()
+    _expect(game.hitmarker.get("headshot"), "headshot tint not set")
+    # A dropped gun and an ammunition box must be collectible with no UI shop.
+    game._spawn_loot_pickup("weapon", "smg", game.player.global_position, 0)
+    var weapon_drop: Node3D = game._nearest_loot()
+    _expect(weapon_drop != null, "weapon pickup not found near player")
+    if weapon_drop != null:
+        game._collect_loot(weapon_drop)
+        _expect(game.player.owned_weapons.has("smg"), "ground weapon not added to inventory")
+    game.player.reserves["smg"] = 0
+    game._spawn_loot_pickup("ammo", "rifle", game.player.global_position, 16)
+    var ammunition: Node3D = game._nearest_loot()
+    _expect(ammunition != null, "ammunition drop not found")
+    if ammunition != null:
+        game._collect_loot(ammunition)
+        _expect(game.player.reserves["smg"] == 16, "ammunition collection wrong amount")
+    # Real death leaves a non-colliding corpse and a dropped weapon for pickup.
+    var fallen := SurvivalEnemy.new()
+    fallen.configure("soldier", 1, game.player, "rifle")
+    fallen.position = Vector3(11.0, 1.5, 11.0)
+    fallen.loot_dropped.connect(game._on_enemy_loot_dropped)
+    game.add_child(fallen)
+    fallen.take_damage(9999.0)
+    _expect(fallen.dead and fallen.is_in_group("fallen_soldiers"), "enemy corpse not preserved")
+    _expect(not fallen.is_queued_for_deletion(), "corpse despawned immediately")
+    _expect(get_nodes_in_group("world_loot").size() >= 1, "enemy failed to drop a weapon")
+    game._on_shot_fired(fallen.global_position, true)
+    _expect(get_nodes_in_group("blood_fx").size() >= 1, "blood FX absent on a confirmed hit")
+    fallen.queue_free()
     # Previous release had uncolored GLBs: inspect the actual imported scene
     # material on the pistol and make sure the vertex palette is enabled.
     var model_root: Node = game.player.weapon_model
