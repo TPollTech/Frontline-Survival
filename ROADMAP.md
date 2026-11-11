@@ -405,3 +405,39 @@ O [plano de polimento do Campo de Testes](docs/M0_POLIMENTO_CAMPO_TESTES.md) reg
 **Decisão:** manter apenas um modelo Quaternius em teste por onda; não passar todos os inimigos/aliados para humanoides e não ampliar mapas/ondas até validar visualmente a 0.9.14. **A correção é de estrutura óssea, não uma promessa de animação profissional.**
 
 [Diagnóstico e correções](docs/releases/v0.9.14.md) · [QA v0.9.14](docs/QA_V0_9_14.md)
+
+
+## 20. Novas exigências do núcleo Survival — perks, attachments, 30s e combate (11/11/2026)
+
+**Solicitação direta do usuário:** após observar MW3 (2011), o jogador quer perks compráveis, Última Chance/Last Stand, recompensas por metas, estatísticas no fim de cada onda, armas inicialmente sem attachment mas customizáveis na loja (Red Dot + Silenciador etc.), agachamento e deitar. Notou que o MW3 original tem **30 segundos de preparação**; foi confirmado em materiais de 2011.
+
+**PRIORIDADE MANTIDA:** tudo será desenvolvido e homologado primeiro no **Campo de Testes**. Não iniciar mapas adicionais, reforços por helicóptero/camburão, novas ondas ou armas enquanto essa frente ainda for parcial. A versão executável permanece **v0.9.14**; este incremento foi **SOMENTE DOCUMENTAL**.
+
+### Documentos desta pesquisa/planejamento
+
+| Documento | Objetivo | Estado |
+| --- | --- | --- |
+| [MW3 Survival 2011: fatos e divergências](docs/PESQUISA_MW3_SURVIVAL_MECANICAS.md) | Fontes de 2011–2012, diferenças entre Last Stand e Self Revive, 30s, desafios e attachments | **CONCLUÍDO (PESQUISA)** |
+| [Especificação do núcleo CT-01–CT-07](docs/NUCLEO_SURVIVAL_PERKS_ATTACHMENTS_MOVIMENTO.md) | Contratos de estatísticas, economia, perks, compra de acessórios, posturas e testes | **CONCLUÍDO (DOCUMENTAÇÃO)** |
+| [GDD mestre v1.0](docs/GDD_V1_0.md) | Adendo §16 integra esses requisitos como bloqueantes do núcleo | **ATUALIZADO (DOCUMENTAÇÃO)** |
+| [Registro de decisões](docs/REGISTRO_DECISOES.md) | D-017–D-024 e conflito histórico 75s/30s; sem inventar aprovação dos custos | **ATUALIZADO (DOCUMENTAÇÃO)** |
+| [Etapa 3](docs/ETAPA_3_ECONOMIA_SUPORTE.md) | Desafios, perk e kit como componentes reais da economia | **ATUALIZADO (DOCUMENTAÇÃO)** |
+
+### Matriz de desenvolvimento do Campo de Testes
+
+| ID | Recurso | Estado atual | Próximo teste |
+| --- | --- | --- | --- |
+| CT-01 | **Resumo estatístico após onda**: kills, precisão, headshots, tempo, dano, dinheiro por fonte | **PENDENTE** | Contadores consistentes, shotgun sem precisão >100%, bônus uma vez, F e N não bloqueados |
+| CT-01b | **30 s entre ondas** com 75 s preservado para quem já personalizou | **PENDENTE** — código tem padrão 75 e mínimo 45 | Migração do \`ConfigFile\`, 30/45/60/75/90/120, preparar corretamente |
+| CT-02 | **Metas monetárias**: Quad Kill, Rampage, Killstreak, headshots; valores de referência $500 etc. | **PENDENTE** | Não duplicar créditos, distinguir mortes simultâneas de rápidas e 5 sem dano |
+| CT-03 | **Agachar e deitar** com câmera e colisão, não só velocidade | **PARCIAL** — C/Ctrl reduzem velocidade; prone não existe | Colisor, teto, ADS, armas e hit registration |
+| CT-04 | **Attachments compráveis para as cinco armas**: red dot e silenciador simultâneos, efeitos e modelos próprios | **PENDENTE** | Cada arma básica sem acessórios, compra/troca/loot, ADS e WAV apropriados |
+| CT-05 | **Perks na estação de suporte**: benefício real, substituição de um ativo | **PENDENTE** | Compra, troca de efeito, sem stack ou débito duplicado |
+| CT-06 | **Última Chance/Last Stand + Kit de Reanimação** (equipamento diferente de perk) | **PENDENTE** | Pistola ao cair, matar para levantar ou usar kit pré-comprado; treino/clássico separados |
+| CT-07 | **Homologação prolongada no Campo de Testes** | **PENDENTE** | 15 ondas Windows reais, rig humanoide, compras, FPS/RAM e nenhuma regressão |
+
+**Atenção:** uma lista antiga do MW3 Survival **não comprova silenciador à venda no original**. Silenciador para todas as nossas armas é funcionalidade própria aprovada como objetivo pelo usuário. **Tempos exatos, custos, percentuais e teclas propostas não são valores definitivamente aprovados**; após estudo de balanceamento, documentar versão real.
+
+**Regra de escopo:** primeiro confirmar visualmente o humanoide corrigido da v0.9.14 (M0), então CT-01 e CT-02. A ordem acima é orientativa para implementação; manter controle de regressões a cada release. Não confundir documentação com entrega de gameplay.
+
+[Plano M0–M8 atualizado](docs/PLANO_ENTREGA_V1_0.md) · [Pesquisa complementar](docs/PESQUISA_MW3_SURVIVAL_MECANICAS.md)
