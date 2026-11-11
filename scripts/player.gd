@@ -21,6 +21,8 @@ var gun: Node3D
 var weapon_model: Node3D
 var viewmodel_root: Node3D
 var hand_rig: Node3D
+var viewmodel_depth: float = 0.0
+var viewmodel_scale: float = 0.95
 var magazine_part: Node3D
 var action_part: Node3D
 var reload_elapsed: float = 0.0
@@ -142,7 +144,7 @@ func _physics_process(delta: float) -> void:
     camera.fov = lerpf(camera.fov, GameSettings.field_of_view * 0.70 if aim else GameSettings.field_of_view, minf(1.0, delta * 12.0))
     walk_clock += delta * movement.length() * (12.0 if sprinting else 8.0)
     shot_spread_kick = move_toward(shot_spread_kick, 0.0, delta * 1.25)
-    var gun_target := Vector3(0.015, -0.185, -0.44) if aim else Vector3(0.34, -0.27, -0.63)
+    var gun_target := Vector3(0.015, -0.20, -0.59) if aim else Vector3(0.34, -0.27, -0.63)
     gun_target.y += sin(walk_clock) * 0.007 * movement.length()
     recoil = move_toward(recoil, 0.0, delta * 2.0)
     if reloading:
@@ -400,6 +402,10 @@ func _update_gun_mesh() -> void:
             child.queue_free()
     magazine_part = null
     action_part = null
+    weapon_model = null
+    # Scale/depth avoid placing long stocks behind the camera's near plane.
+    viewmodel_scale = float({"pistol": 0.95, "smg": 0.84, "rifle": 0.78, "shotgun": 0.70, "lmg": 0.74}.get(weapon_id, 0.84))
+    viewmodel_depth = float({"pistol": 0.0, "smg": -0.14, "rifle": -0.24, "shotgun": -0.24, "lmg": -0.24}.get(weapon_id, -0.14))
     viewmodel_root = Node3D.new()
     viewmodel_root.name = "Viewmodel"
     gun.add_child(viewmodel_root)
@@ -417,7 +423,8 @@ func _update_gun_mesh() -> void:
             continue
         part.name = part_name
         viewmodel_root.add_child(part)
-        part.scale = Vector3.ONE * 0.95
+        part.scale = Vector3.ONE * viewmodel_scale
+        part.position.z = viewmodel_depth
         if part_name == "mag":
             magazine_part = part
         elif part_name == "action":
@@ -428,11 +435,13 @@ func _update_gun_mesh() -> void:
     hand_rig.name = "Hands"
     viewmodel_root.add_child(hand_rig)
     var long_gun := weapon_id != "pistol"
-    _add_first_person_arm(Vector3(0.30, -0.53, 0.56), Vector3(0.045, -0.20, 0.11), true)
+    var grip_z: float = viewmodel_depth + viewmodel_scale * (0.035 if weapon_id == "pistol" else 0.16)
+    var support_z: float = viewmodel_depth + viewmodel_scale * float({"smg": -0.39, "rifle": -0.48, "shotgun": -0.43, "lmg": -0.55}.get(weapon_id, -0.40))
+    _add_first_person_arm(Vector3(0.30, -0.53, 0.52), Vector3(0.070, -0.18, grip_z), true)
     if long_gun:
-        _add_first_person_arm(Vector3(-0.36, -0.54, 0.38), Vector3(-0.10, -0.16, -0.38), false)
-    var muzzle_z: float = float({"pistol": -0.33, "smg": -0.70, "rifle": -0.96, "shotgun": -1.06, "lmg": -1.16}.get(weapon_id, -0.70))
-    muzzle_flash.position = Vector3(0, 0.02 if weapon_id != "shotgun" else 0.065, muzzle_z)
+        _add_first_person_arm(Vector3(-0.36, -0.54, 0.37), Vector3(-0.075, -0.13, support_z), false)
+    var muzzle_z: float = viewmodel_depth + viewmodel_scale * float({"pistol": -0.31, "smg": -0.69, "rifle": -0.95, "shotgun": -1.04, "lmg": -1.13}.get(weapon_id, -0.69))
+    muzzle_flash.position = Vector3(0, viewmodel_scale * (0.065 if weapon_id == "shotgun" else 0.02), muzzle_z)
     equip_anim_timer = 0.34
 
 func _animate_viewmodel(delta: float, sprinting: bool) -> void:
@@ -456,15 +465,15 @@ func _animate_viewmodel(delta: float, sprinting: bool) -> void:
     var rot_target := Vector3(0.09 * reload_tilt + 0.06 * shot_anim, 0.0, -0.20 * reload_tilt + 0.36 * melee_punch + 0.065 * damage_anim)
     viewmodel_root.rotation = viewmodel_root.rotation.lerp(rot_target, minf(1.0, delta * 17.0))
     if is_instance_valid(magazine_part):
-        var mag_target := Vector3(0.06 * mag_out, -0.29 * mag_out, 0.045 * mag_out)
+        var mag_target := Vector3(0.06 * mag_out, -0.29 * mag_out, viewmodel_depth + 0.045 * mag_out)
         magazine_part.position = magazine_part.position.lerp(mag_target, minf(1.0, delta * 30.0))
         magazine_part.rotation.z = lerpf(magazine_part.rotation.z, 0.22 * mag_out, minf(1.0, delta * 27.0))
     if is_instance_valid(action_part):
         var cycling := 0.048 * shot_anim
         var rack := 0.055 * (sin(t * PI * 3.0) ** 2.0) if reloading and t > 0.67 else 0.0
-        var action_target := Vector3(0, 0, cycling + rack + pump)
+        var action_target := Vector3(0, 0, viewmodel_depth + cycling + rack + pump)
         action_part.position = action_part.position.lerp(action_target, minf(1.0, delta * 26.0))
-    var hand_target := Vector3(0.0, -0.11 * mag_out, 0.0)
+    var hand_target := Vector3(0.0, -0.07 * mag_out, 0.0)
     hand_rig.position = hand_rig.position.lerp(hand_target, minf(1.0, delta * 16.0))
     hand_rig.rotation.z = lerpf(hand_rig.rotation.z, 0.12 * mag_out, minf(1.0, delta * 15.0))
 
