@@ -1,6 +1,6 @@
 # Frontline Survival — Planejamento e Roadmap
 
-**Documento mestre do projeto** · Atualizado: 10/11/2026 · **Base de referência:** protótipo `0.7`; **versão de desenvolvimento:** `0.9.13` · **Situação:** planejamento; novas mecânicas somente após aprovação da etapa.
+**Documento mestre do projeto** · Atualizado: 10/11/2026 · **Base de referência:** protótipo `0.7`; **versão de desenvolvimento:** `0.9.14` · **Situação:** planejamento; novas mecânicas somente após aprovação da etapa.
 
 > **Visão:** FPS 3D offline de sobrevivência por ondas, com combate satisfatório, progressão, dinheiro, compras em estações e suporte tático. Inspiração de mecânicas: Survival dos FPS militares da geração PS3, com identidade, modelos, efeitos e sons próprios. **Não** copiar mapas, arquivos ou personagens de Call of Duty.
 
@@ -386,3 +386,22 @@ A [Etapa 6](docs/ETAPA_6_DESEMPENHO_TESTES_DISTRIBUICAO.md) especifica métricas
 ## 9. Atualização de prioridade M0 — 11/11/2026
 
 O [plano de polimento do Campo de Testes](docs/M0_POLIMENTO_CAMPO_TESTES.md) registra decisão posterior de **priorizar sensação de corrida, hitmarker contextual silencioso, sangue, corpos temporários, loot com F, arcos de dano e personagens mais naturais**, antes de mapa novo, veículos ou ampliação de ondas. A sessão real relatada alcançou a onda 10, **não** as 15 exigidas. A 0.9.12 registra código/CI de parte desse polimento; o aceite visual, a interação contextual F e benchmarks no Ryzen 5 7530U/8 GB seguem pendentes. Ver [registro de decisões](docs/REGISTRO_DECISOES.md) e [GDD mestre](docs/GDD_MESTRE.md). A proposta de lançamento 1.0 e V1-P01–V1-P10 permanecem sem aprovação formal. **GDD PRONTO PARA REVISÃO**, sem expandir escopo.
+
+## 19. Correção de postura do humanoide — hotfix v0.9.14
+
+**Feedback direto (11/11/2026):** screenshot da 0.9.13 revelou pose totalmente deformada, com braços verticalizados e malha torcendo. A qualidade visual da 0.9.13 foi **REPROVADA**, mesmo com CI verde. **Nunca marcar modelos/animadores como aceitos apenas porque 65 ossos existem.**
+
+**Causa identificada:** o script de animação em `scripts/quaternius_soldier_visual.gd` substituía a rotação original de descanso de ossos importados por quaternions relativos (próximos à identidade) em vez de compor pequenas rotações sobre a base. Isso provocou a inversão/deformação visual.
+
+| ID | Mudança | Estado |
+| --- | --- | --- |
+| V0914-01 | Capturar rotações originais do esqueleto do Quaternius | **CONCLUÍDO (CÓDIGO)** |
+| V0914-02 | Aplicar deltas pequenos sobre a pose base de braços, pernas e coluna | **CONCLUÍDO (CÓDIGO)** |
+| V0914-03 | Testar cabeça/quadril/pés, mãos abaixo da cabeça e desvios angulares de ossos | **CONCLUÍDO (CI)** após workflow verde |
+| V0914-04 | Fallback no jogo se pose humana inválida | **CONCLUÍDO (CÓDIGO)** |
+| V0914-05 | Exportar ZIP Windows v0.9.14 e publicar GitHub Release | **AGUARDANDO CI FINAL** |
+| V0914-06 | Inspeção visual no Windows: postura, mãos, arma, pernas, movimento e FPS | **PENDENTE (JOGADOR)** |
+
+**Decisão:** manter apenas um modelo Quaternius em teste por onda; não passar todos os inimigos/aliados para humanoides e não ampliar mapas/ondas até validar visualmente a 0.9.14. **A correção é de estrutura óssea, não uma promessa de animação profissional.**
+
+[Diagnóstico e correções](docs/releases/v0.9.14.md) · [QA v0.9.14](docs/QA_V0_9_14.md)
