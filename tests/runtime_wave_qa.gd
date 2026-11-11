@@ -30,6 +30,30 @@ func _run_tests() -> void:
     _expect(game.wave == 0, "initial wave not yet started")
     _expect(game.player != null, "player was instantiated")
     _expect(game.shops.size() == 3, "physical shops preserved")
+    # Previous release had uncolored GLBs: inspect the actual imported scene
+    # material on the pistol and make sure the vertex palette is enabled.
+    var model_root: Node = game.player.weapon_model
+    _expect(model_root != null, "first-person weapon model exists")
+    if model_root != null:
+        var pending: Array[Node] = [model_root]
+        var found_palette := false
+        while not pending.is_empty():
+            var part: Node = pending.pop_back()
+            if part is MeshInstance3D:
+                var mi: MeshInstance3D = part as MeshInstance3D
+                if mi.material_override is StandardMaterial3D:
+                    var material: StandardMaterial3D = mi.material_override
+                    found_palette = found_palette or material.vertex_color_use_as_albedo
+            for child in part.get_children():
+                pending.append(child)
+        _expect(found_palette, "weapon GLB palette was not applied on runtime mesh")
+    # Previous allied rigs were broken. Spawn and animate two support soldiers.
+    game.ally_tokens = 1
+    game._call_squad()
+    _expect(get_nodes_in_group("allies").size() == 2, "squad did not deploy two allies")
+    for frame in range(12):
+        await physics_frame
+    _expect(get_nodes_in_group("allies").size() == 2, "allies crashed during procedural animation")
 
     var stations: Array[Vector3] = []
     for station in game.shops:
@@ -110,7 +134,7 @@ func _run_tests() -> void:
     game.queue_free()
     await process_frame
     if failures.is_empty():
-        print("QA_RUNTIME_PASS %d assertions, 100 spawn samples, 2 full wave transitions" % checked)
+        print("QA_RUNTIME_PASS %d assertions, 100 spawn samples, 2 wave transitions, armed allies and vertex materials" % checked)
         quit(0)
     else:
         print("QA_RUNTIME_FAIL %s" % str(failures))
