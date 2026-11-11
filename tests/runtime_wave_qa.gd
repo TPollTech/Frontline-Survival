@@ -107,6 +107,34 @@ func _run_tests() -> void:
         "game economy did not pay rapid-kill challenge once")
     _expect(game.round_stats.shots == 4 and game.round_stats.hits == 4,
         "game failed one-shot-one-trigger tracking")
+    # Test attachments and gun models on ALL five classes, not only the pistol.
+    for gun_id in ["pistol", "smg", "rifle", "shotgun", "lmg"]:
+        game.player.equip(gun_id)
+        game.player.install_attachment("optic", "red_dot")
+        game.player.install_attachment("muzzle", "suppressor")
+        _expect(game.player.has_attachment("optic", "red_dot"),
+            "Red Dot unavailable on " + gun_id)
+        _expect(game.player.has_attachment("muzzle", "suppressor"),
+            "Suppressor unavailable on " + gun_id)
+        _expect(game.player.viewmodel_root.find_child("Attachment_Optic_red_dot", true, false) != null,
+            "Red Dot has no model on " + gun_id)
+        _expect(game.player.viewmodel_root.find_child("Attachment_Muzzle_suppressor", true, false) != null,
+            "Suppressor has no model on " + gun_id)
+    game.player.equip("pistol")
+    # The second downed encounter may recover through a player kill but a
+    # support-soldier kill must not improperly give the player a second chance.
+    game.player.last_stand_available = true
+    game.player.invulnerability_timer = 0.0
+    game.player.health = 3.0
+    game.player.take_damage(100.0)
+    _expect(game.player.downed and game.player.magazines["pistol"] >= 8,
+        "second last stand or emergency pistol ammunition failed")
+    game.round_stats.begin(1)
+    game._on_enemy_combat_defeat(9555, "support", false, 0, 50)
+    _expect(game.player.downed, "an allied soldier erroneously revived downed player")
+    game._on_enemy_combat_defeat(9556, "player", false, 1, 50)
+    _expect(not game.player.downed and game.player.health >= 35.0,
+        "a player pistol kill did not recover last stand")
     game.phase = "break"
     # Tactical sprint suppresses fire, distinct from merely speeding up walking.
     var original_ammo: int = int(game.player.magazines[game.player.weapon_id])
