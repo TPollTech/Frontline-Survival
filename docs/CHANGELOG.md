@@ -1,5 +1,23 @@
 # Frontline Survival — Histórico de versões
 
+## 0.9.15 — Survival Core: perks, metas, attachments, prone e autorreanimação
+
+**Estado:** CT-01 a CT-06 implementados em código; CI e visual Windows obrigatórios antes de afirmar conclusão. **Sem mapas/ondas/veículos novos.**
+
+- Tempo entre ondas **30 s padrão**, opções 30–120 no menu; configurações antigas preservadas.
+- Motor independente de estatísticas: tiros por disparo (escopeta sem multiplicar pellets), precisão, headshots, dano, tempo e créditos por fonte; relatório temporário após onda.
+- Desafios Rampage (quatro kills rápidas), Killstreak (cinco sem sofrer dano), Headshots (cinco abates na cabeça) e Quad Kill (mesma explosão). Duas metas por onda, +$500 por meta, sem duplicidades.
+- Lojas paginadas: red dot/holográfica e silenciador/compensador para **cada uma das cinco armas**, comprados sem acessórios iniciais; acessórios em 3D, com som gravado filtrado quando suprimido.
+- Cinco perks compráveis no suporte (um ativo por vez), com efeitos reais de velocidade de recarga, dispersão, ADS, mobilidade e dano recebido.
+- Agachar/deitar com altura de câmera e cápsula, checagem de teto para não atravessar o mapa.
+- Última Chance: estado ferido, pistola com oito tiros de emergência, dez segundos para um abate pessoal; Kit de Reanimação de um uso comprado em equipamentos.
+- Teste determinístico de recompensas e testes Godot de compras/perks/armas/postura/queda adicionados.
+- Novo teste visual renderiza o Quaternius em Xvfb, guarda PNG de QA e preserva fallback. Isto **não valida profissionalmente** a animação.
+
+[Notas v0.9.15](releases/v0.9.15.md) · [QA v0.9.15](QA_V0_9_15.md)
+
+---
+
 ## 0.9.14 — Correção do humanoide deformado (hotfix)
 
 **Motivo:** o screenshot real do jogador **reprovou** a aparência do protótipo da v0.9.13: braços levantados, antebraços cruzados e malha distorcida. **Correção estrutural**, não adição de conteúdo.
