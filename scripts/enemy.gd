@@ -3,6 +3,7 @@ class_name SurvivalEnemy
 
 const GunMaterials = preload("res://scripts/weapon_materials.gd")
 const ArmPose = preload("res://scripts/weapon_pose.gd")
+const ObstacleSteering = preload("res://scripts/obstacle_steering.gd")
 ## Lightweight articulated procedural soldier; independent hip, knee, shoulder,
 ## elbow and upper-body pivots. Designed for up to 12 concurrent enemies.
 
@@ -22,6 +23,10 @@ var reward: int = 50
 var dead: bool = false
 var detour_remaining: float = 0.0
 var detour_direction: Vector3 = Vector3.ZERO
+var navigation_check: float = 0.15
+var stalled_for: float = 0.0
+var last_motion_position: Vector3 = Vector3.ZERO
+var obstacle_preference: float = 1.0
 var hurt_flash: float = 0.0
 var hurt_lean: float = 0.0
 var stagger_remaining: float = 0.0
@@ -264,6 +269,13 @@ func _physics_process(delta: float) -> void:
     var distance := to_player.length()
     var direction := to_player.normalized() if distance > 0.1 else Vector3.ZERO
     var goal_distance := 4.5 if kind == "runner" else (10.0 if kind == "heavy" else (5.5 if weapon_class == "shotgun" else 9.0))
+    navigation_check -= delta
+    if navigation_check <= 0.0:
+        navigation_check = randf_range(0.23, 0.36)
+        if distance > goal_distance and ObstacleSteering.blocked(self, direction, 2.35):
+            obstacle_preference *= -1.0 if randf() < 0.40 else 1.0
+            detour_direction = ObstacleSteering.choose_detour(self, direction, obstacle_preference)
+            detour_remaining = maxf(detour_remaining, 0.65)
     var visible := _has_sight()
     var chase := distance > goal_distance or not visible
     var steer := direction
@@ -287,6 +299,21 @@ func _physics_process(delta: float) -> void:
     if distance > 0.2:
         rotation.y = lerp_angle(rotation.y, atan2(-direction.x, -direction.z), minf(1.0, delta * 6.0))
     move_and_slide()
+    # Detect motion that only looks active on the animation, e.g. a blocked wall.
+    var planar_progress := Vector2(
+        global_position.x - last_motion_position.x,
+        global_position.z - last_motion_position.z
+    ).length()
+    last_motion_position = global_position
+    if chase and stagger_remaining <= 0.0 and planar_progress < 0.18 * delta:
+        stalled_for += delta
+    else:
+        stalled_for = maxf(0.0, stalled_for - delta * 1.9)
+    if stalled_for > 0.72:
+        obstacle_preference *= -1.0
+        detour_direction = ObstacleSteering.choose_detour(self, direction, obstacle_preference)
+        detour_remaining = 1.15
+        stalled_for = 0.0
     var moving := Vector2(velocity.x, velocity.z).length() > 0.2
     _animate_body(delta, moving)
     if chase and get_slide_collision_count() > 0 and detour_remaining <= 0.0:
