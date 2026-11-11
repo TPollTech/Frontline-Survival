@@ -30,7 +30,9 @@ func _run_tests() -> void:
     _expect(game.wave == 0, "initial wave not yet started")
     _expect(game.player != null, "player was instantiated")
     _expect(game.shops.size() == 3, "physical shops preserved")
-    _expect(GameSettings.intermission_seconds >= 30, "30-second intervals are unavailable")
+    var settings_node: Node = root.get_node_or_null("GameSettings")
+    _expect(settings_node != null and int(settings_node.get("intermission_seconds")) >= 30,
+        "30-second intervals are unavailable")
     # Pages exist because each physical store has more than five options.
     game.wallet = 6000
     game._open_shop("weapons")
