@@ -2,7 +2,7 @@
 config_version=5
 
 [application]
-config/name="Frontline Survival - Campo de Testes 0.9.10"
+config/name="Frontline Survival - Campo de Testes 0.9.11"
 run/main_scene="res://scenes/main.tscn"
 config/features=PackedStringArray("4.0", "GL Compatibility")
 
