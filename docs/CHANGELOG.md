@@ -1,5 +1,25 @@
 # Frontline Survival — Histórico de versões
 
+## 0.9.1 — Paleta de armas, aliados, mira real e som de onda (em validação)
+
+**Origem:** na v0.9.0, uma captura real mostrou armas brancas, aliados com poses deformadas e mira desalinhada; houve relato de apitos irritantes. O trabalho da 0.9.1 implementa correções, mas **não está homologado visualmente** até teste em Windows.
+
+**Alterações de código:**
+- GLBs armazenam cores no atributo `COLOR_0`. Novo material Godot configura `vertex_color_use_as_albedo`, usado por jogador, inimigos e aliados. Corrige o problema de cores que persistiu após inverter as faces da v0.9.0.
+- Criada uma solução compartilhada para braços com geometria de dois segmentos e cotovelos posicionados segundo comprimento de braço e distância até a empunhadura. Reduz poses invertidas de soldados e aliados.
+- Colete, mochila e ombreiras dos aliados receberam proporções menores para uma silhueta mais limpa.
+- Retirados a crosshair 2D e o hitmarker sonoro agudo; tiro na cabeça continua recompensado pelo texto/créditos.
+- Ao mirar, o visor/ferrolho frontal da arma é alinhado ao eixo central da câmera; as ópticas do fuzil/SMG/LMG têm abertura e poste 3D, sem disco opaco.
+- Aplicação do recuo deslocada para **depois do raycast**, mantendo o primeiro tiro no ponto de mira antes da subida da câmera.
+- Fim de onda recebe dois toques graves suaves sintetizados no próprio jogo; volume do efeito de compra reduzido.
+- Preservados Campo de Testes, textura do asfalto, compras por F, intervalo padrão de 75 segundos, ondas contínuas, modos treino/clássico e reforços.
+
+**Etapas do ROADMAP:** Etapa 1 (armas/mira), Etapa 2 (representação dos aliados e inimigos) e Etapa 5 (HUD e áudio) **PARCIAIS** até validação jogando. Etapa 0 (estabilidade) também **PARCIAL**; sessão de 15 ondas ainda pendente.
+
+**QA:** [TESTES_0_9_1.md](TESTES_0_9_1.md). A build só será marcada **CONCLUÍDA (CI + RELEASES)** quando a exportação Windows passar e a [release v0.9.1](https://github.com/TPollTech/Frontline-Survival/releases/tag/v0.9.1) contiver o ZIP.
+
+---
+
 ## 0.9 — Correção visual de armas e empunhadura (em validação)
 
 **Estado de entrega:** **CI CONCLUÍDO** na [execução Windows 0.9](https://github.com/TPollTech/Frontline-Survival/actions/runs/42941790033): modelos regenerados, importação Godot 4.4.1, smoke test headless, integridade estática, exportação e artifact ZIP aprovados. Os 19 GLBs corrigidos foram [commitados no GitHub](https://github.com/TPollTech/Frontline-Survival/commit/680a86643ac51841cbe835d8dd8e194b4079c8f7). **Etapas 1 e 2: PARCIAIS**, pois visual, animação e jogabilidade real ainda precisam de aprovação do jogador.
