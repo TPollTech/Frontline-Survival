@@ -96,6 +96,14 @@ for fragment in (
 ):
     require(fragment in main, f"Missing continuous-survival feature: {fragment}")
 require("KEY_B" not in main, "Fast-shop B was restored by mistake")
+require("crosshair_h" not in main and "crosshair_v" not in main,
+        "Hardcore aiming: 2D crosshair accidentally restored")
+require("hit_audio" not in main and "round_audio.play()" in main,
+        "Irritating hit-confirmation beep must stay disabled; soft wave cue required")
+require("RoundCue.create(self)" in main and (ROOT / "scripts/round_cue.gd").is_file(),
+        "Soft synthesized wave cue missing")
+require("sight_height" in player and "camera.rotation.x = clampf" in player,
+        "Physical sight alignment and camera recoil fix missing")
 require("KEY_F" not in player, "F should be interaction only, never shoot")
 for fragment in ('func _animate_viewmodel(', 'magazine_part.position', 'action_part.position', 'reload_elapsed', 'shot_anim'):
     require(fragment in player, f"Weapon animation missing: {fragment}")
@@ -121,6 +129,8 @@ require((ROOT / 'scenes/main.tscn').exists(), "Missing main scene")
 
 models = ROOT / 'assets/models'
 weapons = ['pistol','smg','rifle','shotgun','lmg']
+# Godot can render imported GLBs white unless COLOR_0 is enabled by a material.
+# All source geometry is expected to preserve the color attribute.
 for weapon in weapons:
     full = models / f'{weapon}.glb'
     require(full.is_file(), f"Missing merged {weapon} GLB")
