@@ -64,6 +64,10 @@ Estas são características descritas no código/README, não equivalem a compro
 | P-021 | Um mapa definitivo na primeira versão completa, além do Campo de Testes | [Etapa 4](ETAPA_4_MAPAS_ARQUITETURA.md) | Aprovar escopo fechado de lançamento |
 | P-022 | Cenas de mapa independentes, MapLoader e recordes por mapa e modo | [Etapa 4](ETAPA_4_MAPAS_ARQUITETURA.md) | Aprovar contrato e migração sem regressão |
 
+| P-023 | Hierarquia do HUD, estados de menus e feedback contextual | [Etapa 5](ETAPA_5_HUD_AUDIO_ACESSIBILIDADE.md) | Aprovar após avaliação visual em 720p |
+| P-024 | Buses de áudio, acessibilidade e presets gráficos efetivos | [Etapa 5](ETAPA_5_HUD_AUDIO_ACESSIBILIDADE.md) | Validar mixagem, preferências e hardware-alvo |
+| P-025 | Resultados e estatísticas locais sem misturar modos/mapas | [Etapa 5](ETAPA_5_HUD_AUDIO_ACESSIBILIDADE.md) | Aprovar dependência dos recordes da Etapa 4 |
+
 ## D. Fora de escopo por enquanto
 
 - Multiplayer e coop.
@@ -83,4 +87,4 @@ Estas são características descritas no código/README, não equivalem a compro
 
 ## F. Próxima rodada de planejamento
 
-A **Etapa 2 — inimigos e progressão de ondas** foi especificada em 10/11/2026, sem implementação e sem aprovação das propostas. A **Etapa 4 — arquitetura e mapa multissetores** também foi especificada em 10/11/2026, sem alteração do jogo. Próximas lacunas: **Etapa 5 — interface, HUD, áudio e acessibilidade** e **Etapa 6 — desempenho, testes e distribuição**. A Etapa 3 mantém suas propostas de economia e suporte pendentes de aprovação. As Etapas 0 e 1 continuam especificadas, mas ainda não testadas/aprovadas para implementação.
+A **Etapa 2 — inimigos e progressão de ondas** foi especificada em 10/11/2026, sem implementação e sem aprovação das propostas. A **Etapa 4 — arquitetura e mapa multissetores** também foi especificada em 10/11/2026, sem alteração do jogo. A **Etapa 5 — interface, HUD, áudio e acessibilidade** foi especificada em 10/11/2026, ainda sem aprovação. Próxima lacuna: **Etapa 6 — desempenho, testes e distribuição**, seguida da consolidação do GDD. A Etapa 3 mantém suas propostas de economia e suporte pendentes de aprovação. As Etapas 0 e 1 continuam especificadas, mas ainda não testadas/aprovadas para implementação.

@@ -150,6 +150,7 @@ Os documentos abaixo detalham critérios e hipóteses sem autorizar implementaç
 - [Etapa 2 — Inimigos, IA e progressão de ondas](docs/ETAPA_2_INIMIGOS_ONDAS.md): arquétipos, faixas de armas, diretor de ondas, spawn seguro, navegação e matriz de testes.
 - [Etapa 3 — Economia, estações e suporte tático](docs/ETAPA_3_ECONOMIA_SUPORTE.md): inventário 0.7, transações, limites, torretas, esquadrão, ataque aéreo, balanceamento e QA.
 - [Etapa 4 — Mapas multissetoriais e arquitetura](docs/ETAPA_4_MAPAS_ARQUITETURA.md): Complexo Industrial (cinco setores propostos), rotas, lojas, spawn, MapLoader, desempenho e 18 cenários de QA.
+- [Etapa 5 — HUD, menus, áudio e acessibilidade](docs/ETAPA_5_HUD_AUDIO_ACESSIBILIDADE.md): hierarquia de informações, estados, mixagem, configurações, acessibilidade e 18 testes pendentes.
 - [Registro de decisões e propostas](docs/REGISTRO_DECISOES.md): requisitos já estabelecidos versus ideias pendentes.
 - [Plano de mapas](docs/PLANO_MAPAS.md): Campo de Testes permanente e proposta de mapa multissetores.
 - [Testes de regressão existentes da 0.7](docs/TESTES_0_7.md): roteiro técnico anterior, complementado pela Etapa 0.
@@ -165,10 +166,11 @@ Os documentos abaixo detalham critérios e hipóteses sem autorizar implementaç
 | Etapa 2 — Inimigos e ondas | **Especificada em 10/11/2026**; propostas aguardam aprovação | Não iniciada |
 | Etapa 3 — Economia e reforços | **Especificada em 10/11/2026**; preços finais e propostas pendentes de aprovação | Não iniciada |
 | Etapa 4 — Mapas | **Especificada em 10/11/2026**; layout de cinco setores e arquitetura ainda sujeitos a aprovação | Não iniciada |
-| Etapas 5–6 | Visão geral no roadmap; detalhamento pendente | **PARCIAL** — aviso direcional do HUD e pipeline de exportação Windows 0.8, ainda sem teste real no Windows |
+| Etapa 5 — HUD, áudio e UX | **Especificada em 10/11/2026**; propostas aguardam aprovação | **PARCIAL** — aviso direcional do HUD e pipeline de exportação Windows 0.8, ainda sem teste real no Windows |
+| Etapa 6 — desempenho e distribuição | Detalhamento pendente | Não concluída; CI de exportação 0.8 não substitui teste no Windows |
 | GDD consolidado | **Ainda não concluído**; consolidar após as etapas | Não aplicável |
 
-**Último avanço de produto:** versão 0.8 com indicador direcional de dano, feedback de headshot, mira ADS e retícula dinâmica. Importação de assets, smoke test Godot headless, verificação estática e exportação Windows foram concluídos no CI; **testes de gameplay no Windows permanecem pendentes**. O planejamento deve continuar pela Etapa 5 sem alterar o código automaticamente.
+**Último avanço de produto:** versão 0.8 com indicador direcional de dano, feedback de headshot, mira ADS e retícula dinâmica. Importação de assets, smoke test Godot headless, verificação estática e exportação Windows foram concluídos no CI; **testes de gameplay no Windows permanecem pendentes**. O planejamento deve continuar pela Etapa 6 sem alterar o código automaticamente.
 
 ## 9. Registro de implementação e evidências — 0.8 (10/11/2026)
 
