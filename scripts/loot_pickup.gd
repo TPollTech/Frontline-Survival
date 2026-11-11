@@ -57,5 +57,5 @@ func _process(delta: float) -> void:
 
 func prompt() -> String:
     if pickup_type == "ammo":
-        return "F  •  PEGAR MUNICAO"
+        return "F  •  MUNICAO %s (+%d)" % [weapon_id.to_upper(), amount]
     return "F  •  PEGAR %s" % weapon_id.to_upper()
