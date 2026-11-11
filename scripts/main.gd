@@ -1023,6 +1023,8 @@ func _refresh_ui() -> void:
     crosshair_v.visible = not shop_open and not player.dead
     var running := player.velocity.length() > 6.0
     var radius: float = 3.0 if player.aim else (11.0 if running else 7.0)
+    # A reticula abre durante o disparo automatico e volta conforme o recuo estabiliza.
+    radius += player.shot_spread_kick * (250.0 if player.aim else 650.0)
     crosshair_h.position = Vector2(640.0 - radius, 359.0)
     crosshair_h.size = Vector2(radius * 2.0, 2.0)
     crosshair_v.position = Vector2(639.0, 360.0 - radius)
