@@ -3,6 +3,7 @@ class_name SurvivalAlly
 
 const GunMaterials = preload("res://scripts/weapon_materials.gd")
 const ArmPose = preload("res://scripts/weapon_pose.gd")
+const ObstacleSteering = preload("res://scripts/obstacle_steering.gd")
 ## Allied support soldier with a simple jointed visual rig, distinct blue patches.
 
 var player: SurvivalPlayer
@@ -25,6 +26,9 @@ var gun_mount: Node3D
 var head_pivot: Node3D
 var follow_stall: float = 0.0
 var follow_recovery: float = 0.0
+var follow_direction: Vector3 = Vector3.ZERO
+var navigation_clock: float = 0.12
+var last_follow_position: Vector3 = Vector3.ZERO
 
 func configure(target: SurvivalPlayer) -> void:
     player = target
@@ -171,9 +175,31 @@ func _physics_process(delta: float) -> void:
     else:
         velocity.y = -0.2
     var move := vec.normalized() if vec.length() > stand_off else Vector3.ZERO
+    navigation_clock -= delta
+    if navigation_clock <= 0.0:
+        navigation_clock = randf_range(0.28, 0.42)
+        if move.length_squared() > 0.0 and ObstacleSteering.blocked(self, move, 1.85):
+            follow_direction = ObstacleSteering.choose_detour(self, move)
+            follow_recovery = 0.65
+    if follow_recovery > 0.0 and move.length_squared() > 0.0:
+        move = (move * 0.35 + follow_direction * 0.85).normalized()
+        follow_recovery = maxf(0.0, follow_recovery - delta)
     velocity.x = move.x * 3.65
     velocity.z = move.z * 3.65
     move_and_slide()
+    var advance := Vector2(
+        global_position.x - last_follow_position.x,
+        global_position.z - last_follow_position.z
+    ).length()
+    last_follow_position = global_position
+    if vec.length() > stand_off and advance < 0.17 * delta:
+        follow_stall += delta
+    else:
+        follow_stall = maxf(0.0, follow_stall - delta)
+    if follow_stall > 0.9:
+        follow_direction = ObstacleSteering.choose_detour(self, vec, -1.0)
+        follow_recovery = 1.25
+        follow_stall = 0.0
     if vec.length() > 0.1:
         rotation.y = lerp_angle(rotation.y, atan2(-vec.x, -vec.z), minf(1.0, delta * 6.0))
     walk_time += delta * 11.0 * move.length()
