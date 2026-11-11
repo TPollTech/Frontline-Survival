@@ -94,3 +94,23 @@ Estas são características descritas no código/README, não equivalem a compro
 ## F. Próxima rodada de planejamento
 
 A **Etapa 2 — inimigos e progressão de ondas** foi especificada em 10/11/2026, sem implementação e sem aprovação das propostas. A **Etapa 4 — arquitetura e mapa multissetores** também foi especificada em 10/11/2026, sem alteração do jogo. A **Etapa 5 — interface, HUD, áudio e acessibilidade** foi especificada em 10/11/2026, ainda sem aprovação. A **Etapa 6 — desempenho, testes e distribuição** foi especificada em 10/11/2026, com propostas P-026–P-029 ainda pendentes. **GDD mestre consolidado em 11/11/2026:** [GDD_MESTRE.md](GDD_MESTRE.md) — **GDD PRONTO PARA REVISÃO**, não aprovado. Auditoria C-01–C-06; próximas execuções apenas verificam decisões novas ou conflitos resolvidos, sem repetir documentos. A Etapa 3 mantém suas propostas de economia e suporte pendentes de aprovação. As Etapas 0 e 1 continuam especificadas, mas ainda não testadas/aprovadas para implementação.
+
+## G. Escopo de lançamento v1.0 — proposta de 11/11/2026
+
+**Estas dez propostas ainda NÃO são decisões aprovadas pelo usuário.** Foram documentadas para permitir uma 1.0 de escopo fechado, baseada no Survival de MW3 2011 sem copiar assets, interfaces ou propriedade intelectual. A referência de fatos históricos e limitações está em [PESQUISA_MW3_SURVIVAL_2011.md](PESQUISA_MW3_SURVIVAL_2011.md); a proposta completa está em [GDD_V1_0.md](GDD_V1_0.md).
+
+| ID | Proposta para v1.0 | Status |
+| --- | --- | --- |
+| V1-P01 | Um mapa definitivo (Complexo Industrial) + Campo de Testes | **PROPOSTO** |
+| V1-P02 | Cinco armas base distintas (pistola, SMG, rifle, escopeta, LMG) | **PROPOSTO** |
+| V1-P03 | Cinco papéis inimigos incluindo pesado terrestre | **PROPOSTO** |
+| V1-P04 | Normal e Veterano como duas dificuldades do mapa oficial | **PROPOSTO** |
+| V1-P05 | Até vinte patentes offline sem bônus permanentes de dano | **PROPOSTO** |
+| V1-P06 | Até dois acessórios simples por arma no lançamento | **PROPOSTO** |
+| V1-P07 | Helicópteros e cães explosivos fora da 1.0, para expansão | **PROPOSTO** |
+| V1-P08 | Todos os cinco setores do mapa oficial livres desde o início | **PROPOSTO** |
+| V1-P09 | Alvo mínimo de 30 FPS a 720p baixo, com métricas reais | **PROPOSTO** |
+| V1-P10 | Declarar 1.0 somente após os 12 gates G1–G12 completos | **PROPOSTO** |
+
+**Nenhuma mudança de código foi feita por esta rodada.** Próximos passos: revisão/aprovação das decisões, ajuste de parâmetros com playtest e execução das milestones [M0–M8](PLANO_ENTREGA_V1_0.md).
+
