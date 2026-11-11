@@ -39,7 +39,7 @@ Esse é o **fim concreto do projeto base**. O que vier depois vira atualização
 
 1. FPS 3D **solo/offline**; sem campanha, multiplayer, co-op, sistema de contas ou monetização.
 2. **Ondas contínuas**, com preparação após concluir a onda e avanço automático, nunca tela de vitória por limpar o mapa.
-3. Preparação **ATUALMENTE 75 s**, opções **45–120 s** no código. **Revisão solicitada:** MW3 Survival (2011) usa 30 s; adotar **30 s como novo padrão proposto** com opções 30/45/60/75/90/120 s, sem sobrescrever configurações antigas; N antecipa somente na preparação. Ver adendo da pesquisa.
+3. Preparação **30 s como padrão para novas instalações desde o código v0.9.15**; opções de 30–120 s e preferências já salvas (como 75 s) preservadas; N antecipa somente na preparação. O ajuste corresponde à pesquisa do MW3 Survival (2011); avaliação do tempo no Campo de Testes continua pendente.
 4. Estações físicas distintas: **armas, equipamentos e suporte**, acessadas por **F** ao se aproximar. Sem compras pelo B de qualquer posição.
 5. Campo de Testes preservado para QA, inclusive textura de asfalto; mapa definitivo separado.
 6. Reforços pagos e acionados depois: teclas **3 = esquadrão; 4 = aéreo**, desde que comprado.
@@ -366,14 +366,14 @@ Aumentos de escopo propostos após aprovar este GDD ficam em **BACKLOG_1_1_PLUS.
 
 | Requisito pedido | Nova obrigação de produto | Documento de especificação | Estado real |
 | --- | --- | --- | --- |
-| Perks compráveis | Perks funcionais, adquiridos na estação de suporte; um ativo por vez, substituição clara | Núcleo §3 | **PENDENTE** |
-| Last Stand | Estado de queda com pistola e chance de recuperar; Kit de Reanimação comprável na estação de equipamentos | Núcleo §4 | **PENDENTE** |
-| Metas por dinheiro | Rampage, Killstreak, headshots, quadkill e variantes elegíveis conforme mecânicas existentes | Núcleo §2 | **PENDENTE** |
-| Resumo de onda | Precisão, eliminações, headshots, tempo, dano sofrido, detalhamento do dinheiro recebido | Núcleo §1 | **PENDENTE** |
-| Preparação | **30 s como novo padrão proposto** para novos usuários, opções maiores e antecipação N | Núcleo §1 | **75 s no código; alteração PENDENTE** |
-| Attachments | Todas as cinco armas são básicas ao comprar; Red Dot e Silenciador comprados e instalados, visual e funcionalmente | Núcleo §5 | **PENDENTE** |
-| Agachamento real | C/Ctrl reduzem altura de câmera/colisão e mudam mobilidade/tiro | Núcleo §6 | **PARCIAL:** atualmente só reduz velocidade |
-| Deitar / prone | Postura rastejando, câmera/colisor e ADS adequados, trava ao tentar levantar sob teto | Núcleo §6 | **PENDENTE** |
+| Perks compráveis | Perks funcionais, adquiridos na estação de suporte; um ativo por vez, substituição clara | Núcleo §3 | **IMPLEMENTADO (CÓDIGO)** — QA/Windows pendentes |
+| Last Stand | Estado de queda com pistola e chance de recuperar; Kit de Reanimação comprável na estação de equipamentos | Núcleo §4 | **IMPLEMENTADO (CÓDIGO)** — QA/Windows pendentes |
+| Metas por dinheiro | Rampage, Killstreak, headshots, quadkill e variantes elegíveis conforme mecânicas existentes | Núcleo §2 | **IMPLEMENTADO (4 metas)** — teste/QA pendentes |
+| Resumo de onda | Precisão, eliminações, headshots, tempo, dano sofrido, detalhamento do dinheiro recebido | Núcleo §1 | **IMPLEMENTADO (CÓDIGO)** — inspeção UI pendente |
+| Preparação | 30 s padrão para novas instalações, opções maiores e antecipação N | Núcleo §1 | **IMPLEMENTADO (CÓDIGO)** — configurações gravadas preservadas |
+| Attachments | Todas as cinco armas são básicas ao comprar; Red Dot e Silenciador comprados e instalados, visual e funcionalmente | Núcleo §5 | **IMPLEMENTADO (CÓDIGO)** — visual e qualidade áudio pendentes |
+| Agachamento real | C/Ctrl reduzem altura de câmera/colisão e mudam mobilidade/tiro | Núcleo §6 | **IMPLEMENTADO (CÓDIGO)** — teste de teto pendente |
+| Deitar / prone | Postura rastejando, câmera/colisor e ADS adequados, trava ao tentar levantar sob teto | Núcleo §6 | **IMPLEMENTADO (CÓDIGO)** — QA de colisão/ADS pendente |
 
 As palavras **perk**, *Última Chance*, attachment e modelo de economia são regras de jogo; usar visual e nomes próprios. Nos guias de MW3 2011, **Self Revive é equipamento**, separado dos perks recebidos via suporte; não misturar Last Stand multiplayer com o funcionamento de Survival. O silenciador universal das cinco classes é uma extensão original requerida pelo usuário, **não** um item historicamente comprovado no armário de MW3 Survival.
 
@@ -396,4 +396,4 @@ Adicionar aos gates existentes do §11:
 3. Só depois retomar mapas, helicópteros, camburões, novos tipos de inimigo e complexidade de ondas.
 4. As propostas antigas V1-P01–P10 não estão todas aprovadas automaticamente; o pedido atual aprova **o objetivo de ter acessórios/perks/posturas**, não os preços, atalhos e percentuais exatos apresentados para design.
 
-**Esta rodada somente atualiza documentação.** O status da versão executável permanece v0.9.14 até existir nova compilação testada.
+**Atualização de implementação:** os CT-01–CT-06 foram codificados na branch main com alvo de entrega **v0.9.15**, mas a conclusão depende dos testes CI, do ZIP Windows e da avaliação jogando. **Não declarar v1.0 por esta implementação.**
