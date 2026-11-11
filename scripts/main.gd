@@ -62,6 +62,7 @@ var countdown_warning: int = -1
 var previous_wave_kills: int = 0
 var round_stats = RoundStats.new()
 var round_report: Label
+var report_background: ColorRect
 var report_remaining: float = 0.0
 var grenade_event_serial: int = 0
 var wave_kills: int = 0
@@ -888,6 +889,8 @@ func _on_headshot() -> void:
     if is_instance_valid(hitmarker):
         hitmarker.call("flash", true)
     wallet += 12
+    if phase == "wave":
+        round_stats.money_headshots += 12
     reward_hud.text = "+$12  |  TIRO NA CABECA"
     reward_timer = 1.15
 
@@ -1042,8 +1045,14 @@ func _create_ui() -> void:
     message_hud.add_theme_color_override("font_color", Color(0.96, 0.90, 0.63))
     reward_hud = _add_label(root, Vector2(738, 375), Vector2(326, 44), 17)
     reward_hud.add_theme_color_override("font_color", Color(0.47, 0.98, 0.63))
-    _hud_panel(root, Vector2(414, 404), Vector2(455, 163))
-    round_report = _add_label(root, Vector2(426, 416), Vector2(435, 144), 16)
+    # The panel itself must vanish outside the short intermission recap.
+    report_background = ColorRect.new()
+    report_background.position = Vector2(414, 404)
+    report_background.size = Vector2(455, 163)
+    report_background.color = Color(0.02, 0.065, 0.072, 0.94)
+    report_background.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    root.add_child(report_background)
+    round_report = _add_label(report_background, Vector2(12, 10), Vector2(431, 145), 16)
     round_report.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
     round_report.add_theme_color_override("font_color", Color(0.84, 0.95, 0.88))
     round_report.visible = false
@@ -1221,7 +1230,7 @@ func _refresh_ui() -> void:
         help_hud.text = "F  •  ACESSAR %s" % shop_names.get(shop_near, "LOJA")
     else:
         help_hud.text = ""
-    round_report.visible = report_remaining > 0.0 and phase == "break" and not shop_open and not player.dead
+    report_background.visible = report_remaining > 0.0 and phase == "break" and not shop_open and not player.dead
     fps_hud.text = "%d FPS" % Engine.get_frames_per_second()
     fps_hud.visible = GameSettings.show_fps
     message_hud.text = status_text if status_timer > 0.0 else ""
