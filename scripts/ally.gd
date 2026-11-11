@@ -22,6 +22,9 @@ var right_shoulder: Node3D
 var left_elbow: Node3D
 var right_elbow: Node3D
 var gun_mount: Node3D
+var head_pivot: Node3D
+var follow_stall: float = 0.0
+var follow_recovery: float = 0.0
 
 func configure(target: SurvivalPlayer) -> void:
     player = target
@@ -79,10 +82,14 @@ func _ready() -> void:
     _box(visual, Vector3(0, -0.28, 0), Vector3(0.50, 0.15, 0.31), boots, "Belt")
     for x in [-0.14, 0.0, 0.14]:
         _box(visual, Vector3(x, 0.02, -0.35), Vector3(0.115, 0.18, 0.075), armor.darkened(0.22), "Pouch")
-    _capsule(visual, Vector3(0, 0.76, 0), 0.20, 0.38, Color(0.54, 0.43, 0.32), "Head")
-    _capsule(visual, Vector3(0, 0.89, 0), 0.235, 0.28, armor, "Helmet")
-    _box(visual, Vector3(0, 0.79, -0.19), Vector3(0.31, 0.11, 0.075), boots, "Visor")
-    _box(visual, Vector3(0, 0.66, -0.155), Vector3(0.29, 0.12, 0.10), uniform.darkened(0.15), "Cover")
+    # The old head floated above the torso. Build an overlapping collar/neck
+    # and attach head + helmet to a single pivot inside the chest silhouette.
+    _capsule(visual, Vector3(0, 0.49, 0), 0.15, 0.27, uniform, "NeckCollar")
+    head_pivot = _joint(visual, Vector3(0, 0.64, 0.0), "HeadPivot")
+    _capsule(head_pivot, Vector3.ZERO, 0.19, 0.35, Color(0.54, 0.43, 0.32), "Head")
+    _capsule(head_pivot, Vector3(0, 0.13, 0), 0.224, 0.26, armor, "Helmet")
+    _box(head_pivot, Vector3(0, 0.06, -0.175), Vector3(0.29, 0.095, 0.075), boots, "Visor")
+    _box(head_pivot, Vector3(0, -0.105, -0.15), Vector3(0.27, 0.115, 0.095), uniform.darkened(0.15), "Mask")
 
     for side in [-1.0, 1.0]:
         var hip := _joint(visual, Vector3(side * 0.19, -0.34, 0), "LeftHip" if side < 0.0 else "RightHip")
@@ -177,6 +184,7 @@ func _physics_process(delta: float) -> void:
     right_knee.rotation.x = lerpf(right_knee.rotation.x, maxf(0.0, gait) * 0.55, minf(1.0, delta * 11.0))
     gun_mount.rotation.x = lerpf(gun_mount.rotation.x, gun_kick * 0.09, minf(1.0, delta * 14.0))
     gun_mount.position.z = lerpf(gun_mount.position.z, -0.14 + gun_kick * 0.075, minf(1.0, delta * 13.0))
+    head_pivot.rotation.z = lerpf(head_pivot.rotation.z, sin(walk_time) * 0.025 * move.length(), minf(1.0, delta * 8.0))
     var trigger_grip := gun_mount.position + gun_mount.basis * Vector3(0.06, -0.16, 0.03)
     var support_grip := gun_mount.position + gun_mount.basis * Vector3(-0.06, -0.095, -0.40)
     ArmPose.align_hand(right_shoulder, right_elbow, trigger_grip, 1.0, delta)
