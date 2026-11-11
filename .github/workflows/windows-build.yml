@@ -10,6 +10,7 @@ on:
       - "assets/**"
       - "tools/**"
       - "project.godot"
+      - "README.md"
       - "export_presets.cfg"
   workflow_dispatch:
 
@@ -45,6 +46,16 @@ jobs:
           godot --headless --editor --path . --import 2>&1 | tee godot-import.log
           if grep -E 'SCRIPT ERROR:|ERROR:.*Parse Error|Failed to load script|Parse Error:' godot-import.log; then
             echo 'Godot import detected critical script/resource errors'
+            exit 1
+          fi
+
+      - name: Smoke test startup in headless mode
+        shell: bash
+        run: |
+          set -o pipefail
+          timeout 25s godot --headless --path . --quit-after 120 2>&1 | tee godot-smoke.log
+          if grep -E 'SCRIPT ERROR:|ERROR:.*Parse Error|Invalid call\.|Failed to load script' godot-smoke.log; then
+            echo 'Godot startup detected a critical scripting error'
             exit 1
           fi
 
