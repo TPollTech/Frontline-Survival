@@ -52,6 +52,22 @@ func _run_tests() -> void:
             for station in stations:
                 _expect(Vector2(spot.x, spot.z).distance_to(Vector2(station.x, station.z)) >= 4.75, "spawn too close to shop")
     _expect(good_spawns == 100, "100 test spawns are valid")
+    # In addition to sampling the center, move the logical player near every
+    # edge point. The selected location must still be safely distant.
+    for test_position in points:
+        var edge_result: Dictionary = SpawnSelector.select_position(
+            points, stations, game.get_world_3d().direct_space_state,
+            test_position, Vector3.RIGHT
+        )
+        _expect(edge_result.get("valid", false), "spawn fails with player on an edge")
+        if edge_result.get("valid", false):
+            _expect(edge_result["position"].distance_to(test_position) >= 10.0,
+                "edge player received a spawn too close")
+    var no_safe: Dictionary = SpawnSelector.select_position(
+        points, points, game.get_world_3d().direct_space_state,
+        game.player.global_position, Vector3.FORWARD
+    )
+    _expect(not no_safe.get("valid", true), "all guarded points must reject spawning")
     var blocked: Array[Vector3] = [game.player.global_position]
     var rejected: Dictionary = SpawnSelector.select_position(
         blocked, stations, game.get_world_3d().direct_space_state,
