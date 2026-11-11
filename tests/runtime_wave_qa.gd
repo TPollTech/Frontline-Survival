@@ -154,6 +154,13 @@ func _run_tests() -> void:
         _expect(game.wave_kills == original_total, "not every enemy kill was counted once")
         _expect(spawned_count == original_total, "spawn count mismatch")
         _expect(game.break_remaining > 0.0, "preparation timer missing")
+    # Test the 10th-wave entry against the real HUD and scene state; a longer
+    # 50-wave composition simulation runs separately without expensive NPCs.
+    game.wave = 9
+    game._begin_wave()
+    _expect(game.wave == 10, "milestone wave number incorrect")
+    _expect(game.spawn_remaining == 25, "milestone wave enemy budget changed")
+    _expect(game.banner_title.contains("BLINDADA"), "armored wave lacks HUD warning")
     game.queue_free()
     await process_frame
     if failures.is_empty():
