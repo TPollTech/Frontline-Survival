@@ -29,6 +29,7 @@
 | D-013 | Notebook-alvo Ryzen 5 7530U + Radeon integrada + 8 GB | Medir desempenho e otimizar desde o início |
 | D-014 | Planejar e registrar em Markdown antes de implementar novas etapas | Mudanças devem ter escopo, aceite e revisão de QA |
 | D-015 | GitHub oficial: TPollTech/Frontline-Survival | Documentação e código versionados com commits claros |
+| D-016 | Jogador solicitou retirar a crosshair e alinhar a mira física ADS | Não reintroduzir retícula como padrão; validar mira com a arma e tiro no centro |
 
 ## B. Configurações presentes no protótipo 0.7
 
@@ -68,6 +69,11 @@ Estas são características descritas no código/README, não equivalem a compro
 | P-024 | Buses de áudio, acessibilidade e presets gráficos efetivos | [Etapa 5](ETAPA_5_HUD_AUDIO_ACESSIBILIDADE.md) | Validar mixagem, preferências e hardware-alvo |
 | P-025 | Resultados e estatísticas locais sem misturar modos/mapas | [Etapa 5](ETAPA_5_HUD_AUDIO_ACESSIBILIDADE.md) | Aprovar dependência dos recordes da Etapa 4 |
 
+| P-026 | Metas de 30 FPS piso/60 desejáveis, 720p baixo, medições em triplicata | [Etapa 6](ETAPA_6_DESEMPENHO_TESTES_DISTRIBUICAO.md) | Aprovar metas e executar benchmark real |
+| P-027 | Profiling antes de otimizar IA/render e manter teto inicial de inimigos | [Etapa 6](ETAPA_6_DESEMPENHO_TESTES_DISTRIBUICAO.md) | Aprovar ordem e validar hardware |
+| P-028 | Matriz de 18 testes integrados, 15 ondas e sessão prolongada | [Etapa 6](ETAPA_6_DESEMPENHO_TESTES_DISTRIBUICAO.md) | Aprovar gates e executar testes |
+| P-029 | Gates de release CI → Windows → regressão longa → publicação | [Etapa 6](ETAPA_6_DESEMPENHO_TESTES_DISTRIBUICAO.md) | Aprovar critérios de estabilidade |
+
 ## D. Fora de escopo por enquanto
 
 - Multiplayer e coop.
@@ -87,4 +93,4 @@ Estas são características descritas no código/README, não equivalem a compro
 
 ## F. Próxima rodada de planejamento
 
-A **Etapa 2 — inimigos e progressão de ondas** foi especificada em 10/11/2026, sem implementação e sem aprovação das propostas. A **Etapa 4 — arquitetura e mapa multissetores** também foi especificada em 10/11/2026, sem alteração do jogo. A **Etapa 5 — interface, HUD, áudio e acessibilidade** foi especificada em 10/11/2026, ainda sem aprovação. Próxima lacuna: **Etapa 6 — desempenho, testes e distribuição**, seguida da consolidação do GDD. A Etapa 3 mantém suas propostas de economia e suporte pendentes de aprovação. As Etapas 0 e 1 continuam especificadas, mas ainda não testadas/aprovadas para implementação.
+A **Etapa 2 — inimigos e progressão de ondas** foi especificada em 10/11/2026, sem implementação e sem aprovação das propostas. A **Etapa 4 — arquitetura e mapa multissetores** também foi especificada em 10/11/2026, sem alteração do jogo. A **Etapa 5 — interface, HUD, áudio e acessibilidade** foi especificada em 10/11/2026, ainda sem aprovação. A **Etapa 6 — desempenho, testes e distribuição** foi especificada em 10/11/2026, com propostas P-026–P-029 ainda pendentes. Próxima lacuna: **consolidar o GDD mestre e conferir consistência entre as seis etapas**. A Etapa 3 mantém suas propostas de economia e suporte pendentes de aprovação. As Etapas 0 e 1 continuam especificadas, mas ainda não testadas/aprovadas para implementação.
