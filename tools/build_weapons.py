@@ -145,7 +145,9 @@ def common_receiver(g,back,front,main_color='receiver',body=(.20,.16)):
 def optic(g,z):
     g.chamfer((0,.168,z),(.09,.055,.10),'black',.012,name='optic_mount')
     g.ring((0,.232,z),.073,.045,.07,'black',name='holo_sight')
-    g.cylinder((0,.232,z),.044,.004,'glass',name='optic_lens')
+    # The previous fully opaque glass disk hid the aiming point. Use an
+    # open aperture and a narrow real 3D post instead of a 2D crosshair.
+    g.chamfer((0,.210,z-.048),(.008,.034,.010),'brass',.003,name='aiming_post')
     g.chamfer((0,.27,z),(.026,.024,.06),'edge',.004,name='adjust_knob')
 
 def smg():
