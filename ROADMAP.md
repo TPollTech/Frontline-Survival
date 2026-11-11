@@ -149,6 +149,7 @@ Os documentos abaixo detalham critérios e hipóteses sem autorizar implementaç
 - [Etapa 1 — FPS, armas e animações](docs/ETAPA_1_FPS_ARMAS.md): direção visual proposta, arma piloto, feedback, áudio e critérios de aceitação.
 - [Etapa 2 — Inimigos, IA e progressão de ondas](docs/ETAPA_2_INIMIGOS_ONDAS.md): arquétipos, faixas de armas, diretor de ondas, spawn seguro, navegação e matriz de testes.
 - [Etapa 3 — Economia, estações e suporte tático](docs/ETAPA_3_ECONOMIA_SUPORTE.md): inventário 0.7, transações, limites, torretas, esquadrão, ataque aéreo, balanceamento e QA.
+- [Etapa 4 — Mapas multissetoriais e arquitetura](docs/ETAPA_4_MAPAS_ARQUITETURA.md): Complexo Industrial (cinco setores propostos), rotas, lojas, spawn, MapLoader, desempenho e 18 cenários de QA.
 - [Registro de decisões e propostas](docs/REGISTRO_DECISOES.md): requisitos já estabelecidos versus ideias pendentes.
 - [Plano de mapas](docs/PLANO_MAPAS.md): Campo de Testes permanente e proposta de mapa multissetores.
 - [Testes de regressão existentes da 0.7](docs/TESTES_0_7.md): roteiro técnico anterior, complementado pela Etapa 0.
@@ -163,8 +164,8 @@ Os documentos abaixo detalham critérios e hipóteses sem autorizar implementaç
 | Etapa 1 — Armas e FPS | Especificada; propostas aguardam aprovação | Não iniciada |
 | Etapa 2 — Inimigos e ondas | **Especificada em 10/11/2026**; propostas aguardam aprovação | Não iniciada |
 | Etapa 3 — Economia e reforços | **Especificada em 10/11/2026**; preços finais e propostas pendentes de aprovação | Não iniciada |
-| Etapa 4 — Mapas | Diretrizes iniciais; falta especificação de setores | Não iniciada |
+| Etapa 4 — Mapas | **Especificada em 10/11/2026**; layout de cinco setores e arquitetura ainda sujeitos a aprovação | Não iniciada |
 | Etapas 5–6 | Visão geral no roadmap; detalhamento pendente | Não iniciadas |
 | GDD consolidado | **Ainda não concluído**; consolidar após as etapas | Não aplicável |
 
-**Último avanço documental:** Etapa 3 especificada com inventário dos preços atuais, 18 cenários de QA, economia, transações e regras de suporte. Nenhum teste de Godot foi realizado. **Próxima rodada sugerida:** Etapa 4 — arquitetura e layout do primeiro mapa multissetorial.
+**Último avanço documental:** Etapa 4 especificada com Complexo Industrial multissetorial, mapa de conexões, arquitetura reutilizável, 18 testes M4 e decisões ainda abertas. Nenhum teste no Godot foi realizado. **Próxima rodada sugerida:** Etapa 5 — HUD, menus, áudio, estatísticas e acessibilidade.
