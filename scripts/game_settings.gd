@@ -12,7 +12,7 @@ var mouse_sensitivity: float = 1.0
 var field_of_view: float = 76.0
 var fullscreen: bool = false
 var show_fps: bool = true
-var intermission_seconds: int = 75
+var intermission_seconds: int = 30
 var training_respawns: bool = true
 
 func _ready() -> void:
@@ -39,7 +39,7 @@ func _load() -> void:
     field_of_view = clampf(float(cfg.get_value("controls", "fov", field_of_view)), 60.0, 100.0)
     fullscreen = bool(cfg.get_value("video", "fullscreen", fullscreen))
     show_fps = bool(cfg.get_value("video", "fps", show_fps))
-    intermission_seconds = clampi(int(cfg.get_value("gameplay", "intermission_seconds", intermission_seconds)), 45, 120)
+    intermission_seconds = clampi(int(cfg.get_value("gameplay", "intermission_seconds", intermission_seconds)), 30, 120)
     training_respawns = bool(cfg.get_value("gameplay", "training_respawns", training_respawns))
 
 func _save() -> void:
@@ -82,7 +82,7 @@ func set_value(key: String, value: Variant) -> void:
         "fov": field_of_view = clampf(float(value), 60.0, 100.0)
         "fullscreen": fullscreen = bool(value)
         "fps": show_fps = bool(value)
-        "intermission": intermission_seconds = clampi(int(value), 45, 120)
+        "intermission": intermission_seconds = clampi(int(value), 30, 120)
         "training_respawns": training_respawns = bool(value)
         _: return
     apply()
