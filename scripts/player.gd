@@ -130,15 +130,15 @@ func _physics_process(delta: float) -> void:
         if Input.is_key_pressed(KEY_D): movement.x += 1.0
     movement = movement.normalized()
     var crouching := (Input.is_key_pressed(KEY_C) or Input.is_key_pressed(KEY_CTRL)) and not controls_locked
+    aim = Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT) and not controls_locked
     var sprinting := Input.is_key_pressed(KEY_SHIFT) and movement.y < 0 and not aim and not crouching
-    var speed := 3.0 if crouching else (8.0 if sprinting else 5.2)
+    var speed := 3.0 if crouching else (8.0 if sprinting else (4.1 if aim else 5.2))
     var world_move := global_transform.basis * Vector3(movement.x, 0, movement.y)
     velocity.x = move_toward(velocity.x, world_move.x * speed, delta * 24.0)
     velocity.z = move_toward(velocity.z, world_move.z * speed, delta * 24.0)
     if Input.is_key_pressed(KEY_SPACE) and is_on_floor() and not controls_locked:
         velocity.y = 6.5
     move_and_slide()
-    aim = Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT) and not controls_locked
     camera.fov = lerpf(camera.fov, GameSettings.field_of_view * 0.70 if aim else GameSettings.field_of_view, minf(1.0, delta * 12.0))
     walk_clock += delta * movement.length() * (12.0 if sprinting else 8.0)
     shot_spread_kick = move_toward(shot_spread_kick, 0.0, delta * 1.25)
@@ -205,6 +205,8 @@ func shoot() -> void:
     recoil = 0.13 if weapon_id == "shotgun" else (0.075 if weapon_id == "lmg" else 0.055)
     shot_spread_kick = minf(0.015, shot_spread_kick + 0.002)
     var kick_degrees := 0.55 if weapon_id == "shotgun" else (0.22 if weapon_id == "smg" else 0.32)
+    if aim:
+        kick_degrees *= 0.78
     camera.rotation.x = clampf(camera.rotation.x + deg_to_rad(kick_degrees), -1.45, 1.45)
     flash_timer = 0.047 if weapon_id != "shotgun" else 0.080
     shot_anim = 1.0
