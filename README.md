@@ -1,10 +1,19 @@
-# Frontline Survival 0.9.2 — Campo de Testes
+# Frontline Survival 0.9.3 — Campo de Testes
 
 **Projeto Godot 4.x Standard, FPS 3D offline para Windows**, com renderizador **Compatibility** e alvo inicial Ryzen 5 7530U / 8 GB RAM. Projeto original inspirado em mecânicas do gênero *Survival por ondas*. **Não contém modelos, áudio ou outros arquivos do Call of Duty.**
 
-A versão **0.9.2** mantém as correções visuais e de áudio da 0.9.1 e avança na **Etapa 2: spawns seguros e verificação automática do ciclo das ondas**. Os inimigos não devem nascer muito perto do jogador, dentro de sólidos ou junto às estações físicas. O GitHub Actions agora verifica pelo menos 100 escolhas de spawn e duas ondas completas com NPCs reais antes de exportar. **As correções visuais ainda precisam de aprovação jogando no Windows.**
+A versão **0.9.3** preserva o sistema de spawns e o ciclo das ondas e corrige três problemas relatados: cabeça solta do suporte aliado, armas visualmente geométricas e som de recarga irritante. Agora há texturas originais, detalhes 3D, cinco sons mecânicos e recuperação de NPCs presos em obstáculos. **O acabamento visual e sonoro ainda precisa de avaliação jogando.**
 
-## Novidades pontuais da 0.9.2
+## Novidades pontuais da 0.9.3
+
+- **Suporte aliado:** cabeça, capacete e máscara conectados ao torso com pescoço/gola.
+- **Armas texturizadas:** metal e polímero com mapas procedurais, preservando cores originais e o desempenho.
+- **Mais detalhes 3D:** pequenas peças acrescentadas às cinco categorias.
+- **Recarga:** WAV mecânico próprio de cada arma, com volume menor e sem o apito genérico.
+- **IA:** inimigos e aliados sondam obstáculos e tentam se recuperar quando presos.
+- **Build Windows:** GitHub Releases continua sendo a forma principal de baixar.
+
+## Melhorias da 0.9.2
 
 - **Spawns com verificação física:** o jogo analisa pontos candidatos e rejeita áreas ocupadas e próximas do jogador ou das estações.
 - **Distribuição menos previsível:** preferência por entradas fora da visão frontal quando existem opções seguras.
@@ -41,8 +50,8 @@ A versão **0.9.2** mantém as correções visuais e de áudio da 0.9.1 e avanç
 **Download principal: [Releases do Frontline Survival](https://github.com/TPollTech/Frontline-Survival/releases).** Versões publicadas possuem número, changelog e ZIP próprio.
 
 1. Entre em **[Releases](https://github.com/TPollTech/Frontline-Survival/releases)**.
-2. Abra a versão mais recente, atualmente `v0.9.2` (pré-lançamento de testes).
-3. Na seção **Assets**, baixe **FrontlineSurvival-v0.9.2-Windows.zip** (o nome acompanha o número da versão futura).
+2. Abra a versão mais recente, atualmente `v0.9.3` (pré-lançamento de testes).
+3. Na seção **Assets**, baixe **FrontlineSurvival-v0.9.3-Windows.zip** (o nome acompanha o número da versão futura).
 4. Extraia o ZIP inteiro para uma pasta, mantendo `FrontlineSurvival.exe` e `FrontlineSurvival.pck` juntos.
 5. Execute `FrontlineSurvival.exe`. **Não é necessário abrir o editor Godot.**
 
