@@ -177,6 +177,34 @@ for weapon in weapons:
     except Exception as exc:
         errors.append(f"WAV parse error in {weapon}: {exc}")
 
+# Regression guards for 0.9.3: textured weapons, connected allied head,
+# distinct mechanical reloads and inexpensive local obstacle steering.
+for png in (
+    "weapon_metal_albedo.png", "weapon_polymer_albedo.png",
+    "weapon_metal_normal.png", "weapon_polymer_normal.png"
+):
+    texture = ROOT / "assets" / "textures" / png
+    require(texture.is_file() and texture.stat().st_size > 300,
+            f"Missing generated weapon texture: {png}")
+for weapon in weapons:
+    reload_file = ROOT / "assets" / "audio" / "reloads" / f"{weapon}.wav"
+    require(reload_file.exists(), f"Missing mechanical reload foley: {weapon}")
+    if reload_file.exists():
+        with wave.open(str(reload_file), "rb") as sound:
+            length = sound.getnframes() / float(sound.getframerate())
+            samples = np.frombuffer(sound.readframes(sound.getnframes()), dtype="<i2")
+            peak = np.max(np.abs(samples.astype(np.float32))) / 32768.0
+            require(0.3 < length < 4.0 and 0.005 < peak < 0.82,
+                    f"Invalid reload sound parameters: {weapon}")
+require('HeadPivot' in ally and 'NeckCollar' in ally,
+        "Support soldier head could separate from collar again")
+require('ObstacleSteering.choose_detour' in enemy and 'ObstacleSteering.choose_detour' in ally,
+        "Local obstacle-recovery steering must work for enemies and allies")
+require('reload_sound.stream = load(reload_path)' in player,
+        "Different weapon reloads should use their own mechanical WAV")
+require('material.albedo_texture = load(' in material_code and 'material.uv1_triplanar = true' in material_code,
+        "Textured gun materials with triplanar mapping missing")
+
 expected_asphalt_hash = 'be44732a105d975100d827f166da25dd5159a89760e3b3cd0cdcbb5683e1d29a'
 require(sha256((ROOT/'assets/textures/asphalt.png').read_bytes()).hexdigest() == expected_asphalt_hash,
         "Original asphalt texture was modified")
