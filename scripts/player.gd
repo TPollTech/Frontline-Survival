@@ -57,6 +57,9 @@ var previous_weapon: String = "pistol"
 var owned_weapons: Array[String] = ["pistol"]
 var weapon_upgrades: Dictionary = {}
 var shot_spread_kick: float = 0.0
+var sprint_blend: float = 0.0
+var left_hand_rig: Node3D
+var active_arm_parent: Node3D
 var invulnerability_timer: float = 0.0
 
 func _ready() -> void:
@@ -134,8 +137,9 @@ func _physics_process(delta: float) -> void:
         if Input.is_key_pressed(KEY_D): movement.x += 1.0
     movement = movement.normalized()
     var crouching := (Input.is_key_pressed(KEY_C) or Input.is_key_pressed(KEY_CTRL)) and not controls_locked
-    aim = Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT) and not controls_locked
-    var sprinting := Input.is_key_pressed(KEY_SHIFT) and movement.y < 0 and not aim and not crouching
+    var sprinting := Input.is_key_pressed(KEY_SHIFT) and movement.y < -0.05 and not crouching and not reloading and not controls_locked
+    sprint_blend = move_toward(sprint_blend, 1.0 if sprinting else 0.0, delta * (5.0 if sprinting else 7.5))
+    aim = Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT) and not controls_locked and sprint_blend < 0.20
     var speed := 3.0 if crouching else (8.0 if sprinting else (4.1 if aim else 5.2))
     var world_move := global_transform.basis * Vector3(movement.x, 0, movement.y)
     velocity.x = move_toward(velocity.x, world_move.x * speed, delta * 24.0)
@@ -151,20 +155,21 @@ func _physics_process(delta: float) -> void:
     var sight_height: float = float({"pistol": 0.121, "smg": 0.232, "rifle": 0.177, "shotgun": 0.140, "lmg": 0.232}.get(weapon_id, 0.20))
     var sight_y := -viewmodel_scale * sight_height
     var gun_target := Vector3(0.0, sight_y, -0.62) if aim else Vector3(0.34, -0.27, -0.63)
+    # A true tactical sprint: lower the rifle, pitch the muzzle down and
+    # let the support arm drop. Smooth transitions prevent camera popping.
+    var running_bob := sin(walk_clock) * 0.023 * sprint_blend
     gun_target.y += sin(walk_clock) * 0.007 * movement.length()
+    gun_target = gun_target.lerp(Vector3(0.49, -0.50 + running_bob, -0.45), sprint_blend)
     recoil = move_toward(recoil, 0.0, delta * 2.0)
     if reloading:
         gun_target.y -= 0.21
         gun_target.x += 0.08
-    elif sprinting:
-        gun_target.y -= 0.10
-        gun_target.x += 0.05
     gun_target.z += recoil
-    gun.position = gun.position.lerp(gun_target, minf(1.0, delta * 14.0))
-    # Oscilacao sutil da arma ao caminhar, correr e apontar.
+    gun.position = gun.position.lerp(gun_target, minf(1.0, delta * 13.0))
     var sway_strength := (0.006 if aim else 0.018) * movement.length()
-    gun.rotation.z = lerpf(gun.rotation.z, sin(walk_clock * 0.5) * sway_strength, minf(1.0, delta * 10.0))
-    gun.rotation.x = lerpf(gun.rotation.x, (0.12 if sprinting else 0.0) + cos(walk_clock) * sway_strength, minf(1.0, delta * 9.0))
+    gun.rotation.z = lerpf(gun.rotation.z, -0.28 * sprint_blend + sin(walk_clock * 0.5) * (sway_strength + sprint_blend * 0.022), minf(1.0, delta * 11.0))
+    gun.rotation.y = lerpf(gun.rotation.y, 0.14 * sprint_blend, minf(1.0, delta * 10.0))
+    gun.rotation.x = lerpf(gun.rotation.x, -0.48 * sprint_blend + cos(walk_clock) * (sway_strength + sprint_blend * 0.035), minf(1.0, delta * 10.0))
     _animate_viewmodel(delta, sprinting)
     # Automáticas continuam disparando enquanto o botão permanece pressionado.
     if not controls_locked and Input.get_mouse_mode() == Input.MOUSE_MODE_CAPTURED:
@@ -203,7 +208,7 @@ func _input(event: InputEvent) -> void:
                 switch_weapon("pistol")
 
 func shoot() -> void:
-    if dead or controls_locked or reloading or fire_timer > 0.0:
+    if dead or controls_locked or reloading or sprint_blend > 0.22 or fire_timer > 0.0:
         return
     if magazines[weapon_id] <= 0:
         start_reload()
@@ -444,9 +449,15 @@ func _update_gun_mesh() -> void:
     var long_gun := weapon_id != "pistol"
     var grip_z: float = viewmodel_depth + viewmodel_scale * (0.035 if weapon_id == "pistol" else 0.16)
     var support_z: float = viewmodel_depth + viewmodel_scale * float({"smg": -0.39, "rifle": -0.48, "shotgun": -0.43, "lmg": -0.55}.get(weapon_id, -0.40))
+    active_arm_parent = hand_rig
     _add_first_person_arm(Vector3(0.30, -0.53, 0.52), Vector3(0.070, -0.18, grip_z), true)
+    left_hand_rig = Node3D.new()
+    left_hand_rig.name = "SupportArm"
+    hand_rig.add_child(left_hand_rig)
     if long_gun:
+        active_arm_parent = left_hand_rig
         _add_first_person_arm(Vector3(-0.36, -0.54, 0.37), Vector3(-0.075, -0.13, support_z), false)
+    active_arm_parent = hand_rig
     var muzzle_z: float = viewmodel_depth + viewmodel_scale * float({"pistol": -0.29, "smg": -0.69, "rifle": -0.95, "shotgun": -1.04, "lmg": -1.13}.get(weapon_id, -0.69))
     var muzzle_height := float({"pistol": 0.061, "rifle": 0.039, "shotgun": 0.065}.get(weapon_id, 0.018))
     muzzle_flash.position = Vector3(0, viewmodel_scale * muzzle_height, muzzle_z)
@@ -484,6 +495,15 @@ func _animate_viewmodel(delta: float, sprinting: bool) -> void:
     var hand_target := Vector3(0.0, -0.07 * mag_out, 0.0)
     hand_rig.position = hand_rig.position.lerp(hand_target, minf(1.0, delta * 16.0))
     hand_rig.rotation.z = lerpf(hand_rig.rotation.z, 0.12 * mag_out, minf(1.0, delta * 15.0))
+    if is_instance_valid(left_hand_rig):
+        # Support hand releases the fore-end during sprint instead of being
+        # glued to the weapon in an accelerated walking pose.
+        left_hand_rig.position = left_hand_rig.position.lerp(
+            Vector3(-0.08, -0.16, 0.15) * sprint_blend, minf(1.0, delta * 11.0)
+        )
+        left_hand_rig.rotation.z = lerpf(
+            left_hand_rig.rotation.z, -0.15 * sprint_blend, minf(1.0, delta * 11.0)
+        )
 
 func _arm_piece(shape: Mesh, at: Vector3, tint: Color, rotation: Vector3 = Vector3.ZERO) -> MeshInstance3D:
     var part := MeshInstance3D.new()
@@ -494,7 +514,7 @@ func _arm_piece(shape: Mesh, at: Vector3, tint: Color, rotation: Vector3 = Vecto
     material.albedo_color = tint
     material.roughness = 0.84
     part.material_override = material
-    hand_rig.add_child(part)
+    active_arm_parent.add_child(part)
     return part
 
 func _arm_link(start: Vector3, finish: Vector3, top_radius: float, bottom_radius: float, tint: Color) -> void:
