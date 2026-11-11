@@ -12,6 +12,7 @@ var headshot_hits: int = 0
 var damage_taken: float = 0.0
 var money_kills: int = 0
 var money_challenges: int = 0
+var money_headshots: int = 0
 var money_spent: int = 0
 var money_wave: int = 0
 var active_challenges: Array[String] = []
@@ -38,6 +39,7 @@ func begin(number: int) -> void:
     damage_taken = 0.0
     money_kills = 0
     money_challenges = 0
+    money_headshots = 0
     money_spent = 0
     money_wave = 0
     challenges_awarded.clear()
@@ -121,8 +123,9 @@ func finish(wave_bonus: int) -> Dictionary:
         "accuracy": accuracy(), "kills": kills_player, "support_kills": kills_support,
         "headshots": headshot_kills, "seconds": elapsed,
         "damage": damage_taken, "kills_money": money_kills,
-        "challenge_money": money_challenges, "wave_money": money_wave,
-        "earned_total": money_kills + money_challenges + money_wave,
+        "challenge_money": money_challenges, "headshot_money": money_headshots,
+        "wave_money": money_wave,
+        "earned_total": money_kills + money_challenges + money_headshots + money_wave,
         "challenges": achieved.duplicate()
     }
     return last_result.duplicate()
@@ -132,9 +135,9 @@ func summary_text() -> String:
     if d.is_empty():
         return ""
     var precision := "--" if float(d["accuracy"]) < 0.0 else "%d%%" % roundi(d["accuracy"])
-    return "ONDA %02d  /  RELATORIO\nABATES %d   HEADSHOTS %d   PRECISAO %s\nTEMPO %02d:%02d   DANO %.0f\nABATES +$%d   DESAFIOS +$%d   ONDA +$%d\nTOTAL +$%d" % [
+    return "ONDA %02d  /  RELATORIO\nABATES %d   HEADSHOTS %d   PRECISAO %s\nTEMPO %02d:%02d   DANO %.0f\nABATES +$%d  BONUS HS +$%d\nMETAS +$%d  ONDA +$%d  TOTAL +$%d" % [
         int(d["wave"]), int(d["kills"]), int(d["headshots"]), precision,
         int(d["seconds"]) / 60, int(d["seconds"]) % 60, float(d["damage"]),
-        int(d["kills_money"]), int(d["challenge_money"]),
-        int(d["wave_money"]), int(d["earned_total"])
+        int(d["kills_money"]), int(d["headshot_money"]),
+        int(d["challenge_money"]), int(d["wave_money"]), int(d["earned_total"])
     ]
