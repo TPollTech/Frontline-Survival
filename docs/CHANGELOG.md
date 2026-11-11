@@ -1,5 +1,22 @@
 # Frontline Survival — Histórico de versões
 
+## 0.9.14 — Correção do humanoide deformado (hotfix)
+
+**Motivo:** o screenshot real do jogador **reprovou** a aparência do protótipo da v0.9.13: braços levantados, antebraços cruzados e malha distorcida. **Correção estrutural**, não adição de conteúdo.
+
+- Corrigido o erro de manipular `Skeleton3D`: antes a animação sobrescrevia as rotações originais dos ossos do Quaternius; agora preserva a **pose base** e compõe apenas deltas pequenos.
+- Os braços e a coluna mantêm sua orientação nativa, e o movimento das pernas também parte do repouso correto.
+- Novo critério de sanidade visual no runtime: mãos abaixo da cabeça, cabeça acima do quadril, pés abaixo do quadril e altura humana plausível. Em falha, o soldado antigo aparece automaticamente.
+- Testes Godot bloqueiam rotações de ossos excessivas. Na versão defeituosa a altura das mãos era **2,279/2,287**, com a cabeça em **2,200**; após a correção, as mãos estão em **1,979/1,990**, com a cabeça em **2,200**.
+- CI aprovado, Windows ZIP publicado e SHA256 disponíveis no [GitHub Releases v0.9.14](https://github.com/TPollTech/Frontline-Survival/releases/tag/v0.9.14).
+- **PENDENTE:** inspeção visual do jogador no Windows antes de migrar outros soldados; ainda faltam animações profissionais do Quaternius.
+
+**Evitar a v0.9.13:** ela falhou na validação visual.
+
+[QA v0.9.14](QA_V0_9_14.md) · [Notas de correção](releases/v0.9.14.md)
+
+---
+
 ## 0.9.13 — Protótipo de soldado humanoide Quaternius (CC0)
 
 **Estado:** integração do modelo, skeleton e testes automatizados **CONCLUÍDOS (CI)** após compilação; **visual/animação: PARCIAL**, aguardando aprovação jogando.
