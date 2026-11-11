@@ -1,8 +1,8 @@
-# Frontline Survival 0.8 — Campo de Testes
+# Frontline Survival 0.9 — Campo de Testes
 
 **Projeto Godot 4.x Standard, FPS 3D offline para Windows**, com renderizador **Compatibility** e alvo inicial Ryzen 5 7530U / 8 GB RAM. Projeto original inspirado em mecânicas do gênero *Survival por ondas*. **Não contém modelos, áudio ou outros arquivos do Call of Duty.**
 
-A versão **0.8** preserva o núcleo da 0.7 e traz **aviso direcional de dano** e **feedback âmbar para headshots**. Há agora um workflow de exportação Windows para baixar o jogo pronto em ZIP, sem precisar instalar o editor Godot. **A execução no Windows real e a campanha de QA permanecem pendentes até o teste do jogador.**
+A versão **0.9** concentra-se nas correções visuais reportadas na build 0.8: faces ocultas nas armas, enquadramento das armas longas e postura de empunhadura dos soldados. O usuário já conseguiu iniciar a 0.8 no Windows e alcançar a preparação para a onda 2. **A build 0.9 precisa de validação visual e testes de gameplay antes de ser considerada final.**
 
 ## Mudanças da 0.7
 
@@ -32,7 +32,7 @@ A versão **0.8** preserva o núcleo da 0.7 e traz **aviso direcional de dano** 
 
 1. Vá em **[Actions > Windows playable build](https://github.com/TPollTech/Frontline-Survival/actions/workflows/windows-build.yml)**.
 2. Escolha a execução mais recente da branch `main` que esteja **verde / success**.
-3. Baixe o arquivo da área **Artifacts** chamado `FrontlineSurvival-0.8-Windows`.
+3. Baixe o arquivo da área **Artifacts** chamado `FrontlineSurvival-0.9-Windows`.
 4. Extraia todo o ZIP em uma pasta vazia, mantendo `FrontlineSurvival.exe` e o pacote `.pck` juntos (se exportado separadamente).
 5. Abra **FrontlineSurvival.exe**. O editor Godot NÃO é necessário.
 
@@ -44,14 +44,17 @@ A versão **0.8** preserva o núcleo da 0.7 e traz **aviso direcional de dano** 
 2. Pressione F5 e entre na partida.
 3. Teste mira, recarga, compra por F, as ondas contínuas e a indicação direcional de ataques.
 
-### Novidades pontuais da 0.8
+### Correções visuais da 0.9
 
-- Dano do inimigo agora aciona uma indicação curta de direção do ataque (frente/lados/trás).
-- Headshot recebe destaque âmbar na retícula, preservando a recompensa existente.
-- Mira ADS reduz levemente a velocidade de deslocamento e suaviza o recuo; a retícula abre com rajadas e fecha quando o tiro estabiliza.
+- Malhas 3D regeneradas com orientação correta das superfícies e anéis do cano, para evitar aparência transparente/incompleta.
+- Escopeta, SMG, fuzil e LMG redimensionadas/reposicionadas na câmera para evitar clipping da coronha.
+- Mãos do jogador alinhadas aos pontos de gatilho e guarda-mão de cada arma.
+- Soldados e aliados com armas centralizadas e braços que acompanham dois pontos de empunhadura.
+- Retidos os indicadores de dano, headshot âmbar e retícula dinâmica introduzidos na 0.8.
+- [Checklist visual e regressão da 0.9](docs/TESTES_0_9.md).
 - [CHANGELOG.md](docs/CHANGELOG.md) especifica a situação de cada incremento.
 
-**Essas alterações representam implementação parcial das Etapas 1 e 5; estabilidade completa só após QA real.**
+**As correções da 0.9 representam implementação parcial das Etapas 1 e 2 (apresentação de soldados).** A estabilidade geral e a postura visual só serão consideradas concluídas após teste real no Windows.
 
 ## Controles
 
