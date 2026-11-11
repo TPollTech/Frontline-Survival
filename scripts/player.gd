@@ -93,8 +93,8 @@ func _ready() -> void:
     shot_sound.bus = "SFX"
     add_child(shot_sound)
     reload_sound = AudioStreamPlayer.new()
-    reload_sound.stream = load("res://assets/audio/reload.wav")
-    reload_sound.volume_db = -11.0
+    reload_sound.stream = load("res://assets/audio/reloads/pistol.wav")
+    reload_sound.volume_db = -14.0
     reload_sound.bus = "SFX"
     add_child(reload_sound)
     for id in WEAPONS:
@@ -402,6 +402,12 @@ func _update_shot_audio() -> void:
         shot_sound.stream = load(path)
     else:
         shot_sound.stream = load("res://assets/audio/gunshot.wav")
+    # Every weapon has its own low, mechanical foley instead of the old beep.
+    var reload_path := "res://assets/audio/reloads/%s.wav" % weapon_id
+    if ResourceLoader.exists(reload_path):
+        reload_sound.stream = load(reload_path)
+    else:
+        reload_sound.stream = load("res://assets/audio/reload.wav")
 
 func _update_gun_mesh() -> void:
     for child in gun.get_children():
