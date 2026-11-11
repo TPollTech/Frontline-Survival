@@ -441,3 +441,28 @@ O [plano de polimento do Campo de Testes](docs/M0_POLIMENTO_CAMPO_TESTES.md) reg
 **Regra de escopo:** primeiro confirmar visualmente o humanoide corrigido da v0.9.14 (M0), então CT-01 e CT-02. A ordem acima é orientativa para implementação; manter controle de regressões a cada release. Não confundir documentação com entrega de gameplay.
 
 [Plano M0–M8 atualizado](docs/PLANO_ENTREGA_V1_0.md) · [Pesquisa complementar](docs/PESQUISA_MW3_SURVIVAL_MECANICAS.md)
+
+
+## 21. Sprint CT-01–CT-06 — núcleo Survival v0.9.15 (11/11/2026)
+
+**Escopo pedido diretamente pelo jogador:** implementar agora perks compráveis, Última Chance/Last Stand, bônus de killstreak/quadkill, resumo de onda, intervalo 30s, attachments para as cinco armas e agachar/deitar. **Sem expandir mapa, onda, transporte ou número de NPCs**.
+
+**Base:** v0.9.14. Mantidos áudio PCM gravado das versões Astra/Sol, materiais, HUD sem crosshair permanente e Quaternius de um inimigo por onda. A equipe ainda deve verificar se o novo boneco está visualmente correto; o antigo teste de ossos foi insuficiente para reprovar a aberração da v0.9.13.
+
+| Item | Implementação no código | Validação |
+|---|---|---|
+| CT-01 | Preparação **30s padrão** (settings antigos preservados) e relatório da onda com tiros, precisão, headshots, dano, tempo e dinheiro discriminado | **IMPLEMENTADO (CÓDIGO)** → CI/Windows pendente |
+| CT-02 | Motor de quatro desafios; duas metas por onda, +$500 por meta, event IDs e prevenção de recompensa duplicada | **IMPLEMENTADO (CÓDIGO)** → teste determinístico/CI pendente |
+| CT-03 | Postura \`stand/crouch/prone\`, altura de câmera + cápsula e checagem de teto; C/Ctrl/Z | **IMPLEMENTADO (CÓDIGO)** → colisão real/câmera pendentes |
+| CT-04 | **Red Dot, Holográfica, Silenciador e Compensador** na estação do Arsenal; peças 3D, compra por arma, scope + muzzle juntos | **IMPLEMENTADO (CÓDIGO)** → modelos/ADS/qualidade sonora pendentes |
+| CT-05 | Cinco perks na estação de Suporte, **um por vez**, efeitos de reload/precisão/ADS/mobilidade/resistência | **IMPLEMENTADO (CÓDIGO)** → integrar testes de saldo/efeitos |
+| CT-06 | **Última Chance:** estado ferido, pistola com 8 cartuchos, 10s para matar e recuperar; kit autorreanimação consumível separado | **IMPLEMENTADO (CÓDIGO)** → treino/clássico e edge cases no Windows pendentes |
+| CT-07 | QA prolongado/visual (15 ondas, colisões, IA, som, FPS) | **PENDENTE (JOGO REAL)** |
+| CT-08 | Teste de **renderização da malha Quaternius** via Xvfb e imagem gravada no repo | **IMPLEMENTADO (SCRIPT CI)** — aguarda imagem e revisão humana |
+| CT-09 | Nova **GitHub Release v0.9.15** com ZIP/EXE/PCK/SHA-256 | **AGUARDANDO PIPELINE** |
+
+**Regras especiais:** desafio remunerado apenas uma vez por onda/ID; créditos de abates já pagos no momento da morte não são somados novamente no relatório. Shotgun = 1 tiro por trigger, não N pellets. Silenciador usa WAV gravado original via filtro passa-baixa — **não é uma nova gravação profissional de disparo suprimido**. O usuário deve avaliar a qualidade.
+
+**Importante:** esses itens não passaram automaticamente de **implementado em código** a **concluído jogando**; todos os G1–G12 do GDD ainda se aplicam. Não declarar 1.0 enquanto visuais/armas/NPC/benchmark não estiverem aprovados.
+
+[Notas v0.9.15](docs/releases/v0.9.15.md) • [QA v0.9.15](docs/QA_V0_9_15.md) • [Pesquisa MW3 original](docs/PESQUISA_MW3_SURVIVAL_MECANICAS.md)
