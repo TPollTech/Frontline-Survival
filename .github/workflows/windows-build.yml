@@ -73,6 +73,17 @@ jobs:
             exit 1
           fi
 
+      - name: Deterministic QA - 50 wave compositions and heavy milestones
+        shell: bash
+        run: |
+          set -o pipefail
+          timeout 40s godot --headless --path . --script res://tests/wave_rules_qa.gd 2>&1 | tee godot-wave-rules.log
+          grep -q 'QA_WAVE_RULES_PASS' godot-wave-rules.log
+          if grep -E 'SCRIPT ERROR:|ERROR:.*Parse Error|QA_WAVE_RULES_FAIL|WAVE_RULE_ERROR:' godot-wave-rules.log; then
+            echo 'Wave composition regression failed'
+            exit 1
+          fi
+
       - name: Integration QA - 100 spawns and two full waves
         shell: bash
         run: |
