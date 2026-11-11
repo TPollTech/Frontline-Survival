@@ -100,7 +100,7 @@ require("crosshair_h" not in main and "crosshair_v" not in main,
         "Hardcore aiming: 2D crosshair accidentally restored")
 require("hit_audio" not in main and "round_audio.play()" in main,
         "Irritating hit-confirmation beep must stay disabled; soft wave cue required")
-require("RoundCue.create(self)" in main and (ROOT / "scripts/round_cue.gd").is_file(),
+require('res://assets/audio/round_clear.wav' in main and (ROOT / "assets/audio/round_clear.wav").is_file(),
         "Soft synthesized wave cue missing")
 require("sight_height" in player and "camera.rotation.x = clampf" in player,
         "Physical sight alignment and camera recoil fix missing")

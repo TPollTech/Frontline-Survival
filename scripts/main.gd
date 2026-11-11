@@ -2,7 +2,6 @@ extends Node3D
 
 const SpawnSelector = preload("res://scripts/spawn_selector.gd")
 
-const RoundCue = preload("res://scripts/round_cue.gd")
 
 const MAX_ACTIVE_ENEMIES := 12
 const INITIAL_PREPARATION_SECONDS := 25.0
@@ -101,7 +100,7 @@ func _ready() -> void:
     player.headshot_confirmed.connect(_on_headshot)
     player.shot_fired.connect(_on_shot_fired)
     player.damage_received.connect(_on_player_damage)
-    round_audio = RoundCue.create(self)
+    round_audio = _make_audio("res://assets/audio/round_clear.wav", -13.0, "UI")
     purchase_audio = _make_audio("res://assets/audio/purchase.wav", -16.0, "UI")
     explosion_audio = _make_audio("res://assets/audio/explosion.wav", -9.0, "SFX")
     _create_ui()

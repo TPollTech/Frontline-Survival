@@ -1,5 +1,11 @@
 # Frontline Survival — Histórico de versões
 
+## 0.9.8 — Áudio somente por WAV
+
+- Aviso de fim de onda carregado de WAV, sem geração de áudio durante o jogo.
+
+---
+
 ## 0.9.7 — Limpeza de áudio legado
 
 - Removidos os WAVs genéricos de disparo, impacto e recarga. Disparos e recargas usam os WAVs próprios de cada arma.
