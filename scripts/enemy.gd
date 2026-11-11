@@ -295,7 +295,7 @@ func _physics_process(delta: float) -> void:
                 detour_remaining = 1.20
                 break
     if attack_cooldown <= 0.0 and stagger_remaining <= 0.0 and distance < attack_range and visible:
-        player.take_damage(attack_damage)
+        player.take_damage(attack_damage, global_position)
         flash_time = 0.045
         weapon_kick = 1.0
         _brief_enemy_tracer()
