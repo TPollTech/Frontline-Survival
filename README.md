@@ -1,10 +1,20 @@
-# Frontline Survival 0.9.11 — Campo de Testes
+# Frontline Survival 0.9.12 — Campo de Testes
 
 **Projeto Godot 4.x Standard, FPS 3D offline para Windows**, com renderizador **Compatibility** e alvo inicial Ryzen 5 7530U / 8 GB RAM. Projeto original inspirado em mecânicas do gênero *Survival por ondas*. **Não contém modelos, áudio ou outros arquivos do Call of Duty.**
 
-A versão **0.9.11** preserva as melhorias do Astra e do Sol nas armas e nos **sons gravados em PCM sem perdas** da v0.9.10. Este incremento aprimora o diretor de ondas: um pesado anunciado na onda 10, um na 15 e dois nas ondas-marco a partir da 20, com avisos visuais discretos. Inclui teste de 50 composições simuladas e mantém os testes de duas ondas reais no Godot. **A aparência, o áudio no Windows e 15 ondas jogadas ainda precisam de homologação.**
+A versão **0.9.12** prioriza **polir o Campo de Testes** antes de criar mapas e ondas extras. A corrida agora baixa e inclina a arma, com mão de apoio desacoplada; hitmarker discreto aparece só ao acertar, sem som; foram adicionados sangue, corpos temporários e armas/munição coletáveis por F. Indicadores de dano viraram arcos e coletes/armas dos soldados foram reposicionados. Preserva os WAVs gravados da v0.9.10 e os ajustes de ondas da v0.9.11. **A qualidade visual e o desempenho real ainda precisam de avaliação no Windows.**
 
-## Novidades da 0.9.11
+## Novidades da 0.9.12
+
+- **Corrida tática:** arma baixa/inclinada e suporte do braço esquerdo se afasta; transição suave ao voltar ao combate.
+- **Hitmarker sem crosshair:** confirmação mínima por 0,16 s ao acertar, headshot âmbar, sem apito.
+- **Gore leve:** sangue nos impactos, corpos sem colisão que desaparecem após cerca de 17 s; limites para FPS.
+- **Loot:** inimigos deixam arma e podem deixar munição; pegue com **F** próximo ao item, antes que desapareça.
+- **Dano recebido:** arcos vermelhos curvos substituem barras quadradas.
+- **Personagens:** coletes, ombros e mochilas mais arredondados; rig humanoide profissional ainda pendente.
+- **Escopo:** NÃO ampliar mapas/ondas/transporte nesta rodada. [Plano de polimento](docs/M0_POLIMENTO_CAMPO_TESTES.md).
+
+## Histórico da 0.9.11
 
 - **Ondas especiais:** ameaças blindadas anunciadas por texto (sem apitos), com progressão mais justa.
 - **Regras separadas:** scripts próprios para composição, quantidade e limites das ondas.
@@ -58,8 +68,8 @@ A versão **0.9.11** preserva as melhorias do Astra e do Sol nas armas e nos **s
 **Download principal: [Releases do Frontline Survival](https://github.com/TPollTech/Frontline-Survival/releases).** Versões publicadas possuem número, changelog e ZIP próprio.
 
 1. Entre em **[Releases](https://github.com/TPollTech/Frontline-Survival/releases)**.
-2. Abra a versão mais recente, atualmente `v0.9.11` (pré-lançamento de testes).
-3. Na seção **Assets**, baixe **FrontlineSurvival-v0.9.11-Windows.zip** (o nome acompanha o número da versão futura).
+2. Abra a versão mais recente, atualmente `v0.9.12` (pré-lançamento de testes).
+3. Na seção **Assets**, baixe **FrontlineSurvival-v0.9.12-Windows.zip** (o nome acompanha o número da versão futura).
 4. Extraia o ZIP inteiro para uma pasta, mantendo `FrontlineSurvival.exe` e `FrontlineSurvival.pck` juntos.
 5. Execute `FrontlineSurvival.exe`. **Não é necessário abrir o editor Godot.**
 
