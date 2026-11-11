@@ -1,8 +1,8 @@
-# Frontline Survival 0.7 — Campo de Testes
+# Frontline Survival 0.8 — Campo de Testes
 
 **Projeto Godot 4.x Standard, FPS 3D offline para Windows**, com renderizador **Compatibility** e alvo inicial Ryzen 5 7530U / 8 GB RAM. Projeto original inspirado em mecânicas do gênero *Survival por ondas*. **Não contém modelos, áudio ou outros arquivos do Call of Duty.**
 
-A versão 0.7 atualiza a base 0.6, sem trocar o mapa nem alterar a economia das ondas. Objetivo: dar mais movimento às armas e aos soldados antes de investir em personagens de alta fidelidade e mapas definitivos.
+A versão **0.8** preserva o núcleo da 0.7 e traz **aviso direcional de dano** e **feedback âmbar para headshots**. Há agora um workflow de exportação Windows para baixar o jogo pronto em ZIP, sem precisar instalar o editor Godot. **A execução no Windows real e a campanha de QA permanecem pendentes até o teste do jogador.**
 
 ## Mudanças da 0.7
 
@@ -28,14 +28,29 @@ A versão 0.7 atualiza a base 0.6, sem trocar o mapa nem alterar a economia das 
 - Reforços adquiridos na estação, chamados por **3** (esquadrão) e **4** (ataque aéreo).
 - Configurações de volume geral/SFX/UI, sensibilidade, FOV, FPS e tela cheia.
 
-## Instruções para jogar
+## Como jogar sem abrir o Godot (Windows)
 
-1. Extraia **todo o ZIP** em uma **pasta nova**, sem mesclar com versões anteriores.
-2. No **Godot 4.x Standard**, escolha **Importar** e abra `project.godot`.
-3. Espere o editor concluir a importação dos arquivos `.glb` e `.wav`.
-4. Pressione **F5** e selecione **Iniciar partida**.
-5. Visite a estação **ARMAS**, aperte **F** e teste a metralhadora leve ($650). Recarregue com **R** e observe o tambor e o mecanismo.
-6. Elimine os inimigos; a próxima onda deve vir automaticamente depois dos **75 segundos de preparação**.
+1. Vá em **[Actions > Windows playable build](https://github.com/TPollTech/Frontline-Survival/actions/workflows/windows-build.yml)**.
+2. Escolha a execução mais recente da branch `main` que esteja **verde / success**.
+3. Baixe o arquivo da área **Artifacts** chamado `FrontlineSurvival-0.8-Windows`.
+4. Extraia todo o ZIP em uma pasta vazia, mantendo `FrontlineSurvival.exe` e o pacote `.pck` juntos (se exportado separadamente).
+5. Abra **FrontlineSurvival.exe**. O editor Godot NÃO é necessário.
+
+**Se não houver execução verde ou artifact disponível, a build não está pronta.** Nunca considerar uma execução vermelha ou cancelada como entrega. Leia [BUILD_WINDOWS.md](docs/BUILD_WINDOWS.md).
+
+### Para desenvolver pelo Godot
+
+1. Clone este repositório e abra `project.godot` no **Godot 4.x Standard**, aguardando a importação das malhas e WAVs.
+2. Pressione F5 e entre na partida.
+3. Teste mira, recarga, compra por F, as ondas contínuas e a indicação direcional de ataques.
+
+### Novidades pontuais da 0.8
+
+- Dano do inimigo agora aciona uma indicação curta de direção do ataque (frente/lados/trás).
+- Headshot recebe destaque âmbar na retícula, preservando a recompensa existente.
+- [CHANGELOG.md](docs/CHANGELOG.md) especifica a situação de cada incremento.
+
+**Essas alterações representam implementação parcial das Etapas 1 e 5; estabilidade completa só após QA real.**
 
 ## Controles
 
@@ -66,7 +81,7 @@ A versão 0.7 atualiza a base 0.6, sem trocar o mapa nem alterar a economia das 
 
 **Limites de fidelidade:** os rostos, mãos e soldados ainda são geometria procedural relativamente simples. Não são personagens realistas com rig profissional, animações capturadas ou texturas PBR de alta resolução. O foco é avançar a qualidade visual sem perder desempenho no notebook.
 
-**Limites de verificação:** os arquivos, malhas e sons foram validados por scripts locais, mas o executável do Godot **não está disponível neste ambiente**. Logo, esta versão **não foi executada no Godot aqui** e ainda requer teste no notebook para confirmar compilação dos scripts, importação dos GLBs e jogabilidade. O verificador estático **não substitui esse teste**.
+**Verificação:** o projeto possui testes estáticos e uma rotina de importação/exportação na seção Actions. A conclusão de uma execução confirma apenas a compilação, **não** uma partida real no Windows nem o desempenho no notebook. A Etapa 0 permanece em validação até o checklist ser executado.
 
 Leia `docs/TESTES_0_7.md` para uma sequência rápida de testes e como identificar eventuais erros.
 
