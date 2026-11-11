@@ -1,6 +1,6 @@
 # Frontline Survival — Planejamento e Roadmap
 
-**Documento mestre do projeto** · Atualizado: 10/11/2026 · **Base de referência:** protótipo `0.7`; **versão de desenvolvimento:** `0.9` · **Situação:** planejamento; novas mecânicas somente após aprovação da etapa.
+**Documento mestre do projeto** · Atualizado: 10/11/2026 · **Base de referência:** protótipo `0.7`; **versão de desenvolvimento:** `0.9.1` · **Situação:** planejamento; novas mecânicas somente após aprovação da etapa.
 
 > **Visão:** FPS 3D offline de sobrevivência por ondas, com combate satisfatório, progressão, dinheiro, compras em estações e suporte tático. Inspiração de mecânicas: Survival dos FPS militares da geração PS3, com identidade, modelos, efeitos e sons próprios. **Não** copiar mapas, arquivos ou personagens de Call of Duty.
 
@@ -163,12 +163,12 @@ Os documentos abaixo detalham critérios e hipóteses sem autorizar implementaç
 | Documento | Situação documental | Implementação e QA |
 | --- | --- | --- |
 | Etapa 0 — Estabilidade | Especificada; 27 verificações de QA | **PARCIAL** — importação Godot 4.4.1, análise de scripts, integridade estática e exportação Windows passaram no CI; teste jogando 15 ondas no notebook pendente |
-| Etapa 1 — Armas e FPS | Especificada; propostas aguardam aprovação | **PARCIAL** — 0.9 corrige normais, escala de armas e encaixe das mãos; aprovação visual e rig profissional pendentes |
-| Etapa 2 — Inimigos e ondas | **Especificada em 10/11/2026**; propostas aguardam aprovação | **PARCIAL** — somente postura de arma e braços de soldados/aliados na 0.9; IA/ondas do GDD ainda pendentes |
+| Etapa 1 — Armas e FPS | Especificada; propostas aguardam aprovação | **PARCIAL** — v0.9.1 aplica paleta COLOR_0, visor físico centrado e recuo pós-raycast; inspeção visual e rig profissional pendentes |
+| Etapa 2 — Inimigos e ondas | **Especificada em 10/11/2026**; propostas aguardam aprovação | **PARCIAL** — v0.9.1 usa IK de dois segmentos e modelos de arma coloridos em aliados/inimigos; IA de ondas ainda pendente |
 | Etapa 3 — Economia e reforços | **Especificada em 10/11/2026**; preços finais e propostas pendentes de aprovação | Não iniciada |
 | Etapa 4 — Mapas | **Especificada em 10/11/2026**; layout de cinco setores e arquitetura ainda sujeitos a aprovação | Não iniciada |
-| Etapa 5 — HUD, áudio e UX | **Especificada em 10/11/2026**; propostas aguardam aprovação | **PARCIAL** — aviso direcional do HUD e pipeline de exportação Windows 0.8, ainda sem teste real no Windows |
-| Etapa 6 — desempenho e distribuição | **Especificada em 10/11/2026**; metas e gates pendentes de aprovação | **PARCIAL** — build 0.9 publicada automaticamente em [GitHub Releases](https://github.com/TPollTech/Frontline-Survival/releases/tag/v0.9.0); testes de desempenho/15 ondas pendentes |
+| Etapa 5 — HUD, áudio e UX | **Especificada em 10/11/2026**; propostas aguardam aprovação | **PARCIAL** — v0.9.1 retira crosshair/hit beep e adiciona som grave de fim de onda; validação auditiva pendente |
+| Etapa 6 — desempenho e distribuição | **Especificada em 10/11/2026**; metas e gates pendentes de aprovação | **PARCIAL** — release [v0.9.1](https://github.com/TPollTech/Frontline-Survival/releases/tag/v0.9.1) e CI aprovados; benchmark/15 ondas pendentes |
 | GDD consolidado | **Ainda não concluído**; consolidar após as etapas | Não aplicável |
 
 **Último avanço de produto:** versão 0.9 compilada e publicada no GitHub Actions, com 19 arquivos GLB regenerados e sincronizados na main. A versão 0.8 foi executada pelo usuário até a preparação da onda 2; a 0.9 exige validação visual/jogabilidade no Windows. Etapa 6 especificada documentalmente; próximo passo é consolidar o GDD mestre e conferir decisões pendentes. Sem alteração de código nesta rodada documental.
@@ -181,7 +181,7 @@ Os documentos abaixo detalham critérios e hipóteses sem autorizar implementaç
 | V08-02 | Feedback âmbar de headshot na retícula | **PARCIAL** | Implementado em main.gd; validar acertando a cabeça em jogo |
 | V08-03 | Menu e título com versão 0.8 | **PARCIAL** | Código atualizado; verificar aparência ao jogar |
 | V08-08 | Movimento de mira ADS com velocidade e recuo distintos | **PARCIAL** | Código implementado no jogador, requer sensação de uso no Windows |
-| V08-09 | Retícula dinâmica por dispersão das rajadas | **PARCIAL** | Código implementado no HUD, precisa de validação visual |
+| V08-09 | Retícula dinâmica por dispersão das rajadas | **SUBSTITUÍDA NA 0.9.1** | Crosshair 2D removida a pedido do jogador; mira pelo visor da arma |
 | V08-10 | Smoke test da cena principal no Godot headless | **CONCLUÍDO (CI)** | Importação, inicialização headless e exportação Windows passaram na execução 42936566841 |
 | V08-04 | Exportador automático Windows via GitHub Actions | **CONCLUÍDO (CI)** | [Execução bem-sucedida](https://github.com/TPollTech/Frontline-Survival/actions/runs/42936566841), com artefato EXE + PCK |
 | V08-05 | Importação Godot e checagens estáticas no CI | **CONCLUÍDO (CI)** | Steps de importação, testes e exportação aprovados na mesma execução |
@@ -214,3 +214,24 @@ Os documentos abaixo detalham critérios e hipóteses sem autorizar implementaç
 ## 11. Avanço documental — Etapa 6 (10/11/2026)
 
 A [Etapa 6](docs/ETAPA_6_DESEMPENHO_TESTES_DISTRIBUICAO.md) especifica métricas reproduzíveis no Ryzen 5 7530U/8 GB, 18 cenários de QA, gates de CI, Windows, 15 ondas e publicação versionada. **Nenhum teste foi executado nesta rodada documental.** Feedback de jogo recebido: armas brancas, aliados deformados, apitos de transição, ADS desalinhado e **remoção solicitada da crosshair**; retícula dinâmica descrita anteriormente não deve ser tratada como requisito vigente. Próxima lacuna: GDD mestre consolidado com matriz de consistência e propostas não aprovadas.
+
+## 12. Sprint v0.9.1 — Correções e aprovação (10/11/2026)
+
+**Evidência:** a v0.9.0 foi executada no Windows. Na captura da preparação da onda 3, havia 16 abates e 108 FPS naquele instante. Defeitos relatados: armas brancas, aliados com postura deformada, sons agudos na conclusão de onda e visor desalinhado. O usuário pediu explicitamente remover a crosshair. **108 FPS em um frame não comprova média sustentada.**
+
+**Entrega CI verificada:** [Release v0.9.1](https://github.com/TPollTech/Frontline-Survival/releases/tag/v0.9.1) e [workflow aprovado](https://github.com/TPollTech/Frontline-Survival/actions/runs/42945928310), com ZIP Windows, executável, PCK e checksum SHA-256.
+
+| ID | Trabalho | Estado verificado | O que falta validar |
+| --- | --- | --- | --- |
+| V091-01 | Aplicação de cores COLOR_0 em armas GLB | **PARCIAL** — material correto no código e importação CI | Verificar as cinco armas e NPCs sem branco intenso no Windows |
+| V091-02 | Mira física centralizada e recuo após o disparo | **PARCIAL** — lógica e CI aprovados | Testar primeiro tiro e ADS em cada classe |
+| V091-03 | Crosshair 2D removida | **CONCLUÍDO (CÓDIGO/CI)** | Conferir ausência visual na partida |
+| V091-04 | Aliados: IK 2 segmentos e proporções reduzidas | **PARCIAL** — implementação e CI aprovados | Observar postura, movimentação e disparo |
+| V091-05 | Inimigos: IK e materiais das armas | **PARCIAL** — implementação e CI aprovados | Observar durante o combate |
+| V091-06 | Apitos de hit removidos, novo cue de onda e compra mais discreta | **PARCIAL** — scripts e CI aprovados | Ouvir em duas transições de onda e ajustar volume se necessário |
+| V091-07 | Exportação e publicação do executável em Releases | **CONCLUÍDO (CI + RELEASES)** | [Download público](https://github.com/TPollTech/Frontline-Survival/releases/download/v0.9.1/FrontlineSurvival-v0.9.1-Windows.zip) validado no GitHub |
+| V091-08 | Homologação real de jogabilidade e 15 ondas | **PENDENTE** | Teste no notebook com FPS, controles, apoio, economia e áudio |
+
+**Etapas diretamente avançadas:** 1 (armas/FPS), 2 (representação dos combatentes), 5 (HUD/áudio) e 6 (distribuição). **Nenhuma etapa completa pode ser dada como 100% concluída só por compilar.** A release 0.9.0 permanece disponível para comparar/voltar.
+
+[Checklist 0.9.1](docs/TESTES_0_9_1.md) · [Changelog](docs/CHANGELOG.md)
