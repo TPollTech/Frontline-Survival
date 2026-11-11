@@ -1,0 +1,82 @@
+name: Windows playable build
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/windows-build.yml"
+      - "scripts/**"
+      - "scenes/**"
+      - "assets/**"
+      - "tools/**"
+      - "project.godot"
+      - "export_presets.cfg"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: windows-build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  windows:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 35
+    steps:
+      - name: Checkout game sources
+        uses: actions/checkout@v4
+
+      - name: Setup Godot and Windows export templates
+        uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.4.1
+          use-dotnet: false
+          include-templates: true
+
+      - name: Verify Godot installation
+        run: godot --version
+
+      - name: Import assets and parse GDScript
+        shell: bash
+        run: |
+          set -o pipefail
+          godot --headless --editor --path . --import 2>&1 | tee godot-import.log
+          if grep -E 'SCRIPT ERROR:|ERROR:.*Parse Error|Failed to load script|Parse Error:' godot-import.log; then
+            echo 'Godot import detected critical script/resource errors'
+            exit 1
+          fi
+
+      - name: Static integrity tests
+        run: |
+          python3 -m pip install --user numpy trimesh
+          python3 tools/verify_project.py
+
+      - name: Export Windows release
+        shell: bash
+        run: |
+          set -o pipefail
+          mkdir -p dist
+          godot --headless --path . --export-release "Windows Desktop" dist/FrontlineSurvival.exe 2>&1 | tee godot-export.log
+          test -s dist/FrontlineSurvival.exe
+          test -s dist/FrontlineSurvival.pck || echo 'Export may have embedded resources; inspect logs'
+          if grep -E 'SCRIPT ERROR:|ERROR:.*Parse Error|Failed to export|Export failed' godot-export.log; then
+            echo 'Godot export reported critical error'
+            exit 1
+          fi
+          cp README.md dist/LEIA-ME.md
+
+      - name: Package Windows build
+        shell: bash
+        run: |
+          cd dist
+          zip -9 -r ../FrontlineSurvival-Windows.zip .
+
+      - name: Upload playable Windows ZIP
+        uses: actions/upload-artifact@v4
+        with:
+          name: FrontlineSurvival-Windows
+          path: FrontlineSurvival-Windows.zip
+          retention-days: 30
+          if-no-files-found: error
