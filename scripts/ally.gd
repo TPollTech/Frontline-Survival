@@ -2,6 +2,7 @@ extends CharacterBody3D
 class_name SurvivalAlly
 
 const GunMaterials = preload("res://scripts/weapon_materials.gd")
+const WeaponAudio = preload("res://scripts/weapon_audio.gd")
 const ArmPose = preload("res://scripts/weapon_pose.gd")
 const ObstacleSteering = preload("res://scripts/obstacle_steering.gd")
 ## Allied support soldier with a simple jointed visual rig, distinct blue patches.
@@ -13,6 +14,7 @@ var cooldown: float = 0.8
 var flash_time: float = 0.0
 var gun_kick: float = 0.0
 var muzzle: MeshInstance3D
+var shot_audio: AudioStreamPlayer3D
 var walk_time: float = 0.0
 var left_hip: Node3D
 var right_hip: Node3D
@@ -141,6 +143,7 @@ func _ready() -> void:
     flash_mat.emission_enabled = true
     flash_mat.emission = Color(1.0, 0.49, 0.17)
     muzzle.visible = false
+    shot_audio = WeaponAudio.add_spatial_shot(muzzle, "rifle")
 
 func _physics_process(delta: float) -> void:
     if not is_instance_valid(player):
@@ -223,6 +226,7 @@ func _physics_process(delta: float) -> void:
         ray.exclude = [get_rid()]
         var hit := get_world_3d().direct_space_state.intersect_ray(ray)
         if not hit.is_empty() and hit["collider"] == nearest:
+            shot_audio.play()
             nearest.take_damage(21.0)
             flash_time = 0.045
             gun_kick = 1.0

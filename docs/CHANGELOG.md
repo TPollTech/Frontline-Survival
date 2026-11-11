@@ -1,5 +1,12 @@
 # Frontline Survival — Histórico de versões
 
+## 0.9.6 — Disparos gravados
+
+- Gravações carregadas explicitamente por classe, incluindo uma aproximação de 5,56 mm para a LMG.
+- Tiros do jogador mais presentes e disparos posicionais para inimigos e aliados.
+
+---
+
 ## 0.9.5 — Recargas com gravações mecânicas
 
 - Substituídas as cinco recargas sintetizadas por sequências de gravações de manuseio. Fontes e licenças nas [notas da versão](releases/v0.9.5.md).

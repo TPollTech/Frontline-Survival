@@ -2,6 +2,7 @@ extends CharacterBody3D
 class_name SurvivalEnemy
 
 const GunMaterials = preload("res://scripts/weapon_materials.gd")
+const WeaponAudio = preload("res://scripts/weapon_audio.gd")
 const ArmPose = preload("res://scripts/weapon_pose.gd")
 const ObstacleSteering = preload("res://scripts/obstacle_steering.gd")
 ## Lightweight articulated procedural soldier; independent hip, knee, shoulder,
@@ -50,6 +51,7 @@ var left_elbow: Node3D
 var right_elbow: Node3D
 var torso_mesh: MeshInstance3D
 var muzzle_flash: MeshInstance3D
+var shot_audio: AudioStreamPlayer3D
 var hit_collider: CollisionShape3D
 
 func configure(enemy_kind: String, wave_num: int, target: SurvivalPlayer, loadout: String = "") -> void:
@@ -231,6 +233,7 @@ func _ready() -> void:
     muzzle_shape.height = 0.17
     var muzzle_z: float = -0.035 + 0.70 * float({"shotgun": -1.04, "smg": -0.69, "rifle": -0.95, "lmg": -1.13}.get(weapon_class, -0.69))
     muzzle_flash = _part(weapon_pivot, muzzle_shape, Vector3(0.0, -0.04, muzzle_z), Color(1.0, 0.58, 0.25), "MuzzleFlash", Vector3(PI * 0.5, 0, 0))
+    shot_audio = WeaponAudio.add_spatial_shot(muzzle_flash, weapon_class)
     var flash_mat := muzzle_flash.material_override as StandardMaterial3D
     flash_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
     flash_mat.emission_enabled = true
@@ -327,6 +330,7 @@ func _physics_process(delta: float) -> void:
                 detour_remaining = 1.20
                 break
     if attack_cooldown <= 0.0 and stagger_remaining <= 0.0 and distance < attack_range and visible:
+        shot_audio.play()
         player.take_damage(attack_damage, global_position)
         flash_time = 0.045
         weapon_kick = 1.0

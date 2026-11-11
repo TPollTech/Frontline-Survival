@@ -2,6 +2,7 @@ extends CharacterBody3D
 class_name SurvivalPlayer
 
 const GunMaterials = preload("res://scripts/weapon_materials.gd")
+const WeaponAudio = preload("res://scripts/weapon_audio.gd")
 
 signal grenade_requested
 signal hit_confirmed
@@ -88,8 +89,7 @@ func _ready() -> void:
     muzzle_flash.visible = false
     gun.add_child(muzzle_flash)
     shot_sound = AudioStreamPlayer.new()
-    shot_sound.stream = load("res://assets/audio/gunshot.wav")
-    shot_sound.volume_db = -14.0
+    shot_sound.volume_db = -6.0
     shot_sound.max_polyphony = 8
     shot_sound.bus = "SFX"
     add_child(shot_sound)
@@ -219,7 +219,6 @@ func shoot() -> void:
     flash_timer = 0.047 if weapon_id != "shotgun" else 0.080
     shot_anim = 1.0
     muzzle_flash.visible = true
-    shot_sound.pitch_scale = 0.85 if weapon_id == "lmg" else randf_range(0.98, 1.02)
     shot_sound.play()
     var origin := camera.global_position
     var space := get_world_3d().direct_space_state
@@ -400,11 +399,7 @@ func _build_muzzle_flash() -> ArrayMesh:
     return st.commit()
 
 func _update_shot_audio() -> void:
-    var path := "res://assets/audio/weapons/%s.wav" % weapon_id
-    if ResourceLoader.exists(path):
-        shot_sound.stream = load(path)
-    else:
-        shot_sound.stream = load("res://assets/audio/gunshot.wav")
+    shot_sound.stream = WeaponAudio.shot_for(weapon_id)
     # Every weapon has its own low, mechanical foley instead of the old beep.
     var reload_path := "res://assets/audio/reloads/%s.wav" % weapon_id
     if ResourceLoader.exists(reload_path):

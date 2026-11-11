@@ -63,6 +63,15 @@ func _run_tests() -> void:
         if head != null:
             _expect(head.position.y <= 0.69, "support head disconnected from torso silhouette")
         _expect(is_instance_valid(support.muzzle), "support rifle or muzzle missing")
+    var starting_weapon: String = game.player.weapon_id
+    for weapon: String in ["pistol", "smg", "rifle", "shotgun", "lmg"]:
+        game.player.weapon_id = weapon
+        game.player._update_shot_audio()
+        var shot: AudioStreamWAV = game.player.shot_sound.stream as AudioStreamWAV
+        _expect(shot != null and shot.resource_path == "res://assets/audio/weapons/%s.wav" % weapon,
+                "player shot does not use the expected recording: " + weapon)
+    game.player.weapon_id = starting_weapon
+    game.player._update_shot_audio()
     var reload_clip: AudioStream = game.player.reload_sound.stream
     _expect(reload_clip != null, "mechanical pistol reload is missing")
     _expect(reload_clip.resource_path.contains("/reloads/"), "old synthesized reload beep restored")
