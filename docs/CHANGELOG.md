@@ -1,5 +1,21 @@
 # Frontline Survival — Histórico de versões
 
+## 0.9.3 — Suporte articulado, materiais, foley e IA local
+
+**Estado:** implementação submetida aos testes do Godot; apresentação de armas/aliados e IA permanecem **PARCIAIS** até validação jogando.
+
+- Cabeça e capacete dos aliados presos ao mesmo pivô, com pescoço e gola conectando a silhueta do torso. Este item responde ao efeito de cabeça solta da captura.
+- Metal e polímero com mapas de textura/normal procedurais originais, projeção triplanar e paleta GLB preservada.
+- Mais pequenos detalhes nas cinco classes de armas; peças ainda estilizadas e econômicas para GPU integrada.
+- Recargas mecânicas originais separadas por arma (pistola, SMG, fuzil, escopeta, LMG), com menor volume.
+- Etapa 2: sondas leves de obstáculos e recuperação de perseguição quando NPCs ou aliados ficam presos; sem teleportes.
+- Gerador determinístico em Python, exportação automática Windows e sincronização de GLBs, texturas e WAVs na branch main.
+- Testes estáticos e de duas ondas ampliados com checagens de sons, materiais, cabeça dos aliados e resistência básica de integração.
+
+**CI/Release:** [v0.9.3](https://github.com/TPollTech/Frontline-Survival/releases/tag/v0.9.3). A existência da Release com ZIP e SHA-256 confirma exportação; o teste real no Windows continua necessário.
+
+---
+
 ## 0.9.2 — Spawn seguro e teste integrado de ondas
 
 **Estado:** melhoria implementada; homologação em jogo **PARCIAL**. Integração headless verifica o fluxo de duas ondas e pelo menos 100 escolhas de spawn; teste prolongado de 15 ondas permanece pendente.
