@@ -55,6 +55,12 @@ class Gun:
         for i in range(1,7):
             fs.append((0,i+1,i)); fs.append((24,24+i,24+i+1))
         mesh=trimesh.Trimesh(vertices=vs,faces=np.array(fs),process=False)
+        # The procedural chamfer previously had *all* triangles wound inward.
+        # Godot back-face culling then hid the visible exterior of the gun,
+        # making receivers/stocks look hollow or transparent. Flip every face.
+        mesh.invert()
+        if mesh.volume <= 0:
+            raise ValueError('Invalid chamfer orientation (expected outward normals)')
         if angles!=(0,0,0): mesh.apply_transform(euler_matrix(*angles))
         mesh.apply_translation(pos)
         self.add(mesh,color,name)
@@ -72,11 +78,18 @@ class Gun:
         rings=[]; faces=[]; num=20
         for r,z in [(outer,-length/2),(outer,length/2),(inner,-length/2),(inner,length/2)]:
             rings.extend([(np.cos(i*2*np.pi/num)*r,np.sin(i*2*np.pi/num)*r,z) for i in range(num)])
-        for first,last in [(0,1),(2,3),(0,2),(1,3)]:
+        # Outside wall and front lip are counter-clockwise; inside wall
+        # and rear lip need the opposite winding (the bore must remain open).
+        for first,last,reverse in [(0,1,False),(2,3,True),(0,2,True),(1,3,False)]:
             for i in range(num):
                 j=(i+1)%num; a=first*num+i;b=first*num+j;c=last*num+j;d=last*num+i
-                faces.extend([(a,b,c),(a,c,d)])
+                if reverse:
+                    faces.extend([(a,c,b),(a,d,c)])
+                else:
+                    faces.extend([(a,b,c),(a,c,d)])
         m=trimesh.Trimesh(vertices=np.array(rings)+np.array(pos),faces=np.array(faces),process=False)
+        if m.volume <= 0:
+            raise ValueError('Invalid muzzle ring orientation')
         self.add(m,color,name)
     def save(self,name):
         # Concatena geometrias em 1 mesh colorida: 1 draw call aproximada por arma.
