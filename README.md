@@ -1,8 +1,16 @@
-# Frontline Survival 0.9.1 — Campo de Testes
+# Frontline Survival 0.9.2 — Campo de Testes
 
 **Projeto Godot 4.x Standard, FPS 3D offline para Windows**, com renderizador **Compatibility** e alvo inicial Ryzen 5 7530U / 8 GB RAM. Projeto original inspirado em mecânicas do gênero *Survival por ondas*. **Não contém modelos, áudio ou outros arquivos do Call of Duty.**
 
-A versão **0.9.1** corrige problemas observados jogando a 0.9.0: armas brancas, aliados desarticulados, visor fora do centro e som irritante de acertos/transição. A versão mantém o foco em computadores modestos e adiciona mira hardcore **sem crosshair 2D**. **A compilação automática não substitui o teste visual e de jogabilidade no Windows.**
+A versão **0.9.2** mantém as correções visuais e de áudio da 0.9.1 e avança na **Etapa 2: spawns seguros e verificação automática do ciclo das ondas**. Os inimigos não devem nascer muito perto do jogador, dentro de sólidos ou junto às estações físicas. O GitHub Actions agora verifica pelo menos 100 escolhas de spawn e duas ondas completas com NPCs reais antes de exportar. **As correções visuais ainda precisam de aprovação jogando no Windows.**
+
+## Novidades pontuais da 0.9.2
+
+- **Spawns com verificação física:** o jogo analisa pontos candidatos e rejeita áreas ocupadas e próximas do jogador ou das estações.
+- **Distribuição menos previsível:** preferência por entradas fora da visão frontal quando existem opções seguras.
+- **Sem nascimento forçado:** caso nenhum ponto seja válido, o sistema aguarda e tenta novamente.
+- **Teste de integração Godot:** 100 spawns simulados e duas ondas completas com contadores verificados, como pré-requisito de build.
+- **Lembrete:** o teste automatizado não equivale a jogar 15 ondas no notebook.
 
 ## Mudanças da 0.7
 
@@ -33,8 +41,8 @@ A versão **0.9.1** corrige problemas observados jogando a 0.9.0: armas brancas,
 **Download principal: [Releases do Frontline Survival](https://github.com/TPollTech/Frontline-Survival/releases).** Versões publicadas possuem número, changelog e ZIP próprio.
 
 1. Entre em **[Releases](https://github.com/TPollTech/Frontline-Survival/releases)**.
-2. Abra a versão mais recente, atualmente `v0.9.1` (pré-lançamento de testes).
-3. Na seção **Assets**, baixe **FrontlineSurvival-v0.9.1-Windows.zip** (o nome acompanha o número da versão futura).
+2. Abra a versão mais recente, atualmente `v0.9.2` (pré-lançamento de testes).
+3. Na seção **Assets**, baixe **FrontlineSurvival-v0.9.2-Windows.zip** (o nome acompanha o número da versão futura).
 4. Extraia o ZIP inteiro para uma pasta, mantendo `FrontlineSurvival.exe` e `FrontlineSurvival.pck` juntos.
 5. Execute `FrontlineSurvival.exe`. **Não é necessário abrir o editor Godot.**
 
