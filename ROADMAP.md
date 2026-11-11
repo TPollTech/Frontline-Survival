@@ -1,6 +1,6 @@
 # Frontline Survival — Planejamento e Roadmap
 
-**Documento mestre do projeto** · Atualizado: 10/11/2026 · **Base de referência:** protótipo `0.7`; **versão de desenvolvimento:** `0.9.12` · **Situação:** planejamento; novas mecânicas somente após aprovação da etapa.
+**Documento mestre do projeto** · Atualizado: 10/11/2026 · **Base de referência:** protótipo `0.7`; **versão de desenvolvimento:** `0.9.13` · **Situação:** planejamento; novas mecânicas somente após aprovação da etapa.
 
 > **Visão:** FPS 3D offline de sobrevivência por ondas, com combate satisfatório, progressão, dinheiro, compras em estações e suporte tático. Inspiração de mecânicas: Survival dos FPS militares da geração PS3, com identidade, modelos, efeitos e sons próprios. **Não** copiar mapas, arquivos ou personagens de Call of Duty.
 
@@ -361,3 +361,24 @@ A [Etapa 6](docs/ETAPA_6_DESEMPENHO_TESTES_DISTRIBUICAO.md) especifica métricas
 
 [Checklist do Campo de Testes](docs/M0_POLIMENTO_CAMPO_TESTES.md) • [QA 0.9.12](docs/QA_V0_9_12.md) • [Release notes](docs/releases/v0.9.12.md)
 
+
+## 18. Protótipo visual v0.9.13 — primeiro soldado humanoide (Quaternius)
+
+**Decisão do usuário (11/11/2026):** usar um modelo melhor do Quaternius e avaliar o resultado no Campo de Testes. **Sem expansão de mapas, ondas, helicópteros ou inimigos especiais** até a jogabilidade atual ficar polida.
+
+**Referência externa confirmada:** [Quaternius Universal Base Characters — CC0](https://quaternius.com/packs/universalbasecharacters.html), um modelo rigged com 65 ossos. O GLB é uma versão reduzida do modelo CC0 [documentada aqui](docs/ASSET_QUATERNIUS_CC0.md); pesa cerca de 741 KB e preserva pesos de skinning. O pacote base **não contém clipes de animação**.
+
+| ID | Incremento | Estado | Próxima verificação |
+| --- | --- | --- | --- |
+| V0913-01 | Adicionar um humanoide do Quaternius com malha e esqueleto completos | **CONCLUÍDO (ARQUIVO)** | Importação Godot e visual Windows |
+| V0913-02 | Adaptar colete, capacete, visor e postura básica do rifle, mantendo identidade original | **PARCIAL** — implementação | Avaliação visual de mãos, cabeça, altura e aparência |
+| V0913-03 | Animar pernas e braços com poses simples usando o esqueleto importado | **PARCIAL** — código experimental | Verificar caminhada/corrida/combate e FPS |
+| V0913-04 | Trocar apenas o primeiro soldado comum de cada onda, com fallback ao modelo antigo | **PARCIAL** — implementação e comparação A/B | Verificar spawn e luta reais |
+| V0913-05 | Preservar IA, collider, armas, áudio PCM, cadáveres e loot | **CONCLUÍDO (REVISÃO DE ESCOPO)** | Teste de duas ondas e 15 ondas reais |
+| V0913-06 | Teste de rig/skeleton, ocultação do corpo antigo e presença da arma | **EM CI** | Confirmar CI verde |
+| V0913-07 | Release v0.9.13 Windows com protótipo selecionável em combate | **PENDENTE DE CI** | Publicar ZIP após exportação aprovada |
+| V0913-08 | Avaliar Quaternius com clipes completos de animação idle/walk/run/fire/death | **PENDENTE** | Só depois de aprovação da malha e compatibilidade/licença |
+
+**Critério de avançar:** o jogador aprova a anatomia e o desempenho do primeiro soldado antes de migrar aliados e todos os inimigos. **O teste de rig no CI não é aprovação visual.** Continuar mantendo o Campo de Testes e as regras atuais inalterados.
+
+[Asset e licença CC0](docs/ASSET_QUATERNIUS_CC0.md) · [QA v0.9.13](docs/QA_V0_9_13.md) · [Release](docs/releases/v0.9.13.md)
