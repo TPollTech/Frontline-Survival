@@ -206,6 +206,10 @@ func _unhandled_input(event: InputEvent) -> void:
     elif shop_open:
         if event.keycode >= KEY_1 and event.keycode <= KEY_5:
             _buy(event.keycode - KEY_1)
+        elif event.keycode in [KEY_TAB, KEY_E, KEY_RIGHT]:
+            _change_shop_page(1)
+        elif event.keycode in [KEY_Q, KEY_LEFT]:
+            _change_shop_page(-1)
     elif event.keycode == KEY_3:
         _call_squad()
     elif event.keycode == KEY_4:
@@ -398,6 +402,7 @@ func _begin_wave() -> void:
     record_wave = maxi(record_wave, wave)
     _save_record()
     phase = "wave"
+    report_remaining = 0.0
     wave_kills = 0
     round_stats.begin(wave)
     spawn_remaining = WaveRules.total_enemies(wave)
@@ -603,6 +608,7 @@ func _nearest_shop() -> String:
 
 func _open_shop(id: String) -> void:
     shop_id = id
+    shop_page = 0
     shop_open = true
     player.controls_locked = true
     Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
@@ -622,20 +628,42 @@ func _render_shop() -> void:
     var options: Array = SHOP_OPTIONS[shop_id]
     for i in range(shop_option_buttons.size()):
         var button: Button = shop_option_buttons[i]
-        button.visible = i < options.size()
-        if i < options.size():
-            var item_id: String = options[i][2]
-            if item_id in ["smg", "rifle", "shotgun", "lmg"] and player.owned_weapons.has(item_id):
-                button.text = "%d   %s       EQUIPAR" % [i + 1, options[i][0]]
-                button.disabled = false
+        var real_index: int = shop_page * 5 + i
+        button.visible = real_index < options.size()
+        if real_index < options.size():
+            var entry: Array = options[real_index]
+            var item_id: String = str(entry[2])
+            var already_owned := (
+                item_id in ["smg", "rifle", "shotgun", "lmg"] and player.owned_weapons.has(item_id)
+            )
+            var already_equipped := (
+                item_id in ["red_dot", "holo", "suppressor", "compensator"]
+                and player.has_attachment("optic" if item_id in ["red_dot", "holo"] else "muzzle", item_id)
+            ) or (item_id.begins_with("perk_") and player.active_perk == item_id.substr(5))
+            if already_owned:
+                button.text = "%d   %s       EQUIPAR" % [i + 1, entry[0]]
+            elif already_equipped:
+                button.text = "%d   %s       EQUIPADO" % [i + 1, entry[0]]
             else:
-                button.text = "%d   %s       $%d" % [i + 1, options[i][0], options[i][1]]
-                button.disabled = wallet < int(options[i][1])
+                button.text = "%d   %s       $%d" % [i + 1, entry[0], entry[1]]
+            button.disabled = already_equipped or (not already_owned and wallet < int(entry[1]))
+    shop_prev_button.disabled = shop_page <= 0
+    shop_next_button.disabled = (shop_page + 1) * 5 >= options.size()
     for id in shop_tab_buttons:
         var tab: Button = shop_tab_buttons[id]
         tab.button_pressed = id == shop_id
         tab.disabled = id != shop_id
-    shop_hud.text = "TERMINAL FISICO  |  1-5 COMPRAR  |  F FECHAR"
+    shop_hud.text = "PAGINA %d/%d   |  1-5 COMPRAR   |  Q/E NAVEGAR   |  F FECHAR" % [
+        shop_page + 1, ceili(float(options.size()) / 5.0)
+    ]
+
+func _change_shop_page(direction: int) -> void:
+    if not shop_open:
+        return
+    var options: Array = SHOP_OPTIONS[shop_id]
+    var last_page: int = maxi(0, ceili(float(options.size()) / 5.0) - 1)
+    shop_page = clampi(shop_page + direction, 0, last_page)
+    _render_shop()
 
 func _switch_shop(id: String) -> void:
     if not shop_open or id != shop_id:
@@ -644,9 +672,10 @@ func _switch_shop(id: String) -> void:
 
 func _buy(index: int) -> void:
     var options: Array = SHOP_OPTIONS[shop_id]
-    if index >= options.size() or index < 0:
+    var real_index := shop_page * 5 + index
+    if real_index >= options.size() or index < 0:
         return
-    var item: Array = options[index]
+    var item: Array = options[real_index]
     var price: int = item[1]
     var id: String = item[2]
     if id in ["smg", "rifle", "shotgun", "lmg"] and player.owned_weapons.has(id):
@@ -657,6 +686,17 @@ func _buy(index: int) -> void:
     if wallet < price:
         _notify("Dinheiro insuficiente!", 2.0)
         return
+    if id in ["red_dot", "holo", "suppressor", "compensator"]:
+        var slot := "optic" if id in ["red_dot", "holo"] else "muzzle"
+        if player.has_attachment(slot, id):
+            _notify("ACESSORIO JA INSTALADO", 1.5)
+            return
+    if id.begins_with("perk_") and player.active_perk == id.substr(5):
+        _notify("ESTE PERK JA ESTA ATIVO", 1.5)
+        return
+    if id == "self_revive" and player.self_revive_kits >= 1:
+        _notify("JA POSSUI UM KIT DE REANIMACAO", 1.5)
+        return
     if id == "upgrade" and player.upgrades >= 3:
         _notify("Arma no nivel maximo!", 2.0)
         return
@@ -664,11 +704,21 @@ func _buy(index: int) -> void:
         _notify("Limite de 2 torretas ativas!", 2.0)
         return
     wallet -= price
+    if phase == "wave":
+        round_stats.spent(price)
     match id:
         "smg", "rifle", "shotgun", "lmg":
             player.equip(id)
         "ammo":
             player.refill_ammo()
+        "red_dot", "holo":
+            player.install_attachment("optic", id)
+        "suppressor", "compensator":
+            player.install_attachment("muzzle", id)
+        "self_revive":
+            player.self_revive_kits += 1
+        "perk_quick_reload", "perk_steady", "perk_fast_ads", "perk_mobility", "perk_resistance":
+            player.select_perk(id.substr(5))
         "armor":
             player.add_armor(50.0)
         "medkit":
@@ -992,6 +1042,11 @@ func _create_ui() -> void:
     message_hud.add_theme_color_override("font_color", Color(0.96, 0.90, 0.63))
     reward_hud = _add_label(root, Vector2(738, 375), Vector2(326, 44), 17)
     reward_hud.add_theme_color_override("font_color", Color(0.47, 0.98, 0.63))
+    _hud_panel(root, Vector2(414, 404), Vector2(455, 163))
+    round_report = _add_label(root, Vector2(426, 416), Vector2(435, 144), 16)
+    round_report.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+    round_report.add_theme_color_override("font_color", Color(0.84, 0.95, 0.88))
+    round_report.visible = false
     banner_panel = ColorRect.new()
     banner_panel.position = Vector2(377, 260)
     banner_panel.size = Vector2(526, 103)
@@ -1053,6 +1108,20 @@ func _create_ui() -> void:
         shop_panel.add_child(option)
         shop_option_buttons.append(option)
     shop_hud = _add_label(shop_panel, Vector2(33, 401), Vector2(540, 20), 14)
+    shop_prev_button = Button.new()
+    shop_prev_button.text = "ANTERIOR"
+    shop_prev_button.position = Vector2(26, 429)
+    shop_prev_button.size = Vector2(132, 38)
+    shop_prev_button.focus_mode = Control.FOCUS_NONE
+    shop_prev_button.pressed.connect(_change_shop_page.bind(-1))
+    shop_panel.add_child(shop_prev_button)
+    shop_next_button = Button.new()
+    shop_next_button.text = "PROXIMA"
+    shop_next_button.position = Vector2(165, 429)
+    shop_next_button.size = Vector2(130, 38)
+    shop_next_button.focus_mode = Control.FOCUS_NONE
+    shop_next_button.pressed.connect(_change_shop_page.bind(1))
+    shop_panel.add_child(shop_next_button)
     var close_button := Button.new()
     close_button.text = "FECHAR LOJA"
     close_button.position = Vector2(350, 429)
@@ -1137,7 +1206,10 @@ func _refresh_ui() -> void:
         wave_progress.value = 100.0 * (1.0 - float(alive + spawn_remaining) / float(maxi(total, 1)))
     var gun_name: String = SurvivalPlayer.WEAPONS[player.weapon_id]["name"]
     ammo_hud.text = "%s\n%d  /  %d%s" % [gun_name.to_upper(), player.magazines[player.weapon_id], player.reserves[player.weapon_id], "   RECARREGANDO" if player.reloading else ""]
-    support_hud.text = "G %d    |    3 REFORCO %d    |    4 AEREO %d" % [grenades, ally_tokens, airstrike_tokens]
+    support_hud.text = "G %d  |  3 REFORCO %d  |  4 AEREO %d  |  KIT %d  |  %s" % [
+        grenades, ally_tokens, airstrike_tokens, player.self_revive_kits,
+        player.active_perk.to_upper() if player.active_perk != "" else "SEM PERK"
+    ]
     var shop_near := _nearest_shop() if not player.dead else ""
     var loot_near := _nearest_loot() if not player.dead else null
     if shop_open:
@@ -1149,6 +1221,7 @@ func _refresh_ui() -> void:
         help_hud.text = "F  •  ACESSAR %s" % shop_names.get(shop_near, "LOJA")
     else:
         help_hud.text = ""
+    round_report.visible = report_remaining > 0.0 and phase == "break" and not shop_open and not player.dead
     fps_hud.text = "%d FPS" % Engine.get_frames_per_second()
     fps_hud.visible = GameSettings.show_fps
     message_hud.text = status_text if status_timer > 0.0 else ""
@@ -1166,6 +1239,8 @@ func _refresh_ui() -> void:
         threat_indicators[i].modulate.a = opacity
         threat_indicators[i].visible = opacity > 0.0 and not shop_open and not player.dead
     damage_overlay.color.a = (1.0 - player.health / 100.0) * 0.09 + player.damage_anim * 0.12
+    if player.downed:
+        waves_hud.text = "ULTIMA CHANCE  /  %.0fs\nMATE PARA SE REERGUER" % player.downed_seconds
     death_panel.visible = player.dead and not GameSettings.training_respawns
     if death_panel.visible:
         death_hud.text = "FIM DE JOGO\nOnda %d  |  %d abates\nENTER para recomecar" % [wave, kills]
