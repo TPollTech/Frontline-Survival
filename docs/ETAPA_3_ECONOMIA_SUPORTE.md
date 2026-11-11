@@ -181,3 +181,34 @@ A economia deve ser calibrada em sessões de ondas 1–5, 6–10, 11–15 e 16�
 ---
 
 **Resultado desta rodada:** Etapa 3 documentada; nenhuma alteração de código, cena ou asset. Próxima lacuna recomendada: Etapa 4 — especificação de arquitetura de mapas multissetoriais, rotas, navegação e spawn, mantendo o Campo de Testes.
+
+
+---
+
+## 11. Revisão de escopo — requisitos novos do núcleo (11/11/2026)
+
+**Nota de precedência:** a frase anterior "árvore de perks fora de escopo" se referia a uma **árvore extensa**. O usuário agora requer explicitamente **perks compráveis simples** no Campo de Testes, sem árvore, e extras de sobrevivência. Essa mudança **não** autoriza expansão de mapa, helicóptero ou multiplayer.
+
+### Economia, metas e painel de fim de onda
+
+- Fontes de dinheiro separadas: recompensa por NPC, bônus por onda, bônus de precisão/tempo/headshot/dano e desafios especiais.
+- Dados da onda: disparos, tiros que acertam, headshots que matam, dano tomado por vida/colete, abates e tempo de combate.
+- Recompensas sugeridas como referência: primeiro cumprimento da meta +$500, repetição +$1000 por meta elegível/onda, limitadas até validar economia. O MW3 histórico sorteava metas da onda; no Frontline escolher duas elegíveis por onda.
+- **Quad Kill ≠ Rampage:** quatro inimigos mortos por um único evento ≠ quatro abates rápidos com tiros diferentes. Killstreak sem receber dano é uma terceira métrica, não sinônimo.
+- Ao matar último NPC: gerar resumo e detalhar créditos, sem pagar duas vezes o dinheiro dos kills já recompensados.
+- Preparação após onda: atualmente 75 s configurado; **30 s é o padrão original confirmado e a proposta para novos jogos Frontline**, com presets maiores e preservação de settings atuais.
+
+### Lojas e perks
+
+- **Arsenal:** anexos compráveis para **cada uma das cinco classes**; arma comprada começa sem attachment, red dot e silenciador independentes e cumulativos.
+- **Equipamentos:** Kit de Reanimação consumível comprado, separado do estado Última Chance.
+- **Suporte:** perks próprios com um ativo por vez; substituir perk anterior sem benefícios empilhados.
+- Toda compra desconta apenas após validação da entrega. Mudança de arma não clona attachment ou compra.
+- O silenciador para todas as armas é uma decisão própria do Frontline; não atribuir esse item à loja original de MW3 sem fonte.
+
+### Dependências de código
+
+\`WaveStats\` centraliza contagem; \`ChallengeEngine\` monitora eventos uma única vez; \`MoneyLedger\` reconcilia saldo e relatório; \`PerkInventory\`/arma controla vantagens e slots; \`DownedState\` e \`PostureController\` mantêm transições físicas de acordo com o modo de jogo.
+
+**Estado:** propostas arquiteturais e requisitos do usuário documentados; **PENDENTE DE IMPLEMENTAÇÃO** nesta etapa.  
+[Design detalhado](NUCLEO_SURVIVAL_PERKS_ATTACHMENTS_MOVIMENTO.md) · [Pesquisa histórica](PESQUISA_MW3_SURVIVAL_MECANICAS.md)
