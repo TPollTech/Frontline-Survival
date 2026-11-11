@@ -48,6 +48,7 @@ A versão **0.8** preserva o núcleo da 0.7 e traz **aviso direcional de dano** 
 
 - Dano do inimigo agora aciona uma indicação curta de direção do ataque (frente/lados/trás).
 - Headshot recebe destaque âmbar na retícula, preservando a recompensa existente.
+- Mira ADS reduz levemente a velocidade de deslocamento e suaviza o recuo; a retícula abre com rajadas e fecha quando o tiro estabiliza.
 - [CHANGELOG.md](docs/CHANGELOG.md) especifica a situação de cada incremento.
 
 **Essas alterações representam implementação parcial das Etapas 1 e 5; estabilidade completa só após QA real.**
