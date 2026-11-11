@@ -84,6 +84,17 @@ jobs:
             exit 1
           fi
 
+      - name: Core Survival QA - accuracy, challenge payouts and quadkills
+        shell: bash
+        run: |
+          set -o pipefail
+          timeout 40s godot --headless --path . --script res://tests/survival_features_qa.gd 2>&1 | tee godot-survival-features.log
+          grep -q 'QA_SURVIVAL_FEATURES_PASS' godot-survival-features.log
+          if grep -E 'SCRIPT ERROR:|ERROR:.*Parse Error|QA_SURVIVAL_FEATURES_FAIL|SURVIVAL_QA_ERROR:' godot-survival-features.log; then
+            echo 'Survival feature regression detected'
+            exit 1
+          fi
+
       - name: Integration QA - 100 spawns and two full waves
         shell: bash
         run: |
