@@ -64,7 +64,7 @@ func _build() -> void:
     column.add_theme_constant_override("separation", 10)
     container.add_child(column)
     var kicker := Label.new()
-    kicker.text = "FRONTLINE   /   SURVIVAL 0.9.13"
+    kicker.text = "FRONTLINE   /   SURVIVAL 0.9.14"
     kicker.add_theme_font_size_override("font_size", 15)
     kicker.add_theme_color_override("font_color", Color(0.34, 0.79, 0.85))
     column.add_child(kicker)
