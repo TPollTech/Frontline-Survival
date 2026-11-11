@@ -177,6 +177,8 @@ Os documentos abaixo detalham critérios e hipóteses sem autorizar implementaç
 | V08-01 | Indicadores de ataque frente/direita/trás/esquerda | **PARCIAL** | Implementado em player.gd, enemy.gd e main.gd; ainda não observado no Windows real |
 | V08-02 | Feedback âmbar de headshot na retícula | **PARCIAL** | Implementado em main.gd; validar acertando a cabeça em jogo |
 | V08-03 | Menu e título com versão 0.8 | **PARCIAL** | Código atualizado; verificar aparência ao jogar |
+| V08-08 | Movimento de mira ADS com velocidade e recuo distintos | **PARCIAL** | Código implementado no jogador, requer sensação de uso no Windows |
+| V08-09 | Retícula dinâmica por dispersão das rajadas | **PARCIAL** | Código implementado no HUD, precisa de validação visual |
 | V08-04 | Exportador automático Windows via GitHub Actions | **CONCLUÍDO (CI)** | [Execução bem-sucedida](https://github.com/TPollTech/Frontline-Survival/actions/runs/42935826696), com artefato EXE + PCK |
 | V08-05 | Importação Godot e checagens estáticas no CI | **CONCLUÍDO (CI)** | Steps de importação, testes e exportação aprovados na mesma execução |
 | V08-06 | Executável jogado e aprovado no Windows | **PENDENTE** | Requer teste em notebook Ryzen 5 7530U, 8 GB; captura de erros e métricas |
