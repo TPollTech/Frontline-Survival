@@ -151,6 +151,7 @@ Os documentos abaixo detalham critérios e hipóteses sem autorizar implementaç
 - [Etapa 3 — Economia, estações e suporte tático](docs/ETAPA_3_ECONOMIA_SUPORTE.md): inventário 0.7, transações, limites, torretas, esquadrão, ataque aéreo, balanceamento e QA.
 - [Etapa 4 — Mapas multissetoriais e arquitetura](docs/ETAPA_4_MAPAS_ARQUITETURA.md): Complexo Industrial (cinco setores propostos), rotas, lojas, spawn, MapLoader, desempenho e 18 cenários de QA.
 - [Etapa 5 — HUD, menus, áudio e acessibilidade](docs/ETAPA_5_HUD_AUDIO_ACESSIBILIDADE.md): hierarquia de informações, estados, mixagem, configurações, acessibilidade e 18 testes pendentes.
+- [Etapa 6 — Desempenho, testes e distribuição Windows](docs/ETAPA_6_DESEMPENHO_TESTES_DISTRIBUICAO.md): orçamento proposto de FPS/RAM, 18 testes, gates CI/Windows/15 ondas/release e dependências.
 - [Registro de decisões e propostas](docs/REGISTRO_DECISOES.md): requisitos já estabelecidos versus ideias pendentes.
 - [Plano de mapas](docs/PLANO_MAPAS.md): Campo de Testes permanente e proposta de mapa multissetores.
 - [Testes de regressão existentes da 0.7](docs/TESTES_0_7.md): roteiro técnico anterior, complementado pela Etapa 0.
@@ -167,10 +168,10 @@ Os documentos abaixo detalham critérios e hipóteses sem autorizar implementaç
 | Etapa 3 — Economia e reforços | **Especificada em 10/11/2026**; preços finais e propostas pendentes de aprovação | Não iniciada |
 | Etapa 4 — Mapas | **Especificada em 10/11/2026**; layout de cinco setores e arquitetura ainda sujeitos a aprovação | Não iniciada |
 | Etapa 5 — HUD, áudio e UX | **Especificada em 10/11/2026**; propostas aguardam aprovação | **PARCIAL** — aviso direcional do HUD e pipeline de exportação Windows 0.8, ainda sem teste real no Windows |
-| Etapa 6 — desempenho e distribuição | Detalhamento pendente | **PARCIAL** — build 0.9 publicada automaticamente em [GitHub Releases](https://github.com/TPollTech/Frontline-Survival/releases/tag/v0.9.0); testes de desempenho/15 ondas pendentes |
+| Etapa 6 — desempenho e distribuição | **Especificada em 10/11/2026**; metas e gates pendentes de aprovação | **PARCIAL** — build 0.9 publicada automaticamente em [GitHub Releases](https://github.com/TPollTech/Frontline-Survival/releases/tag/v0.9.0); testes de desempenho/15 ondas pendentes |
 | GDD consolidado | **Ainda não concluído**; consolidar após as etapas | Não aplicável |
 
-**Último avanço de produto:** versão 0.9 compilada e publicada no GitHub Actions, com 19 arquivos GLB regenerados e sincronizados na main. A versão 0.8 foi executada pelo usuário até a preparação da onda 2; a 0.9 exige validação visual/jogabilidade no Windows. O planejamento deve continuar pela Etapa 6 sem alterar código automaticamente. O planejamento deve continuar pela Etapa 6 sem alterar o código automaticamente.
+**Último avanço de produto:** versão 0.9 compilada e publicada no GitHub Actions, com 19 arquivos GLB regenerados e sincronizados na main. A versão 0.8 foi executada pelo usuário até a preparação da onda 2; a 0.9 exige validação visual/jogabilidade no Windows. Etapa 6 especificada documentalmente; próximo passo é consolidar o GDD mestre e conferir decisões pendentes. Sem alteração de código nesta rodada documental.
 
 ## 9. Registro de implementação e evidências — 0.8 (10/11/2026)
 
@@ -209,3 +210,7 @@ Os documentos abaixo detalham critérios e hipóteses sem autorizar implementaç
 **Nenhuma Etapa 1 ou 2 está 100% concluída.** A geração/exportação 0.9 foi concluída no CI e a primeira versão foi publicada em [GitHub Releases](https://github.com/TPollTech/Frontline-Survival/releases/tag/v0.9.0), com link permanente. A correção visual e a empunhadura continuam **PARCIAIS** até aprovação no Windows.
 
 [Roteiro de testes da 0.9](docs/TESTES_0_9.md) · [Changelog](docs/CHANGELOG.md)
+
+## 11. Avanço documental — Etapa 6 (10/11/2026)
+
+A [Etapa 6](docs/ETAPA_6_DESEMPENHO_TESTES_DISTRIBUICAO.md) especifica métricas reproduzíveis no Ryzen 5 7530U/8 GB, 18 cenários de QA, gates de CI, Windows, 15 ondas e publicação versionada. **Nenhum teste foi executado nesta rodada documental.** Feedback de jogo recebido: armas brancas, aliados deformados, apitos de transição, ADS desalinhado e **remoção solicitada da crosshair**; retícula dinâmica descrita anteriormente não deve ser tratada como requisito vigente. Próxima lacuna: GDD mestre consolidado com matriz de consistência e propostas não aprovadas.
