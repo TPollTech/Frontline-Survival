@@ -11,7 +11,7 @@
 - **Etapa 2A / QA:** cenário automatizado `tests/runtime_wave_qa.gd` no GitHub Actions carrega a cena, inicia partidas, examina os pontos de entrada e verifica duas transições de onda com mortes reais dos NPCs e contadores coerentes.
 - Nenhuma alteração gráfica em armas ou soldados neste incremento: os defeitos/ajustes visuais da v0.9.1 ainda precisam de avaliação do jogador.
 
-**Release:** [v0.9.2](https://github.com/TPollTech/Frontline-Survival/releases/tag/v0.9.2) — publicada automaticamente **somente** se CI passar. **Status de gameplay: PARCIAL** até sessão real e feedback.
+**Release e CI: CONCLUÍDOS** — [v0.9.2](https://github.com/TPollTech/Frontline-Survival/releases/tag/v0.9.2) com ZIP Windows e SHA-256, [workflow 42949035024 aprovado](https://github.com/TPollTech/Frontline-Survival/actions/runs/42949035024), incluindo material das armas, aliados, duas ondas e 100+ escolhas seguras. **Status de gameplay: PARCIAL** até sessão real e feedback.
 
 ---
 
