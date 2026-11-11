@@ -185,6 +185,10 @@ jobs:
             echo "Generated game assets already synchronized."
           else
             git commit -m "assets: synchronize meshes, materials and reload foley [skip ci]"
+            # Model generation can leave unrelated working-tree changes.
+            # Stash scratch files so a generated visual QA PNG can be pushed
+            # without blocking the release step on an unsuccessful rebase.
+            git stash push --include-untracked -m "CI scratch files before generated asset sync" || true
             git pull --rebase origin main
             git push origin HEAD:main
           fi
@@ -209,7 +213,7 @@ jobs:
             printf "Versão de testes para Windows.\n\nExtraia o ZIP completo e execute FrontlineSurvival.exe com o arquivo .pck na mesma pasta.\n\nConsulte docs/CHANGELOG.md e ROADMAP.md para as mudanças e limitações.\n\nBuild validada em Godot CI, mas ainda requer teste visual e de jogabilidade no Windows.\n" > "$NOTES"
           fi
           gh release create "$TAG" "$ASSET" "$ASSET.sha256" \
-            --target "$(git rev-parse HEAD)" \
+            --target "$GITHUB_SHA" \
             --title "Frontline Survival ${TAG} — Testes Windows" \
             --notes-file "$NOTES" \
             --prerelease --latest=false
