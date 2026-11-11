@@ -6,11 +6,21 @@ const WeaponAudio = preload("res://scripts/weapon_audio.gd")
 
 signal grenade_requested
 signal hit_confirmed
+signal shot_resolved(hit_enemy: bool, was_headshot: bool)
+signal downed_started
+signal downed_recovered
 signal headshot_confirmed
 signal shot_fired(at: Vector3, hit_enemy: bool)
 signal player_died
 signal damage_received(source_position: Vector3, damage: float)
 
+const PERKS := {
+    "quick_reload": "RECARGA AGIL",
+    "steady": "MIRA FIRME",
+    "fast_ads": "REACAO RAPIDA",
+    "mobility": "MOBILIDADE",
+    "resistance": "RESISTENCIA"
+}
 const WEAPONS = {
     "pistol": {"name":"Pistola", "damage":30.0, "mag":15, "reserve":90, "rate":0.20, "reload":1.25, "spread":0.008, "auto":false, "pellets":1},
     "smg": {"name":"Submetralhadora", "damage":19.0, "mag":32, "reserve":160, "rate":0.085, "reload":1.70, "spread":0.023, "auto":true, "pellets":1},
@@ -61,6 +71,19 @@ var sprint_blend: float = 0.0
 var left_hand_rig: Node3D
 var active_arm_parent: Node3D
 var invulnerability_timer: float = 0.0
+var collider_node: CollisionShape3D
+var capsule_shape: CapsuleShape3D
+var posture: String = "stand"
+var prone_requested: bool = false
+var camera_stand_height: float = 0.64
+var current_body_height: float = 1.8
+var active_perk: String = ""
+var weapon_attachments: Dictionary = {}
+var downed: bool = false
+var downed_seconds: float = 0.0
+var last_stand_available: bool = true
+var self_revive_kits: int = 0
+var shot_serial: int = 0
 
 func _ready() -> void:
     collision_layer = 2
@@ -70,6 +93,8 @@ func _ready() -> void:
     capsule.radius = 0.35
     capsule.height = 1.8
     collider.shape = capsule
+    collider_node = collider
+    capsule_shape = capsule
     add_child(collider)
     camera = Camera3D.new()
     camera.position = Vector3(0, 0.64, 0)
@@ -104,6 +129,7 @@ func _ready() -> void:
         magazines[id] = WEAPONS[id]["mag"]
         reserves[id] = WEAPONS[id]["reserve"]
         weapon_upgrades[id] = 0
+        weapon_attachments[id] = {"optic": "", "muzzle": ""}
     _update_gun_mesh()
     _update_shot_audio()
     Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
@@ -112,6 +138,15 @@ func _physics_process(delta: float) -> void:
     if dead:
         return
     fire_timer = maxf(fire_timer - delta, 0.0)
+    if downed:
+        downed_seconds -= delta
+        if downed_seconds <= 0.0:
+            if self_revive_kits > 0:
+                self_revive_kits -= 1
+                recover_downed(true)
+            else:
+                _die_finally()
+                return
     melee_timer = maxf(melee_timer - delta, 0.0)
     invulnerability_timer = maxf(0.0, invulnerability_timer - delta)
     flash_timer = maxf(flash_timer - delta, 0.0)
@@ -137,14 +172,17 @@ func _physics_process(delta: float) -> void:
         if Input.is_key_pressed(KEY_D): movement.x += 1.0
     movement = movement.normalized()
     var crouching := (Input.is_key_pressed(KEY_C) or Input.is_key_pressed(KEY_CTRL)) and not controls_locked
-    var sprinting := Input.is_key_pressed(KEY_SHIFT) and movement.y < -0.05 and not crouching and not reloading and not controls_locked
+    _update_posture(delta, crouching)
+    var sprinting := Input.is_key_pressed(KEY_SHIFT) and movement.y < -0.05 and posture == "stand" and not downed and not reloading and not controls_locked
     sprint_blend = move_toward(sprint_blend, 1.0 if sprinting else 0.0, delta * (5.0 if sprinting else 7.5))
-    aim = Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT) and not controls_locked and sprint_blend < 0.20
-    var speed := 3.0 if crouching else (8.0 if sprinting else (4.1 if aim else 5.2))
+    aim = Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT) and not controls_locked and sprint_blend < 0.20 and not downed
+    var speed := 0.8 if downed else (1.15 if posture == "prone" else (2.8 if posture == "crouch" else (8.0 if sprinting else (4.35 if aim else 5.2))))
+    if active_perk == "mobility" and aim:
+        speed *= 1.17
     var world_move := global_transform.basis * Vector3(movement.x, 0, movement.y)
     velocity.x = move_toward(velocity.x, world_move.x * speed, delta * 24.0)
     velocity.z = move_toward(velocity.z, world_move.z * speed, delta * 24.0)
-    if Input.is_key_pressed(KEY_SPACE) and is_on_floor() and not controls_locked:
+    if Input.is_key_pressed(KEY_SPACE) and is_on_floor() and posture == "stand" and not downed and not controls_locked:
         velocity.y = 6.5
     move_and_slide()
     # A slight sprint FOV extension sells momentum; ADS always takes priority.
@@ -192,6 +230,8 @@ func _input(event: InputEvent) -> void:
             shoot()
     if event is InputEventKey and event.pressed and not event.echo:
         if not dead and not controls_locked:
+            if event.keycode == KEY_Z and not downed:
+                prone_requested = not prone_requested
             if event.keycode == KEY_R:
                 start_reload()
             elif event.keycode == KEY_G:
@@ -216,6 +256,7 @@ func shoot() -> void:
         start_reload()
         return
     magazines[weapon_id] -= 1
+    shot_serial += 1
     fire_timer = WEAPONS[weapon_id]["rate"]
     recoil = 0.13 if weapon_id == "shotgun" else (0.075 if weapon_id == "lmg" else 0.055)
     shot_spread_kick = minf(0.015, shot_spread_kick + 0.002)
@@ -232,6 +273,12 @@ func shoot() -> void:
     var did_headshot := false
     var pellet_count: int = WEAPONS[weapon_id]["pellets"]
     var spread: float = (WEAPONS[weapon_id]["spread"] + shot_spread_kick) * (0.35 if aim else 1.0)
+    if active_perk == "steady":
+        spread *= 0.75
+    if posture == "crouch":
+        spread *= 0.82
+    elif posture == "prone":
+        spread *= 0.65
     var impact_point := origin + (-camera.global_transform.basis.z) * 45.0
     for n in range(pellet_count):
         var forward := -camera.global_transform.basis.z
@@ -285,7 +332,7 @@ func start_reload() -> void:
     if reloading or magazines[weapon_id] >= WEAPONS[weapon_id]["mag"] or reserves[weapon_id] <= 0:
         return
     reloading = true
-    reload_timer = WEAPONS[weapon_id]["reload"]
+    reload_timer = WEAPONS[weapon_id]["reload"] * (0.80 if active_perk == "quick_reload" else 1.0)
     reload_elapsed = 0.0
     reload_sound.stop()
     reload_sound.play()
@@ -470,7 +517,7 @@ func _animate_viewmodel(delta: float, sprinting: bool) -> void:
         return
     var t := 0.0
     if reloading:
-        var duration: float = WEAPONS[weapon_id]["reload"]
+        var duration: float = WEAPONS[weapon_id]["reload"] * (0.80 if active_perk == "quick_reload" else 1.0)
         t = clampf(reload_elapsed / maxf(0.01, duration), 0.0, 1.0)
     var mag_out := 0.0
     if reloading and weapon_id != "shotgun":
