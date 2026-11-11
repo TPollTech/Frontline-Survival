@@ -114,3 +114,6 @@ A **Etapa 2 — inimigos e progressão de ondas** foi especificada em 10/11/2026
 
 **Nenhuma mudança de código foi feita por esta rodada.** Próximos passos: revisão/aprovação das decisões, ajuste de parâmetros com playtest e execução das milestones [M0–M8](PLANO_ENTREGA_V1_0.md).
 
+## H. Direção de polimento M0 — registro de 11/11/2026
+
+**Origem:** [M0 — Campo de Testes](M0_POLIMENTO_CAMPO_TESTES.md), que registra feedback e prioridade definidos pelo usuário após sessão real até a onda 10. **ESTABELECIDO como prioridade:** polir o Campo de Testes antes de abrir mapas ou ampliar a composição das ondas; adiar veículos terrestres, helicópteros e inimigos especiais adicionais. **Feedback solicitado:** sprint com sensação de corrida, hitmarker discreto apenas no acerto e sem som, sangue no impacto, cadáveres temporários, coleta de arma/munição com F e indicador curvo de direção do dano. A documentação de M0 registra implementação/CI parcial na 0.9.12; isso **não** equivale a aprovação visual, teste de 15 ondas ou homologação de desempenho. O hitmarker contextual **não é crosshair permanente**: manter D-016. O uso de F para loot deve ser conciliado com F nas estações por prioridade contextual, sem substituir compras. As dez propostas V1-P01–V1-P10 continuam **PROPOSTAS**; nenhuma foi aprovada por inferência.
