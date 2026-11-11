@@ -382,3 +382,7 @@ A [Etapa 6](docs/ETAPA_6_DESEMPENHO_TESTES_DISTRIBUICAO.md) especifica métricas
 **Critério de avançar:** o jogador aprova a anatomia e o desempenho do primeiro soldado antes de migrar aliados e todos os inimigos. **O teste de rig no CI não é aprovação visual.** Continuar mantendo o Campo de Testes e as regras atuais inalterados.
 
 [Asset e licença CC0](docs/ASSET_QUATERNIUS_CC0.md) · [QA v0.9.13](docs/QA_V0_9_13.md) · [Release](docs/releases/v0.9.13.md)
+
+## 9. Atualização de prioridade M0 — 11/11/2026
+
+O [plano de polimento do Campo de Testes](docs/M0_POLIMENTO_CAMPO_TESTES.md) registra decisão posterior de **priorizar sensação de corrida, hitmarker contextual silencioso, sangue, corpos temporários, loot com F, arcos de dano e personagens mais naturais**, antes de mapa novo, veículos ou ampliação de ondas. A sessão real relatada alcançou a onda 10, **não** as 15 exigidas. A 0.9.12 registra código/CI de parte desse polimento; o aceite visual, a interação contextual F e benchmarks no Ryzen 5 7530U/8 GB seguem pendentes. Ver [registro de decisões](docs/REGISTRO_DECISOES.md) e [GDD mestre](docs/GDD_MESTRE.md). A proposta de lançamento 1.0 e V1-P01–V1-P10 permanecem sem aprovação formal. **GDD PRONTO PARA REVISÃO**, sem expandir escopo.
