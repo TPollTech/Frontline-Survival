@@ -1,6 +1,8 @@
 extends CharacterBody3D
 class_name SurvivalPlayer
 
+const GunMaterials = preload("res://scripts/weapon_materials.gd")
+
 signal grenade_requested
 signal hit_confirmed
 signal headshot_confirmed
@@ -144,7 +146,11 @@ func _physics_process(delta: float) -> void:
     camera.fov = lerpf(camera.fov, GameSettings.field_of_view * 0.70 if aim else GameSettings.field_of_view, minf(1.0, delta * 12.0))
     walk_clock += delta * movement.length() * (12.0 if sprinting else 8.0)
     shot_spread_kick = move_toward(shot_spread_kick, 0.0, delta * 1.25)
-    var gun_target := Vector3(0.015, -0.20, -0.59) if aim else Vector3(0.34, -0.27, -0.63)
+    # Align the physical front/rear sight with the camera's central ray.
+    # No on-screen crosshair: the actual sight must indicate point of aim.
+    var sight_height: float = float({"pistol": 0.115, "smg": 0.232, "rifle": 0.232, "shotgun": 0.140, "lmg": 0.232}.get(weapon_id, 0.20))
+    var sight_y := -viewmodel_scale * sight_height
+    var gun_target := Vector3(0.0, sight_y, -0.62) if aim else Vector3(0.34, -0.27, -0.63)
     gun_target.y += sin(walk_clock) * 0.007 * movement.length()
     recoil = move_toward(recoil, 0.0, delta * 2.0)
     if reloading:
@@ -209,7 +215,6 @@ func shoot() -> void:
     var kick_degrees := 0.55 if weapon_id == "shotgun" else (0.22 if weapon_id == "smg" else 0.32)
     if aim:
         kick_degrees *= 0.78
-    camera.rotation.x = clampf(camera.rotation.x + deg_to_rad(kick_degrees), -1.45, 1.45)
     flash_timer = 0.047 if weapon_id != "shotgun" else 0.080
     shot_anim = 1.0
     muzzle_flash.visible = true
@@ -242,6 +247,9 @@ func shoot() -> void:
                 target.take_damage(base_damage * multiplier * (1.0 + 0.24 * upgrades))
                 did_hit = true
     shot_fired.emit(impact_point, did_hit)
+    # Recoil occurs AFTER the raycast so a first shot goes through the sight,
+    # not through the already-kicked camera direction.
+    camera.rotation.x = clampf(camera.rotation.x + deg_to_rad(kick_degrees), -1.45, 1.45)
     if did_hit:
         hit_confirmed.emit()
         if did_headshot:
@@ -423,6 +431,7 @@ func _update_gun_mesh() -> void:
             continue
         part.name = part_name
         viewmodel_root.add_child(part)
+        GunMaterials.apply_colors(part)
         part.scale = Vector3.ONE * viewmodel_scale
         part.position.z = viewmodel_depth
         if part_name == "mag":
