@@ -5,6 +5,7 @@ const WaveRules = preload("res://scripts/wave_rules.gd")
 const HitMarkerUI = preload("res://scripts/hit_marker.gd")
 const BloodImpact = preload("res://scripts/blood_impact.gd")
 const WorldPickup = preload("res://scripts/loot_pickup.gd")
+const RoundStats = preload("res://scripts/survival_round_stats.gd")
 
 
 const MAX_ACTIVE_ENEMIES := 12
@@ -19,19 +20,29 @@ const SHOP_OPTIONS := {
         ["Submetralhadora", 180, "smg"],
         ["Fuzil de assalto", 350, "rifle"],
         ["Escopeta", 450, "shotgun"],
-        ["Metralhadora leve", 650, "lmg"]
+        ["Metralhadora leve", 650, "lmg"],
+        ["Mira Red Dot (arma atual)", 190, "red_dot"],
+        ["Mira Holografica (arma atual)", 240, "holo"],
+        ["Silenciador (arma atual)", 270, "suppressor"],
+        ["Compensador (arma atual)", 180, "compensator"]
     ],
     "gear": [
         ["Repor municao", 80, "ammo"],
         ["+50 de colete", 130, "armor"],
         ["+50 de vida", 90, "medkit"],
         ["+2 granadas", 100, "grenades"],
-        ["Melhoria de dano (+24%)", 220, "upgrade"]
+        ["Melhoria de dano (+24%)", 220, "upgrade"],
+        ["Kit de Reanimacao (1 uso)", 950, "self_revive"]
     ],
     "support": [
         ["Torreta automatica (115s)", 300, "turret"],
         ["Esquadrao aliado (2 soldados)", 420, "squad"],
-        ["Ataque aereo tatico", 420, "airstrike"]
+        ["Ataque aereo tatico", 420, "airstrike"],
+        ["Perk: Recarga Agil", 300, "perk_quick_reload"],
+        ["Perk: Mira Firme", 300, "perk_steady"],
+        ["Perk: Reacao Rapida", 300, "perk_fast_ads"],
+        ["Perk: Mobilidade", 300, "perk_mobility"],
+        ["Perk: Resistencia", 350, "perk_resistance"]
     ]
 }
 
@@ -49,6 +60,10 @@ var break_remaining: float = INITIAL_PREPARATION_SECONDS
 var break_duration: float = INITIAL_PREPARATION_SECONDS
 var countdown_warning: int = -1
 var previous_wave_kills: int = 0
+var round_stats = RoundStats.new()
+var round_report: Label
+var report_remaining: float = 0.0
+var grenade_event_serial: int = 0
 var wave_kills: int = 0
 var banner_timer: float = 0.0
 var banner_title: String = ""
@@ -59,6 +74,9 @@ var spawn_clock: float = 0.0
 var spawn_retry_count: int = 0
 var shop_open: bool = false
 var shop_id: String = ""
+var shop_page: int = 0
+var shop_prev_button: Button
+var shop_next_button: Button
 var shops: Array = []
 var status_text: String = ""
 var status_timer: float = 0.0
@@ -104,6 +122,9 @@ func _ready() -> void:
     player.player_died.connect(_on_player_died)
     player.headshot_confirmed.connect(_on_headshot)
     player.hit_confirmed.connect(_on_hit_confirmed)
+    player.shot_resolved.connect(_on_shot_resolved)
+    player.downed_started.connect(_on_player_downed)
+    player.downed_recovered.connect(_on_player_recovered)
     player.shot_fired.connect(_on_shot_fired)
     player.damage_received.connect(_on_player_damage)
     _create_ui()
@@ -137,6 +158,7 @@ func _process(delta: float) -> void:
     for i in range(threat_durations.size()):
         threat_durations[i] = maxf(0.0, threat_durations[i] - delta)
     reward_timer = maxf(0.0, reward_timer - delta)
+    report_remaining = maxf(0.0, report_remaining - delta)
     banner_timer = maxf(0.0, banner_timer - delta)
     _refresh_ui()
 
@@ -155,6 +177,7 @@ func _physics_process(delta: float) -> void:
         if break_remaining <= 0.0:
             _begin_wave()
     elif phase == "wave":
+        round_stats.tick(delta)
         spawn_clock -= delta
         if spawn_remaining > 0 and alive < MAX_ACTIVE_ENEMIES and spawn_clock <= 0.0:
             var spawned := _spawn_enemy()
@@ -376,6 +399,7 @@ func _begin_wave() -> void:
     _save_record()
     phase = "wave"
     wave_kills = 0
+    round_stats.begin(wave)
     spawn_remaining = WaveRules.total_enemies(wave)
     alive = 0
     spawn_retry_count = 0
@@ -435,6 +459,7 @@ func _spawn_enemy() -> bool:
     enemy.preview_quaternius = kind == "soldier" and spawn_remaining == WaveRules.total_enemies(wave)
     enemy.position = pick
     enemy.defeated.connect(_on_enemy_defeated)
+    enemy.combat_defeat.connect(_on_enemy_combat_defeat)
     enemy.loot_dropped.connect(_on_enemy_loot_dropped)
     add_child(enemy)
     alive += 1
@@ -507,6 +532,31 @@ func _collect_loot(item: Node3D) -> void:
         _notify("%s RECOLHIDA DO CHAO" % id.to_upper(), 1.8)
     item.queue_free()
 
+func _on_shot_resolved(hit_enemy: bool, was_headshot: bool) -> void:
+    if phase == "wave":
+        round_stats.shot(hit_enemy, was_headshot)
+
+func _on_enemy_combat_defeat(enemy_id: int, source: String, was_headshot: bool, event_id: int, bounty: int) -> void:
+    if phase != "wave":
+        return
+    var challenge_award: int = round_stats.defeat(
+        enemy_id, source, was_headshot, event_id, round_stats.elapsed, bounty
+    )
+    if challenge_award > 0:
+        wallet += challenge_award
+        _notify("DESAFIO CONCLUIDO: +$%d" % challenge_award, 2.8)
+    if player.downed and source in ["player", "melee", "grenade"]:
+        player.recover_downed(false)
+
+func _on_player_downed() -> void:
+    if shop_open:
+        _close_shop()
+    _show_banner("ULTIMA CHANCE", "10 SEGUNDOS! ELIMINE UM INIMIGO COM A PISTOLA.", 2.8)
+    _notify("ULTIMA CHANCE: MATE PARA LEVANTAR  |  KIT SALVA AO ESGOTAR", 3.0)
+
+func _on_player_recovered() -> void:
+    _show_banner("RECUPERADO", "RETORNE AO COMBATE", 1.6)
+
 func _on_enemy_defeated(bounty: int) -> void:
     alive = maxi(0, alive - 1)
     wallet += bounty
@@ -526,8 +576,11 @@ func _end_wave() -> void:
     var bonus := 60 + wave * 20
     wallet += bonus
     player.heal(15.0)
-    _show_banner("ONDA %02d CONCLUIDA" % wave, "+$%d BONUS  |  +15 VIDA  |  %d ELIMINACOES" % [bonus, previous_wave_kills], 5.0)
-    _notify("ONDA CONCLUIDA! TEMPO PARA COMPRAS: %s" % _clock(break_remaining), 5.0)
+    round_stats.finish(bonus)
+    round_report.text = round_stats.summary_text()
+    report_remaining = 7.0
+    _show_banner("ONDA %02d CONCLUIDA" % wave, "+$%d BONUS  |  +15 VIDA  |  %d ELIMINACOES" % [bonus, previous_wave_kills], 3.0)
+    _notify("RELATORIO DA ONDA  |  PROXIMA EM %s" % _clock(break_remaining), 3.0)
 
 func _clock(seconds: float) -> String:
     var remaining: int = maxi(0, ceili(seconds))
@@ -737,11 +790,13 @@ func _throw_grenade() -> void:
     var hit := get_world_3d().direct_space_state.intersect_ray(ray)
     if not hit.is_empty():
         target = hit["position"]
+    grenade_event_serial += 1
+    var explosion_id := -grenade_event_serial
     for enemy in get_tree().get_nodes_in_group("enemies"):
         if is_instance_valid(enemy) and not enemy.dead:
             var d: float = enemy.global_position.distance_to(target)
             if d < 6.0:
-                enemy.take_damage(180.0 * (1.0 - d / 8.0))
+                enemy.take_damage(180.0 * (1.0 - d / 8.0), "grenade", false, explosion_id)
     var blast := MeshInstance3D.new()
     var sphere := SphereMesh.new()
     sphere.radius = 1.0
@@ -787,6 +842,8 @@ func _on_headshot() -> void:
     reward_timer = 1.15
 
 func _on_player_damage(source_position: Vector3, _actual_damage: float) -> void:
+    if phase == "wave":
+        round_stats.take_hit(_actual_damage)
     # 0 frente, 1 direita, 2 tras, 3 esquerda.
     # Projecao apenas horizontal evita indicadores trocados em desniveis.
     var direction := source_position - player.global_position
