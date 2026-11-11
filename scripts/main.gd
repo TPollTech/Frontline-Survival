@@ -1,6 +1,7 @@
 extends Node3D
 
 const SpawnSelector = preload("res://scripts/spawn_selector.gd")
+const WaveRules = preload("res://scripts/wave_rules.gd")
 
 
 const MAX_ACTIVE_ENEMIES := 12
@@ -363,12 +364,17 @@ func _begin_wave() -> void:
     _save_record()
     phase = "wave"
     wave_kills = 0
-    spawn_remaining = mini(5 + wave * 2, 55)
+    spawn_remaining = WaveRules.total_enemies(wave)
     alive = 0
     spawn_retry_count = 0
     spawn_clock = 0.3
-    _show_banner("ONDA %02d" % wave, _loadout_label(wave) + "  |  SOBREVIVA!", 3.2)
-    _notify("ONDA %d - ELIMINE TODOS OS INIMIGOS!" % wave, 3.2)
+    if WaveRules.is_armored_wave(wave):
+        # No shrill alert; visual warning gives time to prepare for a heavy.
+        _show_banner("ONDA %02d - AMEACA BLINDADA" % wave, _loadout_label(wave) + "  |  PREPARE-SE!", 3.2)
+        _notify(WaveRules.wave_alert(wave), 3.2)
+    else:
+        _show_banner("ONDA %02d" % wave, _loadout_label(wave) + "  |  SOBREVIVA!", 3.2)
+        _notify("ONDA %d - ELIMINE TODOS OS INIMIGOS!" % wave, 3.2)
 
 func _loadout_label(number: int) -> String:
     if number < 4: return "SOLDADOS COM ESCOPETAS"
@@ -410,13 +416,7 @@ func _spawn_enemy() -> bool:
     spawn_retry_count = 0
     var pick: Vector3 = selected["position"]
     var enemy := SurvivalEnemy.new()
-    var roll := randf()
-    var kind := "soldier"
-    # Pesados especiais nas ondas 10/15/20...; fora delas, pouco frequentes.
-    if (wave >= 10 and wave % 5 == 0 and spawn_remaining <= 2) or (wave >= 15 and roll > 0.97):
-        kind = "heavy"
-    elif wave >= 7 and roll > 0.75:
-        kind = "runner"
+    var kind: String = WaveRules.kind_for_spawn(wave, spawn_remaining, randf())
     enemy.configure(kind, wave, player, _select_enemy_weapon(wave))
     enemy.position = pick
     enemy.defeated.connect(_on_enemy_defeated)
