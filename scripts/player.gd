@@ -308,6 +308,7 @@ func switch_weapon(id: String, force: bool = false) -> void:
     weapon_upgrades[weapon_id] = upgrades
     weapon_id = id
     reloading = false
+    reload_sound.stop()
     upgrades = int(weapon_upgrades.get(id, 0))
     fire_timer = 0.14
     shot_anim = 0.0
@@ -319,6 +320,7 @@ func refill_ammo() -> void:
     reserves[weapon_id] = WEAPONS[weapon_id]["reserve"]
     magazines[weapon_id] = WEAPONS[weapon_id]["mag"]
     reloading = false
+    reload_sound.stop()
 
 func heal(amount: float) -> void:
     health = minf(100.0, health + amount)
@@ -338,6 +340,7 @@ func take_damage(amount: float, source_position: Vector3 = Vector3.ZERO) -> void
     damage_received.emit(source_position, amount - absorbed)
     if health <= 0.0:
         dead = true
+        reload_sound.stop()
         controls_locked = true
         if not GameSettings.training_respawns:
             Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)

@@ -1,5 +1,12 @@
 # Frontline Survival — Histórico de versões
 
+## 0.9.5 — Recargas com gravações mecânicas
+
+- Substituídas as cinco recargas sintetizadas por sequências de gravações de manuseio. Fontes e licenças nas [notas da versão](releases/v0.9.5.md).
+- O som de recarga é interrompido ao trocar de arma, reabastecer ou morrer.
+
+---
+
 ## 0.9.4 — Armas e mira
 
 - Pistola e AK-47 remodeladas, com alinhamento das miras e da boca do cano atualizado.
