@@ -1,5 +1,20 @@
 # Frontline Survival — Histórico de versões
 
+## 0.9.2 — Spawn seguro e teste integrado de ondas
+
+**Estado:** melhoria implementada; homologação em jogo **PARCIAL**. Integração headless verifica o fluxo de duas ondas e pelo menos 100 escolhas de spawn; teste prolongado de 15 ondas permanece pendente.
+
+- **Etapa 2B:** seletor reutilizável de spawns, respeitando distância mínima de 10m do jogador, 4,75m das estações e raio de ocupação física de 0,72m. Os números são provisórios para Campo de Testes.
+- Preferência suave por entradas fora da direção de visão do jogador, sem tornar spawn totalmente previsível.
+- Se o ponto não for seguro, não cria NPC: aguarda 0,6s e tenta novamente. Log de advertência após tentativas recorrentes; sem descartar inimigos da fila.
+- Geração de inimigos movida do processamento de quadros para **_physics_process**, necessário para consultar o espaço de colisão de maneira correta.
+- **Etapa 2A / QA:** cenário automatizado `tests/runtime_wave_qa.gd` no GitHub Actions carrega a cena, inicia partidas, examina os pontos de entrada e verifica duas transições de onda com mortes reais dos NPCs e contadores coerentes.
+- Nenhuma alteração gráfica em armas ou soldados neste incremento: os defeitos/ajustes visuais da v0.9.1 ainda precisam de avaliação do jogador.
+
+**Release:** [v0.9.2](https://github.com/TPollTech/Frontline-Survival/releases/tag/v0.9.2) — publicada automaticamente **somente** se CI passar. **Status de gameplay: PARCIAL** até sessão real e feedback.
+
+---
+
 ## 0.9.1 — Paleta de armas, aliados, mira real e som de onda (em validação)
 
 **Origem:** na v0.9.0, uma captura real mostrou armas brancas, aliados com poses deformadas e mira desalinhada; houve relato de apitos irritantes. O trabalho da 0.9.1 implementa correções, mas **não está homologado visualmente** até teste em Windows.
