@@ -129,6 +129,7 @@ func _run_tests() -> void:
     game.player.take_damage(100.0)
     _expect(game.player.downed and game.player.magazines["pistol"] >= 8,
         "second last stand or emergency pistol ammunition failed")
+    game.phase = "wave"
     game.round_stats.begin(1)
     game._on_enemy_combat_defeat(9555, "support", false, 0, 50)
     _expect(game.player.downed, "an allied soldier erroneously revived downed player")
