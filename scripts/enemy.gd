@@ -5,6 +5,7 @@ const GunMaterials = preload("res://scripts/weapon_materials.gd")
 const WeaponAudio = preload("res://scripts/weapon_audio.gd")
 const ArmPose = preload("res://scripts/weapon_pose.gd")
 const ObstacleSteering = preload("res://scripts/obstacle_steering.gd")
+const QuaterniusVisual = preload("res://scripts/quaternius_soldier_visual.gd")
 ## Lightweight articulated procedural soldier; independent hip, knee, shoulder,
 ## elbow and upper-body pivots. Designed for up to 12 concurrent enemies.
 
@@ -54,6 +55,8 @@ var torso_mesh: MeshInstance3D
 var muzzle_flash: MeshInstance3D
 var shot_audio: AudioStreamPlayer3D
 var hit_collider: CollisionShape3D
+var preview_quaternius: bool = false
+var humanoid_visual: Node3D
 
 func configure(enemy_kind: String, wave_num: int, target: SurvivalPlayer, loadout: String = "") -> void:
     kind = enemy_kind
@@ -247,6 +250,27 @@ func _ready() -> void:
     flash_mat.emission_energy_multiplier = 1.5
     muzzle_flash.visible = false
     attack_cooldown = randf_range(0.8, 1.6)
+    # Experimental A/B test: only one ordinary enemy per wave has a rigged
+    # Quaternius body. Existing AI, hit collider, weapon and loot are retained.
+    if preview_quaternius and kind == "soldier":
+        var candidate: Node3D = QuaterniusVisual.new()
+        candidate.name = "ExperimentalHumanoid"
+        visual_root.add_child(candidate)
+        if candidate.get("valid"):
+            humanoid_visual = candidate
+            _hide_legacy_body(visual_root)
+        else:
+            candidate.queue_free()
+            push_warning("Rigged preview unavailable, using existing procedural soldier")
+
+func _hide_legacy_body(node: Node) -> void:
+    if node == humanoid_visual or node == weapon_pivot:
+        return
+    if node is MeshInstance3D:
+        # Keep the attack weapon and muzzle flash, hide only the old body.
+        (node as MeshInstance3D).visible = false
+    for child in node.get_children():
+        _hide_legacy_body(child)
 
 func _physics_process(delta: float) -> void:
     if dead or not is_instance_valid(player):
@@ -395,6 +419,8 @@ func _animate_body(delta: float, moving: bool) -> void:
     var support_grip := weapon_pivot.position + weapon_pivot.basis * Vector3(-0.06, -0.10, foregrip_z)
     ArmPose.align_hand(right_shoulder, right_elbow, trigger_grip, 1.0, delta)
     ArmPose.align_hand(left_shoulder, left_elbow, support_grip, -1.0, delta)
+    if is_instance_valid(humanoid_visual):
+        humanoid_visual.call("animate", delta, moving, move_speed, weapon_kick)
 
 func _has_sight() -> bool:
     if not is_instance_valid(player):
