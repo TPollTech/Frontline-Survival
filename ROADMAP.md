@@ -167,7 +167,7 @@ Os documentos abaixo detalham critérios e hipóteses sem autorizar implementaç
 | Etapa 3 — Economia e reforços | **Especificada em 10/11/2026**; preços finais e propostas pendentes de aprovação | Não iniciada |
 | Etapa 4 — Mapas | **Especificada em 10/11/2026**; layout de cinco setores e arquitetura ainda sujeitos a aprovação | Não iniciada |
 | Etapa 5 — HUD, áudio e UX | **Especificada em 10/11/2026**; propostas aguardam aprovação | **PARCIAL** — aviso direcional do HUD e pipeline de exportação Windows 0.8, ainda sem teste real no Windows |
-| Etapa 6 — desempenho e distribuição | Detalhamento pendente | **PARCIAL** — exportação 0.8 comprovada no CI e executada no Windows; 0.9 em validação; testes longos pendentes |
+| Etapa 6 — desempenho e distribuição | Detalhamento pendente | **PARCIAL** — build 0.9 publicada automaticamente em [GitHub Releases](https://github.com/TPollTech/Frontline-Survival/releases/tag/v0.9.0); testes de desempenho/15 ondas pendentes |
 | GDD consolidado | **Ainda não concluído**; consolidar após as etapas | Não aplicável |
 
 **Último avanço de produto:** versão 0.9 compilada e publicada no GitHub Actions, com 19 arquivos GLB regenerados e sincronizados na main. A versão 0.8 foi executada pelo usuário até a preparação da onda 2; a 0.9 exige validação visual/jogabilidade no Windows. O planejamento deve continuar pela Etapa 6 sem alterar código automaticamente. O planejamento deve continuar pela Etapa 6 sem alterar o código automaticamente.
@@ -203,9 +203,9 @@ Os documentos abaixo detalham critérios e hipóteses sem autorizar implementaç
 | V09-04 | Corrigir arma e braços de inimigos | **PARCIAL** — IK leve e alinhamento do modelo | Validar visualmente ataque, caminhada e disparo |
 | V09-05 | Corrigir arma e braços dos aliados | **PARCIAL** — IK leve e alinhamento do modelo | Validar invocação do esquadrão e postura de rifle |
 | V09-06 | Verificação de regressão das malhas | **CONCLUÍDO (CI)** | Verificador estático e smoke test passaram com GLBs regenerados na [execução 0.9](https://github.com/TPollTech/Frontline-Survival/actions/runs/42941790033) |
-| V09-07 | Build Windows 0.9 com arquivo ZIP | **CONCLUÍDO (CI)** — exportação e artifact publicados | [Build 0.9](https://github.com/TPollTech/Frontline-Survival/actions/runs/42941790033); execução e visual no Windows ainda pendentes |
+| V09-07 | Build Windows 0.9 com arquivo ZIP | **CONCLUÍDO (CI + RELEASES)** — build e ZIP publicados | [Release v0.9.0](https://github.com/TPollTech/Frontline-Survival/releases/tag/v0.9.0) e [CI bem-sucedido](https://github.com/TPollTech/Frontline-Survival/actions/runs/42943797046); jogabilidade visual ainda pendente |
 | V09-08 | Teste 15 ondas, compras, morte e FPS | **PENDENTE** | Jogar sessão completa no Windows e registrar resultado |
 
-**Nenhuma Etapa 1 ou 2 está 100% concluída.** A geração/exportação 0.9 foi concluída no CI, mas a correção visual e a empunhadura continuam **PARCIAIS** até a aprovação no Windows. O usuário pode baixar EXE + PCK pela [execução 0.9](https://github.com/TPollTech/Frontline-Survival/actions/runs/42941790033).
+**Nenhuma Etapa 1 ou 2 está 100% concluída.** A geração/exportação 0.9 foi concluída no CI e a primeira versão foi publicada em [GitHub Releases](https://github.com/TPollTech/Frontline-Survival/releases/tag/v0.9.0), com link permanente. A correção visual e a empunhadura continuam **PARCIAIS** até aprovação no Windows.
 
 [Roteiro de testes da 0.9](docs/TESTES_0_9.md) · [Changelog](docs/CHANGELOG.md)
