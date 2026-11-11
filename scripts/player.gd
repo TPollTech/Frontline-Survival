@@ -147,7 +147,9 @@ func _physics_process(delta: float) -> void:
     if Input.is_key_pressed(KEY_SPACE) and is_on_floor() and not controls_locked:
         velocity.y = 6.5
     move_and_slide()
-    camera.fov = lerpf(camera.fov, GameSettings.field_of_view * 0.70 if aim else GameSettings.field_of_view, minf(1.0, delta * 12.0))
+    # A slight sprint FOV extension sells momentum; ADS always takes priority.
+    var target_fov: float = GameSettings.field_of_view * (0.70 if aim else (1.045 if sprint_blend > 0.55 else 1.0))
+    camera.fov = lerpf(camera.fov, target_fov, minf(1.0, delta * 10.0))
     walk_clock += delta * movement.length() * (12.0 if sprinting else 8.0)
     shot_spread_kick = move_toward(shot_spread_kick, 0.0, delta * 1.25)
     # Align the physical front/rear sight with the camera's central ray.
@@ -157,7 +159,7 @@ func _physics_process(delta: float) -> void:
     var gun_target := Vector3(0.0, sight_y, -0.62) if aim else Vector3(0.34, -0.27, -0.63)
     # A true tactical sprint: lower the rifle, pitch the muzzle down and
     # let the support arm drop. Smooth transitions prevent camera popping.
-    var running_bob := sin(walk_clock) * 0.023 * sprint_blend
+    var running_bob := sin(walk_clock) * 0.029 * sprint_blend
     gun_target.y += sin(walk_clock) * 0.007 * movement.length()
     gun_target = gun_target.lerp(Vector3(0.49, -0.50 + running_bob, -0.45), sprint_blend)
     recoil = move_toward(recoil, 0.0, delta * 2.0)
@@ -499,10 +501,12 @@ func _animate_viewmodel(delta: float, sprinting: bool) -> void:
         # Support hand releases the fore-end during sprint instead of being
         # glued to the weapon in an accelerated walking pose.
         left_hand_rig.position = left_hand_rig.position.lerp(
-            Vector3(-0.08, -0.16, 0.15) * sprint_blend, minf(1.0, delta * 11.0)
+            # Arm comes down along the chest instead of remaining on the foregrip.
+            Vector3(-0.12, -0.29 + sin(walk_clock * 0.5) * 0.032, 0.19) * sprint_blend,
+            minf(1.0, delta * 11.0)
         )
         left_hand_rig.rotation.z = lerpf(
-            left_hand_rig.rotation.z, -0.15 * sprint_blend, minf(1.0, delta * 11.0)
+            left_hand_rig.rotation.z, -0.26 * sprint_blend, minf(1.0, delta * 11.0)
         )
 
 func _arm_piece(shape: Mesh, at: Vector3, tint: Color, rotation: Vector3 = Vector3.ZERO) -> MeshInstance3D:
