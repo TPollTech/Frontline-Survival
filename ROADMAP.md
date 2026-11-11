@@ -1,6 +1,6 @@
 # Frontline Survival — Planejamento e Roadmap
 
-**Documento mestre do projeto** · Atualizado: 10/11/2026 · **Base de referência:** protótipo `0.7` · **Situação:** planejamento; novas mecânicas somente após aprovação da etapa.
+**Documento mestre do projeto** · Atualizado: 10/11/2026 · **Base de referência:** protótipo `0.7`; **versão de desenvolvimento:** `0.9` · **Situação:** planejamento; novas mecânicas somente após aprovação da etapa.
 
 > **Visão:** FPS 3D offline de sobrevivência por ondas, com combate satisfatório, progressão, dinheiro, compras em estações e suporte tático. Inspiração de mecânicas: Survival dos FPS militares da geração PS3, com identidade, modelos, efeitos e sons próprios. **Não** copiar mapas, arquivos ou personagens de Call of Duty.
 
@@ -137,7 +137,7 @@
 
 ## 6. Próxima decisão
 
-**Próximo trabalho recomendado: validar a build Windows 0.8 no notebook.** O GitHub Actions já confirmou importação, verificação estática e exportação, mas ainda faltam iniciar o executável no Windows, testar 15 ondas, compras, morte, revive, reforços, menus e registrar FPS. Depois corrigir eventuais bugs P0 antes de avançar para IA/armas mais ambiciosas.
+**Próximo trabalho recomendado: validar a 0.9 visualmente no Windows.** A 0.8 já foi aberta pelo usuário e a captura mostra preparação da onda 2 com 138 FPS instantâneos. A 0.9 corrige malhas com normais invertidas e poses de armas/soldados. Confirmar visual, jogabilidade, 15 ondas, compras, morte, revive e desempenho antes de encerrar as Etapas 0–2.
 
 **Status:** entregas pequenas comprovadas em CI são **CONCLUÍDAS (CI)**; funcionalidades implementadas sem teste de partida são **PARCIAIS**; uma etapa inteira não é marcada como concluída sem seus critérios de aceite.
 
@@ -162,15 +162,15 @@ Os documentos abaixo detalham critérios e hipóteses sem autorizar implementaç
 | Documento | Situação documental | Implementação e QA |
 | --- | --- | --- |
 | Etapa 0 — Estabilidade | Especificada; 27 verificações de QA | **PARCIAL** — importação Godot 4.4.1, análise de scripts, integridade estática e exportação Windows passaram no CI; teste jogando 15 ondas no notebook pendente |
-| Etapa 1 — Armas e FPS | Especificada; propostas aguardam aprovação | **PARCIAL** — headshot visual âmbar na 0.8; rig profissional, armas e playtest pendentes |
-| Etapa 2 — Inimigos e ondas | **Especificada em 10/11/2026**; propostas aguardam aprovação | Não iniciada |
+| Etapa 1 — Armas e FPS | Especificada; propostas aguardam aprovação | **PARCIAL** — 0.9 corrige normais, escala de armas e encaixe das mãos; aprovação visual e rig profissional pendentes |
+| Etapa 2 — Inimigos e ondas | **Especificada em 10/11/2026**; propostas aguardam aprovação | **PARCIAL** — somente postura de arma e braços de soldados/aliados na 0.9; IA/ondas do GDD ainda pendentes |
 | Etapa 3 — Economia e reforços | **Especificada em 10/11/2026**; preços finais e propostas pendentes de aprovação | Não iniciada |
 | Etapa 4 — Mapas | **Especificada em 10/11/2026**; layout de cinco setores e arquitetura ainda sujeitos a aprovação | Não iniciada |
 | Etapa 5 — HUD, áudio e UX | **Especificada em 10/11/2026**; propostas aguardam aprovação | **PARCIAL** — aviso direcional do HUD e pipeline de exportação Windows 0.8, ainda sem teste real no Windows |
-| Etapa 6 — desempenho e distribuição | Detalhamento pendente | Não concluída; CI de exportação 0.8 não substitui teste no Windows |
+| Etapa 6 — desempenho e distribuição | Detalhamento pendente | **PARCIAL** — exportação 0.8 comprovada no CI e executada no Windows; 0.9 em validação; testes longos pendentes |
 | GDD consolidado | **Ainda não concluído**; consolidar após as etapas | Não aplicável |
 
-**Último avanço de produto:** versão 0.8 com indicador direcional de dano, feedback de headshot, mira ADS e retícula dinâmica. Importação de assets, smoke test Godot headless, verificação estática e exportação Windows foram concluídos no CI; **testes de gameplay no Windows permanecem pendentes**. O planejamento deve continuar pela Etapa 6 sem alterar o código automaticamente.
+**Último avanço de produto:** versão 0.9 em andamento para corrigir geometria das armas com face winding invertido, posicionar mãos na empunhadura e adequar braços/armas de inimigos e aliados. A versão 0.8 foi executada pelo usuário até a preparação da onda 2; 0.9 exige compilação e validação visual. O planejamento deve continuar pela Etapa 6 sem alterar código automaticamente. O planejamento deve continuar pela Etapa 6 sem alterar o código automaticamente.
 
 ## 9. Registro de implementação e evidências — 0.8 (10/11/2026)
 
@@ -184,9 +184,28 @@ Os documentos abaixo detalham critérios e hipóteses sem autorizar implementaç
 | V08-10 | Smoke test da cena principal no Godot headless | **CONCLUÍDO (CI)** | Importação, inicialização headless e exportação Windows passaram na execução 42936566841 |
 | V08-04 | Exportador automático Windows via GitHub Actions | **CONCLUÍDO (CI)** | [Execução bem-sucedida](https://github.com/TPollTech/Frontline-Survival/actions/runs/42936566841), com artefato EXE + PCK |
 | V08-05 | Importação Godot e checagens estáticas no CI | **CONCLUÍDO (CI)** | Steps de importação, testes e exportação aprovados na mesma execução |
-| V08-06 | Executável jogado e aprovado no Windows | **PENDENTE** | Requer teste em notebook Ryzen 5 7530U, 8 GB; captura de erros e métricas |
+| V08-06 | Executável jogado e aprovado no Windows | **PARCIAL** | Usuário confirmou execução da 0.8 e enviou captura na preparação para onda 2; testes completos e validação de arma/IA pendentes |
 | V08-07 | Estabilidade de 15 ondas com compras/reforços | **PENDENTE** | Regressão longa da Etapa 0 ainda não executada pelo jogador |
 
 **Regra das próximas versões:** entregar, quando houver build bem-sucedida, um ZIP Windows com EXE + PCK (se separado); anexar o link de build, changelog, status de cada tarefa e evidências. Se o workflow falhar, não chamar a versão de jogável. Documentos de planejamento continuam separados das entregas codificadas.
 
 [Download/testes do executável](docs/BUILD_WINDOWS.md) · [Histórico de versões](docs/CHANGELOG.md)
+
+## 10. Sprint visual 0.9 — feedback recebido no Windows
+
+**Origem:** jogador executou a 0.8 e mostrou a preparação para onda 2, 7 abates e contador instantâneo de 138 FPS. Observação visual: armas parecem vazadas/incompletas e soldados seguram armas de modo incorreto. O contador exibido em uma captura **não** é benchmark nem aprovação de sessão prolongada.
+
+| Item | Entrega | Status atual | Aceite ainda necessário |
+| --- | --- | --- | --- |
+| V09-01 | Corrigir normais dos GLBs e dos anéis dos canos | **PARCIAL** — corrigido no gerador e verificador | Confirmar modelos regenerados na build e que não há faces invisíveis |
+| V09-02 | Corrigir escala e profundidade das cinco armas no FPS | **PARCIAL** — código atualizado | Validar a escopeta/LMG ao mirar e andar |
+| V09-03 | Alinhar duas mãos do jogador às armas | **PARCIAL** — empunhadura procedural ajustada | Confirmar sem mão flutuante e sem clipping em recarga |
+| V09-04 | Corrigir arma e braços de inimigos | **PARCIAL** — IK leve e alinhamento do modelo | Validar visualmente ataque, caminhada e disparo |
+| V09-05 | Corrigir arma e braços dos aliados | **PARCIAL** — IK leve e alinhamento do modelo | Validar invocação do esquadrão e postura de rifle |
+| V09-06 | Verificação de regressão das malhas | **PARCIAL** — guarda contra normals invertidos no verificador | Passar no CI com GLBs regenerados |
+| V09-07 | Build Windows 0.9 com arquivo ZIP | **PENDENTE DE CI** | Confirmar exportação, artefato baixável, execução no Windows |
+| V09-08 | Teste 15 ondas, compras, morte e FPS | **PENDENTE** | Jogar sessão completa no Windows e registrar resultado |
+
+**Nenhuma Etapa 1 ou 2 está 100% concluída.** Itens passam a **CONCLUÍDO (CI)** apenas após execução bem-sucedida e verificada; ficam **PARCIAIS** até inspeção visual na máquina do jogador.
+
+[Roteiro de testes da 0.9](docs/TESTES_0_9.md) · [Changelog](docs/CHANGELOG.md)
