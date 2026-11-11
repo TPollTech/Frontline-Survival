@@ -1,15 +1,15 @@
 # Executável Windows — compilação e testes
 
 **Projeto:** Frontline Survival  
-**Versão de desenvolvimento:** 0.9  
+**Versão de desenvolvimento:** 0.9.1  
 **Entrega esperada:** arquivo ZIP contendo FrontlineSurvival.exe, FrontlineSurvival.pck (se o exportador usar pacote separado) e LEIA-ME.md.  
-**Status:** a [execução da release 0.9](https://github.com/TPollTech/Frontline-Survival/actions/runs/42943797046) concluiu importação, smoke test, integridade e exportação Windows, e publicou a [Release v0.9.0](https://github.com/TPollTech/Frontline-Survival/releases/tag/v0.9.0). A experiência visual/jogabilidade no notebook ainda está em validação.
+**Status:** a [compilação 0.9.1](https://github.com/TPollTech/Frontline-Survival/actions/runs/42945928310) passou pela importação, smoke test, integridade e exportação Windows e publicou a [Release v0.9.1](https://github.com/TPollTech/Frontline-Survival/releases/tag/v0.9.1). O novo visual, a mira e o áudio ainda precisam de validação jogando.
 
 ## Baixar pelo GitHub Releases (padrão)
 
 1. Acesse **[Releases do Frontline Survival](https://github.com/TPollTech/Frontline-Survival/releases)**.
-2. Escolha a versão de testes que deseja baixar (por exemplo, **v0.9.0**).
-3. Em **Assets**, clique no arquivo **FrontlineSurvival-v0.9.0-Windows.zip** (o nome muda conforme a versão).
+2. Escolha a versão de testes que deseja baixar (por exemplo, **v0.9.1**).
+3. Em **Assets**, clique no arquivo **FrontlineSurvival-v0.9.1-Windows.zip** (o nome muda conforme a versão).
 4. Extraia em pasta nova, mantendo o arquivo EXE e o arquivo PCK juntos.
 5. Execute **FrontlineSurvival.exe** sem precisar instalar o editor Godot.
 
@@ -19,10 +19,10 @@ O download é público e não depende do link de anexo do ChatGPT. As releases s
 
 ## Padrão de lançamento das próximas versões
 
-- Alterar `application/product_version` no `export_presets.cfg` para um **novo número** de versão (por exemplo, `0.9.1`), atualizar o número no menu/título e registrar mudanças no `docs/CHANGELOG.md`.
-- Opcionalmente criar notas específicas em `docs/releases/v0.9.1.md` antes do commit da versão.
+- Alterar `application/product_version` no `export_presets.cfg` para um **novo número** de versão (por exemplo, `0.9.2`), atualizar o número no menu/título e registrar mudanças no `docs/CHANGELOG.md`.
+- Opcionalmente criar notas específicas em `docs/releases/v0.9.2.md` antes do commit da versão.
 - Ao enviar para a branch `main` uma mudança em scripts/cenas/assets/exportação, o GitHub Actions gera e testa um ZIP Windows.
-- **Se o CI passar e ainda não existir a release para essa versão**, a automação cria `v0.9.1` na aba Releases e anexa o ZIP + arquivo SHA-256 de integridade. Se já existir, **não altera uma release antiga**: é necessário incrementar a versão.
+- **Se o CI passar e ainda não existir a release para essa versão**, a automação cria a nova tag numerada na aba Releases e anexa o ZIP + arquivo SHA-256 de integridade. Se já existir, **não altera uma release antiga**: é necessário incrementar a versão.
 - Até a validação final do jogo, as releases são marcadas como **pré-lançamentos de testes**.
 - Commits de documentação de planejamento não disparam exportações desnecessárias. O workflow também pode ser iniciado manualmente na aba Actions.
 - Não marcar uma etapa do ROADMAP como 100% concluída sem teste real de jogo. CI verde comprova compilação/exportação, não gameplay.
