@@ -5,23 +5,29 @@
 **Entrega esperada:** arquivo ZIP contendo FrontlineSurvival.exe, FrontlineSurvival.pck (se o exportador usar pacote separado) e LEIA-ME.md.  
 **Status:** a [execução 0.9](https://github.com/TPollTech/Frontline-Survival/actions/runs/42941790033) concluiu importação, smoke test, integridade e exportação Windows; a experiência visual/jogabilidade no notebook ainda está em validação.
 
-## Como baixar sem instalar o Godot
+## Baixar pelo GitHub Releases (padrão)
 
-1. Acesse **Actions > Windows playable build** no [repositório](https://github.com/TPollTech/Frontline-Survival/actions/workflows/windows-build.yml).
-2. Abra uma execução com **marca verde (success)**, da branch **main**.
-3. Em **Artifacts**, baixe **FrontlineSurvival-0.9-Windows**.
-4. Extraia o ZIP inteiro numa pasta nova. **Não execute o EXE dentro do ZIP**, e mantenha o arquivo PCK ao lado do EXE, caso esteja presente.
-5. Abra **FrontlineSurvival.exe** no Windows. Não é necessário instalar ou abrir o editor Godot.
+1. Acesse **[Releases do Frontline Survival](https://github.com/TPollTech/Frontline-Survival/releases)**.
+2. Escolha a versão de testes que deseja baixar (por exemplo, **v0.9.0**).
+3. Em **Assets**, clique no arquivo **FrontlineSurvival-v0.9.0-Windows.zip** (o nome muda conforme a versão).
+4. Extraia em pasta nova, mantendo o arquivo EXE e o arquivo PCK juntos.
+5. Execute **FrontlineSurvival.exe** sem precisar instalar o editor Godot.
 
-**Não confundir:** uma execução com erro ou cancelada **não** é uma build pronta. O arquivo ZIP só deve ser enviado ao usuário como jogável quando o workflow estiver concluído com sucesso.
+O download é público e não depende do link de anexo do ChatGPT. As releases são preservadas como versões numeradas, ao contrário dos artifacts temporários das execuções.
 
-## Como gerar builds futuras
+**Builds intermediárias:** a página [Actions > Windows playable build](https://github.com/TPollTech/Frontline-Survival/actions/workflows/windows-build.yml) ainda disponibiliza Artifacts quando houver compilação bem-sucedida, mas não substitui o lançamento numerado.
 
-- O workflow `.github/workflows/windows-build.yml` executa automaticamente quando scripts, cenas, assets, configuração do projeto ou arquivos de exportação são alterados na branch main.
-- Atualizações de planejamento Markdown, por si sós, não disparam compilação.
-- Também é possível executar o workflow manualmente na aba Actions, usando **Run workflow**.
-- O workflow instala Godot 4.4.1 e templates, importa recursos, executa verificação estática, exporta o Windows Desktop em modo release e envia os arquivos como artifact.
-- Artifacts têm retenção de 30 dias; para distribuição permanente, publicar posteriormente uma Release versionada.
+## Padrão de lançamento das próximas versões
+
+- Alterar `application/product_version` no `export_presets.cfg` para um **novo número** de versão (por exemplo, `0.9.1`), atualizar o número no menu/título e registrar mudanças no `docs/CHANGELOG.md`.
+- Opcionalmente criar notas específicas em `docs/releases/v0.9.1.md` antes do commit da versão.
+- Ao enviar para a branch `main` uma mudança em scripts/cenas/assets/exportação, o GitHub Actions gera e testa um ZIP Windows.
+- **Se o CI passar e ainda não existir a release para essa versão**, a automação cria `v0.9.1` na aba Releases e anexa o ZIP + arquivo SHA-256 de integridade. Se já existir, **não altera uma release antiga**: é necessário incrementar a versão.
+- Até a validação final do jogo, as releases são marcadas como **pré-lançamentos de testes**.
+- Commits de documentação de planejamento não disparam exportações desnecessárias. O workflow também pode ser iniciado manualmente na aba Actions.
+- Não marcar uma etapa do ROADMAP como 100% concluída sem teste real de jogo. CI verde comprova compilação/exportação, não gameplay.
+
+**Aviso:** a primeira publicação em Releases depende de o job GitHub Actions ter permissão de criar tags e releases com seu `GITHUB_TOKEN`; o workflow foi configurado para usar apenas `contents: write`.
 
 ## O que significa teste concluído
 
