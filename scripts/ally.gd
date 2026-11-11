@@ -1,5 +1,8 @@
 extends CharacterBody3D
 class_name SurvivalAlly
+
+const GunMaterials = preload("res://scripts/weapon_materials.gd")
+const ArmPose = preload("res://scripts/weapon_pose.gd")
 ## Allied support soldier with a simple jointed visual rig, distinct blue patches.
 
 var player: SurvivalPlayer
@@ -66,13 +69,13 @@ func _ready() -> void:
     hit.shape = shape
     add_child(hit)
     var uniform := Color(0.29, 0.39, 0.36)
-    var armor := Color(0.12, 0.26, 0.28)
+    var armor := Color(0.13, 0.20, 0.22)
     var boots := Color(0.09, 0.12, 0.13)
     var patch := Color(0.09, 0.48, 0.66)
     var visual := _joint(self, Vector3.ZERO, "AllyVisual")
     _capsule(visual, Vector3(0, 0.08, 0), 0.30, 0.83, uniform, "Jacket")
-    _box(visual, Vector3(0, 0.13, -0.25), Vector3(0.53, 0.52, 0.16), armor, "Armor")
-    _box(visual, Vector3(0, 0.12, 0.25), Vector3(0.45, 0.49, 0.18), armor, "Pack")
+    _box(visual, Vector3(0, 0.13, -0.25), Vector3(0.46, 0.42, 0.12), armor, "Armor")
+    _box(visual, Vector3(0, 0.12, 0.23), Vector3(0.38, 0.40, 0.16), armor, "Pack")
     _box(visual, Vector3(0, -0.28, 0), Vector3(0.50, 0.15, 0.31), boots, "Belt")
     for x in [-0.14, 0.0, 0.14]:
         _box(visual, Vector3(x, 0.02, -0.35), Vector3(0.115, 0.18, 0.075), armor.darkened(0.22), "Pouch")
@@ -96,8 +99,8 @@ func _ready() -> void:
             right_knee = knee
         var shoulder := _joint(visual, Vector3(side * 0.36, 0.31, -0.035), "LeftShoulder" if side < 0.0 else "RightShoulder")
         _capsule(shoulder, Vector3(0, -0.18, 0), 0.12, 0.45, uniform, "UpperArm")
-        _box(shoulder, Vector3(0, -0.055, -0.04), Vector3(0.245, 0.17, 0.23), armor, "ShoulderArmor")
-        _box(shoulder, Vector3(0, -0.085, -0.165), Vector3(0.13, 0.095, 0.02), patch, "FriendlyPatch")
+        _box(shoulder, Vector3(0, -0.055, -0.04), Vector3(0.20, 0.14, 0.18), armor, "ShoulderArmor")
+        _box(shoulder, Vector3(0, -0.065, -0.145), Vector3(0.11, 0.06, 0.025), patch, "FriendlyPatch")
         var elbow := _joint(shoulder, Vector3(0, -0.33, 0), "Elbow")
         _capsule(elbow, Vector3(0, -0.15, 0), 0.10, 0.35, uniform, "Forearm")
         _box(elbow, Vector3(0, -0.30, -0.02), Vector3(0.16, 0.14, 0.15), boots, "Glove")
@@ -115,6 +118,7 @@ func _ready() -> void:
             model.position = Vector3(0.0, -0.06, -0.04)
             model.scale = Vector3.ONE * 0.72
             gun_mount.add_child(model)
+            GunMaterials.apply_colors(model)
     var flash_mesh := CylinderMesh.new()
     flash_mesh.top_radius = 0.005
     flash_mesh.bottom_radius = 0.023
@@ -175,8 +179,8 @@ func _physics_process(delta: float) -> void:
     gun_mount.position.z = lerpf(gun_mount.position.z, -0.14 + gun_kick * 0.075, minf(1.0, delta * 13.0))
     var trigger_grip := gun_mount.position + gun_mount.basis * Vector3(0.06, -0.16, 0.03)
     var support_grip := gun_mount.position + gun_mount.basis * Vector3(-0.06, -0.095, -0.40)
-    _pose_support_arm(right_shoulder, right_elbow, trigger_grip, 1.0, delta)
-    _pose_support_arm(left_shoulder, left_elbow, support_grip, -1.0, delta)
+    ArmPose.align_hand(right_shoulder, right_elbow, trigger_grip, 1.0, delta)
+    ArmPose.align_hand(left_shoulder, left_elbow, support_grip, -1.0, delta)
     if is_instance_valid(nearest) and nearest_distance < 23.0 and cooldown <= 0.0:
         var origin := global_position + Vector3(0, 0.40, 0)
         var target := nearest.global_position + Vector3(0, 0.38, 0)
@@ -190,14 +194,3 @@ func _physics_process(delta: float) -> void:
             gun_kick = 1.0
             cooldown = 0.72
 
-func _pose_support_arm(shoulder: Node3D, elbow: Node3D, grip: Vector3, side: float, delta: float) -> void:
-    # Two-handed posture: off-hand holds the fore-end while the right hand
-    # follows the trigger. Align both elbow segments each physics frame.
-    var elbow_hint := shoulder.position.lerp(grip, 0.53) + Vector3(side * 0.08, -0.035, 0.015)
-    var upper_dir := (elbow_hint - shoulder.position).normalized()
-    var shoulder_target := Quaternion(Vector3.DOWN, upper_dir)
-    shoulder.quaternion = shoulder.quaternion.slerp(shoulder_target, minf(1.0, delta * 13.0))
-    var actual_elbow := shoulder.position + shoulder.basis * elbow.position
-    var forearm_dir := shoulder.basis.inverse() * (grip - actual_elbow).normalized()
-    var elbow_target := Quaternion(Vector3.DOWN, forearm_dir)
-    elbow.quaternion = elbow.quaternion.slerp(elbow_target, minf(1.0, delta * 13.0))
