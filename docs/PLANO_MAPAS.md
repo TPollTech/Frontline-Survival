@@ -1,5 +1,7 @@
 # Plano de mapas — Frontline Survival
 
+> **Nota de atualização (10/11/2026):** este documento é a visão geral histórica dos mapas. A especificação detalhada atual, incluindo propostas e testes, está em [ETAPA_4_MAPAS_ARQUITETURA.md](ETAPA_4_MAPAS_ARQUITETURA.md). As dimensões, localização de estações e quantidade de setores ainda não foram aprovadas.
+
 ## 0. Mapa permanente de testes
 
 **ID:** `campo_de_testes`
