@@ -1,5 +1,21 @@
 # Frontline Survival — Histórico de versões
 
+## 0.9.13 — Protótipo de soldado humanoide Quaternius (CC0)
+
+**Estado:** integração do modelo, skeleton e testes automatizados **CONCLUÍDOS (CI)** após compilação; **visual/animação: PARCIAL**, aguardando aprovação jogando.
+
+- Integração de um GLB humanoide skinned (Quaternius Universal Base Characters, CC0, ~741 KB, 65 ossos) com a origem documentada em [ASSET_QUATERNIUS_CC0.md](ASSET_QUATERNIUS_CC0.md).
+- Apenas o primeiro soldado comum de cada onda recebe o novo corpo, preservando os demais NPCs para comparação direta.
+- Equipamento tático próprio (colete, capacete, visor, bolsos), material de tecido verde e pose procedural de empunhadura/caminhada no esqueleto.
+- O corpo procedural antigo fica oculto apenas nesse soldado; o modelo antigo é mantido automaticamente se o importador não encontrar um esqueleto válido.
+- IA, mira, colisão, arma, morte, loot, sangue, ondas, lojas, assets sonoros PCM, desempenho alvo e Campo de Testes preservados.
+- QA da cena com verificação de ossos, corpo oculto, arma visível e integração com mortes/ondas.
+- **Não** inclui animações da Universal Animation Library nem substitui todos os soldados/aliados. Próxima decisão depende de teste real no Windows.
+
+[Notas da release](releases/v0.9.13.md) · [QA](QA_V0_9_13.md)
+
+---
+
 ## 0.9.12 — Corrida tática, acertos, sangue, corpos e coleta
 
 **Prioridade:** polimento do Campo de Testes (M0/M1). Usuário confirma ter alcançado a onda 10; expansões de mapas, ondas e transporte ficam em espera até o protótipo ficar convincente. **Estado da jogabilidade: PARCIAL**, ainda que CI passe.
