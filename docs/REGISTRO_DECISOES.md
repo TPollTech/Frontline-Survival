@@ -53,6 +53,13 @@ Estas são características descritas no código/README, não equivalem a compro
 | P-011 | IA com percepção, navegação anti-travamento e flanco simples | [Etapa 2](ETAPA_2_INIMIGOS_ONDAS.md) | Validar custo e implementação incremental |
 | P-012 | Spawn contextual com distância mínima inicial sugerida de 10 metros | [Etapa 2](ETAPA_2_INIMIGOS_ONDAS.md) | Ajustar pelo mapa e executar 100 testes de spawn |
 
+| P-013 | Economia sem softlock nas primeiras ondas | [Etapa 3](ETAPA_3_ECONOMIA_SUPORTE.md) | Validar saldo inicial e munição em sessões reais |
+| P-014 | Três decisões concorrentes: armas, sobrevivência e suporte | [Etapa 3](ETAPA_3_ECONOMIA_SUPORTE.md) | Aprovar princípios de balanceamento |
+| P-015 | Diferenciar capital do treino ($1.200) e modo clássico ($0–$300 a testar) | [Etapa 3](ETAPA_3_ECONOMIA_SUPORTE.md) | Aprovar saldo clássico após teste |
+| P-016 | Preços estáveis inicialmente, sem inflação automática por onda | [Etapa 3](ETAPA_3_ECONOMIA_SUPORTE.md) | Balancear 20 ondas |
+| P-017 | Compra transacional: validar antes de debitar, sem cobrança em falhas | [Etapa 3](ETAPA_3_ECONOMIA_SUPORTE.md) | Aprovar contrato e testes |
+| P-018 | Interface física com efeito, duração, preço, limite e estado legíveis | [Etapa 3](ETAPA_3_ECONOMIA_SUPORTE.md) | Aprovar proposta de UX |
+
 ## D. Fora de escopo por enquanto
 
 - Multiplayer e coop.
@@ -72,4 +79,4 @@ Estas são características descritas no código/README, não equivalem a compro
 
 ## F. Próxima rodada de planejamento
 
-A **Etapa 2 — inimigos e progressão de ondas** foi especificada em 10/11/2026, sem implementação e sem aprovação das propostas. Próximas lacunas: **Etapa 3 — economia, estações e reforços**; depois **Etapa 4 — arquitetura e mapa multissetores**. As Etapas 0 e 1 continuam especificadas, mas ainda não testadas/aprovadas para implementação.
+A **Etapa 2 — inimigos e progressão de ondas** foi especificada em 10/11/2026, sem implementação e sem aprovação das propostas. Próximas lacunas: **Etapa 4 — arquitetura e mapa multissetores**; a Etapa 3 agora possui especificação de economia e suporte, ainda sem aprovação. As Etapas 0 e 1 continuam especificadas, mas ainda não testadas/aprovadas para implementação.
