@@ -12,7 +12,7 @@ func _capture() -> void:
         push_error("QA_HUMANOID_SNAPSHOT_FAIL missing game scene")
         quit(1)
         return
-    var game: Node3D = packed.instantiate()
+    var game: Variant = packed.instantiate()
     root.add_child(game)
     await physics_frame
     game.game_menu._start()
@@ -23,7 +23,7 @@ func _capture() -> void:
     game.player.gun.visible = false
     game.player.controls_locked = true
     var enemy_script: Script = load("res://scripts/enemy.gd")
-    var soldier: CharacterBody3D = enemy_script.new()
+    var soldier: Variant = enemy_script.new()
     soldier.configure("soldier", 1, game.player, "rifle")
     soldier.preview_quaternius = true
     soldier.position = Vector3(0.0, 1.0, -4.7)
