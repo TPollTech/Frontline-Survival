@@ -168,7 +168,7 @@ Os documentos abaixo detalham critérios e hipóteses sem autorizar implementaç
 | Etapas 5–6 | Visão geral no roadmap; detalhamento pendente | **PARCIAL** — aviso direcional do HUD e pipeline de exportação Windows 0.8, ainda sem teste real no Windows |
 | GDD consolidado | **Ainda não concluído**; consolidar após as etapas | Não aplicável |
 
-**Último avanço de produto:** versão 0.8 com indicador direcional de dano, feedback de headshot, workflow CI Godot e exportação Windows. A importação em Godot headless e o empacotamento passaram; **testes reais de gameplay permanecem pendentes**. O planejamento deve continuar pela Etapa 5 sem alterar o código automaticamente.
+**Último avanço de produto:** versão 0.8 com indicador direcional de dano, feedback de headshot, mira ADS e retícula dinâmica. Importação de assets, smoke test Godot headless, verificação estática e exportação Windows foram concluídos no CI; **testes de gameplay no Windows permanecem pendentes**. O planejamento deve continuar pela Etapa 5 sem alterar o código automaticamente.
 
 ## 9. Registro de implementação e evidências — 0.8 (10/11/2026)
 
@@ -179,7 +179,8 @@ Os documentos abaixo detalham critérios e hipóteses sem autorizar implementaç
 | V08-03 | Menu e título com versão 0.8 | **PARCIAL** | Código atualizado; verificar aparência ao jogar |
 | V08-08 | Movimento de mira ADS com velocidade e recuo distintos | **PARCIAL** | Código implementado no jogador, requer sensação de uso no Windows |
 | V08-09 | Retícula dinâmica por dispersão das rajadas | **PARCIAL** | Código implementado no HUD, precisa de validação visual |
-| V08-04 | Exportador automático Windows via GitHub Actions | **CONCLUÍDO (CI)** | [Execução bem-sucedida](https://github.com/TPollTech/Frontline-Survival/actions/runs/42935826696), com artefato EXE + PCK |
+| V08-10 | Smoke test da cena principal no Godot headless | **CONCLUÍDO (CI)** | Importação, inicialização headless e exportação Windows passaram na execução 42936566841 |
+| V08-04 | Exportador automático Windows via GitHub Actions | **CONCLUÍDO (CI)** | [Execução bem-sucedida](https://github.com/TPollTech/Frontline-Survival/actions/runs/42936566841), com artefato EXE + PCK |
 | V08-05 | Importação Godot e checagens estáticas no CI | **CONCLUÍDO (CI)** | Steps de importação, testes e exportação aprovados na mesma execução |
 | V08-06 | Executável jogado e aprovado no Windows | **PENDENTE** | Requer teste em notebook Ryzen 5 7530U, 8 GB; captura de erros e métricas |
 | V08-07 | Estabilidade de 15 ondas com compras/reforços | **PENDENTE** | Regressão longa da Etapa 0 ainda não executada pelo jogador |
