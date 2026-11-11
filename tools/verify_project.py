@@ -99,10 +99,12 @@ require("KEY_B" not in main, "Fast-shop B was restored by mistake")
 require("KEY_F" not in player, "F should be interaction only, never shoot")
 for fragment in ('func _animate_viewmodel(', 'magazine_part.position', 'action_part.position', 'reload_elapsed', 'shot_anim'):
     require(fragment in player, f"Weapon animation missing: {fragment}")
-for fragment in ('LeftHip', 'RightHip', 'Knee', 'Elbow', 'func take_damage(', 'stagger_remaining', 'visual_root'):
+for fragment in ('LeftHip', 'RightHip', 'Knee', 'Elbow', 'func take_damage(', 'stagger_remaining', 'visual_root', 'func _pose_weapon_arm('):
     require(fragment in enemy, f"Articulated enemy animation missing: {fragment}")
-for fragment in ('LeftHip', 'RightHip', 'FriendlyPatch', 'func _physics_process('):
+for fragment in ('LeftHip', 'RightHip', 'FriendlyPatch', 'func _physics_process(', 'func _pose_support_arm('):
     require(fragment in ally, f"Ally visual or AI missing: {fragment}")
+for fragment in ('viewmodel_scale', 'viewmodel_depth'):
+    require(fragment in player, f"Weapon viewmodel clipping fix missing: {fragment}")
 require('intermission_seconds: int = 75' in settings, "Default break should still be 75 seconds")
 require('training_respawns: bool = true' in settings, "Training respawn should remain enabled")
 require('1280' in (ROOT / 'project.godot').read_text(), "Missing 720p target")
@@ -119,6 +121,10 @@ for weapon in weapons:
     try:
         original = trimesh.load(full, force='scene')
         whole_faces = sum(len(mesh.faces) for mesh in original.geometry.values())
+        # Regression guard: inverted face winding makes imported Godot weapons
+        # look hollow/transparent due to back-face culling.
+        require(all(mesh.volume > 0 for mesh in original.geometry.values()),
+                f"Inward normals detected in {weapon}.glb")
         group_faces = 0
         groups_present = []
         for role in ['body','mag','action']:
