@@ -249,8 +249,10 @@ A [Etapa 6](docs/ETAPA_6_DESEMPENHO_TESTES_DISTRIBUICAO.md) especifica métricas
 | V092-03 | Rejeitar todos os pontos inseguros e tentar novamente sem perder o número da onda | **PARCIAL** — código implementado | Verificar cenário de área ocupada e ausência de onda travada |
 | V092-04 | Mover spawns para o ciclo físico do Godot | **CONCLUÍDO (CÓDIGO/CI)** | Parser, startup e smoke test aprovados no runner |
 | V092-05 | Teste automático com 100 escolhas de spawn e duas ondas | **CONCLUÍDO (CI)** — [primeira integração aprovada](https://github.com/TPollTech/Frontline-Survival/actions/runs/42948387516), [cenários de borda aprovados](https://github.com/TPollTech/Frontline-Survival/actions/runs/42948609563) | Testes visuais e 15 ondas continuam pendentes |
-| V092-06 | Verificar também modelo colorido e animação do esquadrão no CI | **EM VALIDAÇÃO** | Novo teste de cena com 2 aliados e material COLOR_0 |
-| V092-07 | Publicar executável 0.9.2 em Releases | **AGUARDANDO CI FINAL** | Só marcar concluído após release com ZIP e SHA-256 |
+| V092-06 | Verificar também modelo colorido e animação do esquadrão no CI | **CONCLUÍDO (CI)** | [Workflow 0.9.2 aprovado](https://github.com/TPollTech/Frontline-Survival/actions/runs/42949035024); material e 12 quadros de dois aliados checados; avaliação visual ainda pendente |
+| V092-07 | Publicar executável 0.9.2 em Releases | **CONCLUÍDO (CI + RELEASES)** | [Download direto](https://github.com/TPollTech/Frontline-Survival/releases/download/v0.9.2/FrontlineSurvival-v0.9.2-Windows.zip), [release](https://github.com/TPollTech/Frontline-Survival/releases/tag/v0.9.2) com SHA-256 e [CI verde](https://github.com/TPollTech/Frontline-Survival/actions/runs/42949035024) |
 | V092-08 | Validar 15 ondas no notebook real | **PENDENTE** | Critério de aceitação da Etapa 0 e Etapa 2 |
 
 **Escopo fechado deste incremento:** não ampliar número de inimigos, não alterar a economia nem a curva de armas e não redesenhar o mapa. O Campo de Testes e a textura de asfalto permanecem iguais. A [Etapa 2 completa](docs/ETAPA_2_INIMIGOS_ONDAS.md) segue PARCIAL até IA/navegação avançada, playtests e métricas reais.
+
+**Validação final do incremento 0.9.2 (CI):** integração com 100 escolhas, oito posições de borda, ausência de locais seguros, duas ondas reais, material COLOR_0, dois aliados e smoke test aprovado. [Cenários documentados](docs/TESTES_0_9_2.md). **A correção visual da 0.9.1 e a estabilidade de 15 ondas ainda não foram homologadas pelo jogador.**
