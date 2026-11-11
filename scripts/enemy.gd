@@ -10,6 +10,7 @@ const QuaterniusVisual = preload("res://scripts/quaternius_soldier_visual.gd")
 ## elbow and upper-body pivots. Designed for up to 12 concurrent enemies.
 
 signal defeated(reward: int)
+signal combat_defeat(enemy_id: int, source: String, headshot: bool, event_id: int, bounty: int)
 signal loot_dropped(weapon_kind: String, location: Vector3)
 
 var player: SurvivalPlayer
@@ -433,7 +434,7 @@ func _has_sight() -> bool:
     var result := get_world_3d().direct_space_state.intersect_ray(ray)
     return not result.is_empty() and result["collider"] == player
 
-func take_damage(amount: float) -> void:
+func take_damage(amount: float, source: String = "support", headshot: bool = false, event_id: int = 0) -> void:
     if dead:
         return
     health -= amount
@@ -451,6 +452,7 @@ func take_damage(amount: float) -> void:
         add_to_group("fallen_soldiers")
         loot_dropped.emit(weapon_class, global_position)
         defeated.emit(reward)
+        combat_defeat.emit(get_instance_id(), source, headshot, event_id, reward)
         var fall := create_tween().set_parallel(true)
         fall.set_trans(Tween.TRANS_CUBIC)
         fall.set_ease(Tween.EASE_IN)
