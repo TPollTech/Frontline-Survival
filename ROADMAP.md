@@ -375,8 +375,8 @@ A [Etapa 6](docs/ETAPA_6_DESEMPENHO_TESTES_DISTRIBUICAO.md) especifica métricas
 | V0913-03 | Animar pernas e braços com poses simples usando o esqueleto importado | **PARCIAL** — código experimental | Verificar caminhada/corrida/combate e FPS |
 | V0913-04 | Trocar apenas o primeiro soldado comum de cada onda, com fallback ao modelo antigo | **PARCIAL** — implementação e comparação A/B | Verificar spawn e luta reais |
 | V0913-05 | Preservar IA, collider, armas, áudio PCM, cadáveres e loot | **CONCLUÍDO (REVISÃO DE ESCOPO)** | Teste de duas ondas e 15 ondas reais |
-| V0913-06 | Teste de rig/skeleton, ocultação do corpo antigo e presença da arma | **EM CI** | Confirmar CI verde |
-| V0913-07 | Release v0.9.13 Windows com protótipo selecionável em combate | **PENDENTE DE CI** | Publicar ZIP após exportação aprovada |
+| V0913-06 | Teste de rig/skeleton, ocultação do corpo antigo e presença da arma | **CONCLUÍDO (CI)** | [Build 0.9.13 aprovada](https://github.com/TPollTech/Frontline-Survival/actions/runs/43081848984), incluindo esqueleto e arma no runtime |
+| V0913-07 | Release v0.9.13 Windows com protótipo em combate | **CONCLUÍDO (CI + RELEASES)** | [ZIP Windows publicado](https://github.com/TPollTech/Frontline-Survival/releases/tag/v0.9.13) e SHA-256 |
 | V0913-08 | Avaliar Quaternius com clipes completos de animação idle/walk/run/fire/death | **PENDENTE** | Só depois de aprovação da malha e compatibilidade/licença |
 
 **Critério de avançar:** o jogador aprova a anatomia e o desempenho do primeiro soldado antes de migrar aliados e todos os inimigos. **O teste de rig no CI não é aprovação visual.** Continuar mantendo o Campo de Testes e as regras atuais inalterados.
