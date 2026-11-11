@@ -1,15 +1,15 @@
 # Executável Windows — compilação e testes
 
 **Projeto:** Frontline Survival  
-**Versão de desenvolvimento:** 0.9.1  
+**Versão de desenvolvimento:** 0.9.2  
 **Entrega esperada:** arquivo ZIP contendo FrontlineSurvival.exe, FrontlineSurvival.pck (se o exportador usar pacote separado) e LEIA-ME.md.  
-**Status:** a [compilação 0.9.1](https://github.com/TPollTech/Frontline-Survival/actions/runs/42945928310) passou pela importação, smoke test, integridade e exportação Windows e publicou a [Release v0.9.1](https://github.com/TPollTech/Frontline-Survival/releases/tag/v0.9.1). O novo visual, a mira e o áudio ainda precisam de validação jogando.
+**Status:** v0.9.2 avança o sistema de spawns e inclui um teste de integração obrigatório com 100 escolhas e duas ondas; [Releases](https://github.com/TPollTech/Frontline-Survival/releases) continua sendo o canal de download. O visual, a mira, a IA e o desempenho exigem validação no Windows.
 
 ## Baixar pelo GitHub Releases (padrão)
 
 1. Acesse **[Releases do Frontline Survival](https://github.com/TPollTech/Frontline-Survival/releases)**.
-2. Escolha a versão de testes que deseja baixar (por exemplo, **v0.9.1**).
-3. Em **Assets**, clique no arquivo **FrontlineSurvival-v0.9.1-Windows.zip** (o nome muda conforme a versão).
+2. Escolha a versão de testes que deseja baixar (por exemplo, **v0.9.2**).
+3. Em **Assets**, clique no arquivo **FrontlineSurvival-v0.9.2-Windows.zip** (o nome muda conforme a versão).
 4. Extraia em pasta nova, mantendo o arquivo EXE e o arquivo PCK juntos.
 5. Execute **FrontlineSurvival.exe** sem precisar instalar o editor Godot.
 
@@ -19,8 +19,8 @@ O download é público e não depende do link de anexo do ChatGPT. As releases s
 
 ## Padrão de lançamento das próximas versões
 
-- Alterar `application/product_version` no `export_presets.cfg` para um **novo número** de versão (por exemplo, `0.9.2`), atualizar o número no menu/título e registrar mudanças no `docs/CHANGELOG.md`.
-- Opcionalmente criar notas específicas em `docs/releases/v0.9.2.md` antes do commit da versão.
+- Alterar `application/product_version` no `export_presets.cfg` para um **novo número** de versão (por exemplo, `0.9.3`), atualizar o número no menu/título e registrar mudanças no `docs/CHANGELOG.md`.
+- Opcionalmente criar notas específicas em `docs/releases/v0.9.3.md` antes do commit da versão.
 - Ao enviar para a branch `main` uma mudança em scripts/cenas/assets/exportação, o GitHub Actions gera e testa um ZIP Windows.
 - **Se o CI passar e ainda não existir a release para essa versão**, a automação cria a nova tag numerada na aba Releases e anexa o ZIP + arquivo SHA-256 de integridade. Se já existir, **não altera uma release antiga**: é necessário incrementar a versão.
 - Até a validação final do jogo, as releases são marcadas como **pré-lançamentos de testes**.
@@ -61,3 +61,7 @@ Se a exportação falhar, verificar os logs da execução, corrigir e recompilar
 O EXE não está assinado digitalmente. O Windows pode apresentar aviso de reputação. Verificar se a origem é o repositório oficial antes de executar; não desativar antivírus por causa de um aviso. O jogo é offline, sem instalador e não requer permissões de administrador.
 
 **Regra de entrega:** sempre anexar link de build Windows de execução bem-sucedida e manter status **concluído/parcial/pendente** no ROADMAP. A [0.9](TESTES_0_9.md) está disponível para teste real. Se o build falhar, apresentar erro e não chamar de jogável.
+
+## Integração de duas ondas na 0.9.2
+
+A partir da 0.9.2, o workflow exige `tests/runtime_wave_qa.gd` antes de exportar: abre o Campo de Testes em modo headless, verifica pontos de spawn, bloqueios e duas transições de onda com sinais de abate. Uma falha interrompe o ZIP e a release. O teste é automatizado e **não substitui sessão real de 15 ondas nem validação de FPS/qualidade visual**.
