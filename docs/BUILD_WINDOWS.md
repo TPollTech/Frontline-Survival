@@ -1,15 +1,15 @@
 # Executável Windows — compilação e testes
 
 **Projeto:** Frontline Survival  
-**Versão de desenvolvimento:** 0.8  
+**Versão de desenvolvimento:** 0.9  
 **Entrega esperada:** arquivo ZIP contendo FrontlineSurvival.exe, FrontlineSurvival.pck (se o exportador usar pacote separado) e LEIA-ME.md.  
-**Status desta documentação:** o workflow foi configurado; a existência de uma build jogável precisa ser confirmada pelo resultado de cada execução.
+**Status:** a [execução 0.9](https://github.com/TPollTech/Frontline-Survival/actions/runs/42941790033) concluiu importação, smoke test, integridade e exportação Windows; a experiência visual/jogabilidade no notebook ainda está em validação.
 
 ## Como baixar sem instalar o Godot
 
 1. Acesse **Actions > Windows playable build** no [repositório](https://github.com/TPollTech/Frontline-Survival/actions/workflows/windows-build.yml).
 2. Abra uma execução com **marca verde (success)**, da branch **main**.
-3. Em **Artifacts**, baixe **FrontlineSurvival-0.8-Windows**.
+3. Em **Artifacts**, baixe **FrontlineSurvival-0.9-Windows**.
 4. Extraia o ZIP inteiro numa pasta nova. **Não execute o EXE dentro do ZIP**, e mantenha o arquivo PCK ao lado do EXE, caso esteja presente.
 5. Abra **FrontlineSurvival.exe** no Windows. Não é necessário instalar ou abrir o editor Godot.
 
@@ -40,6 +40,8 @@ Se a exportação falhar, verificar os logs da execução, corrigir e recompilar
 - [ ] Menu inicial, configurações e pausa aparecem.
 - [ ] Movimento WASD, mouse esquerdo/direito e F em lojas.
 - [ ] Na onda 1, eliminar todos os inimigos inicia os 75 segundos de preparação, não encerra a partida.
+- [ ] As armas, especialmente a escopeta, estão inteiras e opacas, sem faces vazadas.
+- [ ] As mãos do jogador e dos soldados estão próximas das regiões corretas de empunhadura.
 - [ ] Ao tomar tiro, aparece brevemente o indicador de direção no centro da tela (frente/direita/trás/esquerda).
 - [ ] Headshot destaca a retícula em âmbar e concede bônus.
 - [ ] Comprar e equipar arma, recarregar com R e usar suporte com 3/4.
@@ -52,4 +54,4 @@ Se a exportação falhar, verificar os logs da execução, corrigir e recompilar
 
 O EXE não está assinado digitalmente. O Windows pode apresentar aviso de reputação. Verificar se a origem é o repositório oficial antes de executar; não desativar antivírus por causa de um aviso. O jogo é offline, sem instalador e não requer permissões de administrador.
 
-**Regra de entrega:** a partir desta versão, anexar link de build Windows de execução bem-sucedida e manter status **concluído/parcial/pendente** no ROADMAP. Se o build falhar, apresentar erro e não chamar de jogável.
+**Regra de entrega:** sempre anexar link de build Windows de execução bem-sucedida e manter status **concluído/parcial/pendente** no ROADMAP. A [0.9](TESTES_0_9.md) está disponível para teste real. Se o build falhar, apresentar erro e não chamar de jogável.
