@@ -9,6 +9,7 @@ on:
       - "scenes/**"
       - "assets/**"
       - "tools/**"
+      - "tests/**"
       - "project.godot"
       - "README.md"
       - "export_presets.cfg"
@@ -68,6 +69,17 @@ jobs:
           timeout 25s godot --headless --path . --quit-after 120 2>&1 | tee godot-smoke.log
           if grep -E 'SCRIPT ERROR:|ERROR:.*Parse Error|Invalid call\.|Failed to load script' godot-smoke.log; then
             echo 'Godot startup detected a critical scripting error'
+            exit 1
+          fi
+
+      - name: Integration QA - 100 spawns and two full waves
+        shell: bash
+        run: |
+          set -o pipefail
+          timeout 55s godot --headless --path . --script res://tests/runtime_wave_qa.gd 2>&1 | tee godot-integration.log
+          grep -q 'QA_RUNTIME_PASS' godot-integration.log
+          if grep -E 'SCRIPT ERROR:|ERROR:.*Parse Error|QA_RUNTIME_FAIL' godot-integration.log; then
+            echo 'Integration scenario failed'
             exit 1
           fi
 
