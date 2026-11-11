@@ -100,8 +100,8 @@ A versão **0.9.15** implementa os recursos centrais pedidos: **perks, Última C
 **Download principal: [Releases do Frontline Survival](https://github.com/TPollTech/Frontline-Survival/releases).** Versões publicadas possuem número, changelog e ZIP próprio.
 
 1. Entre em **[Releases](https://github.com/TPollTech/Frontline-Survival/releases)**.
-2. Abra a versão mais recente, atualmente `v0.9.15` (pré-lançamento de testes).
-3. Na seção **Assets**, baixe **FrontlineSurvival-v0.9.15-Windows.zip** (o nome acompanha o número da versão futura).
+2. Abra a versão mais recente **efetivamente publicada** em Releases. A `v0.9.15` é a versão em desenvolvimento; até o CI publicá-la, a última versão confirmada é a `v0.9.14`.
+3. Na seção **Assets**, baixe o ZIP Windows correspondente à tag publicada, por exemplo **FrontlineSurvival-v0.9.15-Windows.zip** quando a v0.9.15 aparecer.
 4. Extraia o ZIP inteiro para uma pasta, mantendo `FrontlineSurvival.exe` e `FrontlineSurvival.pck` juntos.
 5. Execute `FrontlineSurvival.exe`. **Não é necessário abrir o editor Godot.**
 
