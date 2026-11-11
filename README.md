@@ -1,10 +1,19 @@
-# Frontline Survival 0.9.12 — Campo de Testes
+# Frontline Survival 0.9.13 — Campo de Testes
 
 **Projeto Godot 4.x Standard, FPS 3D offline para Windows**, com renderizador **Compatibility** e alvo inicial Ryzen 5 7530U / 8 GB RAM. Projeto original inspirado em mecânicas do gênero *Survival por ondas*. **Não contém modelos, áudio ou outros arquivos do Call of Duty.**
 
-A versão **0.9.12** prioriza **polir o Campo de Testes** antes de criar mapas e ondas extras. A corrida agora baixa e inclina a arma, com mão de apoio desacoplada; hitmarker discreto aparece só ao acertar, sem som; foram adicionados sangue, corpos temporários e armas/munição coletáveis por F. Indicadores de dano viraram arcos e coletes/armas dos soldados foram reposicionados. Preserva os WAVs gravados da v0.9.10 e os ajustes de ondas da v0.9.11. **A qualidade visual e o desempenho real ainda precisam de avaliação no Windows.**
+A versão **0.9.13** integra um **humanoide com esqueleto real do Quaternius (CC0)** como protótipo em um soldado comum por onda. O objetivo é comparar anatomia, movimento e desempenho com os inimigos antigos sem perder os sistemas de ondas, IA, compra, hitmarker ou áudios gravados. A animação é procedural nesta fase, não a biblioteca profissional de animações. **A qualidade visual precisa ser avaliada no Windows antes de migrar todos os NPCs.**
 
-## Novidades da 0.9.12
+## Protótipo visual da 0.9.13
+
+- **Um soldado humanoide por onda:** malha do Quaternius com esqueleto de 65 ossos em vez de primitivas geométricas.
+- **Visual militar original:** colete, capacete, máscara/visor e bolsas discretos no modelo.
+- **Caminhada/arma:** pose básica usando os ossos, mantendo a arma e a IA anteriores.
+- **Comparação A/B:** o restante dos soldados continua com o modelo anterior. Falha de carregamento retorna ao modelo antigo.
+- **Sem expansão:** os mapas, ondas, som PCM e demais sistemas não foram alterados.
+- [Documentação da licença e do asset](docs/ASSET_QUATERNIUS_CC0.md) · [QA da 0.9.13](docs/QA_V0_9_13.md).
+
+## Histórico da 0.9.12
 
 - **Corrida tática:** arma baixa/inclinada e suporte do braço esquerdo se afasta; transição suave ao voltar ao combate.
 - **Hitmarker sem crosshair:** confirmação mínima por 0,16 s ao acertar, headshot âmbar, sem apito.
@@ -68,8 +77,8 @@ A versão **0.9.12** prioriza **polir o Campo de Testes** antes de criar mapas e
 **Download principal: [Releases do Frontline Survival](https://github.com/TPollTech/Frontline-Survival/releases).** Versões publicadas possuem número, changelog e ZIP próprio.
 
 1. Entre em **[Releases](https://github.com/TPollTech/Frontline-Survival/releases)**.
-2. Abra a versão mais recente, atualmente `v0.9.12` (pré-lançamento de testes).
-3. Na seção **Assets**, baixe **FrontlineSurvival-v0.9.12-Windows.zip** (o nome acompanha o número da versão futura).
+2. Abra a versão mais recente, atualmente `v0.9.13` (pré-lançamento de testes).
+3. Na seção **Assets**, baixe **FrontlineSurvival-v0.9.13-Windows.zip** (o nome acompanha o número da versão futura).
 4. Extraia o ZIP inteiro para uma pasta, mantendo `FrontlineSurvival.exe` e `FrontlineSurvival.pck` juntos.
 5. Execute `FrontlineSurvival.exe`. **Não é necessário abrir o editor Godot.**
 
