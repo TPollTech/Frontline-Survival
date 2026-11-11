@@ -58,7 +58,11 @@ func _run_tests() -> void:
         game._collect_loot(ammunition)
         _expect(game.player.reserves["smg"] == 16, "ammunition collection wrong amount")
     # Real death leaves a non-colliding corpse and a dropped weapon for pickup.
-    var fallen := SurvivalEnemy.new()
+    # Dynamically load after the project scene initializes autoloads.
+    # A hard SurvivalEnemy type dependency from SceneTree test startup can
+    # compile player.gd before the GameSettings singleton is available.
+    var fallen_script: Script = load("res://scripts/enemy.gd")
+    var fallen: Variant = fallen_script.new()
     fallen.configure("soldier", 1, game.player, "rifle")
     fallen.position = Vector3(11.0, 1.5, 11.0)
     fallen.loot_dropped.connect(game._on_enemy_loot_dropped)
