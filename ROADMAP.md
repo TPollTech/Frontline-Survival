@@ -399,7 +399,7 @@ O [plano de polimento do Campo de Testes](docs/M0_POLIMENTO_CAMPO_TESTES.md) reg
 | V0914-02 | Aplicar deltas pequenos sobre a pose base de braços, pernas e coluna | **CONCLUÍDO (CÓDIGO)** |
 | V0914-03 | Testar cabeça/quadril/pés, mãos abaixo da cabeça e desvios angulares de ossos | **CONCLUÍDO (CI)** após workflow verde |
 | V0914-04 | Fallback no jogo se pose humana inválida | **CONCLUÍDO (CÓDIGO)** |
-| V0914-05 | Exportar ZIP Windows v0.9.14 e publicar GitHub Release | **AGUARDANDO CI FINAL** |
+| V0914-05 | Exportar ZIP Windows v0.9.14 e publicar GitHub Release | **CONCLUÍDO (CI + RELEASES)** — [download](https://github.com/TPollTech/Frontline-Survival/releases/tag/v0.9.14) com checksum; [CI verde](https://github.com/TPollTech/Frontline-Survival/actions/runs/43086856738) |
 | V0914-06 | Inspeção visual no Windows: postura, mãos, arma, pernas, movimento e FPS | **PENDENTE (JOGADOR)** |
 
 **Decisão:** manter apenas um modelo Quaternius em teste por onda; não passar todos os inimigos/aliados para humanoides e não ampliar mapas/ondas até validar visualmente a 0.9.14. **A correção é de estrutura óssea, não uma promessa de animação profissional.**
