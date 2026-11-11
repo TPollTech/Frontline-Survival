@@ -1,6 +1,6 @@
 # Frontline Survival — Planejamento e Roadmap
 
-**Documento mestre do projeto** · Atualizado: 10/11/2026 · **Base de referência:** protótipo `0.7`; **versão de desenvolvimento:** `0.9.1` · **Situação:** planejamento; novas mecânicas somente após aprovação da etapa.
+**Documento mestre do projeto** · Atualizado: 10/11/2026 · **Base de referência:** protótipo `0.7`; **versão de desenvolvimento:** `0.9.2` · **Situação:** planejamento; novas mecânicas somente após aprovação da etapa.
 
 > **Visão:** FPS 3D offline de sobrevivência por ondas, com combate satisfatório, progressão, dinheiro, compras em estações e suporte tático. Inspiração de mecânicas: Survival dos FPS militares da geração PS3, com identidade, modelos, efeitos e sons próprios. **Não** copiar mapas, arquivos ou personagens de Call of Duty.
 
@@ -162,9 +162,9 @@ Os documentos abaixo detalham critérios e hipóteses sem autorizar implementaç
 
 | Documento | Situação documental | Implementação e QA |
 | --- | --- | --- |
-| Etapa 0 — Estabilidade | Especificada; 27 verificações de QA | **PARCIAL** — importação Godot 4.4.1, análise de scripts, integridade estática e exportação Windows passaram no CI; teste jogando 15 ondas no notebook pendente |
+| Etapa 0 — Estabilidade | Especificada; 27 verificações de QA | **PARCIAL** — 2 transições de onda e checagem de spawn automatizadas em Godot headless na 0.9.2; ainda falta sessão real de 15 ondas no Windows |
 | Etapa 1 — Armas e FPS | Especificada; propostas aguardam aprovação | **PARCIAL** — v0.9.1 aplica paleta COLOR_0, visor físico centrado e recuo pós-raycast; inspeção visual e rig profissional pendentes |
-| Etapa 2 — Inimigos e ondas | **Especificada em 10/11/2026**; propostas aguardam aprovação | **PARCIAL** — v0.9.1 usa IK de dois segmentos e modelos de arma coloridos em aliados/inimigos; IA de ondas ainda pendente |
+| Etapa 2 — Inimigos e ondas | **Especificada em 10/11/2026**; propostas aguardam aprovação | **PARCIAL** — 0.9.2 implementa spawn contextual com colisão e distância, e integração de duas ondas; navegação, IA avançada e 15 ondas ainda pendentes |
 | Etapa 3 — Economia e reforços | **Especificada em 10/11/2026**; preços finais e propostas pendentes de aprovação | Não iniciada |
 | Etapa 4 — Mapas | **Especificada em 10/11/2026**; layout de cinco setores e arquitetura ainda sujeitos a aprovação | Não iniciada |
 | Etapa 5 — HUD, áudio e UX | **Especificada em 10/11/2026**; propostas aguardam aprovação | **PARCIAL** — v0.9.1 retira crosshair/hit beep e adiciona som grave de fim de onda; validação auditiva pendente |
@@ -235,3 +235,22 @@ A [Etapa 6](docs/ETAPA_6_DESEMPENHO_TESTES_DISTRIBUICAO.md) especifica métricas
 **Etapas diretamente avançadas:** 1 (armas/FPS), 2 (representação dos combatentes), 5 (HUD/áudio) e 6 (distribuição). **Nenhuma etapa completa pode ser dada como 100% concluída só por compilar.** A release 0.9.0 permanece disponível para comparar/voltar.
 
 [Checklist 0.9.1](docs/TESTES_0_9_1.md) · [Changelog](docs/CHANGELOG.md)
+
+## 13. Sprint 0.9.2 — Spawn seguro e integração real de ondas
+
+**Auditoria de 0.9.1:** [CI comprovado](https://github.com/TPollTech/Frontline-Survival/actions/runs/42945928310): importação de GLBs, parser, teste de inicialização Godot, checagens estáticas, exportação Windows e publicação de release. **Isso não homologou visualmente** paleta de cores, mira ou rig; esses itens seguem PARCIAIS até novo teste do usuário.
+
+**Problemas de código identificados:** no Campo de Testes, inimigos ainda surgiam aleatoriamente entre oito pontos, mesmo perto do jogador/lojas ou ocupados; e o CI não testava execução real de ondas. A 0.9.2 acrescenta verificação do mundo físico e integração de cenas reais.
+
+| Item | Trabalho | Estado | Evidência / pendência |
+| --- | --- | --- | --- |
+| V092-01 | Selecionar ponto de spawn com mínimo 10 m do jogador, 4,75 m das lojas e raio físico 0,72 m | **PARCIAL** — código implementado | 100 escolhas em integração Godot e inspeção em gameplay real |
+| V092-02 | Favorecer surgimento fora da direção de visão, sem previsibilidade total | **PARCIAL** — código implementado | Inspeção visual de spawns |
+| V092-03 | Rejeitar todos os pontos inseguros e tentar novamente sem perder o número da onda | **PARCIAL** — código implementado | Verificar cenário de área ocupada e ausência de onda travada |
+| V092-04 | Mover spawns para o ciclo físico do Godot | **CONCLUÍDO (CÓDIGO/CI)** | Parser, startup e smoke test aprovados no runner |
+| V092-05 | Teste automático com 100 escolhas de spawn e duas ondas | **CONCLUÍDO (CI)** — [primeira integração aprovada](https://github.com/TPollTech/Frontline-Survival/actions/runs/42948387516), [cenários de borda aprovados](https://github.com/TPollTech/Frontline-Survival/actions/runs/42948609563) | Testes visuais e 15 ondas continuam pendentes |
+| V092-06 | Verificar também modelo colorido e animação do esquadrão no CI | **EM VALIDAÇÃO** | Novo teste de cena com 2 aliados e material COLOR_0 |
+| V092-07 | Publicar executável 0.9.2 em Releases | **AGUARDANDO CI FINAL** | Só marcar concluído após release com ZIP e SHA-256 |
+| V092-08 | Validar 15 ondas no notebook real | **PENDENTE** | Critério de aceitação da Etapa 0 e Etapa 2 |
+
+**Escopo fechado deste incremento:** não ampliar número de inimigos, não alterar a economia nem a curva de armas e não redesenhar o mapa. O Campo de Testes e a textura de asfalto permanecem iguais. A [Etapa 2 completa](docs/ETAPA_2_INIMIGOS_ONDAS.md) segue PARCIAL até IA/navegação avançada, playtests e métricas reais.
