@@ -28,15 +28,17 @@ A versão **0.9** concentra-se nas correções visuais reportadas na build 0.8: 
 - Reforços adquiridos na estação, chamados por **3** (esquadrão) e **4** (ataque aéreo).
 - Configurações de volume geral/SFX/UI, sensibilidade, FOV, FPS e tela cheia.
 
-## Como jogar sem abrir o Godot (Windows)
+## Baixar e jogar sem instalar o Godot (Windows)
 
-1. Vá em **[Actions > Windows playable build](https://github.com/TPollTech/Frontline-Survival/actions/workflows/windows-build.yml)**.
-2. Escolha a execução mais recente da branch `main` que esteja **verde / success**.
-3. Baixe o arquivo da área **Artifacts** chamado `FrontlineSurvival-0.9-Windows`.
-4. Extraia todo o ZIP em uma pasta vazia, mantendo `FrontlineSurvival.exe` e o pacote `.pck` juntos (se exportado separadamente).
-5. Abra **FrontlineSurvival.exe**. O editor Godot NÃO é necessário.
+**Download principal: [Releases do Frontline Survival](https://github.com/TPollTech/Frontline-Survival/releases).** Versões publicadas possuem número, changelog e ZIP próprio.
 
-**Se não houver execução verde ou artifact disponível, a build não está pronta.** Nunca considerar uma execução vermelha ou cancelada como entrega. Leia [BUILD_WINDOWS.md](docs/BUILD_WINDOWS.md).
+1. Entre em **[Releases](https://github.com/TPollTech/Frontline-Survival/releases)**.
+2. Abra a versão mais recente, inicialmente `v0.9.0` (pré-lançamento de testes).
+3. Na seção **Assets**, baixe **FrontlineSurvival-v0.9.0-Windows.zip** (o nome acompanha o número da versão futura).
+4. Extraia o ZIP inteiro para uma pasta, mantendo `FrontlineSurvival.exe` e `FrontlineSurvival.pck` juntos.
+5. Execute `FrontlineSurvival.exe`. **Não é necessário abrir o editor Godot.**
+
+**Plano B:** o [GitHub Actions](https://github.com/TPollTech/Frontline-Survival/actions/workflows/windows-build.yml) continua disponível para builds intermediárias que ainda não tiveram nova versão lançada. Não considere uma execução com erro ou cancelada como build válida. Detalhes em [BUILD_WINDOWS.md](docs/BUILD_WINDOWS.md).
 
 ### Para desenvolver pelo Godot
 
