@@ -131,18 +131,37 @@ A **Etapa 2 — inimigos e progressão de ondas** foi especificada em 10/11/2026
 | D-020 | Relatório de precisão, eliminações, headshots e dinheiro em cada onda | **REQUISITO PEDIDO** | **PENDENTE** |
 | D-021 | Compras de attachment para toda arma, começando sem nenhum; red dot e silenciador | **REQUISITO PEDIDO**; silenciador é adição autoral, não reproduzir item histórico sem evidência | **PENDENTE** |
 | D-022 | Agachar e deitar como posturas físicas completas | **REQUISITO PEDIDO**; atalho exato proposto | **AGACHAR PARCIAL**, deitar **PENDENTE** |
-| D-023 | Intervalo de **30 s no MW3** confirmado; avaliar mudar o padrão Frontline 75→30, preservando opções mais longas | **PROPOSTA DE REVISÃO de D-004**, não decisão de implementação automática | **75 s configurado hoje**, mínimo 45 |
+| D-023 | Intervalo de **30 s no MW3** confirmado; novo padrão Frontline 30s para instalações novas, mantendo opções maiores salvas | **IMPLEMENTADO NA v0.9.15 (CÓDIGO)**; revisão da D-004 | **30 s padrão, 30–120 no menu; 75 salvo preservado** |
 | D-024 | Prioridade permanece **Campo de Testes primeiro**, sem aumentar mapa, ondas/veículos; o núcleo deve comportar perks e attachments antes de novas arenas | **REQUISITO/PREFERÊNCIA ESTABELECIDA** | Planejamento |
 
 ### Como conciliar com decisões anteriores
 
-- **D-004 (75 s)** está historicamente registrado e **ainda está no executável**. O novo pedido é fidelidade a MW3 (30 s); a proposta é mudar o **valor padrão para instalações novas**, oferecer 30/45/60/75/90/120 e não apagar 75 s já salvos.
+- **D-004 (75 s)** está historicamente registrado como regra antiga da 0.9.14. O código da **v0.9.15** agora utiliza **30 s para instalações novas**, oferece 30/45/60/75/90/120 e preserva 75 s se já salvo no arquivo de configurações.
 - **D-016 (sem crosshair)** permanece. Red Dot é mira **física na arma** e não retícula 2D fixa.
 - **F nas três lojas** permanece; perks entram na estação física de suporte e equipamentos de reanimação na estação de equipamentos. Nenhum menu global B.
 - **GDD v1.0:** regras de compra de attachments e posturas passam a ser requisito de produto, porém **valores de dinheiro, durações e nomes autorais** continuam propostas a validar.
 - **Self Revive não é sinônimo de perk:** no MW3 2011 é item de equipamentos; perks de suporte substituem uns aos outros. Separar também o Last Stand do multiplayer da queda/recuperação em Survival.
-- **Nenhum código foi alterado por este registro.** Não anunciar nova release Windows até uma sprint de implementação passar por CI e avaliação visual.
+- **Código v0.9.15 submetido:** CT-01 a CT-06 implementados; os percentuais e preços são provisórios. **Sem homologação final** antes do CI e da avaliação no Windows.
 
 ### Revisão documental necessária antes de codificar
 
 [CT-01 a CT-07](NUCLEO_SURVIVAL_PERKS_ATTACHMENTS_MOVIMENTO.md) serão as próximas entregas no Campo de Testes. A inclusão de metas monetárias precisa de um \`WaveStats\` e contrato de eventos único; a compra de acessórios precisa de slots por arma; prone requer controle de colisão em \`_physics_process\`, não só mudança de velocidade.
+
+
+## J. Execução do núcleo v0.9.15 (11/11/2026)
+
+**Situação:** alterações efetivas em \`player.gd\`, \`main.gd\`, \`enemy.gd\`, \`game_settings.gd\`, \`game_menu.gd\` e novo \`survival_round_stats.gd\` foram commitadas na branch main; script \`tests/survival_features_qa.gd\` e testes ampliados de integração. **Não significa aprovação visual nem 15 ondas jogadas**.
+
+| Requisito D-017 a D-024 | Estado |
+| --- | --- |
+| Perks compráveis (um ativo de cada vez) | **IMPLEMENTADO (CÓDIGO), A VALIDAR** |
+| Última Chance + Kit pré-comprado | **IMPLEMENTADO (CÓDIGO), A VALIDAR** |
+| Desafios ($500, sem duplicidades) | **IMPLEMENTADO (CÓDIGO), A VALIDAR** |
+| Relatório de onda | **IMPLEMENTADO (CÓDIGO), A VALIDAR** |
+| Red Dot/Silenciador por arma + Holográfica/Compensador | **IMPLEMENTADO (CÓDIGO), A VALIDAR** |
+| Agachar/deitar com colisão | **IMPLEMENTADO (CÓDIGO), A VALIDAR** |
+| 30s padrão para instalação nova | **IMPLEMENTADO (CÓDIGO), A VALIDAR** |
+| Campo de Testes primeiro | **MANTIDO** — sem novo mapa/onda/veículos |
+| Verificação renderizada do Quaternius | **SCRIPT E PIPELINE ADICIONADOS** — screenshot e aprovação ainda pendentes |
+
+[QA v0.9.15](QA_V0_9_15.md) · [ROADMAP](../ROADMAP.md)
