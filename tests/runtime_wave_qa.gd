@@ -30,6 +30,84 @@ func _run_tests() -> void:
     _expect(game.wave == 0, "initial wave not yet started")
     _expect(game.player != null, "player was instantiated")
     _expect(game.shops.size() == 3, "physical shops preserved")
+    _expect(GameSettings.intermission_seconds >= 30, "30-second intervals are unavailable")
+    # Pages exist because each physical store has more than five options.
+    game.wallet = 6000
+    game._open_shop("weapons")
+    _expect(game.shop_option_buttons[4].visible, "red-dot option missing from weapons store")
+    game._buy(4) # red dot on initial pistol, no attachment by default
+    _expect(game.player.has_attachment("optic", "red_dot"), "red dot failed to install")
+    _expect(game.player.viewmodel_root.find_child("Attachment_Optic_red_dot", true, false) != null,
+        "paid red dot has no visible 3D model")
+    game._change_shop_page(1)
+    _expect(game.shop_page == 1, "shop pagination failed")
+    game._buy(1) # suppressor
+    _expect(game.player.has_attachment("muzzle", "suppressor"),
+        "suppressor failed to install alongside red dot")
+    _expect(game.player.viewmodel_root.find_child("Attachment_Muzzle_suppressor", true, false) != null,
+        "paid suppressor has no visible barrel attachment")
+    _expect(game.player.shot_sound.bus == "SUPPRESSED",
+        "silencer must use the recorded WAV through low-pass audio, not a beep")
+    var wallet_after_suppressor: int = game.wallet
+    game._buy(1)
+    _expect(game.wallet == wallet_after_suppressor, "already-equipped suppressor charged twice")
+    game._close_shop()
+    game.player.equip("rifle")
+    _expect(not game.player.has_attachment("optic", "red_dot"),
+        "red dot must be bought per weapon, not copied between guns")
+    game.player.equip("pistol")
+    _expect(game.player.has_attachment("optic", "red_dot"),
+        "changing weapons lost paid pistol optic")
+    game._open_shop("support")
+    game._buy(3) # quick reload perk
+    _expect(game.player.active_perk == "quick_reload", "perk purchase did not apply")
+    game._buy(4) # steady replaces quick reload
+    _expect(game.player.active_perk == "steady", "perks must replace, never stack")
+    game._close_shop()
+    game._open_shop("gear")
+    game._change_shop_page(1)
+    game._buy(0) # revival kit
+    _expect(game.player.self_revive_kits == 1, "self revive kit not delivered")
+    var wallet_after_kit: int = game.wallet
+    game._buy(0)
+    _expect(game.wallet == wallet_after_kit, "duplicate revive kit charged twice")
+    game._close_shop()
+    # Posture is physical, not merely walking speed.
+    game.player._update_posture(0.5, true)
+    _expect(game.player.capsule_shape.height < 1.3, "crouch did not shrink collider")
+    game.player.prone_requested = true
+    game.player._update_posture(0.5, false)
+    _expect(game.player.capsule_shape.height < 0.85, "prone did not lower collision capsule")
+    _expect(game.player.posture == "prone", "Z posture state missing")
+    game.player.prone_requested = false
+    game.player._update_posture(0.5, false)
+    _expect(game.player.capsule_shape.height > 1.3, "standing from prone failed in open space")
+    # A real lethal hit first gives a ten-second pistol last stand.
+    game.player.invulnerability_timer = 0.0
+    game.player.health = 8.0
+    game.player.take_damage(200.0, game.player.global_position + Vector3.BACK)
+    _expect(game.player.downed and not game.player.dead, "last stand skipped downed state")
+    _expect(game.player.weapon_id == "pistol" and game.player.downed_seconds > 0.0,
+        "last stand must provide pistol and a countdown")
+    game.player.downed_seconds = 0.01
+    game.player._physics_process(0.1)
+    _expect(not game.player.downed and not game.player.dead,
+        "pre-purchased revival kit did not recover from last stand")
+    _expect(game.player.self_revive_kits == 0 and game.player.health >= 35.0,
+        "revival kit was not consumed correctly")
+    game.player.invulnerability_timer = 10.0
+    # Test a real payout from the Game controller, not just pure RoundStats.
+    game.phase = "wave"
+    game.round_stats.begin(1)
+    var before_challenge: int = game.wallet
+    for k in range(4):
+        game._on_shot_resolved(true, false)
+        game._on_enemy_combat_defeat(9000 + k, "player", false, k + 1, 50)
+    _expect(game.wallet == before_challenge + 500,
+        "game economy did not pay rapid-kill challenge once")
+    _expect(game.round_stats.shots == 4 and game.round_stats.hits == 4,
+        "game failed one-shot-one-trigger tracking")
+    game.phase = "break"
     # Tactical sprint suppresses fire, distinct from merely speeding up walking.
     var original_ammo: int = int(game.player.magazines[game.player.weapon_id])
     game.player.sprint_blend = 1.0
