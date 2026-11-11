@@ -404,7 +404,11 @@ func melee() -> void:
     if not result.is_empty():
         var target: Object = result["collider"]
         if target.has_method("take_damage"):
-            target.take_damage(70.0)
+            if target is SurvivalEnemy:
+                shot_serial += 1
+                target.take_damage(70.0, "melee", false, shot_serial)
+            else:
+                target.take_damage(70.0)
             hit_confirmed.emit()
 
 func start_reload() -> void:
