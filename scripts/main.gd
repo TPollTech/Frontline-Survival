@@ -1,5 +1,7 @@
 extends Node3D
 
+const SpawnSelector = preload("res://scripts/spawn_selector.gd")
+
 const RoundCue = preload("res://scripts/round_cue.gd")
 
 const MAX_ACTIVE_ENEMIES := 12
@@ -48,6 +50,7 @@ var banner_subtitle: String = ""
 var spawn_remaining: int = 0
 var alive: int = 0
 var spawn_clock: float = 0.0
+var spawn_retry_count: int = 0
 var shop_open: bool = false
 var shop_id: String = ""
 var shops: Array = []
@@ -133,25 +136,29 @@ func _process(delta: float) -> void:
         threat_durations[i] = maxf(0.0, threat_durations[i] - delta)
     reward_timer = maxf(0.0, reward_timer - delta)
     banner_timer = maxf(0.0, banner_timer - delta)
-    if not player.dead:
-        if phase == "break":
-            break_remaining = maxf(0.0, break_remaining - delta)
-            if wave > 0:
-                var seconds_left := ceili(break_remaining)
-                if seconds_left != countdown_warning and seconds_left in [15, 10, 5, 4, 3, 2, 1]:
-                    countdown_warning = seconds_left
-                    if seconds_left == 15 or seconds_left == 5:
-                        _notify("PROXIMA ONDA EM %d SEGUNDOS!" % seconds_left, 1.6)
-            if break_remaining <= 0.0:
-                _begin_wave()
-        elif phase == "wave":
-            spawn_clock -= delta
-            if spawn_remaining > 0 and alive < MAX_ACTIVE_ENEMIES and spawn_clock <= 0.0:
-                _spawn_enemy()
-                spawn_clock = maxf(0.35, 0.95 - float(wave) * 0.025)
-            if spawn_remaining <= 0 and alive <= 0:
-                _end_wave()
     _refresh_ui()
+
+func _physics_process(delta: float) -> void:
+    # Physics scene queries for safe spawns must be made in a physics callback.
+    if player.dead:
+        return
+    if phase == "break":
+        break_remaining = maxf(0.0, break_remaining - delta)
+        if wave > 0:
+            var seconds_left := ceili(break_remaining)
+            if seconds_left != countdown_warning and seconds_left in [15, 10, 5, 4, 3, 2, 1]:
+                countdown_warning = seconds_left
+                if seconds_left == 15 or seconds_left == 5:
+                    _notify("PROXIMA ONDA EM %d SEGUNDOS!" % seconds_left, 1.6)
+        if break_remaining <= 0.0:
+            _begin_wave()
+    elif phase == "wave":
+        spawn_clock -= delta
+        if spawn_remaining > 0 and alive < MAX_ACTIVE_ENEMIES and spawn_clock <= 0.0:
+            var spawned := _spawn_enemy()
+            spawn_clock = maxf(0.35, 0.95 - float(wave) * 0.025) if spawned else 0.60
+        if spawn_remaining <= 0 and alive <= 0:
+            _end_wave()
 
 func _unhandled_input(event: InputEvent) -> void:
     if not (event is InputEventKey) or not event.pressed or event.echo:
@@ -365,6 +372,7 @@ func _begin_wave() -> void:
     wave_kills = 0
     spawn_remaining = mini(5 + wave * 2, 55)
     alive = 0
+    spawn_retry_count = 0
     spawn_clock = 0.3
     _show_banner("ONDA %02d" % wave, _loadout_label(wave) + "  |  SOBREVIVA!", 3.2)
     _notify("ONDA %d - ELIMINE TODOS OS INIMIGOS!" % wave, 3.2)
@@ -383,13 +391,31 @@ func _select_enemy_weapon(number: int) -> String:
     if number < 16: return "smg" if randf() < 0.20 else "rifle"
     return "lmg" if randf() < 0.35 else "rifle"
 
-func _spawn_enemy() -> void:
-    var spawn_points := [
+func _spawn_enemy() -> bool:
+    if phase != "wave" or player.dead or alive >= MAX_ACTIVE_ENEMIES or spawn_remaining <= 0:
+        return false
+    var spawn_points: Array[Vector3] = [
         Vector3(-22, 1.5, -22), Vector3(0, 1.5, -23), Vector3(22, 1.5, -22),
         Vector3(-23, 1.5, 0), Vector3(23, 1.5, 0),
         Vector3(-22, 1.5, 22), Vector3(0, 1.5, 23), Vector3(22, 1.5, 22)
     ]
-    var pick: Vector3 = spawn_points[randi_range(0, spawn_points.size() - 1)]
+    var stations: Array[Vector3] = []
+    for station in shops:
+        stations.append(station["position"])
+    var selected: Dictionary = SpawnSelector.select_position(
+        spawn_points,
+        stations,
+        get_world_3d().direct_space_state,
+        player.global_position,
+        -player.camera.global_transform.basis.z
+    )
+    if not selected.get("valid", false):
+        spawn_retry_count += 1
+        if spawn_retry_count % 10 == 0:
+            push_warning("Sem ponto seguro para spawn na onda %d (tentativas %d)." % [wave, spawn_retry_count])
+        return false
+    spawn_retry_count = 0
+    var pick: Vector3 = selected["position"]
     var enemy := SurvivalEnemy.new()
     var roll := randf()
     var kind := "soldier"
@@ -404,6 +430,7 @@ func _spawn_enemy() -> void:
     add_child(enemy)
     alive += 1
     spawn_remaining -= 1
+    return true
 
 func _on_enemy_defeated(bounty: int) -> void:
     alive = maxi(0, alive - 1)
