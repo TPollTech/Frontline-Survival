@@ -91,6 +91,14 @@ func _run_tests() -> void:
             for required_bone in ["Head", "spine_03", "upperarm_l", "upperarm_r", "thigh_l", "thigh_r"]:
                 _expect(rig.find_bone(required_bone) >= 0,
                     "Quaternius model missing required bone " + required_bone)
+            rig.force_update_all_bone_transforms()
+            var head_y: float = rig.to_global(rig.get_bone_global_pose(rig.find_bone("Head")).origin).y
+            var pelvis_y: float = rig.to_global(rig.get_bone_global_pose(rig.find_bone("pelvis")).origin).y
+            var left_foot_y: float = rig.to_global(rig.get_bone_global_pose(rig.find_bone("foot_l")).origin).y
+            print("QUATERNIUS_GEOMETRY head_y=%.3f pelvis_y=%.3f foot_y=%.3f" % [head_y, pelvis_y, left_foot_y])
+            _expect(head_y > pelvis_y + 0.25, "BUG: inverted Quaternius torso/head")
+            _expect(pelvis_y > left_foot_y + 0.25, "BUG: inverted Quaternius legs")
+            _expect(head_y - left_foot_y > 0.90 and head_y - left_foot_y < 2.40, "BUG: distorted Quaternius body height")
         var legacy_torso := fallen.get_node_or_null("VisualRig/Spine/TacticalJacket") as MeshInstance3D
         _expect(legacy_torso != null and not legacy_torso.visible,
             "Original blocky enemy body must be hidden for Quaternius preview")
