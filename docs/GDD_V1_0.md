@@ -39,7 +39,7 @@ Esse é o **fim concreto do projeto base**. O que vier depois vira atualização
 
 1. FPS 3D **solo/offline**; sem campanha, multiplayer, co-op, sistema de contas ou monetização.
 2. **Ondas contínuas**, com preparação após concluir a onda e avanço automático, nunca tela de vitória por limpar o mapa.
-3. Preparação padrão **75 s**, opções entre **45 e 120 s**; N antecipa somente durante preparação.
+3. Preparação **ATUALMENTE 75 s**, opções **45–120 s** no código. **Revisão solicitada:** MW3 Survival (2011) usa 30 s; adotar **30 s como novo padrão proposto** com opções 30/45/60/75/90/120 s, sem sobrescrever configurações antigas; N antecipa somente na preparação. Ver adendo da pesquisa.
 4. Estações físicas distintas: **armas, equipamentos e suporte**, acessadas por **F** ao se aproximar. Sem compras pelo B de qualquer posição.
 5. Campo de Testes preservado para QA, inclusive textura de asfalto; mapa definitivo separado.
 6. Reforços pagos e acionados depois: teclas **3 = esquadrão; 4 = aéreo**, desde que comprado.
@@ -60,7 +60,7 @@ Esse é o **fim concreto do projeto base**. O que vier depois vira atualização
 | Ondas | Loop 1 a infinito; composição por 4 faixas e ondas-marco | Sem roteiro fixo de todas as ondas 1–100 |
 | Inimigos | Soldado escopeta, operador SMG, fuzileiro, pesado com LMG e corredor leve (variação) | Sem helicóptero ou cão-bomba por padrão |
 | Armas de jogador | **5 famílias base:** pistola, SMG, fuzil, escopeta e LMG | Uma arma representativa por família primeiro; sem arsenal com dezenas |
-| Personalização de arma | 2 acessórios simples com consequência real (ex.: mira e empunhadura), caso viável | Sem dezenas de acessórios ou gunsmith |
+| Personalização de arma | **Obrigatório:** toda arma começa sem acessórios e pode comprar **Red Dot + Silenciador** simultaneamente; alternativas como holográfica/empunhadura | Sem gunsmith com dezenas de peças; valores/compatibilidade exatos sujeitos a balanceamento |
 | Granadas | Granada de fragmentação e 1 equipamento tático simples | Sem física de destruição extensiva |
 | Economia | Dinheiro por abate e habilidade, bônus de onda e compras seguras | Preços configuráveis; sem microtransações |
 | Suporte | 1 tipo de torreta, esquadrão aliado pequeno e ataque aéreo/setorial | Sem drone pilotável, IA de equipe complexa ou dezenas de suportes |
@@ -137,7 +137,7 @@ Não criar quatro tiers de mapas até existir mapa suficiente; tiers de MW3 serv
 
 ### 5.1 Controle base
 
-WASD movimento; mouse olhar; botão esquerdo atirar; direito ADS; R recarga; Shift correr; agachar se validado; F interagir; 1/2 trocar armas; 3/4 suporte comprado; N antecipar preparação; Esc pausar. Se houver conflitos, mapear no menu e documentar; nunca escrever lista fixa em todo o HUD.
+WASD movimento; mouse olhar; botão esquerdo atirar; direito ADS; R recarga; Shift correr; **C/Ctrl agachar e Z deitar (atalho proposto)**; F interagir; 1/2 trocar armas; 3/4 suporte comprado; N antecipar preparação; Esc pausar. Agachamento/prone devem alterar altura física do jogador e tiro, não somente velocidade. Se houver conflitos, mapear no menu e documentar; nunca escrever lista fixa em todo o HUD.
 
 ### 5.2 Armas de lançamento
 
@@ -345,7 +345,7 @@ Aumentos de escopo propostos após aprovar este GDD ficam em **BACKLOG_1_1_PLUS.
 | V1-P03 | Até cinco arquétipos de ameaça incluindo um pesado terrestre | Sim |
 | V1-P04 | Duas dificuldades no mapa oficial | Normal e Veterano |
 | V1-P05 | 20 patentes persistentes, desbloqueios sem bônus permanente de dano | Sim |
-| V1-P06 | Dois acessórios por arma no máximo no lançamento | Sim, se testes permitirem |
+| V1-P06 | Red Dot e Silenciador em todas as cinco armas, comprados separadamente e ativos juntos; expansão opcional a grip | **REQUISITO DO USUÁRIO** quanto a attachments; detalhes de slots/custos ainda em proposta |
 | V1-P07 | Sem helicópteros/cães-bomba na 1.0 | Sim; expansão posterior |
 | V1-P08 | Todos os setores do mapa definitivo abertos desde o início | Sim |
 | V1-P09 | Alvo de 30 FPS piso a 720p baixo, buscando 60 média | Sim, validar em hardware |
@@ -354,3 +354,46 @@ Aumentos de escopo propostos após aprovar este GDD ficam em **BACKLOG_1_1_PLUS.
 **Até aprovação**, isso é um **GDD de escopo fechado proposto**, não uma declaração de que tudo foi decidido ou codificado.
 
 **Próximo documento:** [PLANO_ENTREGA_V1_0.md](PLANO_ENTREGA_V1_0.md), com milestones, rastreabilidade, ordem de execução e critérios de encerramento.
+
+
+---
+
+## 16. Adendo de fidelidade MW3 — perks, desafios, relatório, attachments e posturas (11/11/2026)
+
+**Origem:** pedidos explícitos do usuário para o Campo de Testes; respaldados por [pesquisa histórica específica](PESQUISA_MW3_SURVIVAL_MECANICAS.md) e especificados tecnicamente em [núcleo de mecânicas](NUCLEO_SURVIVAL_PERKS_ATTACHMENTS_MOVIMENTO.md).
+
+### 16.1 Requisitos adicionados ao núcleo da 1.0
+
+| Requisito pedido | Nova obrigação de produto | Documento de especificação | Estado real |
+| --- | --- | --- | --- |
+| Perks compráveis | Perks funcionais, adquiridos na estação de suporte; um ativo por vez, substituição clara | Núcleo §3 | **PENDENTE** |
+| Last Stand | Estado de queda com pistola e chance de recuperar; Kit de Reanimação comprável na estação de equipamentos | Núcleo §4 | **PENDENTE** |
+| Metas por dinheiro | Rampage, Killstreak, headshots, quadkill e variantes elegíveis conforme mecânicas existentes | Núcleo §2 | **PENDENTE** |
+| Resumo de onda | Precisão, eliminações, headshots, tempo, dano sofrido, detalhamento do dinheiro recebido | Núcleo §1 | **PENDENTE** |
+| Preparação | **30 s como novo padrão proposto** para novos usuários, opções maiores e antecipação N | Núcleo §1 | **75 s no código; alteração PENDENTE** |
+| Attachments | Todas as cinco armas são básicas ao comprar; Red Dot e Silenciador comprados e instalados, visual e funcionalmente | Núcleo §5 | **PENDENTE** |
+| Agachamento real | C/Ctrl reduzem altura de câmera/colisão e mudam mobilidade/tiro | Núcleo §6 | **PARCIAL:** atualmente só reduz velocidade |
+| Deitar / prone | Postura rastejando, câmera/colisor e ADS adequados, trava ao tentar levantar sob teto | Núcleo §6 | **PENDENTE** |
+
+As palavras **perk**, *Última Chance*, attachment e modelo de economia são regras de jogo; usar visual e nomes próprios. Nos guias de MW3 2011, **Self Revive é equipamento**, separado dos perks recebidos via suporte; não misturar Last Stand multiplayer com o funcionamento de Survival. O silenciador universal das cinco classes é uma extensão original requerida pelo usuário, **não** um item historicamente comprovado no armário de MW3 Survival.
+
+### 16.2 Gates extras da v1.0
+
+Adicionar aos gates existentes do §11:
+
+- **G4 (armas):** cinco armas com as duas compras de acessórios funcionando e miretas corretas em ADS/crouch/prone.
+- **G7 (economia/lojas):** desafios remunerados sem duplicidade, perks funcionais com um slot, kits de reanimação e compras entregues uma vez.
+- **G8 (vida/morte):** Última Chance, sangramento, retorno por eliminação ou kit, derrota clássica e treino com revival sem exploração.
+- **G10 (HUD):** resumo detalhado de cada onda e temporizador 30 s configurável; controles de agachamento/deitar.
+- **G11 (desempenho):** sem degradar FPS ao exibir estatísticas/perks/efeitos de postura em 12 inimigos.
+
+**Não aprovar gates a partir de documentação.** Faltam código, CI de integração e teste no Windows.
+
+### 16.3 Sequência sem expansão de escopo
+
+1. Concluir correção visual do soldado humanoide Quaternius e inspecionar a v0.9.14.
+2. **CT-01 a CT-07** no Campo de Testes, na ordem definida no documento de mecânicas.
+3. Só depois retomar mapas, helicópteros, camburões, novos tipos de inimigo e complexidade de ondas.
+4. As propostas antigas V1-P01–P10 não estão todas aprovadas automaticamente; o pedido atual aprova **o objetivo de ter acessórios/perks/posturas**, não os preços, atalhos e percentuais exatos apresentados para design.
+
+**Esta rodada somente atualiza documentação.** O status da versão executável permanece v0.9.14 até existir nova compilação testada.
