@@ -170,7 +170,7 @@ Os documentos abaixo detalham critérios e hipóteses sem autorizar implementaç
 | Etapa 6 — desempenho e distribuição | Detalhamento pendente | **PARCIAL** — exportação 0.8 comprovada no CI e executada no Windows; 0.9 em validação; testes longos pendentes |
 | GDD consolidado | **Ainda não concluído**; consolidar após as etapas | Não aplicável |
 
-**Último avanço de produto:** versão 0.9 em andamento para corrigir geometria das armas com face winding invertido, posicionar mãos na empunhadura e adequar braços/armas de inimigos e aliados. A versão 0.8 foi executada pelo usuário até a preparação da onda 2; 0.9 exige compilação e validação visual. O planejamento deve continuar pela Etapa 6 sem alterar código automaticamente. O planejamento deve continuar pela Etapa 6 sem alterar o código automaticamente.
+**Último avanço de produto:** versão 0.9 compilada e publicada no GitHub Actions, com 19 arquivos GLB regenerados e sincronizados na main. A versão 0.8 foi executada pelo usuário até a preparação da onda 2; a 0.9 exige validação visual/jogabilidade no Windows. O planejamento deve continuar pela Etapa 6 sem alterar código automaticamente. O planejamento deve continuar pela Etapa 6 sem alterar o código automaticamente.
 
 ## 9. Registro de implementação e evidências — 0.8 (10/11/2026)
 
@@ -197,15 +197,15 @@ Os documentos abaixo detalham critérios e hipóteses sem autorizar implementaç
 
 | Item | Entrega | Status atual | Aceite ainda necessário |
 | --- | --- | --- | --- |
-| V09-01 | Corrigir normais dos GLBs e dos anéis dos canos | **PARCIAL** — corrigido no gerador e verificador | Confirmar modelos regenerados na build e que não há faces invisíveis |
+| V09-01 | Corrigir normais dos GLBs e dos anéis dos canos | **CONCLUÍDO (CI)** — gerador, regeneração e 19 GLBs commitados | Validar resultado visual no Windows; [commit de assets](https://github.com/TPollTech/Frontline-Survival/commit/680a86643ac51841cbe835d8dd8e194b4079c8f7) |
 | V09-02 | Corrigir escala e profundidade das cinco armas no FPS | **PARCIAL** — código atualizado | Validar a escopeta/LMG ao mirar e andar |
 | V09-03 | Alinhar duas mãos do jogador às armas | **PARCIAL** — empunhadura procedural ajustada | Confirmar sem mão flutuante e sem clipping em recarga |
 | V09-04 | Corrigir arma e braços de inimigos | **PARCIAL** — IK leve e alinhamento do modelo | Validar visualmente ataque, caminhada e disparo |
 | V09-05 | Corrigir arma e braços dos aliados | **PARCIAL** — IK leve e alinhamento do modelo | Validar invocação do esquadrão e postura de rifle |
-| V09-06 | Verificação de regressão das malhas | **PARCIAL** — guarda contra normals invertidos no verificador | Passar no CI com GLBs regenerados |
-| V09-07 | Build Windows 0.9 com arquivo ZIP | **PENDENTE DE CI** | Confirmar exportação, artefato baixável, execução no Windows |
+| V09-06 | Verificação de regressão das malhas | **CONCLUÍDO (CI)** | Verificador estático e smoke test passaram com GLBs regenerados na [execução 0.9](https://github.com/TPollTech/Frontline-Survival/actions/runs/42941790033) |
+| V09-07 | Build Windows 0.9 com arquivo ZIP | **CONCLUÍDO (CI)** — exportação e artifact publicados | [Build 0.9](https://github.com/TPollTech/Frontline-Survival/actions/runs/42941790033); execução e visual no Windows ainda pendentes |
 | V09-08 | Teste 15 ondas, compras, morte e FPS | **PENDENTE** | Jogar sessão completa no Windows e registrar resultado |
 
-**Nenhuma Etapa 1 ou 2 está 100% concluída.** Itens passam a **CONCLUÍDO (CI)** apenas após execução bem-sucedida e verificada; ficam **PARCIAIS** até inspeção visual na máquina do jogador.
+**Nenhuma Etapa 1 ou 2 está 100% concluída.** A geração/exportação 0.9 foi concluída no CI, mas a correção visual e a empunhadura continuam **PARCIAIS** até a aprovação no Windows. O usuário pode baixar EXE + PCK pela [execução 0.9](https://github.com/TPollTech/Frontline-Survival/actions/runs/42941790033).
 
 [Roteiro de testes da 0.9](docs/TESTES_0_9.md) · [Changelog](docs/CHANGELOG.md)
