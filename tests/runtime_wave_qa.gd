@@ -52,7 +52,7 @@ func _run_tests() -> void:
     game._buy(1)
     _expect(game.wallet == wallet_after_suppressor, "already-equipped suppressor charged twice")
     game._close_shop()
-    game.player.equip("rifle")
+    game.player.equip("smg")
     _expect(not game.player.has_attachment("optic", "red_dot"),
         "red dot must be bought per weapon, not copied between guns")
     game.player.equip("pistol")
@@ -107,20 +107,6 @@ func _run_tests() -> void:
         "game economy did not pay rapid-kill challenge once")
     _expect(game.round_stats.shots == 4 and game.round_stats.hits == 4,
         "game failed one-shot-one-trigger tracking")
-    # Test attachments and gun models on ALL five classes, not only the pistol.
-    for gun_id in ["pistol", "smg", "rifle", "shotgun", "lmg"]:
-        game.player.equip(gun_id)
-        game.player.install_attachment("optic", "red_dot")
-        game.player.install_attachment("muzzle", "suppressor")
-        _expect(game.player.has_attachment("optic", "red_dot"),
-            "Red Dot unavailable on " + gun_id)
-        _expect(game.player.has_attachment("muzzle", "suppressor"),
-            "Suppressor unavailable on " + gun_id)
-        _expect(game.player.viewmodel_root.find_child("Attachment_Optic_red_dot", true, false) != null,
-            "Red Dot has no model on " + gun_id)
-        _expect(game.player.viewmodel_root.find_child("Attachment_Muzzle_suppressor", true, false) != null,
-            "Suppressor has no model on " + gun_id)
-    game.player.equip("pistol")
     # The second downed encounter may recover through a player kill but a
     # support-soldier kill must not improperly give the player a second chance.
     game.player.last_stand_available = true
@@ -176,6 +162,20 @@ func _run_tests() -> void:
         _expect(not unowned_ammo.is_queued_for_deletion(),
             "unowned caliber should stay on the ground until picked up with its weapon")
         unowned_ammo.queue_free()
+    # Test attachments and gun models on ALL five classes, not only the pistol.
+    for gun_id in ["pistol", "smg", "rifle", "shotgun", "lmg"]:
+        game.player.equip(gun_id)
+        game.player.install_attachment("optic", "red_dot")
+        game.player.install_attachment("muzzle", "suppressor")
+        _expect(game.player.has_attachment("optic", "red_dot"),
+            "Red Dot unavailable on " + gun_id)
+        _expect(game.player.has_attachment("muzzle", "suppressor"),
+            "Suppressor unavailable on " + gun_id)
+        _expect(game.player.viewmodel_root.find_child("Attachment_Optic_red_dot", true, false) != null,
+            "Red Dot has no model on " + gun_id)
+        _expect(game.player.viewmodel_root.find_child("Attachment_Muzzle_suppressor", true, false) != null,
+            "Suppressor has no model on " + gun_id)
+    game.player.equip("pistol")
     # Real death leaves a non-colliding corpse and a dropped weapon for pickup.
     # Dynamically load after the project scene initializes autoloads.
     # A hard SurvivalEnemy type dependency from SceneTree test startup can
