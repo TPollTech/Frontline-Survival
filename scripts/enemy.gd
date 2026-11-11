@@ -193,9 +193,9 @@ func _ready() -> void:
         var shoulder := _joint(torso_pivot, Vector3(side * 0.36, 0.39, -0.04), "LeftShoulder" if side < 0.0 else "RightShoulder")
         _capsule(shoulder, Vector3(0, -0.14, 0), 0.125, 0.39, uniform, "UpperArm")
         _box(shoulder, Vector3(0, -0.035, -0.03), Vector3(0.24, 0.16, 0.23), armor_color, "ShoulderGuard")
-        var elbow := _joint(shoulder, Vector3(0, -0.29, -0.01), "Elbow")
-        _capsule(elbow, Vector3(0, -0.12, 0), 0.10, 0.30, uniform, "Forearm")
-        _box(elbow, Vector3(0, -0.25, -0.025), Vector3(0.14, 0.12, 0.15), dark, "Glove")
+        var elbow := _joint(shoulder, Vector3(0, -0.33, -0.01), "Elbow")
+        _capsule(elbow, Vector3(0, -0.15, 0), 0.10, 0.36, uniform, "Forearm")
+        _box(elbow, Vector3(0, -0.30, -0.025), Vector3(0.16, 0.14, 0.16), dark, "Glove")
         if side < 0.0:
             left_shoulder = shoulder
             left_elbow = elbow
@@ -203,7 +203,7 @@ func _ready() -> void:
             right_shoulder = shoulder
             right_elbow = elbow
 
-    weapon_pivot = _joint(torso_pivot, Vector3(0, 0.17, -0.19), "HeldWeapon")
+    weapon_pivot = _joint(torso_pivot, Vector3(0, 0.12, -0.13), "HeldWeapon")
     var gun_path := "res://assets/models/%s.glb" % weapon_class
     if ResourceLoader.exists(gun_path):
         var gun_source: PackedScene = load(gun_path)
@@ -212,15 +212,16 @@ func _ready() -> void:
             if held != null:
                 held.name = "WeaponModel"
                 held.scale = Vector3.ONE * 0.70
-                held.position = Vector3(0.14, -0.08, -0.08)
+                # Center the stock/trigger between both hands, not off to the right.
+                held.position = Vector3(0.0, -0.06, -0.035)
                 weapon_pivot.add_child(held)
     # A short tapered flash, no giant yellow cube or glowing sphere.
     var muzzle_shape := CylinderMesh.new()
     muzzle_shape.top_radius = 0.005
     muzzle_shape.bottom_radius = 0.024
     muzzle_shape.height = 0.17
-    var muzzle_z: float = float({"shotgun": -0.85, "smg": -0.60, "rifle": -0.78, "lmg": -0.93}.get(weapon_class, -0.65))
-    muzzle_flash = _part(weapon_pivot, muzzle_shape, Vector3(0.14, -0.03, muzzle_z), Color(1.0, 0.58, 0.25), "MuzzleFlash", Vector3(PI * 0.5, 0, 0))
+    var muzzle_z: float = -0.035 + 0.70 * float({"shotgun": -1.04, "smg": -0.69, "rifle": -0.95, "lmg": -1.13}.get(weapon_class, -0.69))
+    muzzle_flash = _part(weapon_pivot, muzzle_shape, Vector3(0.0, -0.04, muzzle_z), Color(1.0, 0.58, 0.25), "MuzzleFlash", Vector3(PI * 0.5, 0, 0))
     var flash_mat := muzzle_flash.material_override as StandardMaterial3D
     flash_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
     flash_mat.emission_enabled = true
@@ -341,18 +342,31 @@ func _animate_body(delta: float, moving: bool) -> void:
     right_hip.rotation.x = lerpf(right_hip.rotation.x, -gait * amount, minf(1.0, delta * 12.0))
     left_knee.rotation.x = lerpf(left_knee.rotation.x, maxf(0.0, -gait) * 0.65, minf(1.0, delta * 11.0))
     right_knee.rotation.x = lerpf(right_knee.rotation.x, maxf(0.0, gait) * 0.65, minf(1.0, delta * 11.0))
-    var arm_swing := gait * (0.16 if kind == "runner" else 0.08)
-    left_shoulder.rotation.x = lerpf(left_shoulder.rotation.x, 0.87 - arm_swing, minf(1.0, delta * 10.0))
-    right_shoulder.rotation.x = lerpf(right_shoulder.rotation.x, 0.78 + arm_swing, minf(1.0, delta * 10.0))
-    left_shoulder.rotation.z = lerpf(left_shoulder.rotation.z, -0.10, minf(1.0, delta * 9.0))
-    right_shoulder.rotation.z = lerpf(right_shoulder.rotation.z, 0.12, minf(1.0, delta * 9.0))
-    left_elbow.rotation.x = lerpf(left_elbow.rotation.x, -0.34, minf(1.0, delta * 9.0))
-    right_elbow.rotation.x = lerpf(right_elbow.rotation.x, -0.41, minf(1.0, delta * 9.0))
+    # Arms are aligned toward the trigger and support grip each frame.
+    # This avoids empty-handed poses when a soldier changes weapon class.
     torso_pivot.rotation.z = lerpf(torso_pivot.rotation.z, hurt_lean + gait * (0.025 if moving else 0.0), minf(1.0, delta * 13.0))
     torso_pivot.rotation.x = lerpf(torso_pivot.rotation.x, 0.12 * absf(hurt_lean), minf(1.0, delta * 10.0))
     head_pivot.rotation.z = lerpf(head_pivot.rotation.z, -hurt_lean * 0.24, minf(1.0, delta * 8.0))
-    weapon_pivot.position.z = lerpf(weapon_pivot.position.z, -0.19 + weapon_kick * 0.085, minf(1.0, delta * 14.0))
+    weapon_pivot.position.z = lerpf(weapon_pivot.position.z, -0.13 + weapon_kick * 0.085, minf(1.0, delta * 14.0))
     weapon_pivot.rotation.x = lerpf(weapon_pivot.rotation.x, weapon_kick * 0.10, minf(1.0, delta * 15.0))
+    var foregrip_z: float = float({"shotgun": -0.42, "smg": -0.32, "rifle": -0.42, "lmg": -0.50}.get(weapon_class, -0.40))
+    var trigger_grip := weapon_pivot.position + weapon_pivot.basis * Vector3(0.06, -0.17, 0.025)
+    var support_grip := weapon_pivot.position + weapon_pivot.basis * Vector3(-0.06, -0.10, foregrip_z)
+    _pose_weapon_arm(right_shoulder, right_elbow, trigger_grip, 1.0, delta)
+    _pose_weapon_arm(left_shoulder, left_elbow, support_grip, -1.0, delta)
+
+func _pose_weapon_arm(shoulder: Node3D, elbow: Node3D, grip: Vector3, side: float, delta: float) -> void:
+    # Lightweight two-bone procedural pose in torso space. Both hands follow
+    # weapon recoil and separate grip points, without a costly imported rig.
+    var elbow_hint := shoulder.position.lerp(grip, 0.53) + Vector3(side * 0.08, -0.035, 0.015)
+    var upper_dir := (elbow_hint - shoulder.position).normalized()
+    var shoulder_target := Quaternion(Vector3.DOWN, upper_dir)
+    shoulder.quaternion = shoulder.quaternion.slerp(shoulder_target, minf(1.0, delta * 13.0))
+    var actual_elbow := shoulder.position + shoulder.basis * elbow.position
+    var forearm_world := (grip - actual_elbow).normalized()
+    var forearm_local := shoulder.basis.inverse() * forearm_world
+    var elbow_target := Quaternion(Vector3.DOWN, forearm_local)
+    elbow.quaternion = elbow.quaternion.slerp(elbow_target, minf(1.0, delta * 13.0))
 
 func _has_sight() -> bool:
     if not is_instance_valid(player):
