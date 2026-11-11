@@ -123,6 +123,9 @@ def pistol():
     g.chamfer((0,.115,.02),(.10,.035,.034),'recess',.006,name='rear_sight')
     g.chamfer((.083,.080,-.105),(.006,.031,.09),'recess',.002,name='ejection')
     for j in range(5): g.chamfer((.082,.064,.005-j*.017),(.007,.052,.008),'black',.002,name='slide_groove')
+    for z in (-.07, -.11, -.15):
+        g.chamfer((0,-.010,z),(.070,.012,.035),'recess',.003,name='dust_cover')
+    g.chamfer((0,-.03,.08),(.11,.028,.05),'polymer',.008,name='beavertail')
     g.rod((-.065,-.06,-.08),(-.065,-.145,-.08),.009,'steel',name='trigger_guard')
     g.rod((-.065,-.145,-.08),(.065,-.145,-.08),.009,'steel',name='trigger_guard')
     g.rod((.015,-.07,-.10),(.025,-.115,-.08),.008,'steel',name='trigger')
@@ -164,6 +167,8 @@ def smg():
     g.chamfer((0,-.025,.53),(.28,.18,.038),'polymer',.015,name='stock_pad')
     g.cylinder((0,.018,-.59),.023,.20,'steel',name='barrel')
     g.chamfer((.102,.062,.07),(.022,.025,.078),'steel',.005,name='charging_handle')
+    g.chamfer((0,-.01,-.43),(.08,.16,.09),'polymer',.018,name='foregrip')
+    g.chamfer((0,.10,-.53),(.13,.024,.14),'steel',.006,name='sight_bridge')
     optic(g,-.07); hardware(g,-.69); g.save('smg')
 
 def rifle():
@@ -182,6 +187,10 @@ def rifle():
         g.rod((x,.08,.48),(x,-.08,.72),.011,'steel',name='stock_brace')
     g.cylinder((0,.018,-.79),.027,.29,'steel',name='barrel')
     g.chamfer((.115,.045,.10),(.028,.031,.067),'steel',.005,name='charging_handle')
+    g.chamfer((0,-.10,-.33),(.09,.18,.10),'darktan',.018,angles=(.55,0,0),name='angled_grip')
+    g.chamfer((.108,.048,.02),(.024,.042,.12),'steel',.005,name='forward_assist')
+    g.chamfer((-.11,.03,-.08),(.015,.045,.22),'recess',.004,name='dust_cover')
+    g.chamfer((0,.03,-.64),(.05,.06,.04),'steel',.004,name='gas_block')
     optic(g,.08); hardware(g,-.95); g.save('rifle')
 
 def shotgun():
@@ -195,6 +204,8 @@ def shotgun():
     g.chamfer((0,-.04,.55),(.15,.20,.65),'tan',.03,name='solid_stock')
     g.chamfer((0,-.055,.88),(.19,.24,.05),'black',.022,name='rubber_butt')
     g.chamfer((0,.14,-1.01),(.033,.033,.020),'brass',.004,name='bead_sight')
+    g.chamfer((0,.015,-.44),(.07,.14,.10),'tan',.016,name='vertical_grip')
+    g.chamfer((.114,.01,.04),(.018,.042,.12),'recess',.004,name='shell_gate')
     g.ring((0,.065,-1.04),.041,.026,.065,'steel');g.save('shotgun')
 
 def lmg():
@@ -216,6 +227,8 @@ def lmg():
     g.rod((-.08,-.07,-.78),(-.20,-.43,-.83),.016,'black',name='bipod')
     g.rod((.08,-.07,-.78),(.20,-.43,-.83),.016,'black',name='bipod')
     g.chamfer((.146,.035,.18),(.038,.035,.10),'steel',.006,name='charging_handle')
+    g.chamfer((0,-.18,-.11),(.28,.18,.18),'darktan',.022,name='ammo_box')
+    g.chamfer((0,.09,-.16),(.16,.05,.14),'steel',.008,name='feed_cover')
     optic(g,.12); g.save('lmg')
 
 if __name__=='__main__':
