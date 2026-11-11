@@ -83,8 +83,10 @@ func _ready() -> void:
     var patch := Color(0.09, 0.48, 0.66)
     var visual := _joint(self, Vector3.ZERO, "AllyVisual")
     _capsule(visual, Vector3(0, 0.08, 0), 0.30, 0.83, uniform, "Jacket")
-    _box(visual, Vector3(0, 0.13, -0.25), Vector3(0.46, 0.42, 0.12), armor, "Armor")
-    _box(visual, Vector3(0, 0.12, 0.23), Vector3(0.38, 0.40, 0.16), armor, "Pack")
+    var chest := _capsule(visual, Vector3(0, 0.13, -0.21), 0.29, 0.60, armor, "Armor")
+    chest.scale = Vector3(0.85, 0.84, 0.40)
+    var backpack := _capsule(visual, Vector3(0, 0.12, 0.23), 0.23, 0.48, armor, "Pack")
+    backpack.scale.z = 0.52
     _box(visual, Vector3(0, -0.28, 0), Vector3(0.50, 0.15, 0.31), boots, "Belt")
     for x in [-0.14, 0.0, 0.14]:
         _box(visual, Vector3(x, 0.02, -0.35), Vector3(0.115, 0.18, 0.075), armor.darkened(0.22), "Pouch")
@@ -112,7 +114,8 @@ func _ready() -> void:
             right_knee = knee
         var shoulder := _joint(visual, Vector3(side * 0.36, 0.31, -0.035), "LeftShoulder" if side < 0.0 else "RightShoulder")
         _capsule(shoulder, Vector3(0, -0.18, 0), 0.12, 0.45, uniform, "UpperArm")
-        _box(shoulder, Vector3(0, -0.055, -0.04), Vector3(0.20, 0.14, 0.18), armor, "ShoulderArmor")
+        var pad := _capsule(shoulder, Vector3(0, -0.05, -0.04), 0.13, 0.20, armor, "ShoulderArmor")
+        pad.scale = Vector3(0.96, 0.78, 0.70)
         _box(shoulder, Vector3(0, -0.065, -0.145), Vector3(0.11, 0.06, 0.025), patch, "FriendlyPatch")
         var elbow := _joint(shoulder, Vector3(0, -0.33, 0), "Elbow")
         _capsule(elbow, Vector3(0, -0.15, 0), 0.10, 0.35, uniform, "Forearm")
@@ -123,7 +126,7 @@ func _ready() -> void:
         else:
             right_shoulder = shoulder
             right_elbow = elbow
-    gun_mount = _joint(visual, Vector3(0, 0.10, -0.14), "WeaponRig")
+    gun_mount = _joint(visual, Vector3(0, 0.15, -0.26), "WeaponRig")
     var rifle_source: PackedScene = load("res://assets/models/rifle.glb")
     if rifle_source != null:
         var model := rifle_source.instantiate() as Node3D
@@ -212,7 +215,7 @@ func _physics_process(delta: float) -> void:
     left_knee.rotation.x = lerpf(left_knee.rotation.x, maxf(0.0, -gait) * 0.55, minf(1.0, delta * 11.0))
     right_knee.rotation.x = lerpf(right_knee.rotation.x, maxf(0.0, gait) * 0.55, minf(1.0, delta * 11.0))
     gun_mount.rotation.x = lerpf(gun_mount.rotation.x, gun_kick * 0.09, minf(1.0, delta * 14.0))
-    gun_mount.position.z = lerpf(gun_mount.position.z, -0.14 + gun_kick * 0.075, minf(1.0, delta * 13.0))
+    gun_mount.position.z = lerpf(gun_mount.position.z, -0.26 + gun_kick * 0.075, minf(1.0, delta * 13.0))
     head_pivot.rotation.z = lerpf(head_pivot.rotation.z, sin(walk_time) * 0.025 * move.length(), minf(1.0, delta * 8.0))
     var trigger_grip := gun_mount.position + gun_mount.basis * Vector3(0.06, -0.16, 0.03)
     var support_grip := gun_mount.position + gun_mount.basis * Vector3(-0.06, -0.095, -0.40)
