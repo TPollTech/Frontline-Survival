@@ -9,6 +9,7 @@ const ObstacleSteering = preload("res://scripts/obstacle_steering.gd")
 ## elbow and upper-body pivots. Designed for up to 12 concurrent enemies.
 
 signal defeated(reward: int)
+signal loot_dropped(weapon_kind: String, location: Vector3)
 
 var player: SurvivalPlayer
 var kind: String = "soldier"
@@ -168,10 +169,14 @@ func _ready() -> void:
     visual_root = _joint(self, Vector3.ZERO, "VisualRig")
     torso_pivot = _joint(visual_root, Vector3(0, -0.10, 0), "Spine")
     torso_mesh = _capsule(torso_pivot, Vector3(0, 0.18, 0), 0.30 * heavy_scale, 0.83, uniform, "TacticalJacket")
-    _box(torso_pivot, Vector3(0, 0.24, -0.25), Vector3(0.51 * heavy_scale, 0.50, 0.14), armor_color, "FrontArmorPlate")
-    _box(torso_pivot, Vector3(0, 0.23, 0.24), Vector3(0.46, 0.45, 0.15), armor_color, "BackArmorPlate")
+    # Curved vest silhouette instead of square chest blocks.
+    var front_vest := _capsule(torso_pivot, Vector3(0, 0.24, -0.22), 0.31 * heavy_scale, 0.64, armor_color, "FrontArmorPlate")
+    front_vest.scale = Vector3(0.87, 1.0, 0.38)
+    var back_vest := _capsule(torso_pivot, Vector3(0, 0.23, 0.22), 0.29, 0.61, armor_color, "BackArmorPlate")
+    back_vest.scale = Vector3(0.87, 1.0, 0.43)
     _box(torso_pivot, Vector3(0, -0.20, 0), Vector3(0.49, 0.16, 0.30), dark, "UtilityBelt")
-    _box(torso_pivot, Vector3(0, 0.10, 0.33), Vector3(0.36, 0.44, 0.16), armor_color, "Pack")
+    var pack_mesh := _capsule(torso_pivot, Vector3(0, 0.10, 0.32), 0.21, 0.44, armor_color, "Pack")
+    pack_mesh.scale.z = 0.56
     for x in [-0.19, -0.06, 0.07, 0.20]:
         _box(torso_pivot, Vector3(x, 0.12, -0.345), Vector3(0.105, 0.19, 0.09), armor_color.darkened(0.20), "MagazinePouch")
     for side in [-1.0, 1.0]:
@@ -202,7 +207,8 @@ func _ready() -> void:
             right_knee = knee
         var shoulder := _joint(torso_pivot, Vector3(side * 0.36, 0.39, -0.04), "LeftShoulder" if side < 0.0 else "RightShoulder")
         _capsule(shoulder, Vector3(0, -0.14, 0), 0.125, 0.39, uniform, "UpperArm")
-        _box(shoulder, Vector3(0, -0.035, -0.03), Vector3(0.24, 0.16, 0.23), armor_color, "ShoulderGuard")
+        var guard := _capsule(shoulder, Vector3(0, -0.035, -0.03), 0.15, 0.22, armor_color, "ShoulderGuard")
+        guard.scale = Vector3(1.05, 0.70, 0.68)
         var elbow := _joint(shoulder, Vector3(0, -0.33, -0.01), "Elbow")
         _capsule(elbow, Vector3(0, -0.15, 0), 0.10, 0.36, uniform, "Forearm")
         _box(elbow, Vector3(0, -0.30, -0.025), Vector3(0.16, 0.14, 0.16), dark, "Glove")
@@ -213,7 +219,7 @@ func _ready() -> void:
             right_shoulder = shoulder
             right_elbow = elbow
 
-    weapon_pivot = _joint(torso_pivot, Vector3(0, 0.12, -0.13), "HeldWeapon")
+    weapon_pivot = _joint(torso_pivot, Vector3(0, 0.14, -0.25), "HeldWeapon")
     var gun_path := "res://assets/models/%s.glb" % weapon_class
     if ResourceLoader.exists(gun_path):
         var gun_source: PackedScene = load(gun_path)
@@ -382,7 +388,7 @@ func _animate_body(delta: float, moving: bool) -> void:
     torso_pivot.rotation.z = lerpf(torso_pivot.rotation.z, hurt_lean + gait * (0.025 if moving else 0.0), minf(1.0, delta * 13.0))
     torso_pivot.rotation.x = lerpf(torso_pivot.rotation.x, 0.12 * absf(hurt_lean), minf(1.0, delta * 10.0))
     head_pivot.rotation.z = lerpf(head_pivot.rotation.z, -hurt_lean * 0.24, minf(1.0, delta * 8.0))
-    weapon_pivot.position.z = lerpf(weapon_pivot.position.z, -0.13 + weapon_kick * 0.085, minf(1.0, delta * 14.0))
+    weapon_pivot.position.z = lerpf(weapon_pivot.position.z, -0.25 + weapon_kick * 0.085, minf(1.0, delta * 14.0))
     weapon_pivot.rotation.x = lerpf(weapon_pivot.rotation.x, weapon_kick * 0.10, minf(1.0, delta * 15.0))
     var foregrip_z: float = float({"shotgun": -0.42, "smg": -0.32, "rifle": -0.42, "lmg": -0.50}.get(weapon_class, -0.40))
     var trigger_grip := weapon_pivot.position + weapon_pivot.basis * Vector3(0.06, -0.17, 0.025)
@@ -414,11 +420,15 @@ func take_damage(amount: float) -> void:
         collision_mask = 0
         hit_collider.set_deferred("disabled", true)
         set_physics_process(false)
+        # The dropped weapon becomes a separate pickup while the body remains.
+        weapon_pivot.visible = false
+        add_to_group("fallen_soldiers")
+        loot_dropped.emit(weapon_class, global_position)
         defeated.emit(reward)
         var fall := create_tween().set_parallel(true)
         fall.set_trans(Tween.TRANS_CUBIC)
         fall.set_ease(Tween.EASE_IN)
         fall.tween_property(visual_root, "rotation:z", 1.25 if randf() < 0.5 else -1.25, 0.48)
         fall.tween_property(visual_root, "position:y", -0.48, 0.48)
-        fall.chain().tween_interval(0.42)
+        fall.chain().tween_interval(17.0)
         fall.chain().tween_callback(queue_free)
