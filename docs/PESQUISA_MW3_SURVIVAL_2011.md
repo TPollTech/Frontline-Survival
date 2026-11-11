@@ -67,3 +67,18 @@ Antes de qualquer novo planejamento sobre ondas, armas, compras ou IA:
 - Manter regras do usuário acima de diferenças de MW3 (75s, F nas lojas, offline, sem crosshair).
 
 **Última revisão:** 11/11/2026. **Próxima revisão:** antes de aprovar números de economia e o script de composição de ondas; sempre datar novas evidências.
+
+
+## 6. Pesquisa complementar — perks, Last Stand, 30 segundos, bônus, attachments e prone
+
+**Adendo verificado em 11/11/2026:** [PESQUISA_MW3_SURVIVAL_MECANICAS.md](PESQUISA_MW3_SURVIVAL_MECANICAS.md).
+
+- **Intervalo oficial observado em material contemporâneo:** aproximadamente **30 s**, e o jogador pode começar antes. O Frontline usa **75 s no código atual**, uma decisão anterior, agora colocada em revisão como novo padrão de 30 s para novos jogadores, preservando tempos personalizados.
+- **Perks:** no modo Survival são equipamentos de vantagem recebidos através de pacotes de suporte; não confundir com slots do multiplayer. Guias indicam um perk ativo por vez, substituindo o anterior.
+- **Última Chance:** tratar queda com pistola e recuperação por abate separadamente de **Self Revive** (consumível do armário de equipamentos).
+- **Bônus:** guias de janeiro/2012 descrevem Rampage, Killstreak, headshots, quatro eliminações simultâneas, flash kills e melee, duas metas elegíveis e recompensa em dinheiro.
+- **Relatório da onda:** eliminados, precisão, headshots, duração e outros dados contribuem para recompensa.
+- **Attachments:** red dot, holo, ACOG e acessórios inferiores são documentados; **silenciador na loja Survival 2011 não foi confirmado** nas listas consultadas — permitir no Frontline é proposta autoral.
+- **Agachar/prone:** confirmados como movimentos esperados de FPS militar; detalhes de hitbox, animação e código da implementação original não foram obtidos em fonte oficial. Especificação do Frontline deve ser própria.
+
+**Aplicação no desenvolvimento:** nenhum desses itens novos deve ficar de fora da 1.0 por ter sido considerado "DLC" em versões antigas do planejamento. A implementação e o balanceamento passam primeiro pelo Campo de Testes.
