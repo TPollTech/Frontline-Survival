@@ -52,6 +52,9 @@ var shops: Array = []
 var status_text: String = ""
 var status_timer: float = 0.0
 var hit_flash: float = 0.0
+var headshot_flash: float = 0.0
+var threat_indicators: Array[ColorRect] = []
+var threat_durations: Array[float] = [0.0, 0.0, 0.0, 0.0]
 var hud: Label
 var ammo_hud: Label
 var support_hud: Label
@@ -97,6 +100,7 @@ func _ready() -> void:
     player.hit_confirmed.connect(_on_hit)
     player.headshot_confirmed.connect(_on_headshot)
     player.shot_fired.connect(_on_shot_fired)
+    player.damage_received.connect(_on_player_damage)
     hit_audio = _make_audio("res://assets/audio/hit.wav", -15.0, "UI")
     purchase_audio = _make_audio("res://assets/audio/purchase.wav", -9.0, "UI")
     explosion_audio = _make_audio("res://assets/audio/explosion.wav", -9.0, "SFX")
@@ -129,6 +133,9 @@ func _process(delta: float) -> void:
     if status_timer > 0.0:
         status_timer -= delta
     hit_flash = maxf(0.0, hit_flash - delta)
+    headshot_flash = maxf(0.0, headshot_flash - delta)
+    for i in range(threat_durations.size()):
+        threat_durations[i] = maxf(0.0, threat_durations[i] - delta)
     reward_timer = maxf(0.0, reward_timer - delta)
     banner_timer = maxf(0.0, banner_timer - delta)
     if not player.dead:
@@ -681,9 +688,29 @@ func _on_hit() -> void:
     hit_audio.play()
 
 func _on_headshot() -> void:
+    headshot_flash = 0.22
     wallet += 12
     reward_hud.text = "+$12  |  TIRO NA CABECA"
     reward_timer = 1.15
+
+func _on_player_damage(source_position: Vector3, _actual_damage: float) -> void:
+    # 0 frente, 1 direita, 2 tras, 3 esquerda.
+    # Projecao apenas horizontal evita indicadores trocados em desniveis.
+    var direction := source_position - player.global_position
+    direction.y = 0.0
+    if direction.length_squared() < 0.01:
+        threat_durations[0] = 1.10
+        return
+    var relative := player.global_transform.basis.inverse() * direction.normalized()
+    var angle := atan2(relative.x, -relative.z)
+    var index := 0
+    if absf(angle) >= PI * 0.75:
+        index = 2
+    elif angle >= PI * 0.25:
+        index = 1
+    elif angle <= -PI * 0.25:
+        index = 3
+    threat_durations[index] = 1.10
 
 func _on_shot_fired(at: Vector3, hit_enemy: bool) -> void:
     # Bullet trails are a very short streak, not a 30-metre luminous beam.
@@ -841,6 +868,21 @@ func _create_ui() -> void:
     damage_overlay.size = Vector2(1280, 720)
     damage_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
     root.add_child(damage_overlay)
+    # Indicadores direcionais nao persistentes: aparecem apenas ao receber tiro.
+    var threat_shapes := [
+        [Vector2(592, 209), Vector2(96, 6)],
+        [Vector2(848, 315), Vector2(6, 90)],
+        [Vector2(592, 502), Vector2(96, 6)],
+        [Vector2(426, 315), Vector2(6, 90)]
+    ]
+    for shape in threat_shapes:
+        var threat := ColorRect.new()
+        threat.position = shape[0]
+        threat.size = shape[1]
+        threat.color = Color(1.0, 0.30, 0.19, 0.0)
+        threat.mouse_filter = Control.MOUSE_FILTER_IGNORE
+        root.add_child(threat)
+        threat_indicators.append(threat)
     # Loja com abas e botoes clicaveis; durante ela o mouse fica visivel.
     shop_panel = ColorRect.new()
     shop_panel.position = Vector2(335, 132)
@@ -985,8 +1027,13 @@ func _refresh_ui() -> void:
     crosshair_h.size = Vector2(radius * 2.0, 2.0)
     crosshair_v.position = Vector2(639.0, 360.0 - radius)
     crosshair_v.size = Vector2(2.0, radius * 2.0)
-    crosshair_h.color = Color(1.0, 0.28, 0.18) if hit_flash > 0.0 else Color.WHITE
-    crosshair_v.color = Color(1.0, 0.28, 0.18) if hit_flash > 0.0 else Color.WHITE
+    var reticle_color := Color(1.0, 0.87, 0.28) if headshot_flash > 0.0 else (Color(1.0, 0.32, 0.24) if hit_flash > 0.0 else Color.WHITE)
+    crosshair_h.color = reticle_color
+    crosshair_v.color = reticle_color
+    for i in range(threat_indicators.size()):
+        var opacity := minf(0.88, threat_durations[i] * 1.30)
+        threat_indicators[i].color = Color(1.0, 0.29, 0.18, opacity)
+        threat_indicators[i].visible = opacity > 0.0 and not shop_open and not player.dead
     damage_overlay.color.a = (1.0 - player.health / 100.0) * 0.09 + player.damage_anim * 0.12
     death_panel.visible = player.dead and not GameSettings.training_respawns
     if death_panel.visible:
