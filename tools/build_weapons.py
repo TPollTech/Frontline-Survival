@@ -109,10 +109,11 @@ class Gun:
                 b = ring*8+(i+1)%8
                 faces.extend(((a,b,b+8),(a,b+8,a+8)))
         for i in range(1,7):
-            faces.extend(((0,i,i+1),(64,64+i+1,64+i)))
+            faces.extend(((0,i+1,i),(64,64+i,64+i+1)))
         mesh = trimesh.Trimesh(vertices=vertices,faces=faces,process=False)
-        trimesh.repair.fix_normals(mesh)
-        if not mesh.is_watertight or mesh.volume <= 0:
+        if mesh.volume < 0:
+            mesh.invert()
+        if not mesh.is_watertight or not mesh.is_winding_consistent or mesh.volume <= 0:
             raise ValueError('Invalid curved magazine')
         self.add(mesh,'black','magazine')
         for x in (-.038,.038):
