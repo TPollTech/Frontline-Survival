@@ -127,8 +127,27 @@ require('vertex_color_use_as_albedo = true' in material_code,
 pose_code = (ROOT / 'scripts/weapon_pose.gd').read_text(encoding='utf-8')
 require('func align_hand(' in pose_code and 'upper_length' in pose_code,
         "Shared two-bone arm solver missing")
-require('intermission_seconds: int = 75' in settings, "Default break should still be 75 seconds")
+require('intermission_seconds: int = 30' in settings, "Survival 2011 reference requires 30-second default for new installs")
 require('training_respawns: bool = true' in settings, "Training respawn should remain enabled")
+# CT-01..CT-06: no regression on requested Survival mechanics.
+stats = sources.get("survival_round_stats", "")
+require('func summary_text(' in stats and 'func accuracy(' in stats and 'func defeat(' in stats,
+        "Wave report / shot precision / money dedupe missing")
+require('CHALLENGE_PAYOUT: int = 500' in stats and 'QUAD KILL' in stats,
+        "Four-kill, killstreak and headshot bonus model missing")
+for frag in ('RoundStats.new()', 'round_stats.begin(wave)',
+             'round_stats.shot(', 'round_stats.finish(bonus)',
+             'shop_page * 5', 'perk_quick_reload', 'self_revive'):
+    require(frag in main, f"Missing CT Survival integration: {frag}")
+for frag in ('KEY_Z', 'func _update_posture(', '_can_expand_to_height',
+             'func recover_downed(', 'func install_attachment(',
+             'func select_perk(', 'SUPPRESSED'):
+    require(frag in player, f"Missing requested player Survival feature: {frag}")
+require((ROOT / "tests/survival_features_qa.gd").is_file(),
+        "Missing deterministic money/headshot/quadkill tests")
+require((ROOT / "tests/humanoid_qa_snapshot.gd").is_file(),
+        "Missing rendered Quaternius screenshot test")
+
 require('1280' in (ROOT / 'project.godot').read_text(), "Missing 720p target")
 require('gl_compatibility' in (ROOT / 'project.godot').read_text(), "Rendering must target Compatibility")
 require((ROOT / 'scenes/main.tscn').exists(), "Missing main scene")
