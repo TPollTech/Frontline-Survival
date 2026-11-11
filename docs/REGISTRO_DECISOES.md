@@ -59,6 +59,10 @@ Estas são características descritas no código/README, não equivalem a compro
 | P-016 | Preços estáveis inicialmente, sem inflação automática por onda | [Etapa 3](ETAPA_3_ECONOMIA_SUPORTE.md) | Balancear 20 ondas |
 | P-017 | Compra transacional: validar antes de debitar, sem cobrança em falhas | [Etapa 3](ETAPA_3_ECONOMIA_SUPORTE.md) | Aprovar contrato e testes |
 | P-018 | Interface física com efeito, duração, preço, limite e estado legíveis | [Etapa 3](ETAPA_3_ECONOMIA_SUPORTE.md) | Aprovar proposta de UX |
+| P-019 | Complexo Industrial com cinco setores e duas camadas de altura | [Etapa 4](ETAPA_4_MAPAS_ARQUITETURA.md) | Aprovar layout e ajustar tamanho após blockout |
+| P-020 | Estações distribuídas entre galpão, oficina e administração | [Etapa 4](ETAPA_4_MAPAS_ARQUITETURA.md) | Medir acesso nos 75 segundos de preparação |
+| P-021 | Um mapa definitivo na primeira versão completa, além do Campo de Testes | [Etapa 4](ETAPA_4_MAPAS_ARQUITETURA.md) | Aprovar escopo fechado de lançamento |
+| P-022 | Cenas de mapa independentes, MapLoader e recordes por mapa e modo | [Etapa 4](ETAPA_4_MAPAS_ARQUITETURA.md) | Aprovar contrato e migração sem regressão |
 
 ## D. Fora de escopo por enquanto
 
@@ -79,4 +83,4 @@ Estas são características descritas no código/README, não equivalem a compro
 
 ## F. Próxima rodada de planejamento
 
-A **Etapa 2 — inimigos e progressão de ondas** foi especificada em 10/11/2026, sem implementação e sem aprovação das propostas. Próximas lacunas: **Etapa 4 — arquitetura e mapa multissetores**; a Etapa 3 agora possui especificação de economia e suporte, ainda sem aprovação. As Etapas 0 e 1 continuam especificadas, mas ainda não testadas/aprovadas para implementação.
+A **Etapa 2 — inimigos e progressão de ondas** foi especificada em 10/11/2026, sem implementação e sem aprovação das propostas. A **Etapa 4 — arquitetura e mapa multissetores** também foi especificada em 10/11/2026, sem alteração do jogo. Próximas lacunas: **Etapa 5 — interface, HUD, áudio e acessibilidade** e **Etapa 6 — desempenho, testes e distribuição**. A Etapa 3 mantém suas propostas de economia e suporte pendentes de aprovação. As Etapas 0 e 1 continuam especificadas, mas ainda não testadas/aprovadas para implementação.
