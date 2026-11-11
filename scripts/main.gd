@@ -430,6 +430,9 @@ func _spawn_enemy() -> bool:
     var enemy := SurvivalEnemy.new()
     var kind: String = WaveRules.kind_for_spawn(wave, spawn_remaining, randf())
     enemy.configure(kind, wave, player, _select_enemy_weapon(wave))
+    # Prototype only: first ordinary soldier in a wave uses Quaternius.
+    # Keep all other enemies and their current assets for a direct comparison.
+    enemy.preview_quaternius = kind == "soldier" and spawn_remaining == WaveRules.total_enemies(wave)
     enemy.position = pick
     enemy.defeated.connect(_on_enemy_defeated)
     enemy.loot_dropped.connect(_on_enemy_loot_dropped)
