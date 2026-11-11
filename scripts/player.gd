@@ -492,6 +492,9 @@ func take_damage(amount: float, source_position: Vector3 = Vector3.ZERO) -> void
             if not owned_weapons.has("pistol"):
                 owned_weapons.append("pistol")
             switch_weapon("pistol", true)
+            # Reserve a small emergency magazine even if the sidearm was empty.
+            # No unlimited reload while bleeding out.
+            magazines["pistol"] = maxi(int(magazines["pistol"]), 8)
             downed_started.emit()
         else:
             _die_finally()
