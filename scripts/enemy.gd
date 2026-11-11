@@ -1,5 +1,8 @@
 extends CharacterBody3D
 class_name SurvivalEnemy
+
+const GunMaterials = preload("res://scripts/weapon_materials.gd")
+const ArmPose = preload("res://scripts/weapon_pose.gd")
 ## Lightweight articulated procedural soldier; independent hip, knee, shoulder,
 ## elbow and upper-body pivots. Designed for up to 12 concurrent enemies.
 
@@ -215,6 +218,7 @@ func _ready() -> void:
                 # Center the stock/trigger between both hands, not off to the right.
                 held.position = Vector3(0.0, -0.06, -0.035)
                 weapon_pivot.add_child(held)
+                GunMaterials.apply_colors(held)
     # A short tapered flash, no giant yellow cube or glowing sphere.
     var muzzle_shape := CylinderMesh.new()
     muzzle_shape.top_radius = 0.005
@@ -352,21 +356,8 @@ func _animate_body(delta: float, moving: bool) -> void:
     var foregrip_z: float = float({"shotgun": -0.42, "smg": -0.32, "rifle": -0.42, "lmg": -0.50}.get(weapon_class, -0.40))
     var trigger_grip := weapon_pivot.position + weapon_pivot.basis * Vector3(0.06, -0.17, 0.025)
     var support_grip := weapon_pivot.position + weapon_pivot.basis * Vector3(-0.06, -0.10, foregrip_z)
-    _pose_weapon_arm(right_shoulder, right_elbow, trigger_grip, 1.0, delta)
-    _pose_weapon_arm(left_shoulder, left_elbow, support_grip, -1.0, delta)
-
-func _pose_weapon_arm(shoulder: Node3D, elbow: Node3D, grip: Vector3, side: float, delta: float) -> void:
-    # Lightweight two-bone procedural pose in torso space. Both hands follow
-    # weapon recoil and separate grip points, without a costly imported rig.
-    var elbow_hint := shoulder.position.lerp(grip, 0.53) + Vector3(side * 0.08, -0.035, 0.015)
-    var upper_dir := (elbow_hint - shoulder.position).normalized()
-    var shoulder_target := Quaternion(Vector3.DOWN, upper_dir)
-    shoulder.quaternion = shoulder.quaternion.slerp(shoulder_target, minf(1.0, delta * 13.0))
-    var actual_elbow := shoulder.position + shoulder.basis * elbow.position
-    var forearm_world := (grip - actual_elbow).normalized()
-    var forearm_local := shoulder.basis.inverse() * forearm_world
-    var elbow_target := Quaternion(Vector3.DOWN, forearm_local)
-    elbow.quaternion = elbow.quaternion.slerp(elbow_target, minf(1.0, delta * 13.0))
+    ArmPose.align_hand(right_shoulder, right_elbow, trigger_grip, 1.0, delta)
+    ArmPose.align_hand(left_shoulder, left_elbow, support_grip, -1.0, delta)
 
 func _has_sight() -> bool:
     if not is_instance_valid(player):
