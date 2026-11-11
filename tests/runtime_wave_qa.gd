@@ -101,6 +101,14 @@ func _run_tests() -> void:
             print("QUATERNIUS_GEOMETRY head_y=%.3f pelvis_y=%.3f foot_y=%.3f hands=%.3f,%.3f shoulder=%.3f" % [head_y, pelvis_y, left_foot_y, left_hand.y, right_hand.y, shoulder.y])
             _expect(head_y > pelvis_y + 0.25, "BUG: inverted Quaternius torso/head")
             _expect(pelvis_y > left_foot_y + 0.25, "BUG: inverted Quaternius legs")
+            _expect(left_hand.y < head_y - 0.04 and right_hand.y < head_y - 0.04,
+                "BUG: Quaternius arms raised above face like screenshot")
+            var original_rotations: Dictionary = preview.get("base_bone_rotations")
+            for controlled_bone in ["upperarm_l", "upperarm_r", "lowerarm_l", "lowerarm_r", "thigh_l", "thigh_r", "calf_l", "calf_r", "spine_03"]:
+                var bone_idx: int = rig.find_bone(controlled_bone)
+                var original_rotation: Quaternion = original_rotations.get(controlled_bone, Quaternion.IDENTITY)
+                var offset: float = rig.get_bone_pose_rotation(bone_idx).angle_to(original_rotation)
+                _expect(offset < 0.60, "BUG: excessive bone pose override: " + controlled_bone)
             _expect(head_y - left_foot_y > 0.90 and head_y - left_foot_y < 2.40, "BUG: distorted Quaternius body height")
         var legacy_torso := fallen.get_node_or_null("VisualRig/Spine/TacticalJacket") as MeshInstance3D
         _expect(legacy_torso != null and not legacy_torso.visible,
