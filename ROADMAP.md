@@ -351,11 +351,13 @@ A [Etapa 6](docs/ETAPA_6_DESEMPENHO_TESTES_DISTRIBUICAO.md) especifica métricas
 | V0912-06 | Indicador de tiro substituído por quatro arcos vermelhos curvos | **CONCLUÍDO (CÓDIGO/CI)** | Aprovar forma e transparência no Windows |
 | V0912-07 | Silhueta dos inimigos e aliados mais arredondada e arma deslocada à frente | **PARCIAL** — cápsulas e grip ajustados | Ainda precisa **rig humanoide real** e revisão visual |
 | V0912-08 | Testes integrados: hitmarker, sprint, drops, sangue, corpos e 2 ondas; 50 composições sem jogar | **CONCLUÍDO (CI)** | 15 ondas reais ainda pendentes |
-| V0912-09 | Exportar ZIP Windows v0.9.12 e publicar em GitHub Releases | **AGUARDANDO CI FINAL** | Marcar concluído somente após ZIP verificado |
+| V0912-09 | Exportar ZIP Windows v0.9.12 e publicar em GitHub Releases | **CONCLUÍDO (CI + RELEASES)** | [Build aprovado](https://github.com/TPollTech/Frontline-Survival/actions/runs/43077610098) e [ZIP verificado em Releases](https://github.com/TPollTech/Frontline-Survival/releases/tag/v0.9.12) |
 
 **Mantidos:** Campo de Testes, asfalto, três estações por F, 75s entre ondas, sem crosshair permanente, sons WAV PCM da v0.9.10, reforços e waves atuais. **Sem novas fases, mapas, helicópteros ou caminhões nesta sprint.**
 
 **Próximas decisões pós-polimento (registradas, NÃO implementadas):** soldados humanoides com esqueleto/rig, animações reais, queda física/ragdoll se desempenho permitir; mais tarde chegadas por transporte terrestre e aéreo e unidades blindadas especiais. A proposta de personagens CC0 (Quaternius) deve ser testada isoladamente no Godot 4.4.1 antes de substituir os NPCs.
+
+**Ajuste adicional na v0.9.12:** munição caída é identificada pela arma de origem e não pode ser convertida silenciosamente para outra arma equipada; o prompt mostra classe e quantidade. Cenário positivo (mesma arma) e negativo (arma não possuída) integrados ao teste runtime. **A v0.9.12 foi publicada e teve CI verde**, mas FPS, aparência dos corpos, rig humanoide e dinâmica de corrida continuam **PARCIAIS** até teste no Windows. Não iniciar implementação de novos mapas/ondas/transportes nesta fase.
 
 [Checklist do Campo de Testes](docs/M0_POLIMENTO_CAMPO_TESTES.md) • [QA 0.9.12](docs/QA_V0_9_12.md) • [Release notes](docs/releases/v0.9.12.md)
 
