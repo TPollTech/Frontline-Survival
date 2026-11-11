@@ -1,6 +1,6 @@
 # Frontline Survival — Planejamento e Roadmap
 
-**Documento mestre do projeto** · Atualizado: 10/11/2026 · **Base de referência:** protótipo `0.7`; **versão de desenvolvimento:** `0.9.2` · **Situação:** planejamento; novas mecânicas somente após aprovação da etapa.
+**Documento mestre do projeto** · Atualizado: 10/11/2026 · **Base de referência:** protótipo `0.7`; **versão de desenvolvimento:** `0.9.3` · **Situação:** planejamento; novas mecânicas somente após aprovação da etapa.
 
 > **Visão:** FPS 3D offline de sobrevivência por ondas, com combate satisfatório, progressão, dinheiro, compras em estações e suporte tático. Inspiração de mecânicas: Survival dos FPS militares da geração PS3, com identidade, modelos, efeitos e sons próprios. **Não** copiar mapas, arquivos ou personagens de Call of Duty.
 
@@ -164,9 +164,9 @@ Os documentos abaixo detalham critérios e hipóteses sem autorizar implementaç
 | Documento | Situação documental | Implementação e QA |
 | --- | --- | --- |
 | Etapa 0 — Estabilidade | Especificada; 27 verificações de QA | **PARCIAL** — 2 transições de onda e checagem de spawn automatizadas em Godot headless na 0.9.2; ainda falta sessão real de 15 ondas no Windows |
-| Etapa 1 — Armas e FPS | Especificada; propostas aguardam aprovação | **PARCIAL** — v0.9.1 aplica paleta COLOR_0, visor físico centrado e recuo pós-raycast; inspeção visual e rig profissional pendentes |
-| Etapa 2 — Inimigos e ondas | **Especificada em 10/11/2026**; propostas aguardam aprovação | **PARCIAL** — 0.9.2 implementa spawn contextual com colisão e distância, e integração de duas ondas; navegação, IA avançada e 15 ondas ainda pendentes |
-| Etapa 3 — Economia e reforços | **Especificada em 10/11/2026**; preços finais e propostas pendentes de aprovação | Não iniciada |
+| Etapa 1 — Armas e FPS | Especificada; decisões pendentes | **PARCIAL** — v0.9.3 apresenta texturas de metal/polímero, detalhes das cinco armas e foley de recarga por classe; acabamento visual/sonoro ainda precisa de teste |
+| Etapa 2 — Inimigos e ondas | Especificada; decisões pendentes | **PARCIAL** — v0.9.3 inclui sondas e recuperação antitravamento dos inimigos e aliados; navegação complexa, 15 ondas e playtest pendentes |
+| Etapa 3 — Economia e reforços | Especificada; propostas aguardam aprovação | **PARCIAL** — cabeça/armamento do esquadrão retrabalhados na v0.9.3; suporte ainda não está visualmente homologado |
 | Etapa 4 — Mapas | **Especificada em 10/11/2026**; layout de cinco setores e arquitetura ainda sujeitos a aprovação | Não iniciada |
 | Etapa 5 — HUD, áudio e UX | **Especificada em 10/11/2026**; propostas aguardam aprovação | **PARCIAL** — v0.9.1 retira crosshair/hit beep e adiciona som grave de fim de onda; validação auditiva pendente |
 | Etapa 6 — desempenho e distribuição | **Especificada em 10/11/2026**; metas e gates pendentes de aprovação | **PARCIAL** — release [v0.9.1](https://github.com/TPollTech/Frontline-Survival/releases/tag/v0.9.1) e CI aprovados; benchmark/15 ondas pendentes |
@@ -257,3 +257,25 @@ A [Etapa 6](docs/ETAPA_6_DESEMPENHO_TESTES_DISTRIBUICAO.md) especifica métricas
 **Escopo fechado deste incremento:** não ampliar número de inimigos, não alterar a economia nem a curva de armas e não redesenhar o mapa. O Campo de Testes e a textura de asfalto permanecem iguais. A [Etapa 2 completa](docs/ETAPA_2_INIMIGOS_ONDAS.md) segue PARCIAL até IA/navegação avançada, playtests e métricas reais.
 
 **Validação final do incremento 0.9.2 (CI):** integração com 100 escolhas, oito posições de borda, ausência de locais seguros, duas ondas reais, material COLOR_0, dois aliados e smoke test aprovado. [Cenários documentados](docs/TESTES_0_9_2.md). **A correção visual da 0.9.1 e a estabilidade de 15 ondas ainda não foram homologadas pelo jogador.**
+
+
+## 14. Sprint 0.9.3 — correções visuais, foley e antitravamento
+
+**Origem:** usuário observou um aliado com a cabeça aparentemente separada do corpo, armas com aparência de blocos e som de recarga repetitivo/agudo. Pediu também continuar a próxima frente da Etapa 2.
+
+| Item | Mudança | Status |
+| --- | --- | --- |
+| V093-01 | Gola/neck mesh, HeadPivot do aliado com capacete e máscara presos ao mesmo eixo | **PARCIAL** — código e testes CI; falta inspeção de postura no Windows |
+| V093-02 | Quatro texturas originais com projeção triplanar e paleta GLB | **CONCLUÍDO (GERAÇÃO/CI)**; qualidade visual ainda **PARCIAL** |
+| V093-03 | Detalhes de geometria nas cinco armas; regeneração 19 GLBs | **CONCLUÍDO (GERAÇÃO/CI)**; qualidade visual ainda **PARCIAL** |
+| V093-04 | Cinco WAVs de recarga por arma, sem apito genérico, volumes moderados | **CONCLUÍDO (GERAÇÃO/CI)**; conforto auditivo **PARCIAL** até teste |
+| V093-05 | IA: sondar paredes e desviar lateralmente sem teleportar inimigos | **PARCIAL** — código integrado, precisa de teste de obstáculos |
+| V093-06 | IA: detectar perseguição sem avanço e disparar recuperação | **PARCIAL** — código integrado, precisa de playtest |
+| V093-07 | Aliados: desvio leve e recuperação ao seguir jogador/inimigos | **PARCIAL** — código integrado; teste em jogo pendente |
+| V093-08 | Integridade: 100+ spawns, duas ondas, dois aliados, textura e áudio | **CONCLUÍDO (CI)** após job verde |
+| V093-09 | Release Windows v0.9.3 com ZIP/EXE/PCK/SHA-256 | **CONCLUÍDO (CI + RELEASES)** após publicação |
+| V093-10 | Inspeção visual e sessão real de 15 ondas | **PENDENTE** |
+
+**Auditoria e proteção:** a 0.9.3 foi aplicada sobre a branch \`main\` atual do repositório, sem substituir o jogo pelo patch antigo feito a partir do 0.7. O código, os GLBs, os WAVs e as texturas são enviados ao GitHub; o pipeline exporta somente depois que os testes passam. **Etapas 1, 2 e 3 seguem parciais** até a homologação jogando.
+
+[QA v0.9.3](docs/TESTES_0_9_3.md) · [Notas de release](docs/releases/v0.9.3.md).
