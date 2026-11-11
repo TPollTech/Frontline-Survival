@@ -173,9 +173,13 @@ func _unhandled_input(event: InputEvent) -> void:
         if shop_open:
             _close_shop()
         else:
-            var nearby := _nearest_shop()
-            if nearby != "":
-                _open_shop(nearby)
+            var nearby_loot := _nearest_loot()
+            if nearby_loot != null:
+                _collect_loot(nearby_loot)
+            else:
+                var nearby := _nearest_shop()
+                if nearby != "":
+                    _open_shop(nearby)
     elif shop_open:
         if event.keycode >= KEY_1 and event.keycode <= KEY_5:
             _buy(event.keycode - KEY_1)
@@ -433,6 +437,68 @@ func _spawn_enemy() -> bool:
     alive += 1
     spawn_remaining -= 1
     return true
+
+func _on_enemy_loot_dropped(weapon: String, at: Vector3) -> void:
+    # Fallen combatants leave their actual gun; some also leave ammunition.
+    # Every pickup and body is time-limited and strictly budgeted for 8GB/iGPU.
+    _spawn_loot_pickup("weapon", weapon, at, 0)
+    if randf() < 0.32:
+        _spawn_loot_pickup("ammo", weapon, at + Vector3(0.45, 0.0, 0.22), 16)
+    var corpses := get_tree().get_nodes_in_group("fallen_soldiers")
+    if corpses.size() > MAX_CORPSES:
+        for i in range(corpses.size() - MAX_CORPSES):
+            if is_instance_valid(corpses[i]):
+                corpses[i].queue_free()
+
+func _spawn_loot_pickup(kind: String, weapon: String, at: Vector3, ammo: int) -> void:
+    var drop := WorldPickup.new()
+    drop.configure(kind, weapon, ammo)
+    drop.position = Vector3(at.x, 0.02, at.z)
+    add_child(drop)
+    var loot_items := get_tree().get_nodes_in_group("world_loot")
+    if loot_items.size() > MAX_LOOT:
+        for i in range(loot_items.size() - MAX_LOOT):
+            if is_instance_valid(loot_items[i]):
+                loot_items[i].queue_free()
+
+func _nearest_loot() -> Node3D:
+    var best: Node3D
+    var closest := 2.3
+    for item in get_tree().get_nodes_in_group("world_loot"):
+        if not is_instance_valid(item) or item.is_queued_for_deletion():
+            continue
+        var distance: float = Vector2(
+            player.global_position.x - item.global_position.x,
+            player.global_position.z - item.global_position.z
+        ).length()
+        if distance < closest:
+            best = item
+            closest = distance
+    return best
+
+func _collect_loot(item: Node3D) -> void:
+    var id: String = str(item.get("weapon_id"))
+    if not SurvivalPlayer.WEAPONS.has(id):
+        return
+    if str(item.get("pickup_type")) == "ammo":
+        var current_id: String = player.weapon_id
+        var maximum: int = int(SurvivalPlayer.WEAPONS[current_id]["reserve"])
+        if player.reserves[current_id] >= maximum:
+            _notify("MUNICAO JA ESTA COMPLETA", 1.5)
+            return
+        var received: int = mini(int(item.get("amount")), maximum - int(player.reserves[current_id]))
+        player.reserves[current_id] += received
+        _notify("+%d MUNICAO PARA %s" % [received, current_id.to_upper()], 1.6)
+    elif player.owned_weapons.has(id):
+        var maximum: int = int(SurvivalPlayer.WEAPONS[id]["reserve"])
+        var received: int = mini(int(SurvivalPlayer.WEAPONS[id]["mag"]), maximum - int(player.reserves[id]))
+        player.reserves[id] += maxi(0, received)
+        player.switch_weapon(id)
+        _notify("%s RECUPERADA  |  +%d MUNICAO" % [id.to_upper(), maxi(0, received)], 1.6)
+    else:
+        player.equip(id)
+        _notify("%s RECOLHIDA DO CHAO" % id.to_upper(), 1.8)
+    item.queue_free()
 
 func _on_enemy_defeated(bounty: int) -> void:
     alive = maxi(0, alive - 1)
@@ -737,6 +803,12 @@ func _on_shot_fired(at: Vector3, hit_enemy: bool) -> void:
     # Restricting these to occasional rounds also reduces draw calls on iGPU.
     if not is_instance_valid(player):
         return
+    if hit_enemy:
+        var existing := get_tree().get_nodes_in_group("blood_fx")
+        if existing.size() < MAX_BLOOD_EFFECTS:
+            var blood := BloodImpact.new()
+            blood.position = at
+            add_child(blood)
     var from := player.gun.to_global(player.muzzle_flash.position)
     var offset := at - from
     if offset.length() > 0.4 and (player.weapon_id == "shotgun" or randf() < 0.30):
@@ -1003,8 +1075,11 @@ func _refresh_ui() -> void:
     ammo_hud.text = "%s\n%d  /  %d%s" % [gun_name.to_upper(), player.magazines[player.weapon_id], player.reserves[player.weapon_id], "   RECARREGANDO" if player.reloading else ""]
     support_hud.text = "G %d    |    3 REFORCO %d    |    4 AEREO %d" % [grenades, ally_tokens, airstrike_tokens]
     var shop_near := _nearest_shop() if not player.dead else ""
+    var loot_near := _nearest_loot() if not player.dead else null
     if shop_open:
         help_hud.text = ""
+    elif loot_near != null:
+        help_hud.text = str(loot_near.call("prompt"))
     elif shop_near != "":
         var shop_names := {"weapons":"ARMAS", "gear":"EQUIPAMENTOS", "support":"SUPORTE"}
         help_hud.text = "F  •  ACESSAR %s" % shop_names.get(shop_near, "LOJA")
