@@ -220,3 +220,26 @@ O GDD propõe 10 itens V1-P01 a V1-P10, registrados como **a aprovar**. Na ausê
 - [ ] Checklist de requisitos completo e rastreado.
 
 **Conclusão correta agora:** *pré-produção estruturada para uma 1.0 com escopo proposto*, não “GDD 100% aprovado” nem “jogo pronto”. A implementação continua separada e deve ser planejada sprint a sprint.
+
+
+## 9. Replanejamento do Campo de Testes — CT-01 a CT-07 (11/11/2026)
+
+O usuário confirmou em sessão real a progressão até a onda 10 e pediu **perks, Last Stand, desafios por dinheiro, resumo estatístico, attachments em todas as armas, agachamento e deitar**, antes de ampliar mapas, ondas ou veículos. A pesquisa histórica confirmou o intervalo de 30 s do Survival de 2011, diferente dos 75 s presentes no código do Frontline.
+
+**Novo caminho de execução após M0/QA visual do Quaternius:**
+
+| Ordem | Foco | Entrega mínima | Teste de aceite |
+| --- | --- | --- | --- |
+| **CT-01** | Resumo + intermissão | Estatísticas reais por onda, apresentação curta não bloqueante; padrão 30 s proposto, intervalos maiores configuráveis | 2+ ondas em CI, migração do setting 75, N antecipação, F nas lojas |
+| **CT-02** | Metas de dinheiro | Quad Kill, Rampage, Killstreak, headshots, bônus separados por evento | Dedupe de recompensa, headshot e escopeta, 15 ondas simuladas de saldo |
+| **CT-03** | Postura | Agachar fisicamente, deitar e rastejar, ADS/colisão corretos | Verificar passagem baixa e teto, câmera/arma, impossibilidade de atravessar parede |
+| **CT-04** | Armas customizáveis | Red Dot + Silenciador compráveis juntos nas 5 classes e modelo físico adequado | 5 armas × 2 attachments, comparação tiro/som/ADS, compra/sem saldo |
+| **CT-05** | Perks | Um perk por vez, efeitos úteis e visíveis no status; substituição | Compra, troca, duração/limites, sem inflação de dinheiro |
+| **CT-06** | Última Chance | Queda com pistola e recuperação, kit consumível separado do perk | Sangramento, chance única, kit, treino, último NPC |
+| **CT-07** | Homologação | Balancear tudo no Campo de Testes antes de novas arenas | 15 ondas reais, 5 armas, compras, FPS no notebook-alvo, sem P0/P1 |
+
+**Precedência:** CT-01/02 ampliam M0 e M3; CT-03/04 são obrigatórios para M1; CT-05/06 concluem blocos importantes de M3/M5. M4 (Complexo Industrial) só inicia depois do Campo de Testes ficar consistente, não apenas depois do CI verde.
+
+**Fidelidade sem cópia:** mecânicas comparáveis às do MW3 Survival de 2011, mas modelos, nomes, som, gráficos, economia e referências visuais próprios. Conferir [pesquisa de fontes](PESQUISA_MW3_SURVIVAL_MECANICAS.md) ao detalhar cada sprint. Não confundir perks do multiplayer com Survival.
+
+**Nada foi implementado durante a rodada documental.** Os status acima são **PENDENTES**, não "concluídos".
