@@ -31,7 +31,7 @@ func _run_tests() -> void:
     _expect(game.player != null, "player was instantiated")
     _expect(game.shops.size() == 3, "physical shops preserved")
     # The four actual settings categories must be reachable from the pause UI.
-    var menu: SurvivalGameMenu = game.game_menu
+    var menu: Variant = game.game_menu
     _expect(menu != null and not menu.active, "game starts/resumes outside menu")
     menu.open_pause()
     _expect(menu.active and paused, "pause menu must stop gameplay")
