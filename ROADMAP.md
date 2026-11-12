@@ -1,6 +1,6 @@
 # Frontline Survival — Planejamento e Roadmap
 
-**Documento mestre do projeto** · Atualizado: 10/11/2026 · **Base de referência:** protótipo `0.7`; **versão de desenvolvimento:** `0.9.15` (**código no main; CI/release pendentes**) · **Situação:** planejamento; novas mecânicas somente após aprovação da etapa.
+**Documento mestre do projeto** · Atualizado: 10/11/2026 · **Base de referência:** protótipo `0.7`; **versão de desenvolvimento:** `0.9.16` (**código no main; CI/release pendentes**) · **Situação:** planejamento; novas mecânicas somente após aprovação da etapa.
 
 > **Visão:** FPS 3D offline de sobrevivência por ondas, com combate satisfatório, progressão, dinheiro, compras em estações e suporte tático. Inspiração de mecânicas: Survival dos FPS militares da geração PS3, com identidade, modelos, efeitos e sons próprios. **Não** copiar mapas, arquivos ou personagens de Call of Duty.
 
@@ -468,3 +468,25 @@ O [plano de polimento do Campo de Testes](docs/M0_POLIMENTO_CAMPO_TESTES.md) reg
 [Notas v0.9.15](docs/releases/v0.9.15.md) • [QA v0.9.15](docs/QA_V0_9_15.md) • [Pesquisa MW3 original](docs/PESQUISA_MW3_SURVIVAL_MECANICAS.md)
 
 **Homologação técnica da v0.9.15 — 12/11/2026:** CI de importação, teste de 50 composições, testes de recursos Survival, integração de duas ondas com NPCs, captura da malha do Quaternius em Godot/Xvfb, validação estática, exportação Windows e publicação ZIP + SHA256 **CONCLUÍDOS**. O workflow precisou de correção porque o `git stash --include-untracked` ocultava os pacotes antes da Release. **Status de jogabilidade continua PARCIAL**: confirmar no Windows Última Chance, perks, acessórios, postura deitada, precisão/relatório, gameplay de 15 ondas, aparência do humanoide e FPS real.
+
+
+## 21. Sprint v0.9.16 — Polimento do Campo de Testes: IA tática e menus
+
+**Decisão atual:** não ampliar mapas, ondas ou transporte; priorizar inimigos inteligentes, jogabilidade e apresentação no Campo de Testes. **Base preservada:** v0.9.15 (perks, attachments, Last Stand, 30 s padrão, precisão/metas, áudio PCM) e modelo humanoide A/B.
+
+| ID | Mudança | Estado antes do QA | Aceitação |
+| --- | --- | --- | --- |
+| CT16-01 | IA de soldado comum escolhe cobertura real por raycast/collider | **IMPLEMENTADO / PARCIAL** | Cobertura validada no mapa e sem travamento |
+| CT16-02 | Estados avançar, ir à cobertura, agachar/deitar, espiar, retornar | **IMPLEMENTADO / PARCIAL** | Observação em 10–15 ondas |
+| CT16-03 | Carregadores finitos e WAVs de recarga por arma nos inimigos | **IMPLEMENTADO / PARCIAL** | CI + combate real sem tiros infinitos |
+| CT16-04 | Runner e pesado com personalidade de ataque própria | **IMPLEMENTADO / PARCIAL** | Balanceamento sem IA uniforme |
+| CT16-05 | Menu de configurações com Gráficos, Áudio, Controles, Jogabilidade | **IMPLEMENTADO / PARCIAL** | Navegação e salvamento confirmados |
+| CT16-06 | Escala 3D e VSync, mouse invertido, opções de hitmarker/dano | **IMPLEMENTADO / PARCIAL** | Efeito real no jogo e persistência |
+| CT16-07 | HUD, lojas, avisos, relatório e pausa com estilo uniforme | **IMPLEMENTADO / PARCIAL** | Capturas e aprovação visual |
+| CT16-08 | Regressão por teste Godot + 50 composições simuladas | **AGUARDANDO CI** | Nenhum erro de parser/runtime |
+| CT16-09 | Release v0.9.16 para Windows (ZIP/EXE/PCK/sha256) | **AGUARDANDO CI** | Confirmar publicação na página de Releases |
+| CT16-10 | Performance no Ryzen 5 7530U e 15 ondas de jogo real | **PENDENTE** | Não declarar finalizado sem isso |
+
+**Critério de finalização:** IA tática, menus e HUD só passam a **CONCLUÍDO (JOGO)** depois do playtest. Os 12 gates da v1.0 seguem intactos. **Sem expansão** nesta rodada.
+
+[Notas de release](docs/releases/v0.9.16.md) · [QA v0.9.16](docs/QA_V0_9_16.md)

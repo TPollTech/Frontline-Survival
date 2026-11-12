@@ -1,5 +1,22 @@
 # Frontline Survival — Histórico de versões
 
+## 0.9.16 — IA tática, menus por categoria e HUD refinado
+
+**Escopo:** Campo de Testes, sem novos mapas ou ondas. **Status: implementação submetida ao CI, homologação visual e de gameplay pendente.**
+
+- NPCs soldados comuns analisam cobertura estática, procuram proteção, agacham/deitam e alternam exposição para disparar. A decisão é limitada para não elevar demais a CPU integrada.
+- Carregadores reais por classe: 8 escopeta, 30 SMG/fuzil e 60 LMG; recarga com WAVs já gravados, sem tiros infinitos.
+- Reação a dano e precisão menos automática; corredor continua agressivo e pesado segue pressionando.
+- Gráficos, Áudio, Controles e Jogabilidade agora têm abas separadas no menu já existente de início/pausa.
+- Persistência de escala de renderização 3D, VSync, mouse invertido, hitmarker e arcos de dano, além dos controles existentes.
+- HUD com painéis consistentes, relatório mais legível, interação contextual e saúde crítica destacada.
+- Testes de menus, escala 3D, recarga/postura e pontos de cobertura incluídos na integração.
+- **Preservados:** perks, desafios, attachments, Last Stand, 30 s padrão, WAV PCM, Quaternius A/B, campo de testes e três lojas F.
+
+[QA v0.9.16](QA_V0_9_16.md) · [Release](releases/v0.9.16.md)
+
+---
+
 ## 0.9.15 — Survival Core: perks, metas, attachments, prone e autorreanimação
 
 **Estado:** CT-01 a CT-06 implementados em código; CI e visual Windows obrigatórios antes de afirmar conclusão. **Sem mapas/ondas/veículos novos.**

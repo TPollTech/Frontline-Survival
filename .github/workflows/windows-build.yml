@@ -31,8 +31,9 @@ jobs:
       - name: Checkout game sources
         uses: actions/checkout@v4
 
-      - name: Preflight release version and existing tag
-        if: startsWith(github.ref, 'refs/tags/v') || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')
+      - name: Detect new numbered release (skip if already published)
+        id: release_gate
+        if: startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/main'
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
@@ -50,8 +51,11 @@ jobs:
             exit 1
           fi
           if gh release view "$TAG" >/dev/null 2>&1; then
-            echo "::error::Release $TAG already exists. Increase the project version before requesting a new release."
-            exit 1
+            echo "create_release=false" >> "$GITHUB_OUTPUT"
+            echo "Existing $TAG; run tests, skip redundant Windows build and publication."
+          else
+            echo "create_release=true" >> "$GITHUB_OUTPUT"
+            echo "New $TAG; export Windows only after all QA steps succeed."
           fi
 
       - name: Setup Godot and Windows export templates
@@ -153,7 +157,7 @@ jobs:
           python tools/verify_project.py
 
       - name: Export Windows release
-        if: startsWith(github.ref, 'refs/tags/v') || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')
+        if: steps.release_gate.outputs.create_release == 'true'
         shell: bash
         run: |
           set -o pipefail
@@ -168,7 +172,7 @@ jobs:
           cp README.md dist/LEIA-ME.md
 
       - name: Package standalone ZIP with version
-        if: startsWith(github.ref, 'refs/tags/v') || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')
+        if: steps.release_gate.outputs.create_release == 'true'
         id: package
         shell: bash
         run: |
@@ -190,7 +194,7 @@ jobs:
           echo "Created $ASSET and SHA-256"
 
       - name: Upload temporary workflow artifact
-        if: startsWith(github.ref, 'refs/tags/v') || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')
+        if: steps.release_gate.outputs.create_release == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: FrontlineSurvival-${{ steps.package.outputs.tag }}-Windows
@@ -220,7 +224,7 @@ jobs:
           fi
 
       - name: Publish immutable numbered GitHub Release
-        if: startsWith(github.ref, 'refs/tags/v') || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')
+        if: steps.release_gate.outputs.create_release == 'true'
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}

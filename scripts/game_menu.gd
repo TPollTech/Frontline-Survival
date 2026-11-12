@@ -14,6 +14,8 @@ var subtitle: Label
 var navigation: VBoxContainer
 var options: VBoxContainer
 var options_scroll: ScrollContainer
+var settings_tabs: HBoxContainer
+var settings_category: String = "graphics"
 var mode: String = "main"
 var in_options: bool = false
 var active: bool = false
@@ -51,20 +53,20 @@ func _build() -> void:
     centered.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
     backdrop.add_child(centered)
     container = PanelContainer.new()
-    container.custom_minimum_size = Vector2(615, 0)
+    container.custom_minimum_size = Vector2(710, 0)
     var style := StyleBoxFlat.new()
-    style.bg_color = Color(0.055, 0.085, 0.105, 1.0)
-    style.border_color = Color(0.13, 0.65, 0.73, 0.65)
+    style.bg_color = Color(0.035, 0.061, 0.079, 0.98)
+    style.border_color = Color(0.21, 0.64, 0.71, 0.62)
     style.set_border_width_all(1)
     style.set_corner_radius_all(12)
-    style.set_content_margin_all(20)
+    style.set_content_margin_all(24)
     container.add_theme_stylebox_override("panel", style)
     centered.add_child(container)
     var column := VBoxContainer.new()
     column.add_theme_constant_override("separation", 10)
     container.add_child(column)
     var kicker := Label.new()
-    kicker.text = "FRONTLINE   /   SURVIVAL 0.9.15"
+    kicker.text = "FRONTLINE   /   SURVIVAL 0.9.16"
     kicker.add_theme_font_size_override("font_size", 15)
     kicker.add_theme_color_override("font_color", Color(0.34, 0.79, 0.85))
     column.add_child(kicker)
@@ -81,15 +83,18 @@ func _build() -> void:
     navigation = VBoxContainer.new()
     navigation.add_theme_constant_override("separation", 12)
     column.add_child(navigation)
+    settings_tabs = HBoxContainer.new()
+    settings_tabs.add_theme_constant_override("separation", 7)
+    column.add_child(settings_tabs)
+    _build_settings_tabs()
     options_scroll = ScrollContainer.new()
-    options_scroll.custom_minimum_size = Vector2(545, 405)
+    options_scroll.custom_minimum_size = Vector2(645, 370)
     options_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
     column.add_child(options_scroll)
     options = VBoxContainer.new()
     options.size_flags_horizontal = Control.SIZE_EXPAND_FILL
     options.add_theme_constant_override("separation", 8)
     options_scroll.add_child(options)
-    _build_options()
     var footer := Label.new()
     footer.text = "MAPA DE TESTES  |  RYZEN 5 7530U  |  ESC: PAUSAR / VOLTAR"
     footer.add_theme_font_size_override("font_size", 12)
@@ -99,7 +104,7 @@ func _build() -> void:
 func _button(parent: Control, caption: String, callback: Callable, main_action: bool = false) -> void:
     var button := Button.new()
     button.text = caption
-    button.custom_minimum_size = Vector2(530, 42)
+    button.custom_minimum_size = Vector2(605, 44)
     button.add_theme_font_size_override("font_size", 17)
     if main_action:
         var style := StyleBoxFlat.new()
@@ -109,42 +114,79 @@ func _button(parent: Control, caption: String, callback: Callable, main_action: 
     button.pressed.connect(callback)
     parent.add_child(button)
 
+func _build_settings_tabs() -> void:
+    var categories := [
+        ["graphics", "GRAFICOS"],
+        ["audio", "AUDIO"],
+        ["controls", "CONTROLES"],
+        ["gameplay", "JOGABILIDADE"]
+    ]
+    for entry in categories:
+        var button := Button.new()
+        button.text = entry[1]
+        button.toggle_mode = true
+        button.custom_minimum_size = Vector2(145, 38)
+        button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+        button.add_theme_font_size_override("font_size", 14)
+        button.pressed.connect(_select_category.bind(entry[0]))
+        settings_tabs.add_child(button)
+
+func _select_category(id: String) -> void:
+    settings_category = id
+    _render()
+
+func _heading(caption: String) -> void:
+    var label := Label.new()
+    label.text = caption
+    label.add_theme_font_size_override("font_size", 19)
+    label.add_theme_color_override("font_color", Color(0.38, 0.84, 0.88))
+    options.add_child(label)
+
+func _note(caption: String) -> void:
+    var label := Label.new()
+    label.text = caption
+    label.custom_minimum_size = Vector2(540, 0)
+    label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+    label.add_theme_font_size_override("font_size", 13)
+    label.add_theme_color_override("font_color", Color(0.64, 0.74, 0.77))
+    options.add_child(label)
+
 func _build_options() -> void:
-    var section := Label.new()
-    section.text = "AUDIO  |  volume aplicado imediatamente"
-    section.add_theme_font_size_override("font_size", 16)
-    options.add_child(section)
-    _slider("Volume geral", "master", GameSettings.master_volume, 0, 100, 1)
-    _slider("Tiros e explosoes", "sfx", GameSettings.sfx_volume, 0, 100, 1)
-    _slider("Interface e acertos", "ui", GameSettings.ui_volume, 0, 100, 1)
-    var spacer := HSeparator.new()
-    options.add_child(spacer)
-    var controls := Label.new()
-    controls.text = "CONTROLES E VIDEO"
-    controls.add_theme_font_size_override("font_size", 16)
-    options.add_child(controls)
-    _slider("Sensibilidade do mouse", "sensitivity", GameSettings.mouse_sensitivity, 0.35, 3.0, 0.05)
-    _slider("Campo de visao (FOV)", "fov", GameSettings.field_of_view, 60.0, 100.0, 1.0)
-    var layout_keys := Label.new()
-    layout_keys.text = "TECLADO: mouse atira/mira  |  F interage  |  E corpo a corpo\n1/2 armas  |  G granada  |  3 esquadrao  |  4 ataque aereo\nR recarga  |  C/Ctrl agachar  |  Z deitar  |  Shift correr  |  Esc pausar"
-    layout_keys.add_theme_color_override("font_color", Color(0.68, 0.78, 0.79))
-    layout_keys.add_theme_font_size_override("font_size", 13)
-    options.add_child(layout_keys)
-    _toggle("Tela cheia", "fullscreen", GameSettings.fullscreen)
-    _toggle("Mostrar FPS", "fps", GameSettings.show_fps)
-    var pause_divider := HSeparator.new()
-    options.add_child(pause_divider)
-    var game := Label.new()
-    game.text = "PARTIDA / ONDAS"
-    game.add_theme_font_size_override("font_size", 16)
-    options.add_child(game)
-    _slider("Intervalo entre ondas", "intermission", float(GameSettings.intermission_seconds), 30, 120, 15)
-    _toggle("Reanimacao automatica no Campo de Testes", "training_respawns", GameSettings.training_respawns)
-    var tip := Label.new()
-    tip.text = "Teste: ondas sem limite e retorno ao combate apos cair.\nDesative a reanimacao para testar o modo classico (uma vida)."
-    tip.add_theme_color_override("font_color", Color(0.62, 0.72, 0.77))
-    tip.add_theme_font_size_override("font_size", 13)
-    options.add_child(tip)
+    for child in options.get_children():
+        options.remove_child(child)
+        child.queue_free()
+    options_scroll.scroll_vertical = 0
+    match settings_category:
+        "graphics":
+            _heading("VIDEO E DESEMPENHO")
+            _note("Graficos leves para o Ryzen 5 7530U. Alteracoes aplicadas na hora.")
+            _toggle("Tela cheia", "fullscreen", GameSettings.fullscreen)
+            _toggle("Sincronizacao vertical (VSync)", "vsync", GameSettings.vsync)
+            _slider("Escala da imagem 3D", "render_scale", GameSettings.render_scale, 0.7, 1.0, 0.05)
+            _toggle("Mostrar contador de FPS", "fps", GameSettings.show_fps)
+            _note("70-80% aumenta o desempenho, mas reduz nitidez; 100% preserva a resolucao.")
+        "audio":
+            _heading("MIXAGEM DE AUDIO")
+            _note("Sem apitos de hitmarker. Disparos e recargas usam arquivos WAV do projeto.")
+            _slider("Volume principal", "master", GameSettings.master_volume, 0, 100, 1)
+            _slider("Armas e efeitos", "sfx", GameSettings.sfx_volume, 0, 100, 1)
+            _slider("Interface e avisos", "ui", GameSettings.ui_volume, 0, 100, 1)
+            _note("Sugestao para o notebook: geral 48%, armas 28%, interface 42%.")
+        "controls":
+            _heading("MOUSE E CONTROLES")
+            _slider("Sensibilidade do mouse", "sensitivity", GameSettings.mouse_sensitivity, 0.35, 3.0, 0.05)
+            _toggle("Inverter eixo vertical do mouse", "invert_y", GameSettings.invert_mouse_y)
+            _note("WASD mover  |  Shift correr  |  C/Ctrl agachar  |  Z deitar\nMouse esquerdo atirar  |  Direito mirar  |  R recarregar\nF interagir/comprar  |  E corpo a corpo  |  G granada\n1/2 trocar arma  |  3 esquadrao  |  4 apoio aereo\nN antecipar onda na preparacao  |  Esc pausar/voltar")
+            _note("Remapeamento individual de teclas fica para uma etapa posterior.")
+        "gameplay":
+            _heading("PARTIDA E INTERFACE")
+            _slider("Tempo de preparacao", "intermission", float(GameSettings.intermission_seconds), 30, 120, 15)
+            _toggle("Reanimar no Campo de Testes", "training_respawns", GameSettings.training_respawns)
+            _toggle("Hitmarker discreto ao acertar", "hitmarker", GameSettings.hitmarker_enabled)
+            _toggle("Indicadores vermelhos de dano", "damage_direction", GameSettings.damage_direction_enabled)
+            _note("Onda continua automaticamente. No modo classico, a morte encerra a partida.\nPerks, attachments e ultima chance continuam funcionando.")
+    var line := HSeparator.new()
+    options.add_child(line)
     _button(options, "VOLTAR", _back_options)
 
 func _slider(caption: String, key: String, current: float, minimum: float, maximum: float, step: float) -> void:
@@ -178,6 +220,8 @@ func _formatted(key: String, value: float) -> String:
         return "%d" % roundi(value)
     if key == "intermission":
         return "%ds" % roundi(value)
+    if key == "render_scale":
+        return "%d%%" % roundi(value * 100.0)
     return "%d%%" % roundi(value)
 
 func _on_slider_changed(value: float, key: String, output: Label) -> void:
@@ -200,6 +244,7 @@ func _back_options() -> void:
 
 func _show_options() -> void:
     in_options = true
+    settings_category = "graphics"
     _render()
 
 func _render() -> void:
@@ -207,19 +252,25 @@ func _render() -> void:
         navigation.remove_child(child)
         child.queue_free()
     navigation.visible = not in_options
+    settings_tabs.visible = in_options
     options_scroll.visible = in_options
+    for index in range(settings_tabs.get_child_count()):
+        (settings_tabs.get_child(index) as Button).button_pressed = (
+            index == ["graphics", "audio", "controls", "gameplay"].find(settings_category)
+        )
     if in_options:
         title.text = "CONFIGURACOES"
-        subtitle.text = "Ajuste audio, mouse e visual sem sair da partida."
+        subtitle.text = "GRAFICOS  /  AUDIO  /  CONTROLES  /  JOGABILIDADE"
+        _build_options()
     elif mode == "main":
         title.text = "SURVIVAL"
-        subtitle.text = "Ondas continuas / 3 arsenais fisicos / suporte sob comando"
-        _button(navigation, "INICIAR PARTIDA", _start, true)
+        subtitle.text = "CAMPO DE TESTES  |  OPERACAO SOLO  |  PROGRESSAO POR ONDAS"
+        _button(navigation, "JOGAR  /  INICIAR OPERACAO", _start, true)
         _button(navigation, "CONFIGURACOES", _show_options)
-        _button(navigation, "SAIR DO JOGO", _quit)
+        _button(navigation, "ENCERRAR JOGO", _quit)
     else:
-        title.text = "JOGO PAUSADO"
-        subtitle.text = "A acao esta congelada enquanto o menu estiver aberto."
+        title.text = "OPERACAO PAUSADA"
+        subtitle.text = "A partida esta pausada. Ajustes salvos automaticamente."
         _button(navigation, "CONTINUAR", resume, true)
         _button(navigation, "CONFIGURACOES", _show_options)
         _button(navigation, "REINICIAR PARTIDA", _restart)

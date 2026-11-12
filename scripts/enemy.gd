@@ -5,6 +5,7 @@ const GunMaterials = preload("res://scripts/weapon_materials.gd")
 const WeaponAudio = preload("res://scripts/weapon_audio.gd")
 const ArmPose = preload("res://scripts/weapon_pose.gd")
 const ObstacleSteering = preload("res://scripts/obstacle_steering.gd")
+const EnemyTactics = preload("res://scripts/enemy_tactics.gd")
 const QuaterniusVisual = preload("res://scripts/quaternius_soldier_visual.gd")
 ## Lightweight articulated procedural soldier; independent hip, knee, shoulder,
 ## elbow and upper-body pivots. Designed for up to 12 concurrent enemies.
@@ -58,6 +59,18 @@ var shot_audio: AudioStreamPlayer3D
 var hit_collider: CollisionShape3D
 var preview_quaternius: bool = false
 var humanoid_visual: Node3D
+var tactical_state: String = "advance"
+var tactical_posture: String = "stand"
+var cover_goal: Vector3 = Vector3.ZERO
+var peek_goal: Vector3 = Vector3.ZERO
+var tactical_timer: float = 0.0
+var tactical_think: float = 0.35
+var tactical_timeout: float = 0.0
+var suppressed_timer: float = 0.0
+var ammo_in_mag: int = 0
+var ammo_capacity: int = 0
+var reload_remaining: float = 0.0
+var reload_audio: AudioStreamPlayer3D
 
 func configure(enemy_kind: String, wave_num: int, target: SurvivalPlayer, loadout: String = "") -> void:
     kind = enemy_kind
@@ -99,6 +112,8 @@ func configure(enemy_kind: String, wave_num: int, target: SurvivalPlayer, loadou
         attack_interval *= 0.82
     health *= 1.0 + minf(float(wave - 1) * 0.075, 1.25)
     reward += mini(wave * 3, 80)
+    ammo_capacity = EnemyTactics.magazine_size(weapon_class)
+    ammo_in_mag = ammo_capacity
 
 func _joint(parent: Node3D, location: Vector3, joint_name: String) -> Node3D:
     var joint := Node3D.new()
@@ -244,6 +259,14 @@ func _ready() -> void:
     var muzzle_z: float = -0.035 + 0.70 * float({"shotgun": -1.04, "smg": -0.69, "rifle": -0.95, "lmg": -1.13}.get(weapon_class, -0.69))
     muzzle_flash = _part(weapon_pivot, muzzle_shape, Vector3(0.0, -0.04, muzzle_z), Color(1.0, 0.58, 0.25), "MuzzleFlash", Vector3(PI * 0.5, 0, 0))
     shot_audio = WeaponAudio.add_spatial_shot(muzzle_flash, weapon_class)
+    reload_audio = AudioStreamPlayer3D.new()
+    reload_audio.volume_db = -23.0
+    reload_audio.max_distance = 24.0
+    reload_audio.unit_size = 7.0
+    var reload_path := "res://assets/audio/reloads/%s.wav" % weapon_class
+    if ResourceLoader.exists(reload_path):
+        reload_audio.stream = load(reload_path)
+    weapon_pivot.add_child(reload_audio)
     var flash_mat := muzzle_flash.material_override as StandardMaterial3D
     flash_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
     flash_mat.emission_enabled = true
@@ -277,6 +300,11 @@ func _physics_process(delta: float) -> void:
     if dead or not is_instance_valid(player):
         return
     attack_cooldown -= delta
+    suppressed_timer = maxf(0.0, suppressed_timer - delta)
+    if reload_remaining > 0.0:
+        reload_remaining = maxf(0.0, reload_remaining - delta)
+        if reload_remaining <= 0.0:
+            ammo_in_mag = ammo_capacity
     flash_time = maxf(0.0, flash_time - delta)
     muzzle_flash.visible = flash_time > 0.0
     hurt_flash = maxf(0.0, hurt_flash - delta)
@@ -311,8 +339,21 @@ func _physics_process(delta: float) -> void:
             detour_direction = ObstacleSteering.choose_detour(self, direction, obstacle_preference)
             detour_remaining = maxf(detour_remaining, 0.65)
     var visible := _has_sight()
+    _update_tactics(delta, distance, visible)
     var chase := distance > goal_distance or not visible
     var steer := direction
+    if tactical_state == "seek_cover":
+        var towards_cover := cover_goal - global_position
+        towards_cover.y = 0.0
+        steer = towards_cover.normalized() if towards_cover.length_squared() > 0.01 else Vector3.ZERO
+        chase = true
+    elif tactical_state == "peek":
+        var towards_peek := peek_goal - global_position
+        towards_peek.y = 0.0
+        steer = towards_peek.normalized() if towards_peek.length_squared() > 0.09 else Vector3.ZERO
+        chase = towards_peek.length_squared() > 0.09
+    elif tactical_state == "hold_cover":
+        chase = false
     if detour_remaining > 0.0:
         steer = (direction * 0.40 + detour_direction * 0.90).normalized()
     detour_remaining = maxf(0.0, detour_remaining - delta)
@@ -320,9 +361,15 @@ func _physics_process(delta: float) -> void:
     if strafe_timer <= 0.0:
         strafe_sign *= -1.0
         strafe_timer = randf_range(1.5, 2.8)
-    if chase and stagger_remaining <= 0.0:
-        velocity.x = steer.x * move_speed
-        velocity.z = steer.z * move_speed
+    if tactical_state == "hold_cover" or (reload_remaining > 0.0 and tactical_state != "seek_cover"):
+        velocity.x = 0.0
+        velocity.z = 0.0
+    elif chase and stagger_remaining <= 0.0:
+        var desired_speed := move_speed * (0.76 if tactical_state == "seek_cover" else 1.0)
+        if detour_remaining > 0.0:
+            steer = (steer * 0.40 + detour_direction * 0.90).normalized()
+        velocity.x = steer.x * desired_speed
+        velocity.z = steer.z * desired_speed
     elif visible and distance > 4.0 and kind != "heavy" and stagger_remaining <= 0.0:
         var lateral := Vector3(-direction.z, 0, direction.x) * strafe_sign
         velocity.x = lateral.x * 0.85
@@ -360,13 +407,90 @@ func _physics_process(delta: float) -> void:
                 detour_direction = tangent.normalized()
                 detour_remaining = 1.20
                 break
-    if attack_cooldown <= 0.0 and stagger_remaining <= 0.0 and distance < attack_range and visible:
+    if attack_cooldown <= 0.0 and stagger_remaining <= 0.0 and distance < attack_range and visible \
+            and reload_remaining <= 0.0 and ammo_in_mag > 0 and tactical_state != "hold_cover":
         shot_audio.play()
-        player.take_damage(attack_damage, global_position)
+        ammo_in_mag -= 1
+        # Accuracy degrades with distance and movement. Shots never pass walls.
+        var hit_chance := clampf(0.92 - distance * 0.012, 0.47, 0.87)
+        if randf() < hit_chance:
+            player.take_damage(attack_damage, global_position)
         flash_time = 0.045
         weapon_kick = 1.0
         _brief_enemy_tracer()
         attack_cooldown = attack_interval
+        if ammo_in_mag <= 0:
+            _start_reload()
+
+func _start_reload() -> void:
+    if reload_remaining > 0.0 or dead:
+        return
+    reload_remaining = EnemyTactics.reload_duration(weapon_class)
+    attack_cooldown = maxf(attack_cooldown, reload_remaining)
+    tactical_think = minf(tactical_think, 0.12)
+    if is_instance_valid(reload_audio) and reload_audio.stream != null:
+        reload_audio.play()
+
+func _set_tactical_posture(next_posture: String) -> void:
+    if next_posture == tactical_posture:
+        return
+    tactical_posture = next_posture
+    var height := 1.8
+    if tactical_posture == "crouch":
+        height = 1.2
+    elif tactical_posture == "prone":
+        height = 0.82
+    var capsule := hit_collider.shape as CapsuleShape3D
+    if capsule != null:
+        capsule.height = height
+    hit_collider.position.y = -(1.8 - height) * 0.5
+
+func _update_tactics(delta: float, distance: float, visible: bool) -> void:
+    tactical_timer = maxf(0.0, tactical_timer - delta)
+    tactical_timeout = maxf(0.0, tactical_timeout - delta)
+    tactical_think -= delta
+    if kind != "soldier":
+        _set_tactical_posture("stand")
+        return
+    if tactical_state == "seek_cover":
+        if global_position.distance_to(cover_goal) < 1.45:
+            tactical_state = "hold_cover"
+            tactical_timer = randf_range(1.15, 2.0)
+            _set_tactical_posture("prone" if weapon_class == "rifle" and distance > 14.0 and randf() < 0.20 else "crouch")
+        elif tactical_timeout <= 0.0:
+            tactical_state = "advance"
+            _set_tactical_posture("stand")
+    elif tactical_state == "hold_cover":
+        if tactical_timer <= 0.0 and reload_remaining <= 0.0:
+            peek_goal = EnemyTactics.find_peek(self, cover_goal, player.global_position)
+            if peek_goal.distance_to(cover_goal) > 0.5:
+                tactical_state = "peek"
+                tactical_timer = randf_range(1.0, 1.65)
+                _set_tactical_posture("stand")
+            else:
+                tactical_state = "advance"
+                _set_tactical_posture("stand")
+    elif tactical_state == "peek":
+        if tactical_timer <= 0.0:
+            tactical_state = "seek_cover"
+            tactical_timeout = 2.4
+    if tactical_think > 0.0:
+        return
+    tactical_think = randf_range(2.0, 3.3)
+    if tactical_state != "advance" or distance < 7.0 or distance > 26.0:
+        return
+    if not visible and suppressed_timer <= 0.0:
+        return
+    var chance: float = 0.78 if suppressed_timer > 0.0 or reload_remaining > 0.0 else 0.50
+    if randf() > chance:
+        return
+    var cover: Dictionary = EnemyTactics.find_cover(self, player.global_position)
+    if cover.is_empty():
+        return
+    cover_goal = cover["position"]
+    tactical_state = "seek_cover"
+    tactical_timeout = 5.0
+    _set_tactical_posture("stand")
 
 func _brief_enemy_tracer() -> void:
     # Brief, low-alpha shot line for readable incoming fire; no projectile simulation.
@@ -399,8 +523,12 @@ func _brief_enemy_tracer() -> void:
     fade.tween_callback(streak.queue_free)
 
 func _animate_body(delta: float, moving: bool) -> void:
+    var posture_y := -0.20 if tactical_posture == "crouch" else (-0.40 if tactical_posture == "prone" else 0.0)
+    visual_root.position.y = lerpf(visual_root.position.y, posture_y, minf(1.0, delta * 8.5))
+    var posture_pitch := -1.15 if tactical_posture == "prone" else (0.12 if tactical_posture == "crouch" else 0.0)
+    visual_root.rotation.x = lerpf(visual_root.rotation.x, posture_pitch, minf(1.0, delta * 8.5))
     var gait := 0.0
-    if moving:
+    if moving and tactical_posture != "prone":
         walk_phase += delta * move_speed * (4.5 if kind == "runner" else 3.6)
         gait = sin(walk_phase)
     var amount := 0.54 if kind == "runner" else (0.27 if kind == "heavy" else 0.40)
@@ -426,7 +554,8 @@ func _animate_body(delta: float, moving: bool) -> void:
 func _has_sight() -> bool:
     if not is_instance_valid(player):
         return false
-    var origin := global_position + Vector3.UP * 0.45
+    var eye_height := 0.45 if tactical_posture == "stand" else (0.08 if tactical_posture == "crouch" else -0.17)
+    var origin := global_position + Vector3.UP * eye_height
     var target := player.global_position + Vector3.UP * 0.35
     var ray := PhysicsRayQueryParameters3D.create(origin, target)
     ray.collision_mask = 3
@@ -438,6 +567,9 @@ func take_damage(amount: float, source: String = "support", headshot: bool = fal
     if dead:
         return
     health -= amount
+    if kind == "soldier":
+        suppressed_timer = maxf(suppressed_timer, 2.0)
+        tactical_think = minf(tactical_think, 0.25)
     hurt_flash = 0.11
     hurt_lean = clampf(hurt_lean + (1.0 if randf() < 0.5 else -1.0) * amount * 0.0038, -0.24, 0.24)
     stagger_remaining = maxf(stagger_remaining, minf(0.16, amount * 0.004) * (0.18 if kind == "heavy" else 1.0))

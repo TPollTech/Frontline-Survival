@@ -292,7 +292,7 @@ func _physics_process(delta: float) -> void:
 func _input(event: InputEvent) -> void:
     if event is InputEventMouseMotion and Input.get_mouse_mode() == Input.MOUSE_MODE_CAPTURED and not controls_locked and not dead:
         rotate_y(-event.relative.x * 0.002 * GameSettings.mouse_sensitivity)
-        camera.rotate_x(-event.relative.y * 0.002 * GameSettings.mouse_sensitivity)
+        camera.rotate_x(event.relative.y * 0.002 * GameSettings.mouse_sensitivity * (1.0 if GameSettings.invert_mouse_y else -1.0))
         camera.rotation.x = clampf(camera.rotation.x, -1.45, 1.45)
     if event is InputEventMouseButton and event.pressed:
         if event.button_index == MOUSE_BUTTON_LEFT and not dead and not controls_locked:

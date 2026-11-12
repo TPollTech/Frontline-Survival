@@ -30,9 +30,41 @@ func _run_tests() -> void:
     _expect(game.wave == 0, "initial wave not yet started")
     _expect(game.player != null, "player was instantiated")
     _expect(game.shops.size() == 3, "physical shops preserved")
+    # The four actual settings categories must be reachable from the pause UI.
+    var menu: SurvivalGameMenu = game.game_menu
+    _expect(menu != null and not menu.active, "game starts/resumes outside menu")
+    menu.open_pause()
+    _expect(menu.active and paused, "pause menu must stop gameplay")
+    menu._show_options()
+    _expect(menu.in_options and menu.settings_tabs.visible, "settings tabs are hidden")
+    for category in ["graphics", "audio", "controls", "gameplay"]:
+        menu._select_category(category)
+        _expect(menu.settings_category == category and menu.options.get_child_count() > 1,
+            "missing options page: " + category)
+    menu._back_options()
+    _expect(not menu.in_options, "settings back button failed")
+    menu.resume()
+    _expect(not paused and not menu.active, "resuming the game from pause failed")
     var settings_node: Node = root.get_node_or_null("GameSettings")
     _expect(settings_node != null and int(settings_node.get("intermission_seconds")) >= 30,
         "30-second intervals are unavailable")
+    if settings_node != null:
+        var old_scale: float = float(settings_node.get("render_scale"))
+        settings_node.call("set_value", "render_scale", 0.8)
+        _expect(absf(float(root.scaling_3d_scale) - 0.8) < 0.01,
+            "Graphics render scale does not change the real 3D viewport")
+        settings_node.call("set_value", "render_scale", old_scale)
+        var old_inverted: bool = bool(settings_node.get("invert_mouse_y"))
+        settings_node.call("set_value", "invert_y", not old_inverted)
+        _expect(bool(settings_node.get("invert_mouse_y")) != old_inverted,
+            "inverted mouse control not applied")
+        settings_node.call("set_value", "invert_y", old_inverted)
+        var hitmarker_old: bool = bool(settings_node.get("hitmarker_enabled"))
+        settings_node.call("set_value", "hitmarker", false)
+        game.hitmarker.visible = false
+        game._on_hit_confirmed()
+        _expect(not game.hitmarker.visible, "disabled hitmarker should not flash")
+        settings_node.call("set_value", "hitmarker", hitmarker_old)
     # Pages exist because each physical store has more than five options.
     game.wallet = 6000
     game._open_shop("weapons")
@@ -138,6 +170,54 @@ func _run_tests() -> void:
     _expect(game.hitmarker.visible, "confirmed enemy hit is not visible")
     game._on_headshot()
     _expect(game.hitmarker.get("headshot"), "headshot tint not set")
+    # Tactical NPCs now have finite magazines, reload, cover states, and
+    # physical crouch/prone profiles rather than a nonstop rush-and-fire loop.
+    var tactics_script: Variant = load("res://scripts/enemy_tactics.gd")
+    _expect(tactics_script.magazine_size("rifle") == 30,
+        "enemy rifle magazine capacity incorrect")
+    _expect(tactics_script.reload_duration("lmg") >= 3.0,
+        "LMG should have a noticeably longer reload")
+    var tactical_script: Script = load("res://scripts/enemy.gd")
+    var tactical_npc: Variant = tactical_script.new()
+    tactical_npc.configure("soldier", 7, game.player, "rifle")
+    tactical_npc.position = Vector3(-6.0, 1.5, -6.0)
+    game.add_child(tactical_npc)
+    _expect(tactical_npc.ammo_in_mag == 30,
+        "NPC must start with a finite rifle magazine")
+    tactical_npc.ammo_in_mag = 0
+    tactical_npc._start_reload()
+    _expect(tactical_npc.reload_remaining > 1.5,
+        "NPC did not begin a real reload")
+    _expect(tactical_npc.reload_audio != null and tactical_npc.reload_audio.stream != null,
+        "NPC reload must use existing recorded WAV")
+    tactical_npc.reload_remaining = 0.01
+    tactical_npc.attack_cooldown = 100.0
+    tactical_npc._physics_process(0.05)
+    _expect(tactical_npc.ammo_in_mag == 30,
+        "NPC reload did not refill the magazine")
+    tactical_npc._set_tactical_posture("crouch")
+    _expect(tactical_npc.tactical_posture == "crouch" and tactical_npc.hit_collider.shape.height < 1.4,
+        "NPC crouch should shrink the real collider")
+    tactical_npc._set_tactical_posture("prone")
+    _expect(tactical_npc.tactical_posture == "prone" and tactical_npc.hit_collider.shape.height < 0.9,
+        "NPC prone should shrink the real collider")
+    tactical_npc._set_tactical_posture("stand")
+    _expect(tactical_npc.hit_collider.shape.height >= 1.75,
+        "NPC must stand after crouch/prone")
+    var cover_candidate: Dictionary = {}
+    for site in [Vector3(-6.0, 1.5, -5.0), Vector3(-12.0, 1.5, -6.0),
+                 Vector3(8.0, 1.5, 5.0), Vector3(12.0, 1.5, 8.0)]:
+        tactical_npc.global_position = site
+        cover_candidate = tactics_script.find_cover(tactical_npc, game.player.global_position)
+        if not cover_candidate.is_empty():
+            break
+    _expect(not cover_candidate.is_empty(), "Camp of Tests has no reachable cover positions")
+    if not cover_candidate.is_empty():
+        _expect(tactics_script._hidden_from_player(
+            game.get_world_3d().direct_space_state,
+            cover_candidate["position"], game.player.global_position
+        ), "cover position must block player line of sight")
+    tactical_npc.queue_free()
     # A dropped gun and an ammunition box must be collectible with no UI shop.
     game._spawn_loot_pickup("weapon", "smg", game.player.global_position, 0)
     var weapon_drop: Node3D = game._nearest_loot()

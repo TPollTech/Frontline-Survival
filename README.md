@@ -1,6 +1,19 @@
-# Frontline Survival 0.9.15 — Campo de Testes
+# Frontline Survival 0.9.16 — Campo de Testes
 
 **Projeto Godot 4.x Standard, FPS 3D offline para Windows**, com renderizador **Compatibility** e alvo inicial Ryzen 5 7530U / 8 GB RAM. Projeto original inspirado em mecânicas do gênero *Survival por ondas*. **Não contém modelos, áudio ou outros arquivos do Call of Duty.**
+
+A versão **0.9.16** aperfeiçoa o **Campo de Testes**, sem criar mapas nem ondas extras: soldados comuns passam a procurar cobertura, recarregar, agachar e eventualmente deitar; inimigos agressivos continuam avançando. O menu inicial e a pausa foram preservados, com configurações divididas em **Gráficos, Áudio, Controles e Jogabilidade**, e o HUD recebeu acabamento mais consistente. Os recursos da 0.9.15 (perks, acessórios, Última Chance, 30s entre ondas, recompensas e relatórios) permanecem. **Avaliação real no Windows ainda pendente.**
+
+## v0.9.16 — IA e interface
+
+- **IA:** cobertura atrás de containers/obstáculos com sondas físicas, esconder/espiar/retornar, agachar/deitar e recargas WAV por classe; limite de 12 inimigos mantido.
+- **Menu:** iniciar, pausar e retomar; opções por abas, com VSync, escala 3D, sensibilidade/inversão do mouse e feedback de jogo.
+- **HUD:** cartões mais alinhados, painéis arredondados, vida crítica em destaque, interação contextual e opções de hitmarker/direção do dano.
+- **Estabilidade:** carregadores finitos e tiros dependentes da linha de visão; registros automatizados e teste de jogo real ainda necessários.
+
+[Notas v0.9.16](docs/releases/v0.9.16.md) · [QA](docs/QA_V0_9_16.md).
+
+## Histórico da v0.9.15
 
 A versão **0.9.15** implementa os recursos centrais pedidos: **perks, Última Chance, recompensas de metas, relatório estatístico ao concluir ondas, 30 segundos de intervalo padrão, Red Dot/Silenciador compráveis em todas as cinco armas, agachar e deitar**. Os modelos e WAVs gravados anteriores foram preservados. O soldado Quaternius continua experimental; esta versão acrescenta uma **captura renderizada de QA** para verificar a malha além das coordenadas dos ossos. **A jogabilidade real e o visual ainda precisam de avaliação no Windows.**
 
@@ -101,7 +114,7 @@ A versão **0.9.15** implementa os recursos centrais pedidos: **perks, Última C
 
 1. Entre em **[Releases](https://github.com/TPollTech/Frontline-Survival/releases)**.
 2. Abra a versão mais recente **efetivamente publicada** em Releases. A `v0.9.15` é a versão em desenvolvimento; até o CI publicá-la, a última versão confirmada é a `v0.9.14`.
-3. Na seção **Assets**, baixe o ZIP Windows correspondente à tag publicada, por exemplo **FrontlineSurvival-v0.9.15-Windows.zip** quando a v0.9.15 aparecer.
+3. Na seção **Assets**, baixe o ZIP Windows correspondente à tag publicada, por exemplo **FrontlineSurvival-v0.9.16-Windows.zip** quando a v0.9.15 aparecer.
 4. Extraia o ZIP inteiro para uma pasta, mantendo `FrontlineSurvival.exe` e `FrontlineSurvival.pck` juntos.
 5. Execute `FrontlineSurvival.exe`. **Não é necessário abrir o editor Godot.**
 

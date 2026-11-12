@@ -62,7 +62,7 @@ var countdown_warning: int = -1
 var previous_wave_kills: int = 0
 var round_stats = RoundStats.new()
 var round_report: Label
-var report_background: ColorRect
+var report_background: Panel
 var report_remaining: float = 0.0
 var grenade_event_serial: int = 0
 var wave_kills: int = 0
@@ -92,15 +92,16 @@ var waves_hud: Label
 var wave_progress: ProgressBar
 var health_bar: ProgressBar
 var armor_bar: ProgressBar
-var banner_panel: ColorRect
+var banner_panel: Panel
 var banner_heading: Label
 var banner_caption: Label
 var help_hud: Label
+var interaction_panel: Panel
 var message_hud: Label
 var reward_hud: Label
 var reward_timer: float = 0.0
 var fps_hud: Label
-var shop_panel: ColorRect
+var shop_panel: Panel
 var shop_hud: Label
 var shop_title_hud: Label
 var shop_wallet_hud: Label
@@ -109,7 +110,7 @@ var shop_tab_buttons: Dictionary = {}
 var health_text_hud: Label
 var armor_text_hud: Label
 var damage_overlay: ColorRect
-var death_panel: ColorRect
+var death_panel: Panel
 var death_hud: Label
 const RECORD_PATH := "user://frontline_best_wave.txt"
 
@@ -883,11 +884,11 @@ func _revive_training_player() -> void:
     _notify("VIDA RESTAURADA  |  5s DE PROTECAO", 3.0)
 
 func _on_hit_confirmed() -> void:
-    if is_instance_valid(hitmarker):
+    if GameSettings.hitmarker_enabled and is_instance_valid(hitmarker):
         hitmarker.call("flash", false)
 
 func _on_headshot() -> void:
-    if is_instance_valid(hitmarker):
+    if GameSettings.hitmarker_enabled and is_instance_valid(hitmarker):
         hitmarker.call("flash", true)
     wallet += 12
     if phase == "wave":
@@ -1019,26 +1020,32 @@ func _create_ui() -> void:
     root.add_child(hitmarker)
     hitmarker.position = Vector2(640, 360)
     # HUD enxuto: placar, proxima onda, vitalidade, armamento e contexto.
-    _hud_panel(root, Vector2(16, 16), Vector2(242, 65))
-    hud = _add_label(root, Vector2(30, 29), Vector2(218, 46), 19)
-    _hud_panel(root, Vector2(424, 14), Vector2(432, 106))
-    waves_hud = _add_label(root, Vector2(439, 22), Vector2(402, 65), 21)
+    _hud_panel(root, Vector2(16, 16), Vector2(270, 70))
+    hud = _add_label(root, Vector2(30, 28), Vector2(242, 52), 18)
+    _hud_panel(root, Vector2(411, 14), Vector2(458, 108))
+    waves_hud = _add_label(root, Vector2(426, 22), Vector2(428, 66), 22)
     waves_hud.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-    wave_progress = _make_hud_bar(root, Vector2(445, 93), Vector2(390, 9), Color(0.32, 0.83, 0.73))
-    _hud_panel(root, Vector2(16, 615), Vector2(265, 91))
+    wave_progress = _make_hud_bar(root, Vector2(433, 95), Vector2(414, 9), Color(0.32, 0.83, 0.73))
+    _hud_panel(root, Vector2(16, 607), Vector2(286, 99))
     health_text_hud = _add_label(root, Vector2(31, 625), Vector2(242, 20), 15)
     health_bar = _make_hud_bar(root, Vector2(31, 647), Vector2(236, 9), Color(0.38, 0.88, 0.54))
     armor_text_hud = _add_label(root, Vector2(31, 661), Vector2(242, 19), 15)
     armor_bar = _make_hud_bar(root, Vector2(31, 685), Vector2(236, 8), Color(0.38, 0.68, 0.96))
-    _hud_panel(root, Vector2(976, 614), Vector2(288, 93))
+    _hud_panel(root, Vector2(966, 610), Vector2(298, 97))
     ammo_hud = _add_label(root, Vector2(996, 626), Vector2(252, 75), 21)
     ammo_hud.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-    support_hud = _add_label(root, Vector2(960, 60), Vector2(304, 54), 13)
+    support_hud = _add_label(root, Vector2(948, 53), Vector2(316, 59), 14)
     support_hud.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
     support_hud.add_theme_color_override("font_color", Color(0.70, 0.86, 0.87))
-    challenges_hud = _add_label(root, Vector2(20, 115), Vector2(530, 36), 15)
+    challenges_hud = _add_label(root, Vector2(26, 108), Vector2(540, 36), 14)
     challenges_hud.add_theme_color_override("font_color", Color(0.73, 0.84, 0.72))
-    help_hud = _add_label(root, Vector2(406, 667), Vector2(474, 30), 18)
+    interaction_panel = Panel.new()
+    interaction_panel.position = Vector2(386, 651)
+    interaction_panel.size = Vector2(508, 51)
+    _style_panel(interaction_panel, Color(0.02, 0.07, 0.08, 0.88), Color(0.31, 0.73, 0.65, 0.45), 11)
+    interaction_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    root.add_child(interaction_panel)
+    help_hud = _add_label(interaction_panel, Vector2(12, 11), Vector2(484, 32), 17)
     help_hud.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
     help_hud.add_theme_color_override("font_color", Color(0.93, 0.87, 0.65))
     fps_hud = _add_label(root, Vector2(1163, 18), Vector2(103, 25), 15)
@@ -1049,20 +1056,20 @@ func _create_ui() -> void:
     reward_hud = _add_label(root, Vector2(738, 375), Vector2(326, 44), 17)
     reward_hud.add_theme_color_override("font_color", Color(0.47, 0.98, 0.63))
     # The panel itself must vanish outside the short intermission recap.
-    report_background = ColorRect.new()
-    report_background.position = Vector2(414, 404)
-    report_background.size = Vector2(455, 163)
-    report_background.color = Color(0.02, 0.065, 0.072, 0.94)
+    report_background = Panel.new()
+    report_background.position = Vector2(414, 395)
+    report_background.size = Vector2(455, 174)
+    _style_panel(report_background, Color(0.02, 0.065, 0.072, 0.96), Color(0.29, 0.69, 0.62, 0.65), 11)
     report_background.mouse_filter = Control.MOUSE_FILTER_IGNORE
     root.add_child(report_background)
     round_report = _add_label(report_background, Vector2(12, 10), Vector2(431, 145), 16)
     round_report.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
     round_report.add_theme_color_override("font_color", Color(0.84, 0.95, 0.88))
     round_report.visible = false
-    banner_panel = ColorRect.new()
+    banner_panel = Panel.new()
     banner_panel.position = Vector2(377, 260)
     banner_panel.size = Vector2(526, 103)
-    banner_panel.color = Color(0.016, 0.055, 0.063, 0.86)
+    _style_panel(banner_panel, Color(0.016, 0.055, 0.063, 0.90), Color(0.32, 0.70, 0.72, 0.44), 12)
     banner_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
     root.add_child(banner_panel)
     banner_heading = _add_label(banner_panel, Vector2(12, 10), Vector2(502, 43), 30)
@@ -1090,10 +1097,10 @@ func _create_ui() -> void:
         root.add_child(arc)
         threat_indicators.append(arc)
     # Loja com abas e botoes clicaveis; durante ela o mouse fica visivel.
-    shop_panel = ColorRect.new()
+    shop_panel = Panel.new()
     shop_panel.position = Vector2(335, 132)
     shop_panel.size = Vector2(610, 477)
-    shop_panel.color = Color(0.035, 0.065, 0.085, 0.98)
+    _style_panel(shop_panel, Color(0.035, 0.065, 0.085, 0.98), Color(0.20, 0.58, 0.67, 0.75), 12)
     shop_panel.mouse_filter = Control.MOUSE_FILTER_STOP
     root.add_child(shop_panel)
     shop_title_hud = _add_label(shop_panel, Vector2(26, 20), Vector2(390, 44), 28)
@@ -1141,10 +1148,10 @@ func _create_ui() -> void:
     close_button.focus_mode = Control.FOCUS_NONE
     close_button.pressed.connect(_close_shop)
     shop_panel.add_child(close_button)
-    death_panel = ColorRect.new()
+    death_panel = Panel.new()
     death_panel.position = Vector2(260, 240)
     death_panel.size = Vector2(760, 220)
-    death_panel.color = Color(0.07, 0.07, 0.08, 0.95)
+    _style_panel(death_panel, Color(0.07, 0.07, 0.08, 0.95), Color(0.83, 0.37, 0.31, 0.66), 13)
     death_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
     root.add_child(death_panel)
     death_hud = _add_label(death_panel, Vector2(20, 28), Vector2(720, 170), 30)
@@ -1153,17 +1160,22 @@ func _create_ui() -> void:
     banner_panel.visible = false
     death_panel.visible = false
 
+func _style_panel(panel: Panel, background: Color, border: Color, radius: int = 9) -> void:
+    var style := StyleBoxFlat.new()
+    style.bg_color = background
+    style.border_color = border
+    style.set_border_width_all(1)
+    style.set_corner_radius_all(radius)
+    style.shadow_color = Color(0.0, 0.0, 0.0, 0.30)
+    style.shadow_size = 6
+    panel.add_theme_stylebox_override("panel", style)
+
 func _hud_panel(parent: Node, where: Vector2, dimensions: Vector2) -> void:
     var panel := Panel.new()
     panel.position = where
     panel.size = dimensions
     panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
-    var box := StyleBoxFlat.new()
-    box.bg_color = Color(0.015, 0.045, 0.059, 0.77)
-    box.border_color = Color(0.18, 0.48, 0.51, 0.34)
-    box.set_border_width_all(1)
-    box.set_corner_radius_all(7)
-    panel.add_theme_stylebox_override("panel", box)
+    _style_panel(panel, Color(0.012, 0.043, 0.059, 0.83), Color(0.19, 0.49, 0.55, 0.48), 9)
     parent.add_child(panel)
 
 func _make_hud_bar(parent: Node, where: Vector2, dimensions: Vector2, tint: Color) -> ProgressBar:
@@ -1204,8 +1216,11 @@ func _add_label(parent: Node, where: Vector2, dimensions: Vector2, font_size: in
     return label
 
 func _refresh_ui() -> void:
-    hud.text = "$%d     |     %d ABATES" % [wallet, kills]
-    health_text_hud.text = "VIDA   %d" % ceili(player.health)
+    hud.text = "CREDITOS  $%d\nABATES       %d" % [wallet, kills]
+    health_text_hud.text = "VIDA      %d" % ceili(player.health)
+    health_text_hud.add_theme_color_override(
+        "font_color", Color(1.0, 0.51, 0.46) if player.health <= 30.0 else Color(0.88, 0.97, 0.93)
+    )
     armor_text_hud.text = "COLETE   %d" % ceili(player.armor)
     health_bar.value = player.health
     armor_bar.value = player.armor
@@ -1240,6 +1255,7 @@ func _refresh_ui() -> void:
         help_hud.text = "F  •  ACESSAR %s" % shop_names.get(shop_near, "LOJA")
     else:
         help_hud.text = ""
+    interaction_panel.visible = help_hud.text != "" and not player.dead and not shop_open
     report_background.visible = report_remaining > 0.0 and phase == "break" and not shop_open and not player.dead
     fps_hud.text = "%d FPS" % Engine.get_frames_per_second()
     fps_hud.visible = GameSettings.show_fps
@@ -1256,7 +1272,7 @@ func _refresh_ui() -> void:
     for i in range(threat_indicators.size()):
         var opacity := minf(0.88, threat_durations[i] * 1.30)
         threat_indicators[i].modulate.a = opacity
-        threat_indicators[i].visible = opacity > 0.0 and not shop_open and not player.dead
+        threat_indicators[i].visible = GameSettings.damage_direction_enabled and opacity > 0.0 and not shop_open and not player.dead
     damage_overlay.color.a = (1.0 - player.health / 100.0) * 0.09 + player.damage_anim * 0.12
     if player.downed:
         waves_hud.text = "ULTIMA CHANCE  /  %.0fs\nMATE PARA SE REERGUER" % player.downed_seconds
