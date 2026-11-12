@@ -189,14 +189,14 @@ Definir pequenas equipes com papéis simples (aproximação, cobertura, flanco c
 
 ## 12. Critérios de encerramento da Etapa 2
 
-- [ ] Etapa 0 concluída com partida real até onda 15 sem defeitos P0.
-- [ ] Contadores, fila e eventos de morte consistentes durante 20+ ondas.
-- [ ] Inimigos não aparecem dentro de paredes ou jogador.
-- [ ] Perseguição, reação, linha de visão e tiro respeitam colisões.
-- [ ] Kits variam de forma clara e as ondas marco são anunciadas.
-- [ ] Nenhum NPC preso permanentemente impede a conclusão de onda.
-- [ ] Reanimação, modos de morte, compras e reforços preservados.
-- [ ] Custo medido no Ryzen 5 7530U/8 GB, em 720p, comparado à Etapa 0.
+- [ ] Etapa 0 concluída com partida real até onda 15 sem defeitos P0. — **PENDENTE**: Etapa 0 ainda requer 15 ondas reais.
+- [ ] Contadores, fila e eventos de morte consistentes durante 20+ ondas. — **PENDENTE**: faltam 20+ ondas completas em jogo real.
+- [ ] Inimigos não aparecem dentro de paredes ou jogador. — **PARCIAL**: 100 amostras de spawn em CI; jogo real ainda precisa validação.
+- [ ] Perseguição, reação, linha de visão e tiro respeitam colisões. — **PARCIAL**: IA básica com LOS/colisão; IA militar completa pendente.
+- [x] Kits variam de forma clara e as ondas marco são anunciadas. — **CONCLUÍDO (CÓDIGO/CI)**: kits e marcos configurados e simulados em CI.
+- [ ] Nenhum NPC preso permanentemente impede a conclusão de onda. — **PARCIAL**: sondas anti-trava; faltam testes longos de NPCs presos.
+- [x] Reanimação, modos de morte, compras e reforços preservados. — **CONCLUÍDO (CÓDIGO/CI)**: reanimação, compras e suporte preservados no CI.
+- [ ] Custo medido no Ryzen 5 7530U/8 GB, em 720p, comparado à Etapa 0. — **PENDENTE**: consumo e FPS reais do Ryzen 5 7530U não medidos.
 
 ## 13. Decisões pendentes de aprovação
 

@@ -173,16 +173,16 @@ Nesta etapa, validar:
 
 ## 10. Critérios de conclusão da Etapa 1
 
-- [ ] Cada uma das cinco classes tem silhueta e comportamento distintos.
-- [ ] Armas não parecem blocos simples na visão em primeira pessoa.
-- [ ] Mãos, luvas e antebraços acompanham recuo, recarga, ADS e troca sem atravessamentos gritantes.
-- [ ] Não existe a bola amarela permanente nos disparos.
-- [ ] Áudio é regulável e não apresenta clipping observável nos testes.
-- [ ] Headshot, dano e munição fornecem feedback claro e discreto.
-- [ ] Não ocorre bloqueio de tiro ou mira após usar menus, lojas ou recarregar.
-- [ ] Ondas 1–15, estação F, suportes 3/4 e ambos modos de morte seguem funcionando.
-- [ ] FPS foi medido no notebook e comparado à linha de base, sem queda inaceitável.
-- [ ] Modelos e áudios são próprios ou têm licenças verificadas e registradas.
+- [ ] Cada uma das cinco classes tem silhueta e comportamento distintos. — **PARCIAL**: cinco classes existem, aparência ainda em revisão.
+- [ ] Armas não parecem blocos simples na visão em primeira pessoa. — **PENDENTE**: modelos ainda considerados quadrados em avaliações.
+- [ ] Mãos, luvas e antebraços acompanham recuo, recarga, ADS e troca sem atravessamentos gritantes. — **PENDENTE**: mãos carecem de rig anatômico e podem atravessar armas.
+- [ ] Não existe a bola amarela permanente nos disparos. — **PARCIAL**: flash breve implementado; avaliação visual pendente.
+- [ ] Áudio é regulável e não apresenta clipping observável nos testes. — **PARCIAL**: volumes separados e WAV; clipping no Windows não medido.
+- [x] Headshot, dano e munição fornecem feedback claro e discreto. — **CONCLUÍDO (CÓDIGO/CI)**: feedback de acerto, headshot, dano e munição em código/CI.
+- [ ] Não ocorre bloqueio de tiro ou mira após usar menus, lojas ou recarregar. — **PARCIAL**: fluxos de compra/combate no CI; regressão real pendente.
+- [ ] Ondas 1–15, estação F, suportes 3/4 e ambos modos de morte seguem funcionando. — **PENDENTE**: 15 ondas com supports/mortes não homologadas.
+- [ ] FPS foi medido no notebook e comparado à linha de base, sem queda inaceitável. — **PENDENTE**: FPS comparativo no notebook não registrado.
+- [x] Modelos e áudios são próprios ou têm licenças verificadas e registradas. — **CONCLUÍDO (CÓDIGO/CI)**: licenças de ativos originais/CC0 documentadas.
 
 ## 11. Fora de escopo desta etapa
 

@@ -135,15 +135,15 @@ Registrar FPS observado, pior queda perceptível, RAM do processo/sistema, tempe
 
 ## 8. Critérios de aceite da Etapa 0
 
-- [ ] Projeto abre no Godot sem erros críticos.
-- [ ] Disparo, mira, recarga, compras e controles básicos funcionam.
-- [ ] Avanço de 15 ondas sem término indevido nem contador travado.
-- [ ] Modo treino e modo clássico se comportam conforme suas regras.
-- [ ] Reforços ativam e são consumidos corretamente.
-- [ ] Configurações de áudio e tela persistem após reinício.
-- [ ] HUD e menus não interferem no combate.
-- [ ] Medições de FPS e memória do notebook foram registradas.
-- [ ] Nenhum P0 aberto; pendências P1 conhecidas e documentadas.
+- [x] Projeto abre no Godot sem erros críticos. — **CONCLUÍDO (CÓDIGO/CI)**: importação e CI Godot 4.4.1 aprovados.
+- [x] Disparo, mira, recarga, compras e controles básicos funcionam. — **CONCLUÍDO (CÓDIGO/CI)**: disparo, lojas, recarga e controles exercitados no CI.
+- [ ] Avanço de 15 ondas sem término indevido nem contador travado. — **PENDENTE**: faltam 15 ondas reais homologadas.
+- [x] Modo treino e modo clássico se comportam conforme suas regras. — **CONCLUÍDO (CÓDIGO/CI)**: treino e clássico implementados e cobertos pela integração.
+- [x] Reforços ativam e são consumidos corretamente. — **CONCLUÍDO (CÓDIGO/CI)**: reforços/tokens integrados nos testes.
+- [ ] Configurações de áudio e tela persistem após reinício. — **PARCIAL**: persistência por ConfigFile; falta teste após reinício no Windows.
+- [ ] HUD e menus não interferem no combate. — **PARCIAL**: menus passaram CI; visual v0.9.17 carece de aprovação.
+- [ ] Medições de FPS e memória do notebook foram registradas. — **PENDENTE**: FPS e RAM do notebook não medidos formalmente.
+- [ ] Nenhum P0 aberto; pendências P1 conhecidas e documentadas. — **PENDENTE**: restam pendências de 15 ondas e QA visual.
 
 ## 9. Decisões versus propostas
 
