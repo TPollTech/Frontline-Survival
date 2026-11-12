@@ -38,7 +38,7 @@ static func find_cover(body: CharacterBody3D, target: Vector3) -> Dictionary:
     for radius in COVER_RADII:
         for i in range(8):
             var theta: float = TAU * float(i) / 8.0
-            var offset := (away * cos(theta) + sideways * sin(theta)) * radius
+            var offset: Vector3 = (away * cos(theta) + sideways * sin(theta)) * float(radius)
             var candidate := _grounded_candidate(space, body.global_position + offset)
             if not candidate.is_finite() or candidate.distance_to(target) < 5.5:
                 continue
