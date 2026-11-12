@@ -30,24 +30,52 @@ func _run_tests() -> void:
     _expect(game.wave == 0, "initial wave not yet started")
     _expect(game.player != null, "player was instantiated")
     _expect(game.shops.size() == 3, "physical shops preserved")
-    # No enormous translucent black/empty panels over the center of the view.
-    _expect(game.report_background.size.y <= 70.0 and game.report_background.position.y < 205.0,
-        "wave summary should be a compact top toast, not a huge center modal")
-    _expect(game.banner_panel.size.y <= 70.0 and game.banner_panel.position.y < 205.0,
-        "wave notification should not cover the weapon sight in the center")
-    _expect(game.interaction_panel.size.y <= 40.0 and game.interaction_panel.size.x <= 350.0,
-        "pickup/interaction prompt too large")
-    _expect(game.wave_progress.position.y <= 95.0 and game.wave_progress.size.x <= 315.0
-        and game.waves_hud.position.y <= 35.0,
-        "wave HUD must stay compact and at the top instead of covering the view")
-    _expect(game.hud.position.x < 65.0 and game.ammo_hud.position.x > 990.0,
-        "credits/ammo instrument placement must stay on the edges")
-    var instrument_shapes := 0
-    for child in game.hud.get_parent().get_children():
-        if child is Polygon2D:
-            instrument_shapes += 1
-    print("HUD_INSTRUMENT_SHAPES %d" % instrument_shapes)
-    _expect(instrument_shapes >= 8, "HUD requires four angular frames and four accent marks")
+    # HUD v0.9.19: NO five large dark cards; only type, hairlines and a
+    # contextual 30px prompt. Geometry anchors adapt to aspect ratio.
+    _expect(game.hud_groups.size() >= 9, "edge-anchored combat HUD zones are missing")
+    _expect(game.combat_hud_root != null and game.combat_hud_root.name == "CombatHUD",
+        "combat HUD root missing")
+    _expect((game.hud_groups["Credits"] as Control).anchor_left == 0.0
+        and (game.hud_groups["Wave"] as Control).anchor_left == 0.5
+        and (game.hud_groups["Support"] as Control).anchor_left == 1.0,
+        "top instruments are not correctly anchored to the viewport")
+    _expect((game.hud_groups["Vitals"] as Control).anchor_top == 1.0
+        and (game.hud_groups["Weapon"] as Control).anchor_top == 1.0
+        and (game.hud_groups["Weapon"] as Control).anchor_left == 1.0,
+        "vitals/ammo must track screen corners on resize")
+    _expect(game.interaction_panel.size.y <= 32.0 and game.interaction_panel.size.x <= 335.0,
+        "interaction tooltip is too large")
+    _expect(game.report_background.get_theme_stylebox("panel") is StyleBoxEmpty
+        and game.banner_panel.get_theme_stylebox("panel") is StyleBoxEmpty,
+        "wave notifications must not draw generic modal backgrounds")
+    _expect(game.hitmarker.anchor_left == 0.5 and game.hitmarker.anchor_top == 0.5,
+        "hitmarker must stay at the real viewport center")
+    _expect(game.wave_progress.size.x < 390.0 and game.wave_progress.scale.y < 0.5,
+        "wave progress should be thin and small")
+    var big_card_count := 0
+    var minimal_strokes := 0
+    for zone in game.hud_groups.values():
+        for child in (zone as Control).get_children():
+            if child is Polygon2D:
+                big_card_count += 1
+            if child is Line2D:
+                minimal_strokes += 1
+    _expect(big_card_count == 0 and minimal_strokes >= 5,
+        "combat instruments must be text/hairlines instead of opaque polygons")
+    game.banner_timer = 1.0
+    game.report_remaining = 1.0
+    game.status_timer = 1.0
+    game._refresh_ui()
+    _expect(game.banner_panel.visible and not game.report_background.visible
+        and not game.message_hud.visible,
+        "two or three event notifications are overlapping each other")
+    game.banner_timer = 0.0
+    game._refresh_ui()
+    _expect(game.report_background.visible and not game.message_hud.visible,
+        "wave recap should have priority over status warnings")
+    game.report_remaining = 0.0
+    game.status_timer = 0.0
+    game._refresh_ui()
     # The four actual settings categories must be reachable from the pause UI.
     var menu: Variant = game.game_menu
     _expect(menu != null and not menu.active, "game starts/resumes outside menu")

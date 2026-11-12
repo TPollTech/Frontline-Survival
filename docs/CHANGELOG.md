@@ -1,5 +1,19 @@
 # Frontline Survival — Histórico de versões
 
+## 0.9.19 — Reconstrução estrutural do HUD de combate
+
+- Removidos os polígonos grandes preenchidos dos quatro instrumentos de combate; somente rótulos e linhas leves nas bordas da tela.
+- Novo layout ancorado por região (topo esquerdo, centro, topo direito, baixo esquerdo e baixo direito), independente de coordenadas rígidas 1280×720.
+- Créditos, número de onda, vida e munição em fontes grandes; recarga, reservas, acessórios e recursos em fontes menores.
+- Banner, relatório de onda e notificação simples disputam a mesma área de eventos por prioridade, sem aparecer sobrepostos.
+- Centro para mira/ADS e hitmarker ancorado; desafio completo exibido somente durante TAB e prompt F reduzido.
+- Screenshot de QA em Godot OpenGL/Xvfb para análise visual; nada muda nas regras de combate e compras.
+- **Status inicial:** código implementado, CI e revisão visual aguardando resultados.
+
+[QA v0.9.19](QA_V0_9_19.md) · [Release](releases/v0.9.19.md)
+
+---
+
 ## 0.9.18 — HUD tático, animação original de sprint, empunhadura dos NPCs e granada física
 
 - Instrumentos do HUD do combate convertidos de caixas opacas para componentes angulares com linhas finas, bordas de tela e menor obstrução visual.

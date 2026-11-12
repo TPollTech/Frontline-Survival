@@ -150,6 +150,9 @@ for frag in ("extends RigidBody3D", "FUSE_SECONDS := 2.45", "func launch(", "fun
     require(frag in grenade_code, "Physical grenade behavior missing: " + frag)
 require("FragGrenade.new()" in main and "grenade.launch(forward)" in main,
         "G must spawn a flying grenade instead of dealing instant ray damage")
+require((ROOT / "tests/hud_qa_snapshot.gd").is_file(), "Missing rendered HUD snapshot regression")
+for detail in ("func _hud_group(", "func _hud_label(", "StyleBoxEmpty.new()", "hud_groups"):
+    require(detail in main, "Combat HUD layout must use anchor zones with transparent notifications: " + detail)
 require((ROOT / "tests/humanoid_qa_snapshot.gd").is_file(),
         "Missing rendered Quaternius screenshot test")
 

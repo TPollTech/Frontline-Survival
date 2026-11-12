@@ -186,6 +186,27 @@ jobs:
           grep -q 'QA_HUMANOID_SNAPSHOT_PASS' godot-humanoid-render.log
           test -s docs/qa/humanoid_current.png
 
+      - name: Rendered combat HUD QA - actual OpenGL screenshot
+        shell: bash
+        run: |
+          set -o pipefail
+          timeout 55s xvfb-run -a -s '-screen 0 1280x720x24' \
+            godot --path . --rendering-driver opengl3 --script res://tests/hud_qa_snapshot.gd 2>&1 | tee godot-hud-render.log
+          grep -q 'QA_HUD_SNAPSHOT_PASS' godot-hud-render.log
+          test -s docs/qa/hud_current.png
+          if grep -E 'SCRIPT ERROR:|QA_HUD_SNAPSHOT_FAIL|Parse Error:' godot-hud-render.log; then
+            echo 'HUD screenshot regression failed'
+            exit 1
+          fi
+
+      - name: Upload real 1280x720 HUD screenshot
+        uses: actions/upload-artifact@v4
+        with:
+          name: Frontline-HUD-QA-${{ github.sha }}
+          path: docs/qa/hud_current.png
+          retention-days: 30
+          if-no-files-found: error
+
       - name: Upload rendered soldier QA screenshot
         uses: actions/upload-artifact@v4
         with:
@@ -253,7 +274,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add assets/models/*.glb assets/textures/weapon_*.png assets/audio/reloads/*.wav docs/qa/humanoid_current.png assets/audio/explosions/grenade.ogg
+          git add assets/models/*.glb assets/textures/weapon_*.png assets/audio/reloads/*.wav docs/qa/humanoid_current.png docs/qa/hud_current.png assets/audio/explosions/grenade.ogg
           if git diff --cached --quiet; then
             echo "Generated game assets already synchronized."
           else

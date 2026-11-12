@@ -87,6 +87,14 @@ var threat_indicators: Array[Line2D] = []
 var hitmarker: Control
 var threat_durations: Array[float] = [0.0, 0.0, 0.0, 0.0]
 var hud: Label
+var kills_hud: Label
+var wave_caption_hud: Label
+var wave_number_hud: Label
+var weapon_name_hud: Label
+var ammo_reserve_hud: Label
+var ammo_reload_hud: Label
+var combat_hud_root: Control
+var hud_groups: Dictionary = {}
 var ammo_hud: Label
 var support_hud: Label
 var challenges_hud: Label
@@ -1010,91 +1018,137 @@ func _create_ui() -> void:
     layer.layer = 5
     add_child(layer)
     var root := Control.new()
+    root.name = "CombatHUD"
     root.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
     root.mouse_filter = Control.MOUSE_FILTER_IGNORE
     layer.add_child(root)
-    # Only flashes when damage is actually dealt: no persistent crosshair.
-    hitmarker = HitMarkerUI.new()
-    root.add_child(hitmarker)
-    hitmarker.position = Vector2(640, 360)
-    # Original 2026-style military HUD: narrow chamfered instruments rather
-    # than giant modal rectangles. The play space stays unobstructed.
-    _hud_panel(root, Vector2(22, 18), Vector2(235, 62))
-    hud = _add_label(root, Vector2(37, 25), Vector2(206, 49), 16)
-    _hud_panel(root, Vector2(464, 16), Vector2(351, 79))
-    waves_hud = _add_label(root, Vector2(477, 24), Vector2(325, 48), 17)
-    waves_hud.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-    wave_progress = _make_hud_bar(root, Vector2(487, 79), Vector2(304, 5), Color(0.39, 0.84, 0.75))
-    _hud_panel(root, Vector2(20, 625), Vector2(244, 77))
-    health_text_hud = _add_label(root, Vector2(33, 633), Vector2(212, 18), 14)
-    health_bar = _make_hud_bar(root, Vector2(33, 653), Vector2(204, 6), Color(0.38, 0.88, 0.54))
-    armor_text_hud = _add_label(root, Vector2(33, 668), Vector2(212, 18), 14)
-    armor_bar = _make_hud_bar(root, Vector2(33, 690), Vector2(204, 5), Color(0.38, 0.68, 0.96))
-    _hud_panel(root, Vector2(1020, 623), Vector2(241, 79))
-    ammo_hud = _add_label(root, Vector2(1042, 632), Vector2(201, 62), 20)
-    ammo_hud.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-    support_hud = _add_label(root, Vector2(930, 54), Vector2(318, 54), 13)
-    support_hud.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-    support_hud.add_theme_color_override("font_color", Color(0.70, 0.86, 0.87))
-    challenges_hud = _add_label(root, Vector2(27, 99), Vector2(460, 29), 12)
-    challenges_hud.add_theme_color_override("font_color", Color(0.73, 0.84, 0.72))
-    interaction_panel = Panel.new()
-    interaction_panel.position = Vector2(476, 678)
-    interaction_panel.size = Vector2(328, 32)
-    _style_panel(interaction_panel, Color(0.02, 0.07, 0.08, 0.77), Color(0.31, 0.73, 0.65, 0.27), 9)
-    interaction_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
-    root.add_child(interaction_panel)
-    help_hud = _add_label(interaction_panel, Vector2(8, 4), Vector2(312, 24), 14)
-    help_hud.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-    help_hud.add_theme_color_override("font_color", Color(0.93, 0.87, 0.65))
-    fps_hud = _add_label(root, Vector2(1163, 16), Vector2(100, 25), 13)
-    fps_hud.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-    message_hud = _add_label(root, Vector2(447, 200), Vector2(386, 28), 14)
-    message_hud.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-    message_hud.add_theme_color_override("font_color", Color(0.96, 0.90, 0.63))
-    reward_hud = _add_label(root, Vector2(952, 130), Vector2(292, 29), 14)
-    reward_hud.add_theme_color_override("font_color", Color(0.47, 0.98, 0.63))
-    # The panel itself must vanish outside the short intermission recap.
-    report_background = Panel.new()
-    report_background.position = Vector2(429, 133)
-    report_background.size = Vector2(422, 59)
-    _style_panel(report_background, Color(0.02, 0.065, 0.072, 0.83), Color(0.29, 0.69, 0.62, 0.40), 9)
-    report_background.mouse_filter = Control.MOUSE_FILTER_IGNORE
-    root.add_child(report_background)
-    round_report = _add_label(report_background, Vector2(9, 7), Vector2(404, 49), 14)
-    round_report.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-    round_report.add_theme_color_override("font_color", Color(0.84, 0.95, 0.88))
-    round_report.visible = true
-    banner_panel = Panel.new()
-    banner_panel.position = Vector2(429, 133)
-    banner_panel.size = Vector2(422, 62)
-    _style_panel(banner_panel, Color(0.016, 0.055, 0.063, 0.80), Color(0.32, 0.70, 0.72, 0.36), 9)
-    banner_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
-    root.add_child(banner_panel)
-    banner_heading = _add_label(banner_panel, Vector2(10, 5), Vector2(402, 29), 18)
-    banner_heading.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-    banner_heading.add_theme_color_override("font_color", Color(0.47, 0.91, 0.86))
-    banner_caption = _add_label(banner_panel, Vector2(10, 34), Vector2(402, 23), 13)
-    banner_caption.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+    combat_hud_root = root
+
+    # The damage vignette follows the viewport instead of assuming 1280x720.
     damage_overlay = ColorRect.new()
     damage_overlay.color = Color(0.65, 0.04, 0.03, 0.0)
-    damage_overlay.position = Vector2.ZERO
-    damage_overlay.size = Vector2(1280, 720)
+    damage_overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
     damage_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
     root.add_child(damage_overlay)
-    # Curved, round-ended arcs read as incoming-fire direction, not square bars.
-    # 0 front, 1 right, 2 rear, 3 left (same order as damage logic).
+    hitmarker = HitMarkerUI.new()
+    hitmarker.name = "HitConfirmationOnly"
+    hitmarker.anchor_left = 0.5
+    hitmarker.anchor_right = 0.5
+    hitmarker.anchor_top = 0.5
+    hitmarker.anchor_bottom = 0.5
+    hitmarker.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    root.add_child(hitmarker)
+
+    # Four true edge-anchored typographic regions, not box-shaped modal cards.
+    # Light strokes give alignment without putting large black slabs over the map.
+    var credit_zone := _hud_group(root, "Credits", Vector2.ZERO, Vector2(27, 22), Vector2(232, 89))
+    _hud_rule(credit_zone, Vector2(0, 0), Vector2(0, 79), Color(0.48, 0.88, 0.78, 0.90), 2.0)
+    _hud_label(credit_zone, Vector2(12, 0), Vector2(190, 18), 11, Color(0.68, 0.79, 0.79)).text = "CRÉDITOS"
+    hud = _hud_label(credit_zone, Vector2(12, 13), Vector2(215, 39), 29)
+    kills_hud = _hud_label(credit_zone, Vector2(12, 57), Vector2(210, 23), 14, Color(0.78, 0.87, 0.85))
+    _hud_rule(credit_zone, Vector2(12, 52), Vector2(127, 52), Color(0.43, 0.74, 0.70, 0.47), 1.0)
+
+    var wave_zone := _hud_group(root, "Wave", Vector2(0.5, 0.0), Vector2(-191, 19), Vector2(382, 83))
+    wave_number_hud = _hud_label(wave_zone, Vector2(8, 12), Vector2(64, 50), 36)
+    _hud_rule(wave_zone, Vector2(80, 13), Vector2(80, 57), Color(0.44, 0.83, 0.79, 0.8), 2.0)
+    wave_caption_hud = _hud_label(wave_zone, Vector2(94, 9), Vector2(278, 18), 11, Color(0.51, 0.85, 0.76))
+    waves_hud = _hud_label(wave_zone, Vector2(94, 27), Vector2(278, 30), 19)
+    wave_progress = _make_hud_bar(wave_zone, Vector2(10, 71), Vector2(362, 5), Color(0.42, 0.87, 0.75))
+    wave_progress.scale.y = 0.38
+    _hud_rule(wave_zone, Vector2(10, 80), Vector2(372, 80), Color(0.67, 0.79, 0.79, 0.35), 1.0)
+
+    var support_zone := _hud_group(root, "Support", Vector2(1.0, 0.0), Vector2(-337, 19), Vector2(311, 82))
+    _hud_label(support_zone, Vector2(0, 17), Vector2(174, 19), 11, Color(0.63, 0.80, 0.80)).text = "RECURSOS TÁTICOS"
+    fps_hud = _hud_label(support_zone, Vector2(194, 0), Vector2(116, 22), 11, Color(0.78, 0.88, 0.85))
+    fps_hud.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+    support_hud = _hud_label(support_zone, Vector2(0, 40), Vector2(311, 40), 12, Color(0.86, 0.92, 0.88))
+    support_hud.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+    _hud_rule(support_zone, Vector2(130, 35), Vector2(311, 35), Color(0.36, 0.72, 0.72, 0.48), 1.0)
+
+    var life_zone := _hud_group(root, "Vitals", Vector2(0.0, 1.0), Vector2(25, -112), Vector2(245, 91))
+    _hud_label(life_zone, Vector2(0, 0), Vector2(128, 20), 11, Color(0.69, 0.81, 0.78)).text = "VIDA"
+    health_text_hud = _hud_label(life_zone, Vector2(0, 19), Vector2(79, 52), 34)
+    health_bar = _make_hud_bar(life_zone, Vector2(88, 39), Vector2(152, 5), Color(0.44, 0.91, 0.61))
+    health_bar.scale.y = 0.42
+    armor_text_hud = _hud_label(life_zone, Vector2(88, 51), Vector2(152, 19), 12, Color(0.69, 0.83, 0.92))
+    armor_bar = _make_hud_bar(life_zone, Vector2(88, 74), Vector2(152, 4), Color(0.40, 0.68, 0.98))
+    armor_bar.scale.y = 0.42
+    _hud_rule(life_zone, Vector2(0, 81), Vector2(65, 81), Color(0.44, 0.88, 0.64, 0.62), 2.0)
+
+    var weapon_zone := _hud_group(root, "Weapon", Vector2(1.0, 1.0), Vector2(-276, -113), Vector2(251, 91))
+    weapon_name_hud = _hud_label(weapon_zone, Vector2(0, 2), Vector2(248, 24), 14, Color(0.79, 0.87, 0.88))
+    weapon_name_hud.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+    ammo_hud = _hud_label(weapon_zone, Vector2(0, 26), Vector2(166, 53), 36)
+    ammo_hud.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+    ammo_reserve_hud = _hud_label(weapon_zone, Vector2(172, 48), Vector2(76, 28), 18, Color(0.66, 0.79, 0.78))
+    ammo_reload_hud = _hud_label(weapon_zone, Vector2(0, 77), Vector2(248, 17), 11, Color(0.96, 0.77, 0.42))
+    ammo_reload_hud.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+    _hud_rule(weapon_zone, Vector2(126, 80), Vector2(248, 80), Color(0.53, 0.84, 0.77, 0.52), 1.0)
+
+    # Full objective details are optional, on TAB while in combat.
+    var objective_zone := _hud_group(root, "Objectives", Vector2(0.0, 1.0), Vector2(26, -155), Vector2(570, 32))
+    challenges_hud = _hud_label(objective_zone, Vector2(0, 0), Vector2(568, 28), 12, Color(0.81, 0.89, 0.73))
+
+    # Context actions occupy one short strip at the bottom, never mid-screen.
+    var interact_zone := _hud_group(root, "Interaction", Vector2(0.5, 1.0), Vector2(-166, -53), Vector2(332, 30))
+    interaction_panel = Panel.new()
+    interaction_panel.name = "ContextPrompt"
+    interaction_panel.position = Vector2.ZERO
+    interaction_panel.size = Vector2(332, 30)
+    var prompt_style := StyleBoxFlat.new()
+    prompt_style.bg_color = Color(0.01, 0.025, 0.033, 0.42)
+    prompt_style.border_color = Color(0.43, 0.86, 0.75, 0.56)
+    prompt_style.set_border_width_all(0)
+    prompt_style.border_width_bottom = 1
+    interaction_panel.add_theme_stylebox_override("panel", prompt_style)
+    interaction_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    interact_zone.add_child(interaction_panel)
+    help_hud = _hud_label(interaction_panel, Vector2(7, 5), Vector2(318, 21), 13, Color(0.94, 0.91, 0.78))
+    help_hud.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+
+    # Event lane: one announcement at a time, rendered as text without a box.
+    var event_zone := _hud_group(root, "Events", Vector2(0.5, 0.0), Vector2(-218, 110), Vector2(436, 83))
+    report_background = Panel.new()
+    report_background.name = "WaveRecapNoBackdrop"
+    report_background.size = Vector2(436, 49)
+    report_background.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
+    report_background.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    event_zone.add_child(report_background)
+    round_report = _hud_label(report_background, Vector2(0, 0), Vector2(436, 47), 13, Color(0.82, 0.96, 0.86))
+    round_report.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+    banner_panel = Panel.new()
+    banner_panel.name = "EventCaptionNoBackdrop"
+    banner_panel.size = Vector2(436, 45)
+    banner_panel.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
+    banner_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    event_zone.add_child(banner_panel)
+    banner_heading = _hud_label(banner_panel, Vector2(0, 0), Vector2(436, 24), 19, Color(0.54, 0.92, 0.81))
+    banner_heading.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+    banner_caption = _hud_label(banner_panel, Vector2(0, 25), Vector2(436, 20), 12, Color(0.91, 0.94, 0.91))
+    banner_caption.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+    message_hud = _hud_label(event_zone, Vector2(0, 50), Vector2(436, 22), 13, Color(0.97, 0.85, 0.60))
+    message_hud.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+
+    var reward_zone := _hud_group(root, "Rewards", Vector2(1.0, 0.0), Vector2(-330, 112), Vector2(304, 32))
+    reward_hud = _hud_label(reward_zone, Vector2(0, 0), Vector2(304, 29), 14, Color(0.51, 0.96, 0.69))
+    reward_hud.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+
+    var damage_zone := _hud_group(root, "Direction", Vector2(0.5, 0.5), Vector2.ZERO, Vector2.ZERO)
+    # Rounded direction indicators are centered on the viewport dynamically.
     for angle_deg in [-90.0, 0.0, 90.0, 180.0]:
         var arc := Line2D.new()
-        arc.width = 6.0
-        arc.default_color = Color(0.96, 0.27, 0.19, 0.95)
-        var angle_mid: float = deg_to_rad(angle_deg)
+        arc.width = 5.0
+        arc.default_color = Color(0.96, 0.27, 0.19, 0.87)
+        var mid: float = deg_to_rad(angle_deg)
         for point_index in range(13):
-            var angle: float = angle_mid + deg_to_rad(-20.0 + point_index * (40.0 / 12.0))
-            arc.add_point(Vector2(640.0 + cos(angle) * 150.0, 360.0 + sin(angle) * 150.0))
+            var ang: float = mid + deg_to_rad(-20.0 + point_index * (40.0 / 12.0))
+            arc.add_point(Vector2(cos(ang) * 151.0, sin(ang) * 151.0))
         arc.visible = false
-        root.add_child(arc)
+        damage_zone.add_child(arc)
         threat_indicators.append(arc)
+    report_background.visible = false
+    banner_panel.visible = false
+
     # Loja com abas e botoes clicaveis; durante ela o mouse fica visivel.
     shop_panel = Panel.new()
     shop_panel.position = Vector2(335, 132)
@@ -1159,6 +1213,41 @@ func _create_ui() -> void:
     banner_panel.visible = false
     death_panel.visible = false
 
+func _hud_group(parent: Control, id: String, anchors: Vector2, offset: Vector2, dimensions: Vector2) -> Control:
+    var group := Control.new()
+    group.name = "HUD_" + id
+    group.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    parent.add_child(group)
+    group.anchor_left = anchors.x
+    group.anchor_right = anchors.x
+    group.anchor_top = anchors.y
+    group.anchor_bottom = anchors.y
+    group.offset_left = offset.x
+    group.offset_top = offset.y
+    group.offset_right = offset.x + dimensions.x
+    group.offset_bottom = offset.y + dimensions.y
+    hud_groups[id] = group
+    return group
+
+func _hud_rule(parent: Node, start: Vector2, finish: Vector2, tint: Color, thickness: float) -> Line2D:
+    var line := Line2D.new()
+    line.name = "HudHairline"
+    line.width = thickness
+    line.default_color = tint
+    line.points = PackedVector2Array([start, finish])
+    parent.add_child(line)
+    return line
+
+func _hud_label(parent: Node, where: Vector2, dimensions: Vector2,
+        font_size: int, tint: Color = Color(0.94, 0.97, 0.94)) -> Label:
+    var label := _add_label(parent, where, dimensions, font_size)
+    label.autowrap_mode = TextServer.AUTOWRAP_OFF
+    label.clip_text = true
+    label.add_theme_color_override("font_color", tint)
+    label.add_theme_constant_override("outline_size", 2)
+    label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.86))
+    return label
+
 func _style_panel(panel: Panel, background: Color, border: Color, radius: int = 9) -> void:
     var style := StyleBoxFlat.new()
     style.bg_color = background
@@ -1168,50 +1257,6 @@ func _style_panel(panel: Panel, background: Color, border: Color, radius: int = 
     style.shadow_color = Color(0.0, 0.0, 0.0, 0.30)
     style.shadow_size = 6
     panel.add_theme_stylebox_override("panel", style)
-
-func _hud_panel(parent: Node, where: Vector2, dimensions: Vector2) -> void:
-    # Geometry is cheap and custom: clipped radar-instrument silhouette,
-    # thin left accent, short top rule, no full opaque generic modal.
-    var x: float = dimensions.x
-    var y: float = dimensions.y
-    var bevel := 12.0
-    var silhouette := Polygon2D.new()
-    silhouette.name = "TacticalInstrumentBackdrop"
-    silhouette.position = where
-    silhouette.polygon = PackedVector2Array([
-        Vector2(0.0, 0.0), Vector2(x - bevel, 0.0),
-        Vector2(x, bevel), Vector2(x, y), Vector2(bevel, y),
-        Vector2(0.0, y - bevel)
-    ])
-    silhouette.color = Color(0.009, 0.023, 0.032, 0.63)
-    parent.add_child(silhouette)
-    var top_rule := Line2D.new()
-    top_rule.name = "TacticalInstrumentEdge"
-    top_rule.position = where
-    top_rule.width = 1.4
-    top_rule.default_color = Color(0.39, 0.78, 0.75, 0.78)
-    top_rule.points = PackedVector2Array([
-        Vector2(0.0, y * 0.45), Vector2(0.0, 1.0),
-        Vector2(x - bevel, 1.0), Vector2(x, bevel)
-    ])
-    parent.add_child(top_rule)
-    var corner := Line2D.new()
-    corner.position = where
-    corner.width = 1.5
-    corner.default_color = Color(0.66, 0.83, 0.77, 0.53)
-    corner.points = PackedVector2Array([
-        Vector2(x, y - 18.0), Vector2(x, y),
-        Vector2(x - 31.0, y)
-    ])
-    parent.add_child(corner)
-    var accent := Polygon2D.new()
-    accent.position = where + Vector2(3.0, 8.0)
-    accent.polygon = PackedVector2Array([
-        Vector2.ZERO, Vector2(3.0, 0.0),
-        Vector2(3.0, 17.0), Vector2(0.0, 17.0)
-    ])
-    accent.color = Color(0.40, 0.89, 0.78, 0.90)
-    parent.add_child(accent)
 
 func _make_hud_bar(parent: Node, where: Vector2, dimensions: Vector2, tint: Color) -> ProgressBar:
     var bar := ProgressBar.new()
@@ -1254,34 +1299,49 @@ func _add_label(parent: Node, where: Vector2, dimensions: Vector2, font_size: in
     return label
 
 func _refresh_ui() -> void:
-    hud.text = "CREDITOS  $%d\nABATES      %d" % [wallet, kills]
-    health_text_hud.text = "VIDA      %d" % ceili(player.health)
+    # Typography first: large changing values, small quiet labels, zero HUD cards.
+    hud.text = "$%d" % wallet
+    kills_hud.text = "%d  ABATES" % kills
+    health_text_hud.text = str(ceili(player.health))
     health_text_hud.add_theme_color_override(
-        "font_color", Color(1.0, 0.51, 0.46) if player.health <= 30.0 else Color(0.88, 0.97, 0.93)
+        "font_color", Color(1.0, 0.52, 0.46) if player.health <= 30.0 else Color(0.91, 0.98, 0.92)
     )
-    armor_text_hud.text = "COLETE   %d" % ceili(player.armor)
+    armor_text_hud.text = "COLETE  %d" % ceili(player.armor)
     health_bar.value = player.health
     armor_bar.value = player.armor
     if phase == "break":
-        waves_hud.text = "ONDA %02d   /   PREPARACAO\nPROXIMA EM  %s" % [wave + 1, _clock(break_remaining)]
+        wave_number_hud.text = "%02d" % (wave + 1)
+        wave_caption_hud.text = "PREPARAÇÃO"
+        waves_hud.text = "PRÓXIMA  %s" % _clock(break_remaining)
         wave_progress.value = 100.0 * (1.0 - break_remaining / maxf(break_duration, 0.1))
     else:
-        waves_hud.text = "ONDA %02d   /   COMBATE\nALVOS RESTANTES  %d" % [wave, alive + spawn_remaining]
+        wave_number_hud.text = "%02d" % wave
+        wave_caption_hud.text = "EM COMBATE"
+        waves_hud.text = "%d  ALVOS RESTANTES" % (alive + spawn_remaining)
         var total := mini(5 + wave * 2, 55)
         wave_progress.value = 100.0 * (1.0 - float(alive + spawn_remaining) / float(maxi(total, 1)))
+    if player.downed:
+        wave_number_hud.text = "!"
+        wave_caption_hud.text = "ÚLTIMA CHANCE"
+        waves_hud.text = "REANIME  %02ds" % ceili(player.downed_seconds)
+
     var gun_name: String = SurvivalPlayer.WEAPONS[player.weapon_id]["name"]
-    ammo_hud.text = "%s\n%d  /  %d%s" % [gun_name.to_upper(), player.magazines[player.weapon_id], player.reserves[player.weapon_id], "   RECARREGANDO" if player.reloading else ""]
-    support_hud.text = "G FRAG %d  /  3 EQUIPE %d  /  4 AEREO %d\nKIT %d  /  PERK %s" % [
+    weapon_name_hud.text = gun_name.to_upper()
+    ammo_hud.text = str(player.magazines[player.weapon_id])
+    ammo_reserve_hud.text = "/ %d" % int(player.reserves[player.weapon_id])
+    ammo_reload_hud.text = "RECARREGANDO" if player.reloading else ""
+    support_hud.text = "G FRAG %d    3 REF %d    4 AÉREO %d\nKIT %d     PERK %s" % [
         grenades, ally_tokens, airstrike_tokens, player.self_revive_kits,
-        player.active_perk.to_upper() if player.active_perk != "" else "NENHUM"
+        player.active_perk.to_upper() if player.active_perk != "" else "—"
     ]
-    if phase == "wave" and not player.downed:
-        challenges_hud.text = "METAS (+$500): %s  /  %s" % [
+    # Challenge detail is available only while TAB is held. Not always on
+    # screen, where long strings used to compete with the wave and support HUD.
+    var show_objectives := phase == "wave" and Input.is_key_pressed(KEY_TAB) and not player.downed
+    challenges_hud.visible = show_objectives and not shop_open and not player.dead
+    if challenges_hud.visible:
+        challenges_hud.text = "METAS +$500: %s  /  %s" % [
             round_stats.active_challenges[0], round_stats.active_challenges[1]
         ]
-    else:
-        challenges_hud.text = ""
-    challenges_hud.visible = phase == "wave" and not shop_open and not player.dead
     var shop_near := _nearest_shop() if not player.dead else ""
     var loot_near := _nearest_loot() if not player.dead else null
     if shop_open:
@@ -1290,30 +1350,38 @@ func _refresh_ui() -> void:
         help_hud.text = str(loot_near.call("prompt"))
     elif shop_near != "":
         var shop_names := {"weapons":"ARMAS", "gear":"EQUIPAMENTOS", "support":"SUPORTE"}
-        help_hud.text = "F  •  ACESSAR %s" % shop_names.get(shop_near, "LOJA")
+        help_hud.text = "F  •  %s" % shop_names.get(shop_near, "LOJA")
     else:
         help_hud.text = ""
     interaction_panel.visible = help_hud.text != "" and not player.dead and not shop_open
-    report_background.visible = report_remaining > 0.0 and phase == "break" and not shop_open and not player.dead
-    fps_hud.text = "%d FPS" % Engine.get_frames_per_second()
-    fps_hud.visible = GameSettings.show_fps
-    message_hud.text = status_text if status_timer > 0.0 else ""
-    reward_hud.visible = reward_timer > 0.0 and not shop_open and not player.dead
-    if reward_timer > 0.0:
-        reward_hud.modulate.a = minf(1.0, reward_timer * 2.0)
-    shop_panel.visible = shop_open and not player.dead
+
+    # Strict single-message lane: banners > recap > short status.
     banner_panel.visible = banner_timer > 0.0 and not shop_open and not player.dead
+    report_background.visible = not banner_panel.visible and report_remaining > 0.0 and phase == "break" and not shop_open and not player.dead
+    message_hud.visible = not banner_panel.visible and not report_background.visible and status_timer > 0.0 and not shop_open and not player.dead
+    message_hud.text = status_text if message_hud.visible else ""
     if banner_panel.visible:
         banner_heading.text = banner_title
         banner_caption.text = banner_subtitle
-        banner_panel.modulate.a = minf(1.0, banner_timer * 1.6)
+        banner_panel.modulate.a = minf(1.0, banner_timer * 2.0)
+    if report_background.visible:
+        report_background.modulate.a = minf(1.0, report_remaining * 2.0)
+
+    fps_hud.text = "%d FPS" % Engine.get_frames_per_second()
+    fps_hud.visible = GameSettings.show_fps
+    reward_hud.visible = reward_timer > 0.0 and not shop_open and not player.dead
+    if reward_hud.visible:
+        reward_hud.modulate.a = minf(1.0, reward_timer * 2.0)
+    shop_panel.visible = shop_open and not player.dead
+    # The three interactive shop tabs stay available; gameplay HUD is hidden
+    # behind the shop so a separate menu never competes with live combat labels.
+    for zone_id in ["Credits", "Wave", "Support", "Vitals", "Weapon", "Objectives", "Rewards"]:
+        (hud_groups[zone_id] as Control).visible = not shop_open and not player.dead
     for i in range(threat_indicators.size()):
         var opacity := minf(0.88, threat_durations[i] * 1.30)
         threat_indicators[i].modulate.a = opacity
         threat_indicators[i].visible = GameSettings.damage_direction_enabled and opacity > 0.0 and not shop_open and not player.dead
     damage_overlay.color.a = (1.0 - player.health / 100.0) * 0.09 + player.damage_anim * 0.12
-    if player.downed:
-        waves_hud.text = "ULTIMA CHANCE  /  %.0fs\nMATE PARA SE REERGUER" % player.downed_seconds
     death_panel.visible = player.dead and not GameSettings.training_respawns
     if death_panel.visible:
         death_hud.text = "FIM DE JOGO\nOnda %d  |  %d abates\nENTER para recomecar" % [wave, kills]

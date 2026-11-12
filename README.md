@@ -1,9 +1,13 @@
-# Frontline Survival 0.9.18 — Campo de Testes
+# Frontline Survival 0.9.19 — Campo de Testes
 
 **Andamento auditado:** as Etapas 0–6 estão acompanhadas por checklists com marcações de implementação, CI e pendências reais. [Resumo atualizado](ROADMAP.md#8-estado-real-das-etapas-06--auditoria-12112026) · [Auditoria detalhada](docs/AUDITORIA_CHECKLISTS_2026_11_12.md). Nenhuma etapa está homologada integralmente no Windows.
 
 
 **Projeto Godot 4.x Standard, FPS 3D offline para Windows**, com renderizador **Compatibility** e alvo inicial Ryzen 5 7530U / 8 GB RAM. Projeto original inspirado em mecânicas do gênero *Survival por ondas*. **Não contém modelos, áudio ou outros arquivos do Call of Duty.**
+
+**v0.9.19 — HUD reconstruído:** removi os quatro módulos pretos que ainda ocupavam o combate. O novo HUD usa **tipografia limpa e linhas discretas**, com âncoras nas bordas da tela, aviso de onda sem fundo e apenas um aviso ativo por vez. Desafios detalhados aparecem ao segurar `TAB`. O centro de visão fica livre, preservando as mecânicas da 0.9.18. [Release v0.9.19](docs/releases/v0.9.19.md) · [QA](docs/QA_V0_9_19.md) · [captura real OpenGL](docs/qa/hud_current.png). **Aprovação visual final depende do jogador no notebook.**
+
+## Histórico da v0.9.18
 
 A versão **0.9.18** prioriza a apresentação de FPS militar com recursos **originais**: instrumentos angulares compactos no HUD, animação procedural de sprint com rifle baixo e braço desacoplado, armas dos inimigos e aliados reposicionadas para a linha do peito e **granada G realmente lançável**, com física, fusível, ricochete, explosão e gravação de efeito CC0. **A qualidade visual ainda precisa ser avaliada no Windows.**
 
