@@ -185,11 +185,10 @@ jobs:
             echo "Generated game assets already synchronized."
           else
             git commit -m "assets: synchronize meshes, materials and reload foley [skip ci]"
-            # Model generation can leave unrelated working-tree changes.
-            # Stash scratch files so a generated visual QA PNG can be pushed
-            # without blocking the release step on an unsuccessful rebase.
-            git stash push --include-untracked -m "CI scratch files before generated asset sync" || true
-            git pull --rebase origin main
+            # NEVER stash untracked build ZIP/checksum: they must remain in
+            # the workspace for the following gh release create step.
+            # autoStash handles tracked modifications without hiding artifacts.
+            git -c rebase.autoStash=true pull --rebase origin main
             git push origin HEAD:main
           fi
 
