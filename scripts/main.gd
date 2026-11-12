@@ -9,6 +9,7 @@ const RoundStats = preload("res://scripts/survival_round_stats.gd")
 
 
 const MAX_ACTIVE_ENEMIES := 12
+const ENABLE_EXPERIMENTAL_HUMANOIDS := false
 const MAX_CORPSES := 12
 const MAX_LOOT := 18
 const MAX_BLOOD_EFFECTS := 14
@@ -464,7 +465,9 @@ func _spawn_enemy() -> bool:
     enemy.configure(kind, wave, player, _select_enemy_weapon(wave))
     # Prototype only: first ordinary soldier in a wave uses Quaternius.
     # Keep all other enemies and their current assets for a direct comparison.
-    enemy.preview_quaternius = kind == "soldier" and spawn_remaining == WaveRules.total_enemies(wave)
+    # The experimental rig has no validated animations. Keep it in isolated QA,
+    # not in the publicly playable Field of Tests.
+    enemy.preview_quaternius = ENABLE_EXPERIMENTAL_HUMANOIDS and kind == "soldier" and spawn_remaining == WaveRules.total_enemies(wave)
     enemy.position = pick
     enemy.defeated.connect(_on_enemy_defeated)
     enemy.combat_defeat.connect(_on_enemy_combat_defeat)
@@ -585,14 +588,22 @@ func _end_wave() -> void:
     wallet += bonus
     player.heal(15.0)
     round_stats.finish(bonus)
-    round_report.text = round_stats.summary_text()
-    report_remaining = 7.0
-    _show_banner("ONDA %02d CONCLUIDA" % wave, "+$%d BONUS  |  +15 VIDA  |  %d ELIMINACOES" % [bonus, previous_wave_kills], 3.0)
-    _notify("RELATORIO DA ONDA  |  PROXIMA EM %s" % _clock(break_remaining), 3.0)
+    var accuracy_value: float = round_stats.accuracy()
+    var accuracy_text := "--" if accuracy_value < 0.0 else "%d%%" % roundi(accuracy_value)
+    # One compact, temporary recap; no central modal, no repeated countdown.
+    round_report.text = "ONDA %02d CONCLUIDA   +$%d  |  +15 VIDA\n%d ABATES   •   %d HEADSHOTS   •   PRECISAO %s" % [
+        wave, bonus, previous_wave_kills, round_stats.headshot_kills, accuracy_text
+    ]
+    report_remaining = 4.0
+    banner_timer = 0.0
+    status_timer = 0.0
 
 func _clock(seconds: float) -> String:
     var remaining: int = maxi(0, ceili(seconds))
     return "%02d:%02d" % [remaining / 60, remaining % 60]
+
+func _is_humanoid_preview_enabled() -> bool:
+    return ENABLE_EXPERIMENTAL_HUMANOIDS
 
 func _show_banner(heading: String, caption: String, duration: float) -> void:
     banner_title = heading
@@ -1040,42 +1051,42 @@ func _create_ui() -> void:
     challenges_hud = _add_label(root, Vector2(26, 108), Vector2(540, 36), 14)
     challenges_hud.add_theme_color_override("font_color", Color(0.73, 0.84, 0.72))
     interaction_panel = Panel.new()
-    interaction_panel.position = Vector2(386, 651)
-    interaction_panel.size = Vector2(508, 51)
-    _style_panel(interaction_panel, Color(0.02, 0.07, 0.08, 0.88), Color(0.31, 0.73, 0.65, 0.45), 11)
+    interaction_panel.position = Vector2(476, 678)
+    interaction_panel.size = Vector2(328, 32)
+    _style_panel(interaction_panel, Color(0.02, 0.07, 0.08, 0.77), Color(0.31, 0.73, 0.65, 0.27), 9)
     interaction_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
     root.add_child(interaction_panel)
-    help_hud = _add_label(interaction_panel, Vector2(12, 11), Vector2(484, 32), 17)
+    help_hud = _add_label(interaction_panel, Vector2(8, 4), Vector2(312, 24), 14)
     help_hud.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
     help_hud.add_theme_color_override("font_color", Color(0.93, 0.87, 0.65))
     fps_hud = _add_label(root, Vector2(1163, 18), Vector2(103, 25), 15)
     fps_hud.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-    message_hud = _add_label(root, Vector2(350, 135), Vector2(580, 42), 18)
+    message_hud = _add_label(root, Vector2(412, 206), Vector2(456, 30), 15)
     message_hud.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
     message_hud.add_theme_color_override("font_color", Color(0.96, 0.90, 0.63))
-    reward_hud = _add_label(root, Vector2(738, 375), Vector2(326, 44), 17)
+    reward_hud = _add_label(root, Vector2(947, 155), Vector2(300, 32), 15)
     reward_hud.add_theme_color_override("font_color", Color(0.47, 0.98, 0.63))
     # The panel itself must vanish outside the short intermission recap.
     report_background = Panel.new()
-    report_background.position = Vector2(414, 395)
-    report_background.size = Vector2(455, 174)
-    _style_panel(report_background, Color(0.02, 0.065, 0.072, 0.96), Color(0.29, 0.69, 0.62, 0.65), 11)
+    report_background.position = Vector2(429, 133)
+    report_background.size = Vector2(422, 59)
+    _style_panel(report_background, Color(0.02, 0.065, 0.072, 0.83), Color(0.29, 0.69, 0.62, 0.40), 9)
     report_background.mouse_filter = Control.MOUSE_FILTER_IGNORE
     root.add_child(report_background)
-    round_report = _add_label(report_background, Vector2(12, 10), Vector2(431, 145), 16)
+    round_report = _add_label(report_background, Vector2(9, 7), Vector2(404, 49), 14)
     round_report.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
     round_report.add_theme_color_override("font_color", Color(0.84, 0.95, 0.88))
-    round_report.visible = false
+    round_report.visible = true
     banner_panel = Panel.new()
-    banner_panel.position = Vector2(377, 260)
-    banner_panel.size = Vector2(526, 103)
-    _style_panel(banner_panel, Color(0.016, 0.055, 0.063, 0.90), Color(0.32, 0.70, 0.72, 0.44), 12)
+    banner_panel.position = Vector2(429, 133)
+    banner_panel.size = Vector2(422, 62)
+    _style_panel(banner_panel, Color(0.016, 0.055, 0.063, 0.80), Color(0.32, 0.70, 0.72, 0.36), 9)
     banner_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
     root.add_child(banner_panel)
-    banner_heading = _add_label(banner_panel, Vector2(12, 10), Vector2(502, 43), 30)
+    banner_heading = _add_label(banner_panel, Vector2(10, 5), Vector2(402, 29), 18)
     banner_heading.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
     banner_heading.add_theme_color_override("font_color", Color(0.47, 0.91, 0.86))
-    banner_caption = _add_label(banner_panel, Vector2(12, 58), Vector2(502, 32), 16)
+    banner_caption = _add_label(banner_panel, Vector2(10, 34), Vector2(402, 23), 13)
     banner_caption.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
     damage_overlay = ColorRect.new()
     damage_overlay.color = Color(0.65, 0.04, 0.03, 0.0)

@@ -1,6 +1,12 @@
-# Frontline Survival 0.9.16 — Campo de Testes
+# Frontline Survival 0.9.17 — Campo de Testes
 
 **Projeto Godot 4.x Standard, FPS 3D offline para Windows**, com renderizador **Compatibility** e alvo inicial Ryzen 5 7530U / 8 GB RAM. Projeto original inspirado em mecânicas do gênero *Survival por ondas*. **Não contém modelos, áudio ou outros arquivos do Call of Duty.**
+
+A versão **0.9.17** corrige três problemas visuais relatados na v0.9.16: a Red Dot deixou de ser uma caixa opaca e passou a ter aro vazado/lente/ponto emissivo durante ADS; o relatório de ondas e os avisos foram reduzidos a toasts compactos, sem painel vazio no centro; e o **protótipo Quaternius sem animações foi retirado das ondas públicas** (ainda disponível isoladamente para desenvolvimento). As mecânicas, armas e sons gravados continuam preservados. **A qualidade visual depende de aprovação jogando no Windows.**
+
+[Release v0.9.17](docs/releases/v0.9.17.md) · [QA](docs/QA_V0_9_17.md)
+
+## Histórico da v0.9.16
 
 A versão **0.9.16** aperfeiçoa o **Campo de Testes**, sem criar mapas nem ondas extras: soldados comuns passam a procurar cobertura, recarregar, agachar e eventualmente deitar; inimigos agressivos continuam avançando. O menu inicial e a pausa foram preservados, com configurações divididas em **Gráficos, Áudio, Controles e Jogabilidade**, e o HUD recebeu acabamento mais consistente. Os recursos da 0.9.15 (perks, acessórios, Última Chance, 30s entre ondas, recompensas e relatórios) permanecem. **Avaliação real no Windows ainda pendente.**
 
@@ -114,7 +120,7 @@ A versão **0.9.15** implementa os recursos centrais pedidos: **perks, Última C
 
 1. Entre em **[Releases](https://github.com/TPollTech/Frontline-Survival/releases)**.
 2. Abra a versão mais recente **efetivamente publicada** em Releases. A `v0.9.15` é a versão em desenvolvimento; até o CI publicá-la, a última versão confirmada é a `v0.9.14`.
-3. Na seção **Assets**, baixe o ZIP Windows correspondente à tag publicada, por exemplo **FrontlineSurvival-v0.9.16-Windows.zip** quando a v0.9.15 aparecer.
+3. Na seção **Assets**, baixe o ZIP Windows correspondente à tag publicada, por exemplo **FrontlineSurvival-v0.9.17-Windows.zip** quando a v0.9.15 aparecer.
 4. Extraia o ZIP inteiro para uma pasta, mantendo `FrontlineSurvival.exe` e `FrontlineSurvival.pck` juntos.
 5. Execute `FrontlineSurvival.exe`. **Não é necessário abrir o editor Godot.**
 

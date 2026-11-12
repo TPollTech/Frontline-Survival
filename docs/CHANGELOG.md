@@ -1,5 +1,17 @@
 # Frontline Survival — Histórico de versões
 
+## 0.9.17 — Red Dot vazada, HUD compacto e rollback visual dos NPCs
+
+- Acessórios Red Dot/Holo têm visor físico vazado, lente translúcida e ponto emissivo, visível apenas em ADS. Nenhuma retícula 2D permanente.
+- O relatório de onda virou toast de 2 linhas com resultados, bônus, headshots e precisão (4 segundos), no alto, sem caixa preta central.
+- Removidos os avisos duplicados de fim de onda; banners de combate e prompts de interação foram reduzidos.
+- Desabilitado o soldado experimental Quaternius nos spawns das partidas públicas, até haver rig/animações homologados.
+- Nenhuma alteração dos WAV/PCM, sistemas de compras, perks, IA ou progressão. **CI não substitui inspeção visual.**
+
+[QA v0.9.17](QA_V0_9_17.md) · [Notas da release](releases/v0.9.17.md)
+
+---
+
 ## 0.9.16 — IA tática, menus por categoria e HUD refinado
 
 **Escopo:** Campo de Testes, sem novos mapas ou ondas. **Status: implementação e CI aprovados** ([run 43166124429](https://github.com/TPollTech/Frontline-Survival/actions/runs/43166124429)), **homologação visual e de gameplay pendente.**

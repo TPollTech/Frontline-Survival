@@ -1,6 +1,6 @@
 # Frontline Survival — Planejamento e Roadmap
 
-**Documento mestre do projeto** · Atualizado: 10/11/2026 · **Base de referência:** protótipo `0.7`; **versão de desenvolvimento:** `0.9.16` (**código no main; CI/release pendentes**) · **Situação:** planejamento; novas mecânicas somente após aprovação da etapa.
+**Documento mestre do projeto** · Atualizado: 10/11/2026 · **Base de referência:** protótipo `0.7`; **versão de desenvolvimento:** `0.9.17` (**código no main; CI/release pendentes**) · **Situação:** planejamento; novas mecânicas somente após aprovação da etapa.
 
 > **Visão:** FPS 3D offline de sobrevivência por ondas, com combate satisfatório, progressão, dinheiro, compras em estações e suporte tático. Inspiração de mecânicas: Survival dos FPS militares da geração PS3, com identidade, modelos, efeitos e sons próprios. **Não** copiar mapas, arquivos ou personagens de Call of Duty.
 
@@ -511,3 +511,19 @@ O [plano de polimento do Campo de Testes](docs/M0_POLIMENTO_CAMPO_TESTES.md) reg
 - **Desempenho e QA:** decisões escalonadas e limites de consultas de física; verificar até 12 inimigos ativos e sessões de 15 ondas no Ryzen 5 7530U com 8 GB RAM, sem travamentos nem queda excessiva de FPS.
 
 **Entrega:** dividir em pequenas etapas documentadas (percepção → navegação/cobertura → combate/flanqueio → coordenação → animações → balanceamento/QA), cada uma com testes, estados **PENDENTE / PARCIAL / CONCLUÍDO** e build Windows no GitHub Releases quando aprovada. **Não considerar “IA militar completa” concluída com os scripts táticos da v0.9.16.**
+
+## 23. Hotfix visual v0.9.17 — mira e HUD após avaliação da captura
+
+**Feedback real:** Red Dot parecia caixa e vidro soltos; relatório cobria o centro com caixa preta vazia; banners duplicados; protótipo Quaternius sem animação e com artefatos visuais. **Decisão:** interromper expansão de ondas/mapas e corrigir a apresentação do Campo de Testes.
+
+| Item | Alteração | Situação |
+| --- | --- | --- |
+| V17-01 | Ótica com aro vazado, lente, suporte e retículo emissivo só no ADS | **IMPLEMENTADO / VISUAL PARCIAL** |
+| V17-02 | Relatório de onda em toast compacto de duas linhas, sem painel vazio | **IMPLEMENTADO / VISUAL PARCIAL** |
+| V17-03 | Reduzir avisos, banner e prompt de interação | **IMPLEMENTADO / VISUAL PARCIAL** |
+| V17-04 | Desativar Quaternius experimental em partidas públicas; manter testes isolados | **IMPLEMENTADO** |
+| V17-05 | Testes automáticos de UI e ótica sem regressões de mecânicas | **AGUARDANDO CI** |
+| V17-06 | Build ZIP Windows v0.9.17 no GitHub Releases | **AGUARDANDO CI / PUBLICAÇÃO** |
+| V17-07 | Avaliação jogando de ADS, UI, 5+ ondas e FPS no Ryzen 7530U | **PENDENTE** |
+
+**Ainda fora de escopo:** novos mapas, mais ondas, animações profissionais/rig Quaternius, novas armas e IA militar completa. [QA](docs/QA_V0_9_17.md) · [Release](docs/releases/v0.9.17.md)

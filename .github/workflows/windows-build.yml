@@ -33,9 +33,9 @@ jobs:
 
       - name: Detect new numbered release (skip if already published)
         id: release_gate
-        # Pushes to main run QA only. Build/publish a release on a version tag
-        # or an explicit manual dispatch from main.
-        if: startsWith(github.ref, 'refs/tags/v') || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')
+        # Auto-publish only when the version has NOT been released. Existing
+        # tags skip export/package, limiting GitHub Actions consumption.
+        if: startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/main'
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}

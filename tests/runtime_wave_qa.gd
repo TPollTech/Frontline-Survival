@@ -30,6 +30,13 @@ func _run_tests() -> void:
     _expect(game.wave == 0, "initial wave not yet started")
     _expect(game.player != null, "player was instantiated")
     _expect(game.shops.size() == 3, "physical shops preserved")
+    # No enormous translucent black/empty panels over the center of the view.
+    _expect(game.report_background.size.y <= 70.0 and game.report_background.position.y < 205.0,
+        "wave summary should be a compact top toast, not a huge center modal")
+    _expect(game.banner_panel.size.y <= 70.0 and game.banner_panel.position.y < 205.0,
+        "wave notification should not cover the weapon sight in the center")
+    _expect(game.interaction_panel.size.y <= 40.0 and game.interaction_panel.size.x <= 350.0,
+        "pickup/interaction prompt too large")
     # The four actual settings categories must be reachable from the pause UI.
     var menu: Variant = game.game_menu
     _expect(menu != null and not menu.active, "game starts/resumes outside menu")
@@ -73,6 +80,19 @@ func _run_tests() -> void:
     _expect(game.player.has_attachment("optic", "red_dot"), "red dot failed to install")
     _expect(game.player.viewmodel_root.find_child("Attachment_Optic_red_dot", true, false) != null,
         "paid red dot has no visible 3D model")
+    var scope: Node3D = game.player.viewmodel_root.find_child("Attachment_Optic_red_dot", true, false)
+    _expect(scope.find_child("Optic_HollowRing", true, false) != null,
+        "Red Dot lacks a hollow, see-through physical sight")
+    _expect(scope.find_child("Optic_TransparentLens", true, false) != null,
+        "Red Dot lacks a transparent lens")
+    _expect(scope.find_child("Optic_RailMount", true, false) != null,
+        "Red Dot has no rail attachment")
+    var reticle: MeshInstance3D = scope.find_child("Optic_EmissiveReticle", true, false) as MeshInstance3D
+    _expect(reticle != null and not reticle.visible,
+        "Red Dot emitter must not draw while hip-firing")
+    if reticle != null:
+        _expect(absf(reticle.position.x) < 0.001 and reticle.mesh is SphereMesh,
+            "Red Dot must have a centered physical emitter, not a floating HUD crosshair")
     game._change_shop_page(1)
     _expect(game.shop_page == 1, "shop pagination failed")
     game._buy(1) # suppressor
@@ -258,6 +278,9 @@ func _run_tests() -> void:
         _expect(game.player.viewmodel_root.find_child("Attachment_Muzzle_suppressor", true, false) != null,
             "Suppressor has no model on " + gun_id)
     game.player.equip("pistol")
+    # The unanimated Quaternius experiment is never activated in public waves.
+    _expect(not game._is_humanoid_preview_enabled(),
+        "Public gameplay must use stable enemy models until rig animations are approved")
     # Real death leaves a non-colliding corpse and a dropped weapon for pickup.
     # Dynamically load after the project scene initializes autoloads.
     # A hard SurvivalEnemy type dependency from SceneTree test startup can
@@ -442,6 +465,8 @@ func _run_tests() -> void:
     game._begin_wave()
     _expect(game.wave == 10, "milestone wave number incorrect")
     _expect(game.spawn_remaining == 25, "milestone wave enemy budget changed")
+    _expect(not game.player.aim or game.player.optic_reticle == null or not game.player.optic_reticle.visible,
+        "scope reticle should not appear before ADS is completed")
     _expect(game.banner_title.contains("BLINDADA"), "armored wave lacks HUD warning")
     game.queue_free()
     await process_frame

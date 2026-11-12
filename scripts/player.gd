@@ -79,6 +79,8 @@ var camera_stand_height: float = 0.64
 var current_body_height: float = 1.8
 var active_perk: String = ""
 var weapon_attachments: Dictionary = {}
+# Tiny physical emitter inside the optic: never a permanent 2D crosshair.
+var optic_reticle: MeshInstance3D
 var downed: bool = false
 var downed_seconds: float = 0.0
 var last_stand_available: bool = true
@@ -282,6 +284,9 @@ func _physics_process(delta: float) -> void:
     gun.rotation.y = lerpf(gun.rotation.y, 0.14 * sprint_blend, minf(1.0, delta * 10.0))
     gun.rotation.x = lerpf(gun.rotation.x, -0.48 * sprint_blend + cos(walk_clock) * (sway_strength + sprint_blend * 0.035), minf(1.0, delta * 10.0))
     _animate_viewmodel(delta, sprinting)
+    if is_instance_valid(optic_reticle):
+        # Visible only once the real sight approaches the central camera ray.
+        optic_reticle.visible = aim and not reloading and absf(gun.position.x) < 0.055 and sprint_blend < 0.15
     # Automáticas continuam disparando enquanto o botão permanece pressionado.
     if not controls_locked and Input.get_mouse_mode() == Input.MOUSE_MODE_CAPTURED:
         if Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT) and WEAPONS[weapon_id]["auto"]:
@@ -584,6 +589,7 @@ func _update_gun_mesh() -> void:
     magazine_part = null
     action_part = null
     weapon_model = null
+    optic_reticle = null
     # Scale/depth avoid placing long stocks behind the camera's near plane.
     viewmodel_scale = float({"pistol": 0.95, "smg": 0.84, "rifle": 0.78, "shotgun": 0.70, "lmg": 0.74}.get(weapon_id, 0.84))
     viewmodel_depth = float({"pistol": 0.0, "smg": -0.14, "rifle": -0.24, "shotgun": -0.24, "lmg": -0.24}.get(weapon_id, -0.14))
@@ -639,34 +645,107 @@ func _build_attachment_models() -> void:
     var optic: String = str(attach.get("optic", ""))
     var muzzle: String = str(attach.get("muzzle", ""))
     if optic != "":
+        # A real sight picture: hollow housing + glass pane + emissive dot.
+        # The camera looks THROUGH the hole, not into a solid black box.
         var optic_root := Node3D.new()
         optic_root.name = "Attachment_Optic_" + optic
         viewmodel_root.add_child(optic_root)
-        var sight_height: float = float({"pistol":0.121,"smg":0.232,"rifle":0.177,"shotgun":0.140,"lmg":0.232}.get(weapon_id, 0.18))
-        var y: float = sight_height * viewmodel_scale
+        var heights: Dictionary = {
+            "pistol": 0.121, "smg": 0.232, "rifle": 0.177,
+            "shotgun": 0.140, "lmg": 0.232
+        }
+        var y: float = float(heights.get(weapon_id, 0.18)) * viewmodel_scale
         var z: float = viewmodel_depth + (-0.11 if weapon_id == "pistol" else -0.08) * viewmodel_scale
-        var sight := MeshInstance3D.new()
-        var casing := BoxMesh.new()
-        casing.size = Vector3(0.09, 0.095, 0.08)
-        sight.mesh = casing
-        sight.position = Vector3(0.0, y - 0.01, z)
-        var mat := StandardMaterial3D.new()
-        mat.albedo_color = Color(0.12, 0.15, 0.15)
-        mat.roughness = 0.58
-        sight.material_override = mat
-        optic_root.add_child(sight)
+        var metal := StandardMaterial3D.new()
+        metal.albedo_color = Color(0.095, 0.116, 0.121)
+        metal.metallic = 0.68
+        metal.roughness = 0.42
+        var glass_material := StandardMaterial3D.new()
+        glass_material.albedo_color = Color(0.13, 0.26, 0.27, 0.16)
+        glass_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+        glass_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+        glass_material.cull_mode = BaseMaterial3D.CULL_DISABLED
+        # Compact red-dot tubular ring; holographic model uses a thin rectangular frame.
+        if optic == "red_dot":
+            for depth in [0.0, 0.031]:
+                var ring := MeshInstance3D.new()
+                ring.name = "Optic_HollowRing"
+                var torus := TorusMesh.new()
+                torus.inner_radius = 0.031
+                torus.outer_radius = 0.040
+                torus.ring_segments = 16
+                torus.rings = 12
+                ring.mesh = torus
+                ring.rotation.x = PI * 0.5
+                ring.position = Vector3(0.0, y, z + depth)
+                ring.material_override = metal
+                optic_root.add_child(ring)
+        else:
+            for edge_index in range(4):
+                var frame := MeshInstance3D.new()
+                frame.name = "Optic_HoloFrame"
+                var rim := BoxMesh.new()
+                rim.size = Vector3(0.086, 0.009, 0.018) if edge_index < 2 else Vector3(0.009, 0.083, 0.018)
+                frame.mesh = rim
+                var horizontal: bool = edge_index < 2
+                frame.position = Vector3(
+                    0.0 if horizontal else (-0.040 if edge_index == 2 else 0.040),
+                    y + (-0.039 if edge_index == 0 else (0.039 if edge_index == 1 else 0.0)),
+                    z
+                )
+                frame.material_override = metal
+                optic_root.add_child(frame)
+        # A very thin transparent lens that never covers the whole viewport.
         var glass := MeshInstance3D.new()
-        var lens := SphereMesh.new()
-        lens.radius = 0.024
-        lens.height = 0.05
-        glass.mesh = lens
-        glass.position = Vector3(0.0, y + 0.028, z - 0.044)
-        var glass_mat := StandardMaterial3D.new()
-        glass_mat.albedo_color = Color(0.18, 0.43, 0.42, 0.75)
-        glass_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-        glass_mat.roughness = 0.2
-        glass.material_override = glass_mat
+        glass.name = "Optic_TransparentLens"
+        var pane := CylinderMesh.new()
+        pane.top_radius = 0.032
+        pane.bottom_radius = 0.032
+        pane.height = 0.0015
+        pane.radial_segments = 24
+        glass.mesh = pane
+        glass.rotation.x = PI * 0.5
+        glass.position = Vector3(0.0, y, z - 0.003)
+        glass.material_override = glass_material
         optic_root.add_child(glass)
+        # Two tiny stanchions and a low mount leave the aperture unobstructed.
+        for side in [-1.0, 1.0]:
+            var mount := MeshInstance3D.new()
+            mount.name = "Optic_Mount"
+            var support := BoxMesh.new()
+            support.size = Vector3(0.008, 0.045, 0.029)
+            mount.mesh = support
+            mount.position = Vector3(side * 0.027, y - 0.061, z + 0.012)
+            mount.material_override = metal
+            optic_root.add_child(mount)
+        var base := MeshInstance3D.new()
+        base.name = "Optic_RailMount"
+        var rail := BoxMesh.new()
+        rail.size = Vector3(0.075, 0.011, 0.052)
+        base.mesh = rail
+        base.position = Vector3(0.0, y - 0.087, z + 0.010)
+        base.material_override = metal
+        optic_root.add_child(base)
+        var dot := MeshInstance3D.new()
+        dot.name = "Optic_EmissiveReticle"
+        var point := SphereMesh.new()
+        point.radius = 0.0040 if optic == "red_dot" else 0.0048
+        point.height = point.radius * 2.0
+        point.radial_segments = 10
+        point.rings = 5
+        dot.mesh = point
+        dot.position = Vector3(0.0, y, z - 0.010)
+        var emitter := StandardMaterial3D.new()
+        emitter.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+        emitter.albedo_color = Color(0.97, 0.09, 0.055) if optic == "red_dot" else Color(0.92, 0.49, 0.14)
+        emitter.emission_enabled = true
+        emitter.emission = emitter.albedo_color
+        emitter.emission_energy_multiplier = 2.4
+        emitter.cull_mode = BaseMaterial3D.CULL_DISABLED
+        dot.material_override = emitter
+        dot.visible = false
+        optic_root.add_child(dot)
+        optic_reticle = dot
     if muzzle != "":
         var tube := MeshInstance3D.new()
         tube.name = "Attachment_Muzzle_" + muzzle
