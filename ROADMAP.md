@@ -492,3 +492,22 @@ O [plano de polimento do Campo de Testes](docs/M0_POLIMENTO_CAMPO_TESTES.md) reg
 [Notas de release](docs/releases/v0.9.16.md) · [QA v0.9.16](docs/QA_V0_9_16.md)
 
 **Fechamento técnico da sprint 0.9.16 (12/11/2026):** CI Windows/Ubuntu Godot aprovado, 585 verificações integradas, QA de 50 composições, recursos Survival, captura humanoide e release publicados. **Marcos M0/M2 seguem PARCIAIS** até o usuário testar IA, cobertura, menu, FPS e 15 ondas no Windows.
+
+## 22. Backlog — IA militar completa
+
+**Solicitação (12/11/2026):** evoluir os NPCs do comportamento tático inicial da v0.9.16 para uma **IA militar completa**, com sensação de soldados que observam, decidem e cooperam, e não somente correm em direção ao jogador.
+
+**Estado:** **PENDENTE — PLANEJAMENTO/IMPLEMENTAÇÃO**. Não confundir com as melhorias básicas da v0.9.16. **Prioridade:** depois de estabilizar e validar a IA e os personagens do Campo de Testes; antes de expandir mapas/ondas.
+
+### Critérios de escopo e aceitação
+
+- **Navegação inteligente:** rotas confiáveis em torno de obstáculos, recuperação quando preso, avaliação de múltiplas coberturas e caminhos de retirada; adotar navegação/navmesh ou solução equivalente apenas se realmente necessária.
+- **Combate tático:** alternância entre avançar, cobrir, espiar, recuar, flanquear, pressionar, suprimir, buscar ângulos de tiro e mudar de posição conforme a ameaça.
+- **Coordenação de esquadrão:** papéis complementares (assalto, apoio, flanqueador, atirador), comunicação de alvos/última posição observada, evitando que todos executem a mesma decisão.
+- **Percepção e memória:** visão com obstáculos, alcance e campo de visão, resposta contextual a disparos/sons, perda de contato e investigação sem rastreamento sobrenatural do jogador.
+- **Recursos e posturas:** munição, recarga protegida, agachamento, posição deitada, mira e disparo coerentes com animação e colisão; evitar atirar através de paredes.
+- **Personalidades e dificuldade:** runner, soldado comum, pesado/Juggernaut e aliados com decisões distintas, precisão/reação balanceadas e progressão de dificuldade sem trapaças.
+- **Animações e apresentação:** transições naturais entre corrida, cobertura, recarga, mira, tiro, dano e morte, ligadas aos estados reais da IA.
+- **Desempenho e QA:** decisões escalonadas e limites de consultas de física; verificar até 12 inimigos ativos e sessões de 15 ondas no Ryzen 5 7530U com 8 GB RAM, sem travamentos nem queda excessiva de FPS.
+
+**Entrega:** dividir em pequenas etapas documentadas (percepção → navegação/cobertura → combate/flanqueio → coordenação → animações → balanceamento/QA), cada uma com testes, estados **PENDENTE / PARCIAL / CONCLUÍDO** e build Windows no GitHub Releases quando aprovada. **Não considerar “IA militar completa” concluída com os scripts táticos da v0.9.16.**
