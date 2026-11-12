@@ -1,6 +1,6 @@
 # Frontline Survival — Planejamento e Roadmap
 
-**Documento mestre do projeto** · Atualizado: 12/11/2026 · **versão de desenvolvimento:** `0.9.18` (**código e documentação; CI/Windows a validar**) · **Situação:** desenvolvimento incremental; Etapas 0–6 ainda não encerradas integralmente.
+**Documento mestre do projeto** · Atualizado: 12/11/2026 · **versão de desenvolvimento:** `0.9.18` (**Godot CI e GitHub Release publicados; playtest Windows pendente**) · **Situação:** desenvolvimento incremental; Etapas 0–6 ainda não encerradas integralmente.
 
 > **Visão:** FPS 3D offline de sobrevivência por ondas, com combate satisfatório, progressão, dinheiro, compras em estações e suporte tático. Inspiração de mecânicas: Survival dos FPS militares da geração PS3, com identidade, modelos, efeitos e sons próprios. **Não** copiar mapas, arquivos ou personagens de Call of Duty.
 
@@ -528,8 +528,8 @@ O [plano de polimento do Campo de Testes](docs/M0_POLIMENTO_CAMPO_TESTES.md) reg
 | V17-02 | Relatório de onda em toast compacto de duas linhas, sem painel vazio | **IMPLEMENTADO / VISUAL PARCIAL** |
 | V17-03 | Reduzir avisos, banner e prompt de interação | **IMPLEMENTADO / VISUAL PARCIAL** |
 | V17-04 | Desativar Quaternius experimental em partidas públicas; manter testes isolados | **IMPLEMENTADO** |
-| V17-05 | Testes automáticos de UI e ótica sem regressões de mecânicas | **AGUARDANDO CI** |
-| V17-06 | Build ZIP Windows v0.9.17 no GitHub Releases | **AGUARDANDO CI / PUBLICAÇÃO** |
+| V17-05 | Testes automáticos de UI e ótica sem regressões de mecânicas | **CONCLUÍDO (CI 0.9.17)** |
+| V17-06 | Build ZIP Windows v0.9.17 no GitHub Releases | **CONCLUÍDO (CI + RELEASES)** |
 | V17-07 | Avaliação jogando de ADS, UI, 5+ ondas e FPS no Ryzen 7530U | **PENDENTE** |
 
 **Ainda fora de escopo:** novos mapas, mais ondas, animações profissionais/rig Quaternius, novas armas e IA militar completa. [QA](docs/QA_V0_9_17.md) · [Release](docs/releases/v0.9.17.md)
@@ -540,14 +540,17 @@ O [plano de polimento do Campo de Testes](docs/M0_POLIMENTO_CAMPO_TESTES.md) reg
 
 | Item | Mudança | Estado |
 | --- | --- | --- |
-| V18-01 | HUD com instrumentos angulares próprios no lugar de caixas genéricas | **IMPLEMENTADO (CÓDIGO) / CI PENDENTE / VISUAL PARCIAL** |
-| V18-02 | Sprint com arma baixa, contrabalanço, mudança de pegada e suavização | **IMPLEMENTADO (CÓDIGO) / CI PENDENTE / VISUAL PARCIAL** |
-| V18-03 | Subir fuzis dos NPCs e aliados ao peito/ombro; pontos de IK acessíveis | **IMPLEMENTADO (CÓDIGO) / CI PENDENTE / VISUAL PARCIAL** |
-| V18-04 | Granada 3D lançável com física, quique, fusível e área de dano com cobertura | **IMPLEMENTADO (CÓDIGO) / CI PENDENTE** |
-| V18-05 | Clarão, onda de choque, fumaça, fragmentos, luz de curta duração | **IMPLEMENTADO (CÓDIGO) / CI PENDENTE / VISUAL PARCIAL** |
-| V18-06 | Gravação Kenney CC0 OGG, conferida pelo hash e incluída no Windows ZIP | **PENDENTE DE PIPELINE** |
-| V18-07 | QA integrado de granada, braços, HUD, sprint e regras existentes | **PENDENTE DE CI** |
-| V18-08 | Windows ZIP v0.9.18 publicado e checksum no Releases | **PENDENTE DE CI/RELEASE** |
+| V18-01 | HUD com instrumentos angulares próprios no lugar de caixas genéricas | **CONCLUÍDO (CÓDIGO/CI)** — 8 polígonos verificados; aparência **PARCIAL** |
+| V18-02 | Sprint com arma baixa, contrabalanço, mudança de pegada e suavização | **PARCIAL** — código/CI funcionais; naturalidade ainda requer Windows |
+| V18-03 | Subir fuzis dos NPCs e aliados ao peito/ombro; pontos de IK acessíveis | **PARCIAL** — altura e integração no CI; postura real ainda não homologada |
+| V18-04 | Granada 3D lançável com física, quique, fusível e área de dano com cobertura | **CONCLUÍDO (CÓDIGO/CI)** — projétil, fusível, collider e explosão testados |
+| V18-05 | Clarão, onda de choque, fumaça, fragmentos, luz de curta duração | **PARCIAL** — efeitos presentes no CI; arte e FPS pendentes |
+| V18-06 | Gravação Kenney CC0 OGG, conferida pelo hash e incluída no Windows ZIP | **CONCLUÍDO (ARQUIVO/CI)** — Git blob 019e536, 28.274 bytes no main |
+| V18-07 | QA integrado de granada, braços, HUD, sprint e regras existentes | **CONCLUÍDO (CI)** — 612 verificações integradas, 50 composições |
+| V18-08 | Windows ZIP v0.9.18 publicado e checksum no Releases | **CONCLUÍDO (CI + RELEASES)** — [ZIP Windows](https://github.com/TPollTech/Frontline-Survival/releases/tag/v0.9.18) |
 | V18-09 | Avaliação real de 5–15 ondas, HUD, explosão, FPS e personagens | **PENDENTE (JOGADOR)** |
 
 **Não considerar concluídos:** personagens humanos com rig profissional/animações completas, IA militar completa, performance medida e novos mapas. Manter as Etapas 0–6 parcialmente abertas; atualizar as marcações após CI. [QA](docs/QA_V0_9_18.md) · [Notas](docs/releases/v0.9.18.md) · [Licença SFX](docs/ASSET_EXPLOSION_CC0.md).
+
+
+**Fechamento técnico da v0.9.18:** [CI 43177661551](https://github.com/TPollTech/Frontline-Survival/actions/runs/43177661551) aprovado com **612 asserções de integração, 2.416 de composição e 23 de regras Survival**; [Release Windows v0.9.18](https://github.com/TPollTech/Frontline-Survival/releases/tag/v0.9.18) publicada, ZIP e SHA-256 verificados. **Não marcar Sprint completo nem evolução visual de personagem/HUD como homologados até testarmos no notebook.**
