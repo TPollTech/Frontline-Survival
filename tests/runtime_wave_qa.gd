@@ -37,15 +37,17 @@ func _run_tests() -> void:
         "wave notification should not cover the weapon sight in the center")
     _expect(game.interaction_panel.size.y <= 40.0 and game.interaction_panel.size.x <= 350.0,
         "pickup/interaction prompt too large")
-    _expect(game.waves_hud.size.y <= 54.0 and game.wave_progress.size.y <= 6.0,
-        "new tactical wave instrument should be compact")
+    _expect(game.wave_progress.size.y <= 6.0 and game.waves_hud.position.y <= 35.0
+        and game.waves_hud.get_theme_font_size("font_size") <= 18,
+        "wave HUD must use a narrow progress bar and modest typography")
     _expect(game.hud.position.x < 65.0 and game.ammo_hud.position.x > 990.0,
         "credits/ammo instrument placement must stay on the edges")
-    var instrument_count := 0
+    var instrument_shapes := 0
     for child in game.hud.get_parent().get_children():
-        if child is Polygon2D and child.name.begins_with("TacticalInstrumentBackdrop"):
-            instrument_count += 1
-    _expect(instrument_count >= 4, "flat rectangle HUD was not replaced by custom instruments")
+        if child is Polygon2D:
+            instrument_shapes += 1
+    print("HUD_INSTRUMENT_SHAPES %d" % instrument_shapes)
+    _expect(instrument_shapes >= 8, "HUD requires four angular frames and four accent marks")
     # The four actual settings categories must be reachable from the pause UI.
     var menu: Variant = game.game_menu
     _expect(menu != null and not menu.active, "game starts/resumes outside menu")

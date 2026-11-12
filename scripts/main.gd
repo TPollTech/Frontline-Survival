@@ -853,8 +853,8 @@ func _throw_grenade() -> void:
     grenade.configure(player, -grenade_event_serial)
     var forward := -player.camera.global_transform.basis.z.normalized()
     var right := player.camera.global_transform.basis.x.normalized()
-    grenade.global_position = player.camera.global_position + forward * 0.65 + right * 0.16 - Vector3.UP * 0.12
     add_child(grenade)
+    grenade.global_position = player.camera.global_position + forward * 0.65 + right * 0.16 - Vector3.UP * 0.12
     grenade.launch(forward)
     grenade.detonated.connect(_on_frag_detonated)
     player.play_grenade_throw()
