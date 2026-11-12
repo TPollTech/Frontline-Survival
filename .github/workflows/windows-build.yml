@@ -14,6 +14,12 @@ on:
       - "project.godot"
       - "export_presets.cfg"
   workflow_dispatch:
+    inputs:
+      publish_release:
+        description: 'Publicar uma nova GitHub Release (desmarcado = apenas testar ZIP Windows)'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -31,15 +37,16 @@ jobs:
       - name: Checkout game sources
         uses: actions/checkout@v4
 
-      - name: Detect new numbered release (skip if already published)
+      - name: Decide whether to build Windows and publish
         id: release_gate
-        # Auto-publish only when the version has NOT been released. Existing
-        # tags skip export/package, limiting GitHub Actions consumption.
-        if: startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/main'
+        # Pushes to main run QA only. Tags publish; manual dispatch tests
+        # Windows artifacts by default and publishes only when opted in.
+        if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/v')
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
+          PUBLISH_REQUESTED: ${{ inputs.publish_release }}
         run: |
           set -euo pipefail
           VERSION="$(sed -n 's/^application\/product_version="\([^"]*\)"/\1/p' export_presets.cfg | head -n 1)"
@@ -48,16 +55,33 @@ jobs:
             exit 1
           fi
           TAG="v$VERSION"
-          if [[ "${GITHUB_REF_TYPE}" == "tag" && "${GITHUB_REF_NAME}" != "$TAG" ]]; then
-            echo "::error::Requested tag ${GITHUB_REF_NAME} differs from project version $TAG"
+          if [[ "$GITHUB_REF_TYPE" == "tag" && "$GITHUB_REF_NAME" != "$TAG" ]]; then
+            echo "::error::Tag $GITHUB_REF_NAME does not match project version $TAG"
             exit 1
           fi
+          if [[ "$GITHUB_EVENT_NAME" == "workflow_dispatch" && "$PUBLISH_REQUESTED" == "true" && "$GITHUB_REF" != "refs/heads/main" ]]; then
+            echo "::error::Publishing from manual dispatch is allowed only from main."
+            exit 1
+          fi
+
           if gh release view "$TAG" >/dev/null 2>&1; then
             echo "create_release=false" >> "$GITHUB_OUTPUT"
-            echo "Existing $TAG; run tests, skip redundant Windows build and publication."
+            if [[ "$GITHUB_EVENT_NAME" == "workflow_dispatch" ]]; then
+              echo "build_windows=true" >> "$GITHUB_OUTPUT"
+              echo "Release $TAG exists; build a new temporary Windows artifact without publishing."
+            else
+              echo "build_windows=false" >> "$GITHUB_OUTPUT"
+              echo "Release $TAG already exists; skip duplicate Windows export."
+            fi
           else
-            echo "create_release=true" >> "$GITHUB_OUTPUT"
-            echo "New $TAG; export Windows only after all QA steps succeed."
+            echo "build_windows=true" >> "$GITHUB_OUTPUT"
+            if [[ "$GITHUB_REF_TYPE" == "tag" || "$PUBLISH_REQUESTED" == "true" ]]; then
+              echo "create_release=true" >> "$GITHUB_OUTPUT"
+              echo "Build and publish the new $TAG release after QA."
+            else
+              echo "create_release=false" >> "$GITHUB_OUTPUT"
+              echo "Build Windows ZIP for testing only; no public release will be created."
+            fi
           fi
 
       - name: Setup Godot and Windows export templates
@@ -159,7 +183,7 @@ jobs:
           python tools/verify_project.py
 
       - name: Export Windows release
-        if: steps.release_gate.outputs.create_release == 'true'
+        if: steps.release_gate.outputs.build_windows == 'true'
         shell: bash
         run: |
           set -o pipefail
@@ -174,7 +198,7 @@ jobs:
           cp README.md dist/LEIA-ME.md
 
       - name: Package standalone ZIP with version
-        if: steps.release_gate.outputs.create_release == 'true'
+        if: steps.release_gate.outputs.build_windows == 'true'
         id: package
         shell: bash
         run: |
@@ -196,7 +220,7 @@ jobs:
           echo "Created $ASSET and SHA-256"
 
       - name: Upload temporary workflow artifact
-        if: steps.release_gate.outputs.create_release == 'true'
+        if: steps.release_gate.outputs.build_windows == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: FrontlineSurvival-${{ steps.package.outputs.tag }}-Windows
