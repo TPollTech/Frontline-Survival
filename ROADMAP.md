@@ -459,10 +459,12 @@ O [plano de polimento do Campo de Testes](docs/M0_POLIMENTO_CAMPO_TESTES.md) reg
 | CT-06 | **Última Chance:** estado ferido, pistola com 8 cartuchos, 10s para matar e recuperar; kit autorreanimação consumível separado | **IMPLEMENTADO (CÓDIGO)** → treino/clássico e edge cases no Windows pendentes |
 | CT-07 | QA prolongado/visual (15 ondas, colisões, IA, som, FPS) | **PENDENTE (JOGO REAL)** |
 | CT-08 | Teste de **renderização da malha Quaternius** via Xvfb e imagem gravada no repo | **IMPLEMENTADO (SCRIPT CI)** — aguarda imagem e revisão humana |
-| CT-09 | Nova **GitHub Release v0.9.15** com ZIP/EXE/PCK/SHA-256 | **AGUARDANDO PIPELINE** |
+| CT-09 | Nova **GitHub Release v0.9.15** com ZIP/EXE/PCK/SHA-256 | **CONCLUÍDO (CI + RELEASES)** — [release](https://github.com/TPollTech/Frontline-Survival/releases/tag/v0.9.15), [CI aprovado](https://github.com/TPollTech/Frontline-Survival/actions/runs/43161283939) |
 
 **Regras especiais:** desafio remunerado apenas uma vez por onda/ID; créditos de abates já pagos no momento da morte não são somados novamente no relatório. Shotgun = 1 tiro por trigger, não N pellets. Silenciador usa WAV gravado original via filtro passa-baixa — **não é uma nova gravação profissional de disparo suprimido**. O usuário deve avaliar a qualidade.
 
 **Importante:** esses itens não passaram automaticamente de **implementado em código** a **concluído jogando**; todos os G1–G12 do GDD ainda se aplicam. Não declarar 1.0 enquanto visuais/armas/NPC/benchmark não estiverem aprovados.
 
 [Notas v0.9.15](docs/releases/v0.9.15.md) • [QA v0.9.15](docs/QA_V0_9_15.md) • [Pesquisa MW3 original](docs/PESQUISA_MW3_SURVIVAL_MECANICAS.md)
+
+**Homologação técnica da v0.9.15 — 12/11/2026:** CI de importação, teste de 50 composições, testes de recursos Survival, integração de duas ondas com NPCs, captura da malha do Quaternius em Godot/Xvfb, validação estática, exportação Windows e publicação ZIP + SHA256 **CONCLUÍDOS**. O workflow precisou de correção porque o `git stash --include-untracked` ocultava os pacotes antes da Release. **Status de jogabilidade continua PARCIAL**: confirmar no Windows Última Chance, perks, acessórios, postura deitada, precisão/relatório, gameplay de 15 ondas, aparência do humanoide e FPS real.
