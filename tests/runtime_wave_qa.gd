@@ -37,9 +37,9 @@ func _run_tests() -> void:
         "wave notification should not cover the weapon sight in the center")
     _expect(game.interaction_panel.size.y <= 40.0 and game.interaction_panel.size.x <= 350.0,
         "pickup/interaction prompt too large")
-    _expect(game.wave_progress.size.y <= 6.0 and game.waves_hud.position.y <= 35.0
-        and game.waves_hud.get_theme_font_size("font_size") <= 18,
-        "wave HUD must use a narrow progress bar and modest typography")
+    _expect(game.wave_progress.position.y <= 95.0 and game.wave_progress.size.x <= 315.0
+        and game.waves_hud.position.y <= 35.0,
+        "wave HUD must stay compact and at the top instead of covering the view")
     _expect(game.hud.position.x < 65.0 and game.ammo_hud.position.x > 990.0,
         "credits/ammo instrument placement must stay on the edges")
     var instrument_shapes := 0
