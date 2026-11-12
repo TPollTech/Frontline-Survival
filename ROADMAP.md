@@ -1,6 +1,6 @@
 # Frontline Survival — Planejamento e Roadmap
 
-**Documento mestre do projeto** · Atualizado: 12/11/2026 · **versão de desenvolvimento:** `0.9.19` (**HUD refeito; CI/Windows ainda a validar**) · **Situação:** desenvolvimento incremental; Etapas 0–6 ainda não encerradas integralmente.
+**Documento mestre do projeto** · Atualizado: 12/11/2026 · **versão de desenvolvimento:** `0.9.19` (**CI, captura real e Windows Release publicados; aprovação visual do jogador pendente**) · **Situação:** desenvolvimento incremental; Etapas 0–6 ainda não encerradas integralmente.
 
 > **Visão:** FPS 3D offline de sobrevivência por ondas, com combate satisfatório, progressão, dinheiro, compras em estações e suporte tático. Inspiração de mecânicas: Survival dos FPS militares da geração PS3, com identidade, modelos, efeitos e sons próprios. **Não** copiar mapas, arquivos ou personagens de Call of Duty.
 
@@ -561,14 +561,16 @@ O [plano de polimento do Campo de Testes](docs/M0_POLIMENTO_CAMPO_TESTES.md) reg
 
 | ID | Critério verificável | Estado inicial |
 | --- | --- | --- |
-| V19-01 | Substituir os grandes fundos pretos de créditos, onda, vitalidade e arma por rótulos com tipografia e linhas discretas | **IMPLEMENTADO / AGUARDANDO CI** |
-| V19-02 | Usar grupos ancorados nos cantos/centro para funcionar em proporções e resoluções diferentes | **IMPLEMENTADO / AGUARDANDO CI** |
-| V19-03 | Reservar região central para FPS, mantendo apenas eventos temporários pequenos no topo | **IMPLEMENTADO / HOMOLOGAÇÃO VISUAL PENDENTE** |
-| V19-04 | Impedir três mensagens simultâneas; prioridade banner > resumo > status | **IMPLEMENTADO / AGUARDANDO CI** |
-| V19-05 | Desafios detalhados visíveis somente em TAB; interações contextuais discretas por F | **IMPLEMENTADO / AGUARDANDO CI** |
-| V19-06 | Captura renderizada real OpenGL 1280×720, sem depender só de teste headless | **IMPLEMENTADO / AGUARDANDO CI** |
-| V19-07 | Preservar IA, armas, granada física, compras, ondas, menus e som | **AGUARDANDO CI** |
-| V19-08 | Publicar ZIP Windows v0.9.19 em Release numerada, com checksum SHA256 | **AGUARDANDO CI** |
+| V19-01 | Substituir os grandes fundos pretos de créditos, onda, vitalidade e arma por rótulos com tipografia e linhas discretas | **CONCLUÍDO (CÓDIGO/CI)** — sem Polygon2D preenchido no combate |
+| V19-02 | Usar grupos ancorados nos cantos/centro para funcionar em proporções e resoluções diferentes | **CONCLUÍDO (CÓDIGO/CI)** — âncoras testadas; resoluções reais pendentes |
+| V19-03 | Reservar região central para FPS, mantendo apenas eventos temporários pequenos no topo | **PARCIAL** — código/CI confirmados, legibilidade visual não aprovada ainda |
+| V19-04 | Impedir três mensagens simultâneas; prioridade banner > resumo > status | **CONCLUÍDO (CÓDIGO/CI)** — teste de exclusividade aprovado |
+| V19-05 | Desafios detalhados visíveis somente em TAB; interações contextuais discretas por F | **CONCLUÍDO (CÓDIGO/CI)** — comportamento em código; teste visual ainda indicado |
+| V19-06 | Captura renderizada real OpenGL 1280×720, sem depender só de teste headless | **CONCLUÍDO (CI/CAPTURA)** — [HUD atual](https://github.com/TPollTech/Frontline-Survival/blob/main/docs/qa/hud_current.png); homologação visual pendente |
+| V19-07 | Preservar IA, armas, granada física, compras, ondas, menus e som | **CONCLUÍDO (CI)** — 617 asserts integrados, 2.416 de ondas, 23 Survival |
+| V19-08 | Publicar ZIP Windows v0.9.19 em Release numerada, com checksum SHA256 | **CONCLUÍDO (CI/RELEASES)** — [v0.9.19](https://github.com/TPollTech/Frontline-Survival/releases/tag/v0.9.19) |
 | V19-09 | Usuário aprovar visual em 720p, 1366×768 e 1080p e desempenho Ryzen 5 | **PENDENTE** |
 
 **Aceite:** nenhuma declaração de “HUD profissional concluído” antes do teste real em Windows. [QA v0.9.19](docs/QA_V0_9_19.md) · [notas de release](docs/releases/v0.9.19.md). O backlog de personagens/IA permanece aberto.
+
+**Fechamento técnico v0.9.19:** [CI 43287202965](https://github.com/TPollTech/Frontline-Survival/actions/runs/43287202965) aprovado: 617 verificações integradas, 2.416 de ondas, 23 de Survival, [PNG 1280×720](https://github.com/TPollTech/Frontline-Survival/blob/main/docs/qa/hud_current.png) e [ZIP Windows de 37.133.826 bytes](https://github.com/TPollTech/Frontline-Survival/releases/tag/v0.9.19). O novo HUD ainda **não está marcado como visualmente aprovado pelo jogador**.

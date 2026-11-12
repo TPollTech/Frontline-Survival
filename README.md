@@ -5,7 +5,7 @@
 
 **Projeto Godot 4.x Standard, FPS 3D offline para Windows**, com renderizador **Compatibility** e alvo inicial Ryzen 5 7530U / 8 GB RAM. Projeto original inspirado em mecânicas do gênero *Survival por ondas*. **Não contém modelos, áudio ou outros arquivos do Call of Duty.**
 
-**v0.9.19 — HUD reconstruído:** removi os quatro módulos pretos que ainda ocupavam o combate. O novo HUD usa **tipografia limpa e linhas discretas**, com âncoras nas bordas da tela, aviso de onda sem fundo e apenas um aviso ativo por vez. Desafios detalhados aparecem ao segurar `TAB`. O centro de visão fica livre, preservando as mecânicas da 0.9.18. [Release v0.9.19](docs/releases/v0.9.19.md) · [QA](docs/QA_V0_9_19.md) · [captura real OpenGL](docs/qa/hud_current.png). **Aprovação visual final depende do jogador no notebook.**
+**v0.9.19 — HUD reconstruído:** removi os quatro módulos pretos que ainda ocupavam o combate. O novo HUD usa **tipografia limpa e linhas discretas**, com âncoras nas bordas da tela, aviso de onda sem fundo e apenas um aviso ativo por vez. Desafios detalhados aparecem ao segurar `TAB`. O centro de visão fica livre, preservando as mecânicas da 0.9.18. [Release v0.9.19](docs/releases/v0.9.19.md) · [QA](docs/QA_V0_9_19.md) · [captura real OpenGL](docs/qa/hud_current.png). **Build Windows e captura OpenGL publicadas; aprovação visual final depende do jogador no notebook.**
 
 ## Histórico da v0.9.18
 
