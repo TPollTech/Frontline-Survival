@@ -41,7 +41,7 @@ jobs:
         id: release_gate
         # Pushes to main run QA only. Tags publish; manual dispatch tests
         # Windows artifacts by default and publishes only when opted in.
-        if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/v')
+        if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/main'
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
@@ -75,7 +75,7 @@ jobs:
             fi
           else
             echo "build_windows=true" >> "$GITHUB_OUTPUT"
-            if [[ "$GITHUB_REF_TYPE" == "tag" || "$PUBLISH_REQUESTED" == "true" ]]; then
+            if [[ "$GITHUB_REF_TYPE" == "tag" || "$GITHUB_REF" == "refs/heads/main" || "$PUBLISH_REQUESTED" == "true" ]]; then
               echo "create_release=true" >> "$GITHUB_OUTPUT"
               echo "Build and publish the new $TAG release after QA."
             else
@@ -83,6 +83,22 @@ jobs:
               echo "Build Windows ZIP for testing only; no public release will be created."
             fi
           fi
+
+      - name: Verify recorded CC0 grenade explosion
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Kenney Sci-Fi Sounds, CC0. Source mirror has this pinned Git blob.
+          # Unlike scripted beeps, the shipped build plays an actual recording.
+          mkdir -p assets/audio/explosions
+          SFX="assets/audio/explosions/grenade.ogg"
+          if [ ! -s "$SFX" ]; then
+            curl -fsSL --retry 3 --max-time 35 \
+              "https://raw.githubusercontent.com/GeorgeQLe/assets-sfx-combat/main/assets/kenney/sci-fi-sounds/Audio/explosionCrunch_000.ogg" \
+              -o "$SFX"
+          fi
+          test "$(git hash-object "$SFX")" = "019e53664abf859fc5529f95d0db23fa3ac1e42d"
+          echo "Recorded CC0 explosion integrity verified."
 
       - name: Setup Godot and Windows export templates
         uses: chickensoft-games/setup-godot@v2
@@ -237,7 +253,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add assets/models/*.glb assets/textures/weapon_*.png assets/audio/reloads/*.wav docs/qa/humanoid_current.png
+          git add assets/models/*.glb assets/textures/weapon_*.png assets/audio/reloads/*.wav docs/qa/humanoid_current.png assets/audio/explosions/grenade.ogg
           if git diff --cached --quiet; then
             echo "Generated game assets already synchronized."
           else

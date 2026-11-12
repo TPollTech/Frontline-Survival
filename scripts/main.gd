@@ -9,6 +9,7 @@ const RoundStats = preload("res://scripts/survival_round_stats.gd")
 
 
 const MAX_ACTIVE_ENEMIES := 12
+const FragGrenade = preload("res://scripts/frag_grenade.gd")
 const ENABLE_EXPERIMENTAL_HUMANOIDS := false
 const MAX_CORPSES := 12
 const MAX_LOOT := 18
@@ -842,40 +843,26 @@ func _airstrike_impact(at: Vector3, marker: MeshInstance3D) -> void:
 
 func _throw_grenade() -> void:
     if grenades <= 0:
-        _notify("Sem granadas. Compre mais no SUPORTE.", 2.5)
+        _notify("SEM GRANADAS  |  COMPRE NA ESTACAO DE EQUIPAMENTOS", 1.8)
+        return
+    if player.dead or player.downed or shop_open or player.grenade_throw_timer > 0.0:
         return
     grenades -= 1
-    var origin := player.camera.global_position
-    var direction := -player.camera.global_transform.basis.z
-    var target := origin + direction * 18.0
-    var ray := PhysicsRayQueryParameters3D.create(origin, target)
-    ray.exclude = [player.get_rid()]
-    ray.collision_mask = 3
-    var hit := get_world_3d().direct_space_state.intersect_ray(ray)
-    if not hit.is_empty():
-        target = hit["position"]
     grenade_event_serial += 1
-    var explosion_id := -grenade_event_serial
-    for enemy in get_tree().get_nodes_in_group("enemies"):
-        if is_instance_valid(enemy) and not enemy.dead:
-            var d: float = enemy.global_position.distance_to(target)
-            if d < 6.0:
-                enemy.take_damage(180.0 * (1.0 - d / 8.0), "grenade", false, explosion_id)
-    var blast := MeshInstance3D.new()
-    var sphere := SphereMesh.new()
-    sphere.radius = 1.0
-    sphere.height = 2.0
-    blast.mesh = sphere
-    var mat := StandardMaterial3D.new()
-    mat.albedo_color = Color(1.0, 0.48, 0.10, 0.5)
-    mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-    mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-    blast.material_override = mat
-    blast.position = target
-    add_child(blast)
-    var tween := create_tween()
-    tween.tween_property(blast, "scale", Vector3(5.0, 5.0, 5.0), 0.26)
-    tween.tween_callback(blast.queue_free)
+    var grenade: SurvivalFragGrenade = FragGrenade.new()
+    grenade.configure(player, -grenade_event_serial)
+    var forward := -player.camera.global_transform.basis.z.normalized()
+    var right := player.camera.global_transform.basis.x.normalized()
+    grenade.global_position = player.camera.global_position + forward * 0.65 + right * 0.16 - Vector3.UP * 0.12
+    add_child(grenade)
+    grenade.launch(forward)
+    grenade.detonated.connect(_on_frag_detonated)
+    player.play_grenade_throw()
+
+func _on_frag_detonated(hit_count: int) -> void:
+    if hit_count > 0:
+        reward_hud.text = "FRAG  |  %d ALVOS ATINGIDOS" % hit_count
+        reward_timer = 1.25
 
 func _on_player_died() -> void:
     if shop_open:
@@ -1030,25 +1017,26 @@ func _create_ui() -> void:
     hitmarker = HitMarkerUI.new()
     root.add_child(hitmarker)
     hitmarker.position = Vector2(640, 360)
-    # HUD enxuto: placar, proxima onda, vitalidade, armamento e contexto.
-    _hud_panel(root, Vector2(16, 16), Vector2(270, 70))
-    hud = _add_label(root, Vector2(30, 28), Vector2(242, 52), 18)
-    _hud_panel(root, Vector2(411, 14), Vector2(458, 108))
-    waves_hud = _add_label(root, Vector2(426, 22), Vector2(428, 66), 22)
+    # Original 2026-style military HUD: narrow chamfered instruments rather
+    # than giant modal rectangles. The play space stays unobstructed.
+    _hud_panel(root, Vector2(22, 18), Vector2(235, 62))
+    hud = _add_label(root, Vector2(37, 25), Vector2(206, 49), 16)
+    _hud_panel(root, Vector2(464, 16), Vector2(351, 79))
+    waves_hud = _add_label(root, Vector2(477, 24), Vector2(325, 48), 17)
     waves_hud.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-    wave_progress = _make_hud_bar(root, Vector2(433, 95), Vector2(414, 9), Color(0.32, 0.83, 0.73))
-    _hud_panel(root, Vector2(16, 607), Vector2(286, 99))
-    health_text_hud = _add_label(root, Vector2(31, 625), Vector2(242, 20), 15)
-    health_bar = _make_hud_bar(root, Vector2(31, 647), Vector2(236, 9), Color(0.38, 0.88, 0.54))
-    armor_text_hud = _add_label(root, Vector2(31, 661), Vector2(242, 19), 15)
-    armor_bar = _make_hud_bar(root, Vector2(31, 685), Vector2(236, 8), Color(0.38, 0.68, 0.96))
-    _hud_panel(root, Vector2(966, 610), Vector2(298, 97))
-    ammo_hud = _add_label(root, Vector2(996, 626), Vector2(252, 75), 21)
+    wave_progress = _make_hud_bar(root, Vector2(487, 79), Vector2(304, 5), Color(0.39, 0.84, 0.75))
+    _hud_panel(root, Vector2(20, 625), Vector2(244, 77))
+    health_text_hud = _add_label(root, Vector2(33, 633), Vector2(212, 18), 14)
+    health_bar = _make_hud_bar(root, Vector2(33, 653), Vector2(204, 6), Color(0.38, 0.88, 0.54))
+    armor_text_hud = _add_label(root, Vector2(33, 668), Vector2(212, 18), 14)
+    armor_bar = _make_hud_bar(root, Vector2(33, 690), Vector2(204, 5), Color(0.38, 0.68, 0.96))
+    _hud_panel(root, Vector2(1020, 623), Vector2(241, 79))
+    ammo_hud = _add_label(root, Vector2(1042, 632), Vector2(201, 62), 20)
     ammo_hud.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-    support_hud = _add_label(root, Vector2(948, 53), Vector2(316, 59), 14)
+    support_hud = _add_label(root, Vector2(930, 54), Vector2(318, 54), 13)
     support_hud.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
     support_hud.add_theme_color_override("font_color", Color(0.70, 0.86, 0.87))
-    challenges_hud = _add_label(root, Vector2(26, 108), Vector2(540, 36), 14)
+    challenges_hud = _add_label(root, Vector2(27, 99), Vector2(460, 29), 12)
     challenges_hud.add_theme_color_override("font_color", Color(0.73, 0.84, 0.72))
     interaction_panel = Panel.new()
     interaction_panel.position = Vector2(476, 678)
@@ -1059,12 +1047,12 @@ func _create_ui() -> void:
     help_hud = _add_label(interaction_panel, Vector2(8, 4), Vector2(312, 24), 14)
     help_hud.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
     help_hud.add_theme_color_override("font_color", Color(0.93, 0.87, 0.65))
-    fps_hud = _add_label(root, Vector2(1163, 18), Vector2(103, 25), 15)
+    fps_hud = _add_label(root, Vector2(1163, 16), Vector2(100, 25), 13)
     fps_hud.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-    message_hud = _add_label(root, Vector2(412, 206), Vector2(456, 30), 15)
+    message_hud = _add_label(root, Vector2(447, 200), Vector2(386, 28), 14)
     message_hud.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
     message_hud.add_theme_color_override("font_color", Color(0.96, 0.90, 0.63))
-    reward_hud = _add_label(root, Vector2(947, 155), Vector2(300, 32), 15)
+    reward_hud = _add_label(root, Vector2(952, 130), Vector2(292, 29), 14)
     reward_hud.add_theme_color_override("font_color", Color(0.47, 0.98, 0.63))
     # The panel itself must vanish outside the short intermission recap.
     report_background = Panel.new()
@@ -1182,12 +1170,48 @@ func _style_panel(panel: Panel, background: Color, border: Color, radius: int = 
     panel.add_theme_stylebox_override("panel", style)
 
 func _hud_panel(parent: Node, where: Vector2, dimensions: Vector2) -> void:
-    var panel := Panel.new()
-    panel.position = where
-    panel.size = dimensions
-    panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
-    _style_panel(panel, Color(0.012, 0.043, 0.059, 0.83), Color(0.19, 0.49, 0.55, 0.48), 9)
-    parent.add_child(panel)
+    # Geometry is cheap and custom: clipped radar-instrument silhouette,
+    # thin left accent, short top rule, no full opaque generic modal.
+    var x: float = dimensions.x
+    var y: float = dimensions.y
+    var bevel := 12.0
+    var silhouette := Polygon2D.new()
+    silhouette.name = "TacticalInstrumentBackdrop"
+    silhouette.position = where
+    silhouette.polygon = PackedVector2Array([
+        Vector2(0.0, 0.0), Vector2(x - bevel, 0.0),
+        Vector2(x, bevel), Vector2(x, y), Vector2(bevel, y),
+        Vector2(0.0, y - bevel)
+    ])
+    silhouette.color = Color(0.009, 0.023, 0.032, 0.63)
+    parent.add_child(silhouette)
+    var top_rule := Line2D.new()
+    top_rule.name = "TacticalInstrumentEdge"
+    top_rule.position = where
+    top_rule.width = 1.4
+    top_rule.default_color = Color(0.39, 0.78, 0.75, 0.78)
+    top_rule.points = PackedVector2Array([
+        Vector2(0.0, y * 0.45), Vector2(0.0, 1.0),
+        Vector2(x - bevel, 1.0), Vector2(x, bevel)
+    ])
+    parent.add_child(top_rule)
+    var corner := Line2D.new()
+    corner.position = where
+    corner.width = 1.5
+    corner.default_color = Color(0.66, 0.83, 0.77, 0.53)
+    corner.points = PackedVector2Array([
+        Vector2(x, y - 18.0), Vector2(x, y),
+        Vector2(x - 31.0, y)
+    ])
+    parent.add_child(corner)
+    var accent := Polygon2D.new()
+    accent.position = where + Vector2(3.0, 8.0)
+    accent.polygon = PackedVector2Array([
+        Vector2.ZERO, Vector2(3.0, 0.0),
+        Vector2(3.0, 17.0), Vector2(0.0, 17.0)
+    ])
+    accent.color = Color(0.40, 0.89, 0.78, 0.90)
+    parent.add_child(accent)
 
 func _make_hud_bar(parent: Node, where: Vector2, dimensions: Vector2, tint: Color) -> ProgressBar:
     var bar := ProgressBar.new()
@@ -1198,12 +1222,12 @@ func _make_hud_bar(parent: Node, where: Vector2, dimensions: Vector2, tint: Colo
     bar.show_percentage = false
     bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
     var back := StyleBoxFlat.new()
-    back.bg_color = Color(0.11, 0.19, 0.22)
-    back.set_corner_radius_all(3)
+    back.bg_color = Color(0.07, 0.15, 0.19, 0.81)
+    back.set_corner_radius_all(1)
     bar.add_theme_stylebox_override("background", back)
     var fill := StyleBoxFlat.new()
     fill.bg_color = tint
-    fill.set_corner_radius_all(3)
+    fill.set_corner_radius_all(1)
     bar.add_theme_stylebox_override("fill", fill)
     parent.add_child(bar)
     return bar
@@ -1221,13 +1245,16 @@ func _add_label(parent: Node, where: Vector2, dimensions: Vector2, font_size: in
     label.position = where
     label.size = dimensions
     label.add_theme_font_size_override("font_size", font_size)
-    label.add_theme_color_override("font_color", Color(0.95, 0.97, 0.98))
+    label.add_theme_color_override("font_color", Color(0.93, 0.95, 0.94))
+    label.add_theme_color_override("font_shadow_color", Color(0.0, 0.0, 0.0, 0.72))
+    label.add_theme_constant_override("shadow_offset_x", 1)
+    label.add_theme_constant_override("shadow_offset_y", 1)
     label.mouse_filter = Control.MOUSE_FILTER_IGNORE
     parent.add_child(label)
     return label
 
 func _refresh_ui() -> void:
-    hud.text = "CREDITOS  $%d\nABATES       %d" % [wallet, kills]
+    hud.text = "CREDITOS  $%d\nABATES      %d" % [wallet, kills]
     health_text_hud.text = "VIDA      %d" % ceili(player.health)
     health_text_hud.add_theme_color_override(
         "font_color", Color(1.0, 0.51, 0.46) if player.health <= 30.0 else Color(0.88, 0.97, 0.93)
@@ -1236,15 +1263,15 @@ func _refresh_ui() -> void:
     health_bar.value = player.health
     armor_bar.value = player.armor
     if phase == "break":
-        waves_hud.text = "PREPARACAO   /   ONDA %02d\nPROXIMA EM  %s" % [wave + 1, _clock(break_remaining)]
+        waves_hud.text = "ONDA %02d   /   PREPARACAO\nPROXIMA EM  %s" % [wave + 1, _clock(break_remaining)]
         wave_progress.value = 100.0 * (1.0 - break_remaining / maxf(break_duration, 0.1))
     else:
-        waves_hud.text = "ONDA %02d   /   COMBATE\n%d INIMIGOS RESTANTES" % [wave, alive + spawn_remaining]
+        waves_hud.text = "ONDA %02d   /   COMBATE\nALVOS RESTANTES  %d" % [wave, alive + spawn_remaining]
         var total := mini(5 + wave * 2, 55)
         wave_progress.value = 100.0 * (1.0 - float(alive + spawn_remaining) / float(maxi(total, 1)))
     var gun_name: String = SurvivalPlayer.WEAPONS[player.weapon_id]["name"]
     ammo_hud.text = "%s\n%d  /  %d%s" % [gun_name.to_upper(), player.magazines[player.weapon_id], player.reserves[player.weapon_id], "   RECARREGANDO" if player.reloading else ""]
-    support_hud.text = "G %d  |  3 REFORCO %d  |  4 AEREO %d\nKIT %d  |  PERK: %s" % [
+    support_hud.text = "G FRAG %d  /  3 EQUIPE %d  /  4 AEREO %d\nKIT %d  /  PERK %s" % [
         grenades, ally_tokens, airstrike_tokens, player.self_revive_kits,
         player.active_perk.to_upper() if player.active_perk != "" else "NENHUM"
     ]

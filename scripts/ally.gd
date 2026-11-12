@@ -126,7 +126,7 @@ func _ready() -> void:
         else:
             right_shoulder = shoulder
             right_elbow = elbow
-    gun_mount = _joint(visual, Vector3(0, 0.15, -0.26), "WeaponRig")
+    gun_mount = _joint(visual, Vector3(0, 0.30, -0.37), "WeaponRig")
     var rifle_source: PackedScene = load("res://assets/models/rifle.glb")
     if rifle_source != null:
         var model := rifle_source.instantiate() as Node3D
@@ -215,10 +215,12 @@ func _physics_process(delta: float) -> void:
     left_knee.rotation.x = lerpf(left_knee.rotation.x, maxf(0.0, -gait) * 0.55, minf(1.0, delta * 11.0))
     right_knee.rotation.x = lerpf(right_knee.rotation.x, maxf(0.0, gait) * 0.55, minf(1.0, delta * 11.0))
     gun_mount.rotation.x = lerpf(gun_mount.rotation.x, gun_kick * 0.09, minf(1.0, delta * 14.0))
-    gun_mount.position.z = lerpf(gun_mount.position.z, -0.26 + gun_kick * 0.075, minf(1.0, delta * 13.0))
+    gun_mount.position.z = lerpf(gun_mount.position.z, -0.37 + gun_kick * 0.055, minf(1.0, delta * 13.0))
     head_pivot.rotation.z = lerpf(head_pivot.rotation.z, sin(walk_time) * 0.025 * move.length(), minf(1.0, delta * 8.0))
-    var trigger_grip := gun_mount.position + gun_mount.basis * Vector3(0.06, -0.16, 0.03)
-    var support_grip := gun_mount.position + gun_mount.basis * Vector3(-0.06, -0.095, -0.40)
+    # Support squad now keeps the rifle at chest/shoulder level; IK hands
+    # reach the rear trigger and reachable fore-end, not the abdomen.
+    var trigger_grip := gun_mount.position + gun_mount.basis * Vector3(0.085, -0.035, 0.075)
+    var support_grip := gun_mount.position + gun_mount.basis * Vector3(-0.075, -0.025, -0.20)
     ArmPose.align_hand(right_shoulder, right_elbow, trigger_grip, 1.0, delta)
     ArmPose.align_hand(left_shoulder, left_elbow, support_grip, -1.0, delta)
     if is_instance_valid(nearest) and nearest_distance < 23.0 and cooldown <= 0.0:

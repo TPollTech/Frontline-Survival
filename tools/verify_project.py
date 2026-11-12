@@ -145,6 +145,11 @@ for frag in ('KEY_Z', 'func _update_posture(', '_can_expand_to_height',
     require(frag in player, f"Missing requested player Survival feature: {frag}")
 require((ROOT / "tests/survival_features_qa.gd").is_file(),
         "Missing deterministic money/headshot/quadkill tests")
+grenade_code = (ROOT / "scripts/frag_grenade.gd").read_text(encoding="utf-8")
+for frag in ("extends RigidBody3D", "FUSE_SECONDS := 2.45", "func launch(", "func _damage_enemies(", "func _spawn_explosion_effects("):
+    require(frag in grenade_code, "Physical grenade behavior missing: " + frag)
+require("FragGrenade.new()" in main and "grenade.launch(forward)" in main,
+        "G must spawn a flying grenade instead of dealing instant ray damage")
 require((ROOT / "tests/humanoid_qa_snapshot.gd").is_file(),
         "Missing rendered Quaternius screenshot test")
 
@@ -156,8 +161,9 @@ models = ROOT / 'assets/models'
 weapons = ['pistol','smg','rifle','shotgun','lmg']
 require({file.relative_to(ROOT / "assets" / "audio").as_posix()
          for file in (ROOT / "assets" / "audio").rglob("*") if file.is_file() and file.suffix != ".import"}
-        == {f"{group}/{weapon}.wav" for group in ("weapons", "reloads") for weapon in weapons},
-        "Only recorded weapon and reload WAVs may be present in assets/audio")
+        == ({f"{group}/{weapon}.wav" for group in ("weapons", "reloads") for weapon in weapons}
+            | {"explosions/grenade.ogg"}),
+        "Audio files: ten recorded gun/reload WAVs and one verified CC0 grenade explosion OGG")
 # Godot can render imported GLBs white unless COLOR_0 is enabled by a material.
 # All source geometry is expected to preserve the color attribute.
 for weapon in weapons:

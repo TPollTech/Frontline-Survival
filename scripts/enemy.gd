@@ -238,7 +238,7 @@ func _ready() -> void:
             right_shoulder = shoulder
             right_elbow = elbow
 
-    weapon_pivot = _joint(torso_pivot, Vector3(0, 0.14, -0.25), "HeldWeapon")
+    weapon_pivot = _joint(torso_pivot, Vector3(0, 0.31, -0.35), "HeldWeapon")
     var gun_path := "res://assets/models/%s.glb" % weapon_class
     if ResourceLoader.exists(gun_path):
         var gun_source: PackedScene = load(gun_path)
@@ -541,11 +541,16 @@ func _animate_body(delta: float, moving: bool) -> void:
     torso_pivot.rotation.z = lerpf(torso_pivot.rotation.z, hurt_lean + gait * (0.025 if moving else 0.0), minf(1.0, delta * 13.0))
     torso_pivot.rotation.x = lerpf(torso_pivot.rotation.x, 0.12 * absf(hurt_lean), minf(1.0, delta * 10.0))
     head_pivot.rotation.z = lerpf(head_pivot.rotation.z, -hurt_lean * 0.24, minf(1.0, delta * 8.0))
-    weapon_pivot.position.z = lerpf(weapon_pivot.position.z, -0.25 + weapon_kick * 0.085, minf(1.0, delta * 14.0))
+    weapon_pivot.position.z = lerpf(weapon_pivot.position.z, -0.35 + weapon_kick * 0.062, minf(1.0, delta * 14.0))
+    weapon_pivot.position.y = lerpf(weapon_pivot.position.y,
+        0.31 - (0.12 if tactical_posture == "crouch" else (0.21 if tactical_posture == "prone" else 0.0)),
+        minf(1.0, delta * 12.0))
     weapon_pivot.rotation.x = lerpf(weapon_pivot.rotation.x, weapon_kick * 0.10, minf(1.0, delta * 15.0))
-    var foregrip_z: float = float({"shotgun": -0.42, "smg": -0.32, "rifle": -0.42, "lmg": -0.50}.get(weapon_class, -0.40))
-    var trigger_grip := weapon_pivot.position + weapon_pivot.basis * Vector3(0.06, -0.17, 0.025)
-    var support_grip := weapon_pivot.position + weapon_pivot.basis * Vector3(-0.06, -0.10, foregrip_z)
+    # Stock is held up at sternum/shoulder height, not floating at the belly.
+    # Both grips are close enough for the procedural 2-bone IK to reach.
+    var foregrip_z: float = float({"shotgun": -0.22, "smg": -0.16, "rifle": -0.21, "lmg": -0.23}.get(weapon_class, -0.20))
+    var trigger_grip := weapon_pivot.position + weapon_pivot.basis * Vector3(0.085, -0.035, 0.08)
+    var support_grip := weapon_pivot.position + weapon_pivot.basis * Vector3(-0.075, -0.025, foregrip_z)
     ArmPose.align_hand(right_shoulder, right_elbow, trigger_grip, 1.0, delta)
     ArmPose.align_hand(left_shoulder, left_elbow, support_grip, -1.0, delta)
     if is_instance_valid(humanoid_visual):

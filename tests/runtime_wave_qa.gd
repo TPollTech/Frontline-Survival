@@ -37,6 +37,15 @@ func _run_tests() -> void:
         "wave notification should not cover the weapon sight in the center")
     _expect(game.interaction_panel.size.y <= 40.0 and game.interaction_panel.size.x <= 350.0,
         "pickup/interaction prompt too large")
+    _expect(game.waves_hud.size.y <= 54.0 and game.wave_progress.size.y <= 6.0,
+        "new tactical wave instrument should be compact")
+    _expect(game.hud.position.x < 65.0 and game.ammo_hud.position.x > 990.0,
+        "credits/ammo instrument placement must stay on the edges")
+    var instrument_count := 0
+    for child in game.hud.get_parent().get_children():
+        if child is Polygon2D and child.name.begins_with("TacticalInstrumentBackdrop"):
+            instrument_count += 1
+    _expect(instrument_count >= 4, "flat rectangle HUD was not replaced by custom instruments")
     # The four actual settings categories must be reachable from the pause UI.
     var menu: Variant = game.game_menu
     _expect(menu != null and not menu.active, "game starts/resumes outside menu")
@@ -183,7 +192,44 @@ func _run_tests() -> void:
     game.player.shoot()
     _expect(game.player.magazines[game.player.weapon_id] == original_ammo,
         "sprinting should keep the gun lowered rather than firing")
+    _expect(game.player.grenade_throw_timer == 0.0, "grenade throw should be ready before action")
+    game.player.sprint_blend = 1.0
+    game.player.walk_clock = 2.1
+    game.player.sprint_stride = -0.55
+    game.player._animate_viewmodel(0.18, true)
+    _expect(game.player.left_hand_rig.position.y < -0.18,
+        "sprint support arm should drop separately from walking")
     game.player.sprint_blend = 0.0
+    game.player.sprint_stride = 0.0
+    game.player._animate_viewmodel(0.18, false)
+    # G must launch a REAL rigid body with fuse, gravity, bounce and blast.
+    var grenades_before: int = game.grenades
+    game._throw_grenade()
+    await physics_frame
+    _expect(game.grenades == grenades_before - 1,
+        "G must consume precisely one frag grenade")
+    _expect(game.player.grenade_throw_timer > 0.0,
+        "throw animation did not play")
+    var projectiles := get_nodes_in_group("live_grenades")
+    _expect(projectiles.size() == 1,
+        "grenade must spawn as a physical RigidBody3D, not instant area damage")
+    if not projectiles.is_empty():
+        var frag: Variant = projectiles[0]
+        _expect(frag is RigidBody3D and frag.linear_velocity.length() > 10.0,
+            "grenade launch must have ballistic velocity")
+        _expect(frag.fuse_remaining > 1.0 and not frag.exploded,
+            "grenade exploded at the moment G was pressed")
+        _expect(frag.physics_material_override.bounce > 0.25,
+            "grenade should ricochet off hard geometry")
+        _expect(frag.explosion_sound.stream != null,
+            "recorded CC0 explosion asset was not packaged")
+        frag._detonate()
+        _expect(frag.exploded and frag.get_node_or_null("ShockwaveRing") != null,
+            "detonation did not create shockwave and visual blast")
+        _expect(frag.get_node_or_null("BlastLight") != null,
+            "grenade blast should briefly illuminate the area")
+        frag.queue_free()
+    game.player.grenade_throw_timer = 0.0
     # Hitmarker must not be an always-on crosshair, and requires no audio.
     _expect(not game.hitmarker.visible, "hitmarker is displayed permanently")
     game._on_hit_confirmed()
@@ -204,6 +250,8 @@ func _run_tests() -> void:
     game.add_child(tactical_npc)
     _expect(tactical_npc.ammo_in_mag == 30,
         "NPC must start with a finite rifle magazine")
+    _expect(tactical_npc.weapon_pivot.position.y > 0.27,
+        "enemy rifle is still mounted in the abdomen rather than at the shoulder")
     tactical_npc.ammo_in_mag = 0
     tactical_npc._start_reload()
     _expect(tactical_npc.reload_remaining > 1.5,
@@ -368,6 +416,8 @@ func _run_tests() -> void:
         if head != null:
             _expect(head.position.y <= 0.69, "support head disconnected from torso silhouette")
         _expect(is_instance_valid(support.muzzle), "support rifle or muzzle missing")
+        _expect(support.gun_mount.position.y > 0.27,
+            "allied support gun mount is still at belly height")
     var starting_weapon: String = game.player.weapon_id
     for weapon: String in ["pistol", "smg", "rifle", "shotgun", "lmg"]:
         game.player.weapon_id = weapon

@@ -1,6 +1,6 @@
 # Frontline Survival — Planejamento e Roadmap
 
-**Documento mestre do projeto** · Atualizado: 12/11/2026 · **versão de desenvolvimento:** `0.9.17` (**CI e Release v0.9.17 publicados; teste Windows longo pendente**) · **Situação:** desenvolvimento incremental; Etapas 0–6 ainda não encerradas integralmente.
+**Documento mestre do projeto** · Atualizado: 12/11/2026 · **versão de desenvolvimento:** `0.9.18` (**código e documentação; CI/Windows a validar**) · **Situação:** desenvolvimento incremental; Etapas 0–6 ainda não encerradas integralmente.
 
 > **Visão:** FPS 3D offline de sobrevivência por ondas, com combate satisfatório, progressão, dinheiro, compras em estações e suporte tático. Inspiração de mecânicas: Survival dos FPS militares da geração PS3, com identidade, modelos, efeitos e sons próprios. **Não** copiar mapas, arquivos ou personagens de Call of Duty.
 
@@ -533,3 +533,21 @@ O [plano de polimento do Campo de Testes](docs/M0_POLIMENTO_CAMPO_TESTES.md) reg
 | V17-07 | Avaliação jogando de ADS, UI, 5+ ondas e FPS no Ryzen 7530U | **PENDENTE** |
 
 **Ainda fora de escopo:** novos mapas, mais ondas, animações profissionais/rig Quaternius, novas armas e IA militar completa. [QA](docs/QA_V0_9_17.md) · [Release](docs/releases/v0.9.17.md)
+
+## 24. Sprint v0.9.18 — HUD tático, sprint, NPCs e granada física (12/11/2026)
+
+**Pedido:** abandonar HUD com modais genéricos, criar uma experiência FPS militar mais profissional, melhorar corrida e personagens que seguram armas no abdômen e fazer **G lançar granada real**. **Não copiar animações/arte da Activision**; desenvolver apresentação original e leve para Ryzen 5 7530U/8 GB.
+
+| Item | Mudança | Estado |
+| --- | --- | --- |
+| V18-01 | HUD com instrumentos angulares próprios no lugar de caixas genéricas | **IMPLEMENTADO (CÓDIGO) / CI PENDENTE / VISUAL PARCIAL** |
+| V18-02 | Sprint com arma baixa, contrabalanço, mudança de pegada e suavização | **IMPLEMENTADO (CÓDIGO) / CI PENDENTE / VISUAL PARCIAL** |
+| V18-03 | Subir fuzis dos NPCs e aliados ao peito/ombro; pontos de IK acessíveis | **IMPLEMENTADO (CÓDIGO) / CI PENDENTE / VISUAL PARCIAL** |
+| V18-04 | Granada 3D lançável com física, quique, fusível e área de dano com cobertura | **IMPLEMENTADO (CÓDIGO) / CI PENDENTE** |
+| V18-05 | Clarão, onda de choque, fumaça, fragmentos, luz de curta duração | **IMPLEMENTADO (CÓDIGO) / CI PENDENTE / VISUAL PARCIAL** |
+| V18-06 | Gravação Kenney CC0 OGG, conferida pelo hash e incluída no Windows ZIP | **PENDENTE DE PIPELINE** |
+| V18-07 | QA integrado de granada, braços, HUD, sprint e regras existentes | **PENDENTE DE CI** |
+| V18-08 | Windows ZIP v0.9.18 publicado e checksum no Releases | **PENDENTE DE CI/RELEASE** |
+| V18-09 | Avaliação real de 5–15 ondas, HUD, explosão, FPS e personagens | **PENDENTE (JOGADOR)** |
+
+**Não considerar concluídos:** personagens humanos com rig profissional/animações completas, IA militar completa, performance medida e novos mapas. Manter as Etapas 0–6 parcialmente abertas; atualizar as marcações após CI. [QA](docs/QA_V0_9_18.md) · [Notas](docs/releases/v0.9.18.md) · [Licença SFX](docs/ASSET_EXPLOSION_CC0.md).

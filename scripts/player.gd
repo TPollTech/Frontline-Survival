@@ -68,6 +68,8 @@ var owned_weapons: Array[String] = ["pistol"]
 var weapon_upgrades: Dictionary = {}
 var shot_spread_kick: float = 0.0
 var sprint_blend: float = 0.0
+var sprint_stride: float = 0.0
+var grenade_throw_timer: float = 0.0
 var left_hand_rig: Node3D
 var active_arm_parent: Node3D
 var invulnerability_timer: float = 0.0
@@ -221,6 +223,7 @@ func _physics_process(delta: float) -> void:
                 _die_finally()
                 return
     melee_timer = maxf(melee_timer - delta, 0.0)
+    grenade_throw_timer = maxf(grenade_throw_timer - delta, 0.0)
     invulnerability_timer = maxf(0.0, invulnerability_timer - delta)
     flash_timer = maxf(flash_timer - delta, 0.0)
     equip_anim_timer = maxf(0.0, equip_anim_timer - delta)
@@ -261,18 +264,27 @@ func _physics_process(delta: float) -> void:
     # A slight sprint FOV extension sells momentum; ADS always takes priority.
     var target_fov: float = GameSettings.field_of_view * (0.70 if aim else (1.045 if sprint_blend > 0.55 else 1.0))
     camera.fov = lerpf(camera.fov, target_fov, minf(1.0, delta * (14.0 if active_perk == "fast_ads" else 10.0)))
-    walk_clock += delta * movement.length() * (12.0 if sprinting else 8.0)
+    walk_clock += delta * movement.length() * (10.0 if sprinting else 8.0)
+    sprint_stride = sin(walk_clock * 1.16) * sprint_blend * movement.length()
     shot_spread_kick = move_toward(shot_spread_kick, 0.0, delta * 1.25)
     # Align the physical front/rear sight with the camera's central ray.
     # No on-screen crosshair: the actual sight must indicate point of aim.
     var sight_height: float = float({"pistol": 0.121, "smg": 0.232, "rifle": 0.177, "shotgun": 0.140, "lmg": 0.232}.get(weapon_id, 0.20))
     var sight_y := -viewmodel_scale * sight_height
     var gun_target := Vector3(0.0, sight_y, -0.62) if aim else Vector3(0.34, -0.27, -0.63)
-    # A true tactical sprint: lower the rifle, pitch the muzzle down and
-    # let the support arm drop. Smooth transitions prevent camera popping.
-    var running_bob := sin(walk_clock) * 0.029 * sprint_blend
-    gun_target.y += sin(walk_clock) * 0.007 * movement.length()
-    gun_target = gun_target.lerp(Vector3(0.49, -0.50 + running_bob, -0.45), sprint_blend)
+    # Distinct military-style tactical sprint. Eased tuck, low muzzle and
+    # stride/counter-swing keep this separate from an accelerated walk.
+    var sprint_ease: float = sprint_blend * sprint_blend * (3.0 - 2.0 * sprint_blend)
+    var running_bob: float = absf(sin(walk_clock * 1.16)) * 0.032 * sprint_ease
+    gun_target.y += sin(walk_clock) * 0.006 * movement.length()
+    gun_target = gun_target.lerp(Vector3(
+        0.47 + sprint_stride * 0.014,
+        -0.54 + running_bob,
+        -0.51 + cos(walk_clock * 1.16) * 0.018 * sprint_ease
+    ), sprint_ease)
+    if grenade_throw_timer > 0.0:
+        gun_target.y -= 0.12 * sin(PI * clampf(grenade_throw_timer / 0.45, 0.0, 1.0))
+        gun_target.x += 0.06
     recoil = move_toward(recoil, 0.0, delta * 2.0)
     if reloading:
         gun_target.y -= 0.21
@@ -280,9 +292,14 @@ func _physics_process(delta: float) -> void:
     gun_target.z += recoil
     gun.position = gun.position.lerp(gun_target, minf(1.0, delta * 13.0))
     var sway_strength := (0.006 if aim else 0.018) * movement.length()
-    gun.rotation.z = lerpf(gun.rotation.z, -0.28 * sprint_blend + sin(walk_clock * 0.5) * (sway_strength + sprint_blend * 0.022), minf(1.0, delta * 11.0))
-    gun.rotation.y = lerpf(gun.rotation.y, 0.14 * sprint_blend, minf(1.0, delta * 10.0))
-    gun.rotation.x = lerpf(gun.rotation.x, -0.48 * sprint_blend + cos(walk_clock) * (sway_strength + sprint_blend * 0.035), minf(1.0, delta * 10.0))
+    gun.rotation.z = lerpf(gun.rotation.z,
+        -0.44 * sprint_ease + sprint_stride * 0.047 + sin(walk_clock * 0.35) * sway_strength,
+        minf(1.0, delta * 10.0))
+    gun.rotation.y = lerpf(gun.rotation.y, 0.24 * sprint_ease + sprint_stride * 0.027,
+        minf(1.0, delta * 9.5))
+    gun.rotation.x = lerpf(gun.rotation.x,
+        -0.62 * sprint_ease + absf(sprint_stride) * 0.05 + cos(walk_clock) * sway_strength,
+        minf(1.0, delta * 10.0))
     _animate_viewmodel(delta, sprinting)
     if is_instance_valid(optic_reticle):
         # Visible only once the real sight approaches the central camera ray.
@@ -326,7 +343,7 @@ func _input(event: InputEvent) -> void:
                 switch_weapon("pistol")
 
 func shoot() -> void:
-    if dead or controls_locked or reloading or sprint_blend > 0.22 or fire_timer > 0.0:
+    if dead or controls_locked or reloading or sprint_blend > 0.22 or grenade_throw_timer > 0.0 or fire_timer > 0.0:
         return
     if downed and weapon_id != "pistol":
         return
@@ -766,6 +783,9 @@ func _build_attachment_models() -> void:
         if muzzle == "suppressor":
             muzzle_flash.visible = false
 
+func play_grenade_throw() -> void:
+    grenade_throw_timer = 0.45
+
 func _animate_viewmodel(delta: float, sprinting: bool) -> void:
     if not is_instance_valid(viewmodel_root) or not is_instance_valid(hand_rig):
         return
@@ -782,9 +802,18 @@ func _animate_viewmodel(delta: float, sprinting: bool) -> void:
     var reload_tilt := sin(t * PI) if reloading else 0.0
     var equip_tilt := sin(clampf(equip_anim_timer / 0.34, 0.0, 1.0) * PI * 0.5)
     var melee_punch := sin((1.0 - melee_anim_timer / 0.40) * PI) if melee_anim_timer > 0.0 else 0.0
-    var pos_target := Vector3(0.035 * reload_tilt, -0.075 * reload_tilt - 0.26 * equip_tilt - (0.04 if sprinting else 0.0), 0.085 * shot_anim - 0.22 * melee_punch)
+    var sprint_ease: float = sprint_blend * sprint_blend * (3.0 - 2.0 * sprint_blend)
+    var pos_target := Vector3(
+        0.035 * reload_tilt + 0.028 * sprint_stride,
+        -0.075 * reload_tilt - 0.26 * equip_tilt - 0.065 * sprint_ease,
+        0.085 * shot_anim - 0.22 * melee_punch
+    )
     viewmodel_root.position = viewmodel_root.position.lerp(pos_target, minf(1.0, delta * 20.0))
-    var rot_target := Vector3(0.09 * reload_tilt + 0.06 * shot_anim, 0.0, -0.20 * reload_tilt + 0.36 * melee_punch + 0.065 * damage_anim)
+    var rot_target := Vector3(
+        0.09 * reload_tilt + 0.06 * shot_anim - 0.12 * sprint_ease,
+        0.12 * sprint_ease,
+        -0.20 * reload_tilt + 0.36 * melee_punch + 0.065 * damage_anim - 0.12 * sprint_ease
+    )
     viewmodel_root.rotation = viewmodel_root.rotation.lerp(rot_target, minf(1.0, delta * 17.0))
     if is_instance_valid(magazine_part):
         var mag_target := Vector3(0.06 * mag_out, -0.29 * mag_out, viewmodel_depth + 0.045 * mag_out)
@@ -803,11 +832,12 @@ func _animate_viewmodel(delta: float, sprinting: bool) -> void:
         # glued to the weapon in an accelerated walking pose.
         left_hand_rig.position = left_hand_rig.position.lerp(
             # Arm comes down along the chest instead of remaining on the foregrip.
-            Vector3(-0.12, -0.29 + sin(walk_clock * 0.5) * 0.032, 0.19) * sprint_blend,
+            Vector3(-0.18, -0.41 + sprint_stride * 0.046, 0.25) * sprint_ease +
+            Vector3(0.0, 0.13, 0.06) * sin(PI * clampf(grenade_throw_timer / 0.45, 0.0, 1.0)),
             minf(1.0, delta * 11.0)
         )
         left_hand_rig.rotation.z = lerpf(
-            left_hand_rig.rotation.z, -0.26 * sprint_blend, minf(1.0, delta * 11.0)
+            left_hand_rig.rotation.z, -0.43 * sprint_ease + sprint_stride * 0.10, minf(1.0, delta * 11.0)
         )
 
 func _arm_piece(shape: Mesh, at: Vector3, tint: Color, rotation: Vector3 = Vector3.ZERO) -> MeshInstance3D:

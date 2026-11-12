@@ -1,5 +1,18 @@
 # Frontline Survival — Histórico de versões
 
+## 0.9.18 — HUD tático, animação original de sprint, empunhadura dos NPCs e granada física
+
+- Instrumentos do HUD do combate convertidos de caixas opacas para componentes angulares com linhas finas, bordas de tela e menor obstrução visual.
+- Corrida militar procedural com arma recolhida/abaixada, inclinação e balanço do braço de apoio com transições suavizadas; não reproduz arquivos de COD.
+- Rifle de inimigos e aliados agora posicionado em altura de peito/ombro, com pontos de apoio adequados ao IK existente.
+- `G` lança projétil `RigidBody3D` físico com arco, ricochete e fusível 2,45 s; explosão com fumaça, choque, iluminação, dano com oclusão por cobertura.
+- Gravação real de explosão `Kenney CC0` (OGG) baixada/checada no CI e copiada para o jogo; modelos e WAVs anteriores preservados.
+- **STATUS:** implementação concluída em código; CI e teste visual Windows determinarão o aceite. Testar desempenho do Ryzen 5 7530U.
+
+[QA v0.9.18](QA_V0_9_18.md) · [Release](releases/v0.9.18.md)
+
+---
+
 ## 0.9.17 — Red Dot vazada, HUD compacto e rollback visual dos NPCs
 
 - Acessórios Red Dot/Holo têm visor físico vazado, lente translúcida e ponto emissivo, visível apenas em ADS. Nenhuma retícula 2D permanente.
