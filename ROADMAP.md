@@ -483,10 +483,12 @@ O [plano de polimento do Campo de Testes](docs/M0_POLIMENTO_CAMPO_TESTES.md) reg
 | CT16-05 | Menu de configurações com Gráficos, Áudio, Controles, Jogabilidade | **IMPLEMENTADO / PARCIAL** | Navegação e salvamento confirmados |
 | CT16-06 | Escala 3D e VSync, mouse invertido, opções de hitmarker/dano | **IMPLEMENTADO / PARCIAL** | Efeito real no jogo e persistência |
 | CT16-07 | HUD, lojas, avisos, relatório e pausa com estilo uniforme | **IMPLEMENTADO / PARCIAL** | Capturas e aprovação visual |
-| CT16-08 | Regressão por teste Godot + 50 composições simuladas | **AGUARDANDO CI** | Nenhum erro de parser/runtime |
-| CT16-09 | Release v0.9.16 para Windows (ZIP/EXE/PCK/sha256) | **AGUARDANDO CI** | Confirmar publicação na página de Releases |
+| CT16-08 | Regressão por teste Godot + 50 composições simuladas | **CONCLUÍDO (CI)** | [CI 43166124429](https://github.com/TPollTech/Frontline-Survival/actions/runs/43166124429): 585 testes integrados, 50 composições, humanoide renderizado |
+| CT16-09 | Release v0.9.16 para Windows (ZIP/EXE/PCK/sha256) | **CONCLUÍDO (CI + RELEASES)** | [v0.9.16](https://github.com/TPollTech/Frontline-Survival/releases/tag/v0.9.16), ZIP de 36,3 MB, checksum SHA256 |
 | CT16-10 | Performance no Ryzen 5 7530U e 15 ondas de jogo real | **PENDENTE** | Não declarar finalizado sem isso |
 
 **Critério de finalização:** IA tática, menus e HUD só passam a **CONCLUÍDO (JOGO)** depois do playtest. Os 12 gates da v1.0 seguem intactos. **Sem expansão** nesta rodada.
 
 [Notas de release](docs/releases/v0.9.16.md) · [QA v0.9.16](docs/QA_V0_9_16.md)
+
+**Fechamento técnico da sprint 0.9.16 (12/11/2026):** CI Windows/Ubuntu Godot aprovado, 585 verificações integradas, QA de 50 composições, recursos Survival, captura humanoide e release publicados. **Marcos M0/M2 seguem PARCIAIS** até o usuário testar IA, cobertura, menu, FPS e 15 ondas no Windows.

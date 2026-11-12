@@ -2,7 +2,7 @@
 
 ## 0.9.16 — IA tática, menus por categoria e HUD refinado
 
-**Escopo:** Campo de Testes, sem novos mapas ou ondas. **Status: implementação submetida ao CI, homologação visual e de gameplay pendente.**
+**Escopo:** Campo de Testes, sem novos mapas ou ondas. **Status: implementação e CI aprovados** ([run 43166124429](https://github.com/TPollTech/Frontline-Survival/actions/runs/43166124429)), **homologação visual e de gameplay pendente.**
 
 - NPCs soldados comuns analisam cobertura estática, procuram proteção, agacham/deitam e alternam exposição para disparar. A decisão é limitada para não elevar demais a CPU integrada.
 - Carregadores reais por classe: 8 escopeta, 30 SMG/fuzil e 60 LMG; recarga com WAVs já gravados, sem tiros infinitos.
