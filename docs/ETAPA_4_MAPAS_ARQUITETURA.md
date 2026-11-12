@@ -195,28 +195,28 @@ Caso o mapa novo não alcance o piso de desempenho, reduzir efeitos, detalhes, s
 | 4F | Arte final leve e otimização | 4E | Qualidade legível e FPS/RAM medidos |
 | 4G | Seletor e recordes por mapa | 4F | Novas sessões sem estado herdado indevidamente |
 
-## 10. Testes de aceitação — todos pendentes
+## 10. Testes de aceitação — situação auditada em 12/11/2026
 
-| ID | Caso | Resultado esperado |
-| --- | --- | --- |
-| M4-01 | Campo de Testes após migração | Asfalto, lojas, ondas e FPS preservados |
-| M4-02 | Iniciar Complexo Industrial | Aparecer em piso livre sem colisão |
-| M4-03 | Caminhar por S1–S5 | Setores conectados e rotas coerentes |
-| M4-04 | Acessar passarela | Jogador e inimigos conseguem subir |
-| M4-05 | Circular entre três estações | Viável durante os 75 s, medido em jogo |
-| M4-06 | Interagir via F fora de alcance | Loja não abre remotamente |
-| M4-07 | 100 entradas inimigas | Sem spawn dentro de objetos/jogador |
-| M4-08 | Onda 10 com pesado | Rota válida, aviso e contrajogo |
-| M4-09 | Último inimigo preso | Recuperação ou diagnóstico; não travar indefinidamente |
-| M4-10 | 15 ondas completas | Sem game over indevido ou perda de contagem |
-| M4-11 | Reanimação treino | Mantém créditos, armas e onda |
-| M4-12 | Morte clássico | Encerra partida corretamente |
-| M4-13 | Pausa e configurações | Temporizadores congelados e áudio persistente |
-| M4-14 | Torreta, esquadrão e ataque | Sem bloquear rotas ou quebrar sessão |
-| M4-15 | FPS/RAM por setor | Medições reais e comparação com baseline |
-| M4-16 | Troca de mapa pelo menu | Nova sessão limpa |
-| M4-17 | Recordes por mapa/modo | Sem contaminar treino/clássico ou perder legado |
-| M4-18 | Carregar mapa inválido | Falha controlada com diagnóstico |
+| ID | Caso | Resultado esperado | Situação atual |
+| --- | --- | --- | --- |
+| M4-01 | Campo de Testes após migração | Asfalto, lojas, ondas e FPS preservados | **PENDENTE** — não implementado ou sem teste válido para este cenário |
+| M4-02 | Iniciar Complexo Industrial | Aparecer em piso livre sem colisão | **PENDENTE** — não implementado ou sem teste válido para este cenário |
+| M4-03 | Caminhar por S1–S5 | Setores conectados e rotas coerentes | **PENDENTE** — não implementado ou sem teste válido para este cenário |
+| M4-04 | Acessar passarela | Jogador e inimigos conseguem subir | **PENDENTE** — não implementado ou sem teste válido para este cenário |
+| M4-05 | Circular entre três estações | Viável durante os 75 s, medido em jogo | **PENDENTE** — não implementado ou sem teste válido para este cenário |
+| M4-06 | Interagir via F fora de alcance | Loja não abre remotamente | **PARCIAL** — código/CI parcial; falta aceite completo |
+| M4-07 | 100 entradas inimigas | Sem spawn dentro de objetos/jogador | **PARCIAL** — código/CI parcial; falta aceite completo |
+| M4-08 | Onda 10 com pesado | Rota válida, aviso e contrajogo | **PARCIAL** — código/CI parcial; falta aceite completo |
+| M4-09 | Último inimigo preso | Recuperação ou diagnóstico; não travar indefinidamente | **PARCIAL** — código/CI parcial; falta aceite completo |
+| M4-10 | 15 ondas completas | Sem game over indevido ou perda de contagem | **PENDENTE** — não implementado ou sem teste válido para este cenário |
+| M4-11 | Reanimação treino | Mantém créditos, armas e onda | **PARCIAL** — código/CI parcial; falta aceite completo |
+| M4-12 | Morte clássico | Encerra partida corretamente | **PARCIAL** — código/CI parcial; falta aceite completo |
+| M4-13 | Pausa e configurações | Temporizadores congelados e áudio persistente | **PARCIAL** — código/CI parcial; falta aceite completo |
+| M4-14 | Torreta, esquadrão e ataque | Sem bloquear rotas ou quebrar sessão | **PARCIAL** — código/CI parcial; falta aceite completo |
+| M4-15 | FPS/RAM por setor | Medições reais e comparação com baseline | **PENDENTE** — não implementado ou sem teste válido para este cenário |
+| M4-16 | Troca de mapa pelo menu | Nova sessão limpa | **PENDENTE** — não implementado ou sem teste válido para este cenário |
+| M4-17 | Recordes por mapa/modo | Sem contaminar treino/clássico ou perder legado | **PENDENTE** — não implementado ou sem teste válido para este cenário |
+| M4-18 | Carregar mapa inválido | Falha controlada com diagnóstico | **PENDENTE** — não implementado ou sem teste válido para este cenário |
 
 Nenhum caso foi executado neste ciclo de documentação.
 
@@ -239,3 +239,27 @@ Nenhum caso foi executado neste ciclo de documentação.
 **Não incluir nesta etapa:** mundo aberto, coop, campanha, helicópteros pilotáveis, destruição física de todo o cenário, portas compráveis sem aprovação, mapa urbano completo ou seleção de mapas ainda inexistentes.
 
 **Próxima lacuna documental recomendada:** Etapa 5 — HUD, menus, áudio, estatísticas, acessibilidade e identidade visual; depois Etapa 6 e consolidação do GDD mestre. O jogo segue em planejamento; nenhuma implementação nova foi feita agora.
+
+
+---
+
+## Auditoria de execução — 12/11/2026 (base v0.9.17)
+
+**Quadro atualizado após o documento histórico.** Critérios: **0 concluídos em CI; 8 parciais; 10 pendentes**. **A Etapa 4 ainda NÃO está completamente concluída.**
+
+### Entregas já implementadas
+
+- [x] Layout conceitual dos cinco setores, rotas e estações documentado — **CONCLUÍDO (CÓDIGO/CI)**
+- [x] Campo de Testes preservado e jogável nas builds de teste — **CONCLUÍDO (CÓDIGO/CI)**
+
+### Itens parciais
+
+- [ ] Sondas de spawn e navegação validadas somente no Campo de Testes — **PARCIAL**
+
+### Pendências de execução ou validação
+
+- [ ] Produzir blockout e navegação do Complexo Industrial S1–S5 — **PENDENTE**
+- [ ] Criar seletor e recordes por mapa — **PENDENTE**
+- [ ] Validar 15 ondas e FPS/RAM no mapa definitivo — **PENDENTE**
+
+**Evidências:** [Godot CI da v0.9.17](https://github.com/TPollTech/Frontline-Survival/actions/runs/43171938905) · [Release Windows v0.9.17](https://github.com/TPollTech/Frontline-Survival/releases/tag/v0.9.17) · [Auditoria central](AUDITORIA_CHECKLISTS_2026_11_12.md). Teste CI não substitui validação real no notebook.

@@ -216,3 +216,9 @@ Definir pequenas equipes com papéis simples (aproximação, cobertura, flanco c
 ---
 
 **Próxima lacuna recomendada no planejamento:** Etapa 3 — economia, estações e suporte tático, usando a tabela de ondas como referência. **Nenhum script, asset ou cena foi alterado nesta rodada.**
+
+---
+
+## Auditoria de progresso — 12/11/2026
+
+Checklist desta etapa sincronizada com o CI da v0.9.17: **2 critérios concluídos no código/CI, 3 parciais e 3 pendentes**. O diretor de ondas já funciona, simula 50 composições e faz duas transições no CI; **não prova 20 ondas reais, IA militar completa ou FPS do hardware-alvo**. [Auditoria central](AUDITORIA_CHECKLISTS_2026_11_12.md).

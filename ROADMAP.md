@@ -1,13 +1,13 @@
 # Frontline Survival — Planejamento e Roadmap
 
-**Documento mestre do projeto** · Atualizado: 10/11/2026 · **Base de referência:** protótipo `0.7`; **versão de desenvolvimento:** `0.9.17` (**código no main; CI/release pendentes**) · **Situação:** planejamento; novas mecânicas somente após aprovação da etapa.
+**Documento mestre do projeto** · Atualizado: 12/11/2026 · **versão de desenvolvimento:** `0.9.17` (**CI e Release v0.9.17 publicados; teste Windows longo pendente**) · **Situação:** desenvolvimento incremental; Etapas 0–6 ainda não encerradas integralmente.
 
 > **Visão:** FPS 3D offline de sobrevivência por ondas, com combate satisfatório, progressão, dinheiro, compras em estações e suporte tático. Inspiração de mecânicas: Survival dos FPS militares da geração PS3, com identidade, modelos, efeitos e sons próprios. **Não** copiar mapas, arquivos ou personagens de Call of Duty.
 
 ## 1. Regras do produto que não podem se perder
 
 1. **Partida contínua:** inimigos aparecem por ondas; ao eliminar todos, há preparação; depois começa automaticamente a próxima onda. Não encerrar a partida ao concluir uma onda.
-2. **Preparação utilizável:** padrão **75 s**, ajustável de 45 a 120 s; avisos de contagem; tecla `N` para antecipar apenas se o jogador escolher. Na preparação é possível andar, comprar, recarregar e preparar defesas.
+2. **Preparação utilizável:** padrão atual **30 s**, ajustável de 30 a 120 s; avisos de contagem; tecla `N` para antecipar apenas se o jogador escolher. Na preparação é possível andar, comprar, recarregar e preparar defesas.
 3. **Campo de Testes permanente:** mapa atual com textura do asfalto preservado. Usado para testar física, IA, armas, efeitos e métricas. Mapas definitivos serão separados, com vários setores e rotas.
 4. **Lojas físicas:** acessar com `F` próximo de cada estação. **Não** voltar com o menu global de compras no `B`. Ataque aéreo, esquadrão e outros recursos são comprados na estação de suporte e acionados por atalhos depois.
 5. **Dois modos de morte:** no Campo de Testes, reanimação opcional preserva onda/armas/dinheiro para ensaiar; no Survival clássico, a morte encerra a partida e mostra recorde.
@@ -17,100 +17,102 @@
 9. **Não quebrar sistemas aprovados:** cada atualização precisa preservar ondas, compras, reforços, tela de pausa, configurações e mapa atual.
 10. **Processo novo:** planejar -> revisar escopo -> implementar uma etapa -> testar no Godot -> validar no notebook -> documentar -> commit. Não introduzir várias mecânicas sem teste.
 
-## 2. Estado atual e débito técnico (protótipo 0.7)
+## 2. Diagnóstico histórico do protótipo 0.7 — consultar o quadro atual da seção 8
 
 | Subsistema | O que existe | O que falta validar / melhorar |
 | --- | --- | --- |
 | FPS / jogador | Movimentação, mira, recarga, armas modulares, recuo procedural | Sensação de peso, câmera, colisões, animações de mãos com rig e transições |
 | Combate | Cinco classes de armas, tiros, headshot, impacto, granada | Cadência consistente, diferenças entre armas, efeitos realistas, áudio espacial, feedback de dano |
 | Inimigos | IA de perseguição, armas por faixa de onda, reações e articulações | Navegação, cobertura simples, não atravessar obstáculos, comportamento de grupo, variedade visual |
-| Ondas | Loop contínuo e preparação de 75 s | Teste prolongado (15+ ondas), spawn seguro, progressão equilibrada e consistência do contador |
+| Ondas | Loop contínuo e preparação padrão de 30 s | Teste prolongado (15+ ondas), spawn seguro, progressão equilibrada e consistência do contador |
 | Economia | Dinheiro, compras nas três estações, armas/equipamentos/suporte | Preços e recompensas balanceados, comparação de armas e feedback de compra |
 | Reforços | Torretas, esquadrão, ataque aéreo | Comportamentos previsíveis, indicadores claros, chamadas sem conflito de teclas |
 | HUD/menus | Vida, colete, munição, onda, créditos; pausa/configurações | Hierarquia visual, fontes, estados, acessibilidade e mensagens curtas |
 | Gráficos | Mapa de testes, asfalto, armas e personagens procedurais | Modelos 3D mais críveis, materiais, silhuetas, LOD, animação e iluminação |
-| Qualidade | Verificador estático e guia de testes | **Execução real do Godot ainda não confirmada neste ambiente**, testes automatizados e perfil de FPS |
+| Qualidade | Verificador estático e guia de testes | Godot 4.4.1 com testes CI aprovados; falta perfil real de FPS no Ryzen |
 
 **Critério mínimo para considerar uma versão estável:** sem erros no Debugger, pelo menos 15 ondas completas sem travar, compras e acionamentos testados, sem perda involuntária de progresso no modo de teste, menus e áudio funcionando após reiniciar, FPS medido em combate.
+
+**Auditoria de execução — 12/11/2026, base `v0.9.17`:** nesta lista de implementação há **13 requisitos concluídos no código/CI, 20 parciais e 11 pendentes**. A lista de expansões futuras (seção 4) não entra nesse total. **Nenhuma das Etapas 0–6 está aprovada integralmente**: há aceites visuais, sessões de 15 ondas e benchmarks pendentes. [Evidência CI](https://github.com/TPollTech/Frontline-Survival/actions/runs/43171938905) · [Release Windows](https://github.com/TPollTech/Frontline-Survival/releases/tag/v0.9.17) · [Relatório de auditoria](docs/AUDITORIA_CHECKLISTS_2026_11_12.md).
 
 ## 3. Prioridades e ordem de execução
 
 ### Etapa 0 — Estabilização e base de qualidade (P0, primeiro trabalho)
 
-- [ ] Importar o projeto 0.7 em Godot 4.x Standard e registrar erros/avisos reais.
-- [ ] Criar checklist de regressão: início, tiro, headshot, compra, troca, recarga, reforços, morte, revive, pausa e ondas 1–15.
-- [ ] Verificar principalmente transição após matar último inimigo (não dar "Fim de Jogo" por engano).
-- [ ] Padronizar componentes e separar, gradualmente, o `main.gd` em gerenciadores de onda, economia, HUD, lojas e efeitos; refatorar sem alterar jogabilidade.
-- [ ] Adicionar indicador de versão e FPS de depuração desativável.
-- [ ] Criar teste básico de abertura do projeto e análise de scripts no Godot (headless/CI, quando disponível).
+- [x] Importar o projeto 0.7 em Godot 4.x Standard e registrar erros/avisos reais. — **CONCLUÍDO (CÓDIGO/CI)**: CI Godot importa o projeto 4.4.1; build v0.9.17.
+- [x] Criar checklist de regressão: início, tiro, headshot, compra, troca, recarga, reforços, morte, revive, pausa e ondas 1–15. — **CONCLUÍDO (CÓDIGO/CI)**: roteiros de QA documentados; execução de 15 ondas ainda pendente.
+- [x] Verificar principalmente transição após matar último inimigo (não dar "Fim de Jogo" por engano). — **CONCLUÍDO (CÓDIGO/CI)**: duas transições em CI e relato real de chegada à onda 10.
+- [ ] Padronizar componentes e separar, gradualmente, o `main.gd` em gerenciadores de onda, economia, HUD, lojas e efeitos; refatorar sem alterar jogabilidade. — **PARCIAL**: main.gd ainda concentra sistemas e precisa de refatoração.
+- [x] Adicionar indicador de versão e FPS de depuração desativável. — **CONCLUÍDO (CÓDIGO/CI)**: versão no menu e FPS ativável nas configurações.
+- [x] Criar teste básico de abertura do projeto e análise de scripts no Godot (headless/CI, quando disponível). — **CONCLUÍDO (CÓDIGO/CI)**: CI de importação, parser, smoke e integração da v0.9.17.
 
 **Pronto quando:** a versão abre sem erros, permite comprar a LMG e sobreviver/avançar 15 ondas consecutivas; o modo clássico encerra apenas por morte; não há regressões P0.
 
 ### Etapa 1 — Sensação de FPS e qualidade das armas (P1)
 
-- [ ] Definir regras por categoria: cadência, dano, recuo vertical/horizontal, dispersão, alcance, troca e recarga.
-- [ ] Refinar posição da arma em primeira pessoa, mira ADS, sway/bob e câmera sem excesso de movimento.
-- [ ] Substituir mãos geométricas por modelo anatômico leve, com mãos/antebraços consistentes e rig de animação.
-- [ ] Recriar flashes discretos na boca, ejeção de cartucho, fumaça breve e decalques/impactos por superfície; nenhuma esfera amarela gigante.
-- [ ] Sons de arma espacializados e equalizados sem clipping; controle de volume separado.
-- [ ] Feedback claro de acerto, headshot, dano recebido e falta de munição.
+- [x] Definir regras por categoria: cadência, dano, recuo vertical/horizontal, dispersão, alcance, troca e recarga. — **CONCLUÍDO (CÓDIGO/CI)**: cinco armas com parâmetros e recargas em scripts/player.gd.
+- [ ] Refinar posição da arma em primeira pessoa, mira ADS, sway/bob e câmera sem excesso de movimento. — **PARCIAL**: ADS/sway existem; mira real de acessórios aguarda aprovação no Windows.
+- [ ] Substituir mãos geométricas por modelo anatômico leve, com mãos/antebraços consistentes e rig de animação. — **PENDENTE**: rig anatômico de mãos ainda não produzido/aprovado.
+- [ ] Recriar flashes discretos na boca, ejeção de cartucho, fumaça breve e decalques/impactos por superfície; nenhuma esfera amarela gigante. — **PARCIAL**: flash/impacto existem; fumaça, cartuchos e superfícies incompletos.
+- [ ] Sons de arma espacializados e equalizados sem clipping; controle de volume separado. — **PARCIAL**: WAVs e volumes separados existem; spatialização/clipping não homologados.
+- [x] Feedback claro de acerto, headshot, dano recebido e falta de munição. — **CONCLUÍDO (CÓDIGO/CI)**: hitmarker, headshot, dano e indicação de munição integrados e testados.
 
 **Pronto quando:** pistola, SMG, fuzil, escopeta e LMG são distinguíveis ao mirar, atirar, ouvir, recarregar e se mover; a cena permanece legível mesmo com efeitos simultâneos.
 
 ### Etapa 2 — Inimigos, combate e dificuldade por ondas (P1)
 
-- [ ] Planejar arquétipos: escopeteiro, SMG, fuzileiro, blindado, metralhador e especial.
-- [ ] Evolução de armas por faixas (não apenas aumentar HP): 1–3 introdutória; 4–6 SMG; 7–10 mistura; 11–15 fuzis; 16+ combinações; ajustar após testes.
-- [ ] Criar composição de grupos, intervalos de spawn, limites simultâneos e inimigos especiais em ondas definidas.
-- [ ] Navegação 3D com prevenção de travas, colisão e lógica de aproximação/flanqueamento simples.
-- [ ] Soldados com silhuetas e equipamentos distintos, animações leves de locomoção, disparo, dano e morte.
-- [ ] Balancear munição, economia e dificuldade para evitar ondas impossíveis ou tediosas.
+- [x] Planejar arquétipos: escopeteiro, SMG, fuzileiro, blindado, metralhador e especial. — **CONCLUÍDO (CÓDIGO/CI)**: arquétipos e progressão descritos no GDD/Etapa 2.
+- [x] Evolução de armas por faixas (não apenas aumentar HP): 1–3 introdutória; 4–6 SMG; 7–10 mistura; 11–15 fuzis; 16+ combinações; ajustar após testes. — **CONCLUÍDO (CÓDIGO/CI)**: diretor de ondas por faixas em scripts/wave_rules.gd e QA.
+- [x] Criar composição de grupos, intervalos de spawn, limites simultâneos e inimigos especiais em ondas definidas. — **CONCLUÍDO (CÓDIGO/CI)**: ondas, limites e pesados validados em simulação de 50 composições.
+- [ ] Navegação 3D com prevenção de travas, colisão e lógica de aproximação/flanqueamento simples. — **PARCIAL**: sondas de cobertura e anti-trava implementadas; NavMesh/flanqueamento robusto pendentes.
+- [ ] Soldados com silhuetas e equipamentos distintos, animações leves de locomoção, disparo, dano e morte. — **PARCIAL**: corpos procedurais e animações básicas; humanoide Quaternius desativado por qualidade.
+- [ ] Balancear munição, economia e dificuldade para evitar ondas impossíveis ou tediosas. — **PENDENTE**: balanceamento de 15–20 ondas com métricas reais ausente.
 
 **Pronto quando:** as armas inimigas mudam de forma visível/audível ao avançar ondas; não há spawns dentro do jogador nem bloqueio permanente que impeça o término de uma onda.
 
 ### Etapa 3 — Economia, estações e suporte tático (P1)
 
-- [ ] Interface de loja física rápida, navegável com mouse e teclado, comparação e compra com feedback claro.
-- [ ] Ajustar preços e economia com dados reais de 10–20 ondas de teste.
-- [ ] Granadas, mina, proteção e cura com regras de inventário claras.
-- [ ] Torretas com limites, duração, posicionamento e indicação de munição/vida.
-- [ ] Esquadrão aliado com duração, comandos simples e identificação clara.
-- [ ] Ataque aéreo com mira/área indicada, aviso antes do impacto e efeitos otimizados.
-- [ ] Personalização simples de armas em estação (miras/carregador) apenas após núcleo estável.
+- [ ] Interface de loja física rápida, navegável com mouse e teclado, comparação e compra com feedback claro. — **PARCIAL**: três lojas físicas e mouse funcionam; comparação/teclado completos pendentes.
+- [ ] Ajustar preços e economia com dados reais de 10–20 ondas de teste. — **PENDENTE**: faltam dados reais documentados de 10–20 ondas.
+- [ ] Granadas, mina, proteção e cura com regras de inventário claras. — **PARCIAL**: granadas, colete e cura existem; mina terrestre e regras-limite pendentes.
+- [ ] Torretas com limites, duração, posicionamento e indicação de munição/vida. — **PARCIAL**: torreta com duração/limite; posicionamento, indicadores de vida/munição pendentes.
+- [ ] Esquadrão aliado com duração, comandos simples e identificação clara. — **PARCIAL**: esquadrão e tecla 3 existem; comandos completos e QA visual pendentes.
+- [ ] Ataque aéreo com mira/área indicada, aviso antes do impacto e efeitos otimizados. — **PARCIAL**: ataque com tecla 4 e marcador existe; alvo inválido/feedback de abates ainda falhos.
+- [ ] Personalização simples de armas em estação (miras/carregador) apenas após núcleo estável. — **PARCIAL**: Red Dot/Holo/Silenciador/Compensador implementados; alinhamento visual pendente.
 
 **Pronto quando:** comprar, equipar e usar cada opção não interrompe ondas, não tira o controle da câmera indevidamente e informa custo/resultado.
 
 ### Etapa 4 — Primeiro mapa definitivo com setores (P2)
 
-- [ ] Documento de layout (*blockout*) antes de modelar detalhes: tamanho, pontos de spawn, rotas e estações.
-- [ ] Mapa 01 **Complexo Industrial**: pátio, depósito, galpão, administração e setor de manutenção conectados por múltiplas rotas.
-- [ ] Criar posições de defesa variadas, linhas de visão, flancos, cobertura e caminhos de fuga.
-- [ ] Definir setores por área para otimizar spawn, culling e IA sem telas de carregamento entre ondas.
-- [ ] Testar colisões, acessibilidade de lojas e navegação dos inimigos em todo o mapa.
-- [ ] Adicionar um seletor de mapas, mantendo **Campo de Testes** como opção de desenvolvimento.
-- [ ] Só depois: Mapa 02 urbano e cenários adicionais.
+- [ ] Documento de layout (*blockout*) antes de modelar detalhes: tamanho, pontos de spawn, rotas e estações. — **PARCIAL**: layout conceitual documentado; blockout final aprovado não existe.
+- [ ] Mapa 01 **Complexo Industrial**: pátio, depósito, galpão, administração e setor de manutenção conectados por múltiplas rotas. — **PENDENTE**: Complexo Industrial não implementado; Campo de Testes preservado.
+- [ ] Criar posições de defesa variadas, linhas de visão, flancos, cobertura e caminhos de fuga. — **PENDENTE**: coberturas e caminhos do mapa definitivo não implementados.
+- [ ] Definir setores por área para otimizar spawn, culling e IA sem telas de carregamento entre ondas. — **PENDENTE**: setores de otimização do mapa definitivo não implementados.
+- [ ] Testar colisões, acessibilidade de lojas e navegação dos inimigos em todo o mapa. — **PENDENTE**: não há mapa definitivo para testar.
+- [ ] Adicionar um seletor de mapas, mantendo **Campo de Testes** como opção de desenvolvimento. — **PENDENTE**: não há seletor de mapas.
+- [ ] Só depois: Mapa 02 urbano e cenários adicionais. — **PENDENTE**: mapa urbano posterior fora do escopo atual.
 
 **Pronto quando:** uma partida completa funciona em todos os setores e o FPS fica dentro do orçamento de desempenho.
 
 ### Etapa 5 — Menus, HUD, experiência e audiovisual (P2)
 
-- [ ] HUD compacto e escalável em 720p/900p/1080p; evitar excesso de números e dicas.
-- [ ] Telas de início, pausa, morte clássica, recordes, estatísticas e configurações completas.
-- [ ] Informações entre ondas: número, tempo até próxima, recompensa e compras disponíveis.
-- [ ] Sons ambientes, trilha opcional e efeitos de alerta; ajustes de volume salvos.
-- [ ] Qualidade gráfica configurável (sombras, partículas, resolução/escala), sem opções falsas.
-- [ ] Acessibilidade básica: tamanho do HUD, indicador de dano, opções de sensibilidade/FOV.
+- [ ] HUD compacto e escalável em 720p/900p/1080p; evitar excesso de números e dicas. — **PARCIAL**: HUD compactado v0.9.17; aprovação em 720p/900p/1080p pendente.
+- [ ] Telas de início, pausa, morte clássica, recordes, estatísticas e configurações completas. — **PARCIAL**: início/pausa/morte/configuração existem; recordes/estatísticas finais ainda incompletos.
+- [x] Informações entre ondas: número, tempo até próxima, recompensa e compras disponíveis. — **CONCLUÍDO (CÓDIGO/CI)**: contador, preparação, bônus e compras no loop; revisão visual segue em QA.
+- [ ] Sons ambientes, trilha opcional e efeitos de alerta; ajustes de volume salvos. — **PARCIAL**: mixagem de áudio existe; ambiência e música opcionais não entregues.
+- [ ] Qualidade gráfica configurável (sombras, partículas, resolução/escala), sem opções falsas. — **PARCIAL**: escala 3D e VSync disponíveis; sombras/partículas configuráveis pendentes.
+- [ ] Acessibilidade básica: tamanho do HUD, indicador de dano, opções de sensibilidade/FOV. — **PARCIAL**: indicador de dano, sensibilidade e FOV existem; tamanho do HUD pendente.
 
 **Pronto quando:** o jogo pode ser usado sem consultar o README para entender os elementos essenciais do HUD e das lojas.
 
 ### Etapa 6 — Performance, testes e distribuição (P0 transversal; entrega P2)
 
-- [ ] Medir CPU, GPU, RAM e FPS no Ryzen 5 7530U / 8 GB em repouso, onda 5, 10, 15 e com reforços.
-- [ ] Meta inicial: **30 FPS estáveis como piso de jogabilidade em 720p baixo**, buscando **60 FPS** em condições comuns. **São metas, não benchmarks já medidos.**
-- [ ] Ajustar LOD, distância de visão, materiais, draw calls, partículas, luzes e limite de IA.
-- [ ] Evitar vazamentos de instâncias de projéteis/efeitos e reinicializações que quebrem o estado da partida.
-- [ ] Criar exportação Windows e checklist de instalação sem exigir editor Godot para jogar.
-- [ ] Documentar falhas conhecidas e versões com changelog.
+- [ ] Medir CPU, GPU, RAM e FPS no Ryzen 5 7530U / 8 GB em repouso, onda 5, 10, 15 e com reforços. — **PENDENTE**: benchmark CPU/GPU/RAM/FPS no notebook ainda não registrado.
+- [ ] Meta inicial: **30 FPS estáveis como piso de jogabilidade em 720p baixo**, buscando **60 FPS** em condições comuns. **São metas, não benchmarks já medidos.** — **PENDENTE**: piso de 30 FPS é meta; falta medição controlada no hardware-alvo.
+- [ ] Ajustar LOD, distância de visão, materiais, draw calls, partículas, luzes e limite de IA. — **PARCIAL**: limites de NPCs/FX aplicados; LOD/draw-call profiling pendente.
+- [ ] Evitar vazamentos de instâncias de projéteis/efeitos e reinicializações que quebrem o estado da partida. — **PARCIAL**: corpos/loot/efeitos têm limpeza; sessão longa anti-vazamento pendente.
+- [x] Criar exportação Windows e checklist de instalação sem exigir editor Godot para jogar. — **CONCLUÍDO (CÓDIGO/CI)**: ZIP Windows EXE/PCK verificado em GitHub Releases v0.9.17.
+- [x] Documentar falhas conhecidas e versões com changelog. — **CONCLUÍDO (CÓDIGO/CI)**: README, CHANGELOG, QA e notas de versão existem.
 
 **Pronto quando:** build Windows inicia no notebook, mantém o piso de desempenho medido nos cenários-alvo e resiste a uma sessão longa sem degradação contínua.
 
@@ -159,20 +161,24 @@ Os documentos abaixo detalham critérios e hipóteses sem autorizar implementaç
 
 **Observação:** nenhuma tarefa de QA foi marcada como concluída apenas por escrever estes documentos. Não foram alterados scripts, cenas, modelos ou áudio nesta atualização documental.
 
-## 8. Acompanhamento da pré-produção
+## 8. Estado real das Etapas 0–6 — auditoria 12/11/2026
 
-| Documento | Situação documental | Implementação e QA |
-| --- | --- | --- |
-| Etapa 0 — Estabilidade | Especificada; 27 verificações de QA | **PARCIAL** — 2 transições de onda e checagem de spawn automatizadas em Godot headless na 0.9.2; ainda falta sessão real de 15 ondas no Windows |
-| Etapa 1 — Armas e FPS | Especificada; decisões pendentes | **PARCIAL** — v0.9.3 apresenta texturas de metal/polímero, detalhes das cinco armas e foley de recarga por classe; acabamento visual/sonoro ainda precisa de teste |
-| Etapa 2 — Inimigos e ondas | Especificada; decisões pendentes | **PARCIAL** — v0.9.3 inclui sondas e recuperação antitravamento dos inimigos e aliados; navegação complexa, 15 ondas e playtest pendentes |
-| Etapa 3 — Economia e reforços | Especificada; propostas aguardam aprovação | **PARCIAL** — cabeça/armamento do esquadrão retrabalhados na v0.9.3; suporte ainda não está visualmente homologado |
-| Etapa 4 — Mapas | **Especificada em 10/11/2026**; layout de cinco setores e arquitetura ainda sujeitos a aprovação | Não iniciada |
-| Etapa 5 — HUD, áudio e UX | **Especificada em 10/11/2026**; propostas aguardam aprovação | **PARCIAL** — v0.9.1 retira crosshair/hit beep e adiciona som grave de fim de onda; validação auditiva pendente |
-| Etapa 6 — desempenho e distribuição | **Especificada em 10/11/2026**; metas e gates pendentes de aprovação | **PARCIAL** — release [v0.9.1](https://github.com/TPollTech/Frontline-Survival/releases/tag/v0.9.1) e CI aprovados; benchmark/15 ondas pendentes |
-| GDD consolidado | **GDD PRONTO PARA REVISÃO**; síntese documental das Etapas 0–6, aprovação pendente | Não aplicável |
+**Referência:** código da release v0.9.17; as listas da seção 3 têm marcações diretas e as Etapas 3–6 possuem matrizes de QA com situação em cada linha. **Não confundir CI com aprovação visual no Windows.**
 
-**Último avanço de produto:** versão 0.9 compilada e publicada no GitHub Actions, com 19 arquivos GLB regenerados e sincronizados na main. A versão 0.8 foi executada pelo usuário até a preparação da onda 2; a 0.9 exige validação visual/jogabilidade no Windows. Etapa 6 especificada documentalmente; GDD mestre consolidado em 11/11/2026, pronto para revisão documental; conflitos C-01/C-02 e aprovações pendentes. Sem alteração de código nesta rodada documental.
+| Documento | Checklist ou matriz | Situação real | Principal bloqueio |
+| --- | --- | --- | --- |
+| [Etapa 0 — Estabilização](docs/ETAPA_0_ESTABILIZACAO.md) | 4 concluídos / 2 parciais / 3 pendentes | **PARCIAL** | 15 ondas reais e benchmark no notebook |
+| [Etapa 1 — FPS e armas](docs/ETAPA_1_FPS_ARMAS.md) | 2 concluídos / 4 parciais / 4 pendentes | **PARCIAL** | anatomia das mãos, ADS e áudio/visual |
+| [Etapa 2 — Inimigos e ondas](docs/ETAPA_2_INIMIGOS_ONDAS.md) | 2 concluídos / 3 parciais / 3 pendentes | **PARCIAL** | IA militar avançada, 20 ondas e anti-trava real |
+| [Etapa 3 — Economia e suporte](docs/ETAPA_3_ECONOMIA_SUPORTE.md) | QA: 0 concluídos / 11 parciais / 7 pendentes | **PARCIAL** | validações de compra/ataque e balanceamento |
+| [Etapa 4 — Mapas](docs/ETAPA_4_MAPAS_ARQUITETURA.md) | QA: 0 concluídos / 8 parciais / 10 pendentes | **PENDENTE NO MAPA NOVO** | Complexo Industrial e seletor ainda inexistentes |
+| [Etapa 5 — HUD e audiovisual](docs/ETAPA_5_HUD_AUDIO_ACESSIBILIDADE.md) | QA: 3 concluídos / 11 parciais / 4 pendentes | **PARCIAL** | homologação visual v0.9.17 e acessibilidade |
+| [Etapa 6 — Desempenho e distribuição](docs/ETAPA_6_DESEMPENHO_TESTES_DISTRIBUICAO.md) | QA: 1 concluído / 12 parciais / 5 pendentes | **PARCIAL** | FPS/RAM real, 15 ondas e 30 minutos |
+| [GDD/Plano v1.0](docs/PLANO_ENTREGA_V1_0.md) | Pré-produção documentada | **PLANEJAMENTO / IMPLEMENTAÇÃO EM ETAPAS** | gates M0–M8 não concluídos |
+
+**Entrega técnica mais recente:** [GitHub Releases v0.9.17](https://github.com/TPollTech/Frontline-Survival/releases/tag/v0.9.17), ZIP/EXE/PCK com SHA-256; [GitHub Actions 43171938905](https://github.com/TPollTech/Frontline-Survival/actions/runs/43171938905) com **595 asserções integradas**, **2.416 de ondas** e **23 de regras Survival**. A versão **não está homologada visualmente** e não existe sessão oficial de 15 ondas/benchmark em Ryzen 5 7530U.
+
+**[Consultar o relatório detalhado de auditoria](docs/AUDITORIA_CHECKLISTS_2026_11_12.md)**. A cada nova release, atualizar a marcação no checklist de origem e manter no ROADMAP apenas o resumo rastreável.
 
 ## 9. Registro de implementação e evidências — 0.8 (10/11/2026)
 

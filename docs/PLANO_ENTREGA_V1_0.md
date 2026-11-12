@@ -243,3 +243,23 @@ O usuário confirmou em sessão real a progressão até a onda 10 e pediu **perk
 **Fidelidade sem cópia:** mecânicas comparáveis às do MW3 Survival de 2011, mas modelos, nomes, som, gráficos, economia e referências visuais próprios. Conferir [pesquisa de fontes](PESQUISA_MW3_SURVIVAL_MECANICAS.md) ao detalhar cada sprint. Não confundir perks do multiplayer com Survival.
 
 **Nada foi implementado durante a rodada documental.** Os status acima são **PENDENTES**, não "concluídos".
+
+---
+
+## Acompanhamento de implementação M0–M8 (auditoria de 12/11/2026)
+
+**Documentação existente não é sinônimo de feature aprovada no Windows.** A release base é a [v0.9.17](https://github.com/TPollTech/Frontline-Survival/releases/tag/v0.9.17), com CI verde. Os marcos de produto permanecem:
+
+| Marco | Estado | Evidência e próxima entrega |
+| --- | --- | --- |
+| M0 — Estabilização | **PARCIAL** | CI e 2 ondas automatizadas concluídos; 15 ondas reais, FPS e UI homologados pendentes |
+| M1 — Armas, ADS e feedback | **PARCIAL** | 5 armas, WAVs e acessórios em código; mira/humanoide e áudio pendentes de aprovação |
+| M2 — Inimigos e diretor de ondas | **PARCIAL** | 50 composições simuladas e IA tática básica; IA militar completa/20 ondas não concluídas |
+| M3 — Economia e três estações | **PARCIAL** | lojas, perks e suporte implementados; validações monetárias e balanceamento pendentes |
+| M4 — Complexo Industrial | **PENDENTE** | GDD/layout conceitual pronto; mapa e seletor não implementados |
+| M5 — HUD/recordes e audiovisual | **PARCIAL** | menus e relatório v0.9.17; resoluções, recordes por mapa e revisão de áudio pendentes |
+| M6 — Performance-alvo | **PENDENTE** | limites básicos de NPC/FX existem; sem benchmark Ryzen 5 7530U/8GB |
+| M7 — Release Candidate | **PENDENTE** | gates A–D não concluídos integralmente |
+| M8 — v1.0.0 | **PENDENTE** | não liberar sem testes Windows, 15 ondas e aceitação visual |
+
+[Auditoria das Etapas 0–6](AUDITORIA_CHECKLISTS_2026_11_12.md) · [ROADMAP de execução](../ROADMAP.md)

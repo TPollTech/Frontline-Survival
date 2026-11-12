@@ -63,27 +63,27 @@ Menu principal mínimo: Jogar, Configurações, Sair; escolha de modo/mapa só q
 | 5F | Recordes por mapa | Etapa 4 e 5C | Sem misturar modos/mapas nem perder dados existentes |
 | 5G | Verificação integrada | 5A–5F, Etapa 6 | QA documentado no hardware-alvo |
 
-## 9. Critérios de aceite e matriz de QA (TODOS PENDENTES)
-| ID | Cenário | Resultado esperado |
-| --- | --- | --- |
-| U5-01 | HUD 720p/900p/1080p | Sem corte, sobreposição ou obstrução da retícula |
-| U5-02 | Vida baixa e dano de múltiplas direções | Prioridade e direção identificáveis |
-| U5-03 | Headshot sem morte | Feedback de acerto sem abate falso |
-| U5-04 | Finalizar onda e esperar 75 s | Contagem, compra e reinício de combate corretos |
-| U5-05 | Antecipar com N | Sem duplicar avisos/ondas |
-| U5-06 | F longe e perto de cada estação | Só abre terminal alcançável |
-| U5-07 | Esc com loja/configurações/pausa | Fecha camada correta e restaura mouse |
-| U5-08 | Comprar sem créditos | Erro legível, sem débito |
-| U5-09 | 3/4 sem token | Não ativa nem anuncia compra |
-| U5-10 | Morrer em treino/clássico | Revive/resultado conforme modo |
-| U5-11 | Reiniciar sessão | Sem estado de compra ou suporte herdado |
-| U5-12 | Ajustar volumes e reiniciar | Valores persistidos; sem clipping sob carga |
-| U5-13 | Som desligado | Avisos críticos permanecem visuais |
-| U5-14 | Escala de HUD e FOV extremos permitidos | Layout e mira continuam utilizáveis |
-| U5-15 | Alterar resolução inválida | Retorno seguro à configuração anterior |
-| U5-16 | 12 inimigos, torretas e aliados | UI/áudio não causam queda de desempenho sem registro |
-| U5-17 | Resultado e recordes por mapa/modo | Contagens consistentes e armazenamento local |
-| U5-18 | Executável Windows sem editor | Menus, fonte e preferências funcionam |
+## 9. Critérios de aceite e matriz de QA (situação auditada em 12/11/2026)
+| ID | Cenário | Resultado esperado | Situação atual |
+| --- | --- | --- | --- |
+| U5-01 | HUD 720p/900p/1080p | Sem corte, sobreposição ou obstrução da retícula | **PARCIAL** — código/CI parcial; falta aceite completo |
+| U5-02 | Vida baixa e dano de múltiplas direções | Prioridade e direção identificáveis | **PARCIAL** — código/CI parcial; falta aceite completo |
+| U5-03 | Headshot sem morte | Feedback de acerto sem abate falso | **CONCLUÍDO (CI)** — teste integrado confirmado |
+| U5-04 | Finalizar onda e esperar 30 s (padrão atual) | Contagem, compra e reinício de combate corretos | **PARCIAL** — código/CI parcial; falta aceite completo |
+| U5-05 | Antecipar com N | Sem duplicar avisos/ondas | **PARCIAL** — código/CI parcial; falta aceite completo |
+| U5-06 | F longe e perto de cada estação | Só abre terminal alcançável | **PARCIAL** — código/CI parcial; falta aceite completo |
+| U5-07 | Esc com loja/configurações/pausa | Fecha camada correta e restaura mouse | **CONCLUÍDO (CI)** — teste integrado confirmado |
+| U5-08 | Comprar sem créditos | Erro legível, sem débito | **PARCIAL** — código/CI parcial; falta aceite completo |
+| U5-09 | 3/4 sem token | Não ativa nem anuncia compra | **PARCIAL** — código/CI parcial; falta aceite completo |
+| U5-10 | Morrer em treino/clássico | Revive/resultado conforme modo | **CONCLUÍDO (CI)** — teste integrado confirmado |
+| U5-11 | Reiniciar sessão | Sem estado de compra ou suporte herdado | **PARCIAL** — código/CI parcial; falta aceite completo |
+| U5-12 | Ajustar volumes e reiniciar | Valores persistidos; sem clipping sob carga | **PARCIAL** — código/CI parcial; falta aceite completo |
+| U5-13 | Som desligado | Avisos críticos permanecem visuais | **PARCIAL** — código/CI parcial; falta aceite completo |
+| U5-14 | Escala de HUD e FOV extremos permitidos | Layout e mira continuam utilizáveis | **PENDENTE** — falta ajuste específico de escala do HUD |
+| U5-15 | Alterar resolução inválida | Retorno seguro à configuração anterior | **PENDENTE** — não existe fallback testado de resolução inválida |
+| U5-16 | 12 inimigos, torretas e aliados | UI/áudio não causam queda de desempenho sem registro | **PENDENTE** — sem benchmark com 12 NPCs e suporte |
+| U5-17 | Resultado e recordes por mapa/modo | Contagens consistentes e armazenamento local | **PENDENTE** — recordes por mapa dependem de Etapa 4 |
+| U5-18 | Executável Windows sem editor | Menus, fonte e preferências funcionam | **PARCIAL** — código/CI parcial; falta aceite completo |
 
 **Evidência obrigatória:** commit/build, resolução, FPS, captura de tela, resultado observado, falha e reteste. Nenhum cenário acima foi executado nesta etapa documental.
 
@@ -105,3 +105,29 @@ Menu principal mínimo: Jogar, Configurações, Sair; escolha de modo/mapa só q
 - **Próxima lacuna:** Etapa 6 — plano de desempenho, testes, empacotamento e critérios de entrega; depois consolidar GDD e checklist de consistência.
 
 **Resultado:** especificação documental apenas. Nenhum código, cena, asset, configuração executável ou teste de gameplay foi alterado/executado.
+
+
+---
+
+## Auditoria de execução — 12/11/2026 (base v0.9.17)
+
+**Quadro atualizado após o documento histórico.** Critérios: **3 concluídos em CI; 11 parciais; 4 pendentes**. **A Etapa 5 ainda NÃO está completamente concluída.**
+
+### Entregas já implementadas
+
+- [x] Menus inicial, pausa e configurações por categoria integrados — **CONCLUÍDO (CÓDIGO/CI)**
+- [x] Feedback de hit/headshot e estados de morte/última chance testados no CI — **CONCLUÍDO (CÓDIGO/CI)**
+- [x] Volumes separados e preferências armazenadas em GameSettings — **CONCLUÍDO (CÓDIGO/CI)**
+
+### Itens parciais
+
+- [ ] HUD reduzido na v0.9.17, ainda sem aprovação visual em três resoluções — **PARCIAL**
+- [ ] Opções de FOV, sensibilidade, dano e escala 3D; acessibilidade ainda incompleta — **PARCIAL**
+
+### Pendências de execução ou validação
+
+- [ ] Implementar controle de escala do HUD e fallback de resolução — **PENDENTE**
+- [ ] Testar mixagem e clipping no Windows e resoluções 720/900/1080 — **PENDENTE**
+- [ ] Separar recordes por mapa/modo quando houver outros mapas — **PENDENTE**
+
+**Evidências:** [Godot CI da v0.9.17](https://github.com/TPollTech/Frontline-Survival/actions/runs/43171938905) · [Release Windows v0.9.17](https://github.com/TPollTech/Frontline-Survival/releases/tag/v0.9.17) · [Auditoria central](AUDITORIA_CHECKLISTS_2026_11_12.md). Teste CI não substitui validação real no notebook.

@@ -156,3 +156,9 @@ Registrar FPS observado, pior queda perceptível, RAM do processo/sistema, tempe
 | Alterar preços, armas, mapas ou IA | **Fora de escopo da Etapa 0** |
 
 **Próxima ação:** executar o checklist real e preencher os resultados. Em paralelo, pode-se aprovar o desenho da Etapa 1, sem implementá-lo antes de cumprir os critérios desta etapa.
+
+---
+
+## Auditoria de progresso — 12/11/2026
+
+Checklist desta etapa sincronizada com o CI da v0.9.17: **4 critérios concluídos em código/CI, 2 parciais e 3 pendentes**. O jogo passa no Godot, tem partida/armas/lojas e testes de estados, mas a **Etapa 0 não está concluída** porque faltam 15 ondas reais, benchmark do notebook e aprovação do HUD da v0.9.17. [Auditoria central](AUDITORIA_CHECKLISTS_2026_11_12.md).

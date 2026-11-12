@@ -1,5 +1,8 @@
 # Frontline Survival 0.9.17 — Campo de Testes
 
+**Andamento auditado:** as Etapas 0–6 estão acompanhadas por checklists com marcações de implementação, CI e pendências reais. [Resumo atualizado](ROADMAP.md#8-estado-real-das-etapas-06--auditoria-12112026) · [Auditoria detalhada](docs/AUDITORIA_CHECKLISTS_2026_11_12.md). Nenhuma etapa está homologada integralmente no Windows.
+
+
 **Projeto Godot 4.x Standard, FPS 3D offline para Windows**, com renderizador **Compatibility** e alvo inicial Ryzen 5 7530U / 8 GB RAM. Projeto original inspirado em mecânicas do gênero *Survival por ondas*. **Não contém modelos, áudio ou outros arquivos do Call of Duty.**
 
 A versão **0.9.17** corrige três problemas visuais relatados na v0.9.16: a Red Dot deixou de ser uma caixa opaca e passou a ter aro vazado/lente/ponto emissivo durante ADS; o relatório de ondas e os avisos foram reduzidos a toasts compactos, sem painel vazio no centro; e o **protótipo Quaternius sem animações foi retirado das ondas públicas** (ainda disponível isoladamente para desenvolvimento). As mecânicas, armas e sons gravados continuam preservados. **A qualidade visual depende de aprovação jogando no Windows.**

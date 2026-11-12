@@ -29,27 +29,27 @@
 5. Reexecutar a matriz após **cada** otimização, com comparação antes/depois e rollback se causar regressão.
 6. Não mascarar defeitos visuais (armas brancas/aliados deformados) com redução de qualidade; corrigir material, malha e rig separadamente.
 
-## 4. Matriz de testes integrada (E6-P03 — todos pendentes)
-| ID | Teste | Aceite proposto |
-| --- | --- | --- |
-| Q6-01 | Inicialização offline em Windows limpo sem editor | EXE/PCK abrem sem dependência de Godot instalado |
-| Q6-02 | Campo de Testes e asfalto | Geometria, colisão e textura preservadas |
-| Q6-03 | Armas 1ª pessoa, 5 categorias | Materiais corretos, sem branco inesperado, clipping ou peças ausentes |
-| Q6-04 | ADS sem crosshair | Alça/massa ou óptica alinhadas ao centro balístico; disparos coerentes |
-| Q6-05 | Aliados invocados e inimigos | Anatomia/empunhadura sem braços invertidos, mãos flutuantes ou arma deslocada |
-| Q6-06 | F em 3 estações, saldo insuficiente | Transações corretas, sem compra remota nem débito indevido |
-| Q6-07 | 3/4 suporte comprado; G granada | Tokens, ativação e consumo corretos |
-| Q6-08 | Onda 1 até 15 sem interrupção | Contadores, spawn e transições corretos, sem softlock |
-| Q6-09 | Preparação 75 s e tecla N | Contagem correta, sem ondas duplicadas |
-| Q6-10 | Morte clássica e reanimação no treino | Resultados e progresso separados |
-| Q6-11 | Pausa, configurações e reinício | Áudio, mouse e controles persistentes e coerentes |
-| Q6-12 | Transição sonora de onda | Sem apitos irritantes/repetição; alerta visual funciona com áudio desligado |
-| Q6-13 | FPS e memória em ondas 5/10/15 | Métricas registradas, sem degradação contínua |
-| Q6-14 | HUD em 720p/900p/1080p | Legível, sem crosshair, sem cortar elementos |
-| Q6-15 | Complexo Industrial, quando aprovado e existente | Todas as rotas, estações, IA e setores acessíveis |
-| Q6-16 | Arquivo ZIP da release | SHA-256 bate; EXE/PCK presentes; download público funciona |
-| Q6-17 | Teste de regressão de assets | Materiais de GLB e poses verificados em screenshot real, não só headless |
-| Q6-18 | 30 minutos de jogo após 15 ondas | Sem travamento, vazamento ou queda persistente não explicada |
+## 4. Matriz de testes integrada (E6-P03 — situação auditada em 12/11/2026)
+| ID | Teste | Aceite proposto | Situação atual |
+| --- | --- | --- | --- |
+| Q6-01 | Inicialização offline em Windows limpo sem editor | EXE/PCK abrem sem dependência de Godot instalado | **PARCIAL** — código/CI parcial; falta aceite completo |
+| Q6-02 | Campo de Testes e asfalto | Geometria, colisão e textura preservadas | **PARCIAL** — código/CI parcial; falta aceite completo |
+| Q6-03 | Armas 1ª pessoa, 5 categorias | Materiais corretos, sem branco inesperado, clipping ou peças ausentes | **PARCIAL** — código/CI parcial; falta aceite completo |
+| Q6-04 | ADS sem crosshair | Alça/massa ou óptica alinhadas ao centro balístico; disparos coerentes | **PARCIAL** — código/CI parcial; falta aceite completo |
+| Q6-05 | Aliados invocados e inimigos | Anatomia/empunhadura sem braços invertidos, mãos flutuantes ou arma deslocada | **PARCIAL** — código/CI parcial; falta aceite completo |
+| Q6-06 | F em 3 estações, saldo insuficiente | Transações corretas, sem compra remota nem débito indevido | **PARCIAL** — código/CI parcial; falta aceite completo |
+| Q6-07 | 3/4 suporte comprado; G granada | Tokens, ativação e consumo corretos | **PARCIAL** — código/CI parcial; falta aceite completo |
+| Q6-08 | Onda 1 até 15 sem interrupção | Contadores, spawn e transições corretos, sem softlock | **PENDENTE** — 15 ondas reais não homologadas |
+| Q6-09 | Preparação padrão 30 s e tecla N | Contagem correta, sem ondas duplicadas | **PARCIAL** — código/CI parcial; falta aceite completo |
+| Q6-10 | Morte clássica e reanimação no treino | Resultados e progresso separados | **PARCIAL** — código/CI parcial; falta aceite completo |
+| Q6-11 | Pausa, configurações e reinício | Áudio, mouse e controles persistentes e coerentes | **PARCIAL** — código/CI parcial; falta aceite completo |
+| Q6-12 | Transição sonora de onda | Sem apitos irritantes/repetição; alerta visual funciona com áudio desligado | **PARCIAL** — código/CI parcial; falta aceite completo |
+| Q6-13 | FPS e memória em ondas 5/10/15 | Métricas registradas, sem degradação contínua | **PENDENTE** — faltam medições CPU/GPU/RAM/FPS por onda |
+| Q6-14 | HUD em 720p/900p/1080p | Legível, sem crosshair, sem cortar elementos | **PENDENTE** — faltam capturas 720p/900p/1080p |
+| Q6-15 | Complexo Industrial, quando aprovado e existente | Todas as rotas, estações, IA e setores acessíveis | **PENDENTE** — Complexo Industrial ainda não existe |
+| Q6-16 | Arquivo ZIP da release | SHA-256 bate; EXE/PCK presentes; download público funciona | **CONCLUÍDO (CI)** — teste integrado confirmado |
+| Q6-17 | Teste de regressão de assets | Materiais de GLB e poses verificados em screenshot real, não só headless | **PARCIAL** — código/CI parcial; falta aceite completo |
+| Q6-18 | 30 minutos de jogo após 15 ondas | Sem travamento, vazamento ou queda persistente não explicada | **PENDENTE** — 30 min após 15 ondas não testados |
 
 **Evidência por teste:** build SHA/tag, máquina, resolução/preset, passos, resultado observado, logs, captura e reteste após correção. “Passou no CI” é uma categoria distinta de “passou no notebook”.
 
@@ -82,3 +82,28 @@
 - **Conflito resolvido como requisito do jogador:** retirar crosshair; a Etapa 5 anterior descreve retícula e precisa de ajuste documental antes da implementação. A geometria ADS permanece hipótese técnica a validar.
 
 **Coerência:** preserva E0 (regressão), E1 (armas/ADS), E2 (IA e limite), E3 (economia), E4 (setores) e E5 (UX/áudio), sem presumir aprovação das propostas. **Próxima lacuna:** consolidar GDD mestre, separar decisões estabelecidas/propostas e revisar consistência transversal. Nenhuma modificação de código, cenas, assets ou configurações executáveis nesta rodada.
+
+
+---
+
+## Auditoria de execução — 12/11/2026 (base v0.9.17)
+
+**Quadro atualizado após o documento histórico.** Critérios: **1 concluídos em CI; 12 parciais; 5 pendentes**. **A Etapa 6 ainda NÃO está completamente concluída.**
+
+### Entregas já implementadas
+
+- [x] Godot 4.4.1 com importação, smoke, testes de ondas e integração no CI — **CONCLUÍDO (CÓDIGO/CI)**
+- [x] Build ZIP Windows, EXE/PCK e SHA-256 publicados na release v0.9.17 — **CONCLUÍDO (CÓDIGO/CI)**
+
+### Itens parciais
+
+- [ ] Limites de NPCs, loot e efeitos implementados; profiling de gargalos pendente — **PARCIAL**
+- [ ] Captura de humanoide em CI sob Xvfb; aparência não homologada em Windows — **PARCIAL**
+
+### Pendências de execução ou validação
+
+- [ ] Benchmark reproduzível no Ryzen 5 7530U/8 GB — **PENDENTE**
+- [ ] Teste completo de 15 ondas e 30 minutos sem problemas — **PENDENTE**
+- [ ] Homologar áudio, ADS e HUD em várias resoluções — **PENDENTE**
+
+**Evidências:** [Godot CI da v0.9.17](https://github.com/TPollTech/Frontline-Survival/actions/runs/43171938905) · [Release Windows v0.9.17](https://github.com/TPollTech/Frontline-Survival/releases/tag/v0.9.17) · [Auditoria central](AUDITORIA_CHECKLISTS_2026_11_12.md). Teste CI não substitui validação real no notebook.

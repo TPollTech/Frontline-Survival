@@ -131,26 +131,26 @@ A economia deve ser calibrada em sessões de ondas 1–5, 6–10, 11–15 e 16�
 
 ## 8. Critérios de aceitação e testes futuros
 
-| ID | Cenário | Resultado esperado |
-| --- | --- | --- |
-| E3-01 | Comprar sem saldo | Compra rejeitada, saldo inalterado |
-| E3-02 | Comprar arma já possuída | Equipa gratuitamente |
-| E3-03 | Comprar cura com vida cheia | Sem débito, mensagem explicativa |
-| E3-04 | Comprar munição com reservas cheias | Sem débito, limites respeitados |
-| E3-05 | Comprar upgrade no nível 3 | Rejeita sem cobrança |
-| E3-06 | Colocar torreta em parede ou NPC | Rejeita sem cobrança nem instância |
-| E3-07 | Tentar terceira torreta | Rejeita e mantém saldo |
-| E3-08 | Chamar esquadrão com 6 aliados | Não consome token |
-| E3-09 | Chamar ataque fora de combate | Não consome token |
-| E3-10 | Acionar ataque em alvo inválido | Não consome token |
-| E3-11 | Comprar durante preparação e antecipar N | Estado íntegro, loja fechada |
-| E3-12 | Morte e reanimação de treino | Saldo, armas, tokens preservados |
-| E3-13 | Morte clássica | Sem compras após game over |
-| E3-14 | Aliado mata último inimigo | Contador zera uma vez, onda conclui |
-| E3-15 | Ataque aéreo atinge mas não mata | HUD não registra eliminação falsa |
-| E3-16 | Comprar e ativar suporte em ondas 5,10,15 | Sem perda de FPS inaceitável |
-| E3-17 | Sessão longa de 20 ondas | Economia não bloqueia progresso nem elimina escolhas |
-| E3-18 | Usar mouse e teclado nas três estações | Foco, saldo, feedback e fechamento corretos |
+| ID | Cenário | Resultado esperado | Situação atual |
+| --- | --- | --- | --- |
+| E3-01 | Comprar sem saldo | Compra rejeitada, saldo inalterado | **PARCIAL** — código/CI parcial; falta aceite completo |
+| E3-02 | Comprar arma já possuída | Equipa gratuitamente | **PARCIAL** — código/CI parcial; falta aceite completo |
+| E3-03 | Comprar cura com vida cheia | Sem débito, mensagem explicativa | **PENDENTE** — cobrança de cura com vida cheia ainda não é rejeitada |
+| E3-04 | Comprar munição com reservas cheias | Sem débito, limites respeitados | **PENDENTE** — cobrança de munição cheia ainda não é rejeitada |
+| E3-05 | Comprar upgrade no nível 3 | Rejeita sem cobrança | **PARCIAL** — código/CI parcial; falta aceite completo |
+| E3-06 | Colocar torreta em parede ou NPC | Rejeita sem cobrança nem instância | **PENDENTE** — posicionamento de torreta não valida paredes/NPC |
+| E3-07 | Tentar terceira torreta | Rejeita e mantém saldo | **PARCIAL** — código/CI parcial; falta aceite completo |
+| E3-08 | Chamar esquadrão com 6 aliados | Não consome token | **PARCIAL** — código/CI parcial; falta aceite completo |
+| E3-09 | Chamar ataque fora de combate | Não consome token | **PARCIAL** — código/CI parcial; falta aceite completo |
+| E3-10 | Acionar ataque em alvo inválido | Não consome token | **PENDENTE** — token aéreo consumido antes de validar destino |
+| E3-11 | Comprar durante preparação e antecipar N | Estado íntegro, loja fechada | **PARCIAL** — código/CI parcial; falta aceite completo |
+| E3-12 | Morte e reanimação de treino | Saldo, armas, tokens preservados | **PARCIAL** — código/CI parcial; falta aceite completo |
+| E3-13 | Morte clássica | Sem compras após game over | **PARCIAL** — código/CI parcial; falta aceite completo |
+| E3-14 | Aliado mata último inimigo | Contador zera uma vez, onda conclui | **PARCIAL** — código/CI parcial; falta aceite completo |
+| E3-15 | Ataque aéreo atinge mas não mata | HUD não registra eliminação falsa | **PENDENTE** — contador de alvos atingidos pode ser confundido com eliminações |
+| E3-16 | Comprar e ativar suporte em ondas 5,10,15 | Sem perda de FPS inaceitável | **PENDENTE** — benchmark de suporte não realizado |
+| E3-17 | Sessão longa de 20 ondas | Economia não bloqueia progresso nem elimina escolhas | **PENDENTE** — 20 ondas reais não testadas |
+| E3-18 | Usar mouse e teclado nas três estações | Foco, saldo, feedback e fechamento corretos | **PARCIAL** — código/CI parcial; falta aceite completo |
 
 **Nenhum teste foi executado neste ciclo.** Registrar build, commit, FPS/ram e resultados antes de aprovar a implementação.
 
@@ -212,3 +212,27 @@ A economia deve ser calibrada em sessões de ondas 1–5, 6–10, 11–15 e 16�
 
 **Estado:** propostas arquiteturais e requisitos do usuário documentados; **PENDENTE DE IMPLEMENTAÇÃO** nesta etapa.  
 [Design detalhado](NUCLEO_SURVIVAL_PERKS_ATTACHMENTS_MOVIMENTO.md) · [Pesquisa histórica](PESQUISA_MW3_SURVIVAL_MECANICAS.md)
+
+
+---
+
+## Auditoria de execução — 12/11/2026 (base v0.9.17)
+
+**Quadro atualizado após o documento histórico.** Critérios: **0 concluídos em CI; 11 parciais; 7 pendentes**. **A Etapa 3 ainda NÃO está completamente concluída.**
+
+### Entregas já implementadas
+
+- [x] Três lojas físicas por F e compras implementadas — **CONCLUÍDO (CÓDIGO/CI)**
+- [x] Perks, Last Stand, attachments e resumo financeiro de ondas integrados ao jogo — **CONCLUÍDO (CÓDIGO/CI)**
+
+### Itens parciais
+
+- [ ] Torretas, esquadrão e ataque aéreo funcionam em código; casos-limite e posicionamento incompletos — **PARCIAL**
+- [ ] Interface de loja usa mouse; navegação por teclado/comparação ainda requer trabalho — **PARCIAL**
+
+### Pendências de execução ou validação
+
+- [ ] Bloquear compras inválidas de cura/munição e corrigir validação do alvo aéreo — **PENDENTE**
+- [ ] Equilibrar economia/suporte com 10–20 ondas reais — **PENDENTE**
+
+**Evidências:** [Godot CI da v0.9.17](https://github.com/TPollTech/Frontline-Survival/actions/runs/43171938905) · [Release Windows v0.9.17](https://github.com/TPollTech/Frontline-Survival/releases/tag/v0.9.17) · [Auditoria central](AUDITORIA_CHECKLISTS_2026_11_12.md). Teste CI não substitui validação real no notebook.

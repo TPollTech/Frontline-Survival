@@ -236,12 +236,18 @@ Nesta etapa, validar:
 
 | ID | Verificação | Status |
 | --- | --- | --- |
-| A1-13 | cinco armas básicas sem mira extra/silenciador no início | **PENDENTE** |
-| A1-14 | Red Dot + Silenciador juntos por arma; compra sem saldo, troca e drop | **PENDENTE** |
-| A1-15 | visor e ponto de tiro alinhados em ADS para cada arma e acessório | **PENDENTE** |
-| A1-16 | sons e visual do disparo com silenciador coerentes, sem beep | **PENDENTE** |
-| A1-17 | agachar muda altura física, não só movimento | **PARCIAL** (só velocidade hoje) |
-| A1-18 | deitar/rastejar e levantar sem atravessar teto ou atravessar obstáculos | **PENDENTE** |
-| A1-19 | FPS e estabilidade com os acessórios equipados + NPCs no Campo de Testes | **PENDENTE** |
+| A1-13 | cinco armas básicas sem mira extra/silenciador no início | **CONCLUÍDO (CI)** — inicial sem acessórios, testes em cinco armas |
+| A1-14 | Red Dot + Silenciador juntos por arma; compra sem saldo, troca e drop | **PARCIAL** — Red Dot + Silenciador juntos, compra e troca no CI; testar coleta e saldo em jogo |
+| A1-15 | visor e ponto de tiro alinhados em ADS para cada arma e acessório | **PARCIAL** — ótica 3D da v0.9.17, alinhamento balístico não homologado visualmente |
+| A1-16 | sons e visual do disparo com silenciador coerentes, sem beep | **PARCIAL** — WAV com bus SUPPRESSED, som/visual exigem avaliação no Windows |
+| A1-17 | agachar muda altura física, não só movimento | **CONCLUÍDO (CI)** — altura da cápsula do agachamento verificada |
+| A1-18 | deitar/rastejar e levantar sem atravessar teto ou atravessar obstáculos | **PARCIAL** — prone, rastejamento e colisor existem; teto/ADS exigem teste |
+| A1-19 | FPS e estabilidade com os acessórios equipados + NPCs no Campo de Testes | **PENDENTE** — sem benchmark de FPS no notebook |
 
 **Ordem:** CT-03 (posturas) e CT-04 (attachments), depois de garantir o básico do Campo de Testes; sem implementar nova arena nesta etapa. **Nenhuma mudança de código nesta rodada documental.**
+
+---
+
+## Auditoria de progresso — 12/11/2026
+
+Na checklist principal desta etapa há **2 critérios concluídos em código/CI, 4 parciais e 4 pendentes**. Os sete critérios adicionais de attachments e posturas foram atualizados na própria tabela. A Etapa 1 continua **PARCIAL**: há cinco armas e mecânicas funcionais, porém ainda faltam modelos de mãos com rig anatômico, aceitação visual do ADS/Red Dot e FPS medido no Ryzen 5 7530U. [Auditoria central](AUDITORIA_CHECKLISTS_2026_11_12.md) · [Build v0.9.17](https://github.com/TPollTech/Frontline-Survival/releases/tag/v0.9.17).
