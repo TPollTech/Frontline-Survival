@@ -319,8 +319,10 @@ func _input(event: InputEvent) -> void:
     if event is InputEventMouseButton and event.pressed:
         if event.button_index == MOUSE_BUTTON_LEFT and not dead and not controls_locked:
             if Input.get_mouse_mode() != Input.MOUSE_MODE_CAPTURED:
+                # O primeiro clique apenas recupera o foco; nao deve disparar.
                 Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
-            shoot()
+            else:
+                shoot()
     if event is InputEventKey and event.pressed and not event.echo:
         if not dead and not controls_locked:
             if event.keycode == KEY_Z and not downed:
