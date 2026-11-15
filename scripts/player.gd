@@ -251,7 +251,7 @@ func _physics_process(delta: float) -> void:
     _update_posture(delta, crouching)
     var sprinting := Input.is_key_pressed(KEY_SHIFT) and movement.y < -0.05 and posture == "stand" and not downed and not reloading and not controls_locked
     sprint_blend = move_toward(sprint_blend, 1.0 if sprinting else 0.0, delta * (5.0 if sprinting else 7.5))
-    aim = Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT) and not controls_locked and sprint_blend < 0.20 and not downed
+    aim = Input.get_mouse_mode() == Input.MOUSE_MODE_CAPTURED and Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT) and not controls_locked and sprint_blend < 0.20 and not downed
     var speed := 0.8 if downed else (1.15 if posture == "prone" else (2.8 if posture == "crouch" else (8.0 if sprinting else (4.35 if aim else 5.2))))
     if active_perk == "mobility" and aim:
         speed *= 1.17
@@ -264,8 +264,11 @@ func _physics_process(delta: float) -> void:
     # A slight sprint FOV extension sells momentum; ADS always takes priority.
     var target_fov: float = GameSettings.field_of_view * (0.70 if aim else (1.045 if sprint_blend > 0.55 else 1.0))
     camera.fov = lerpf(camera.fov, target_fov, minf(1.0, delta * (14.0 if active_perk == "fast_ads" else 10.0)))
-    walk_clock += delta * movement.length() * (10.0 if sprinting else 8.0)
-    sprint_stride = sin(walk_clock * 1.16) * sprint_blend * movement.length()
+    # Animar passos pela velocidade real, evitando bob ao pressionar contra paredes.
+    var ground_motion: float = Vector2(velocity.x, velocity.z).length() if is_on_floor() else 0.0
+    var motion_ratio: float = clampf(ground_motion / maxf(speed, 0.1), 0.0, 1.0)
+    walk_clock += delta * motion_ratio * (10.0 if sprinting else 8.0)
+    sprint_stride = sin(walk_clock * 1.16) * sprint_blend * motion_ratio
     shot_spread_kick = move_toward(shot_spread_kick, 0.0, delta * 1.25)
     # Align the physical front/rear sight with the camera's central ray.
     # No on-screen crosshair: the actual sight must indicate point of aim.
@@ -276,7 +279,7 @@ func _physics_process(delta: float) -> void:
     # stride/counter-swing keep this separate from an accelerated walk.
     var sprint_ease: float = sprint_blend * sprint_blend * (3.0 - 2.0 * sprint_blend)
     var running_bob: float = absf(sin(walk_clock * 1.16)) * 0.032 * sprint_ease
-    gun_target.y += sin(walk_clock) * 0.006 * movement.length()
+    gun_target.y += sin(walk_clock) * 0.006 * motion_ratio
     gun_target = gun_target.lerp(Vector3(
         0.47 + sprint_stride * 0.014,
         -0.54 + running_bob,
@@ -291,7 +294,7 @@ func _physics_process(delta: float) -> void:
         gun_target.x += 0.08
     gun_target.z += recoil
     gun.position = gun.position.lerp(gun_target, minf(1.0, delta * 13.0))
-    var sway_strength := (0.006 if aim else 0.018) * movement.length()
+    var sway_strength := (0.006 if aim else 0.018) * motion_ratio
     gun.rotation.z = lerpf(gun.rotation.z,
         -0.44 * sprint_ease + sprint_stride * 0.047 + sin(walk_clock * 0.35) * sway_strength,
         minf(1.0, delta * 10.0))
@@ -337,7 +340,7 @@ func _input(event: InputEvent) -> void:
                 switch_weapon(last_primary)
             elif event.keycode == KEY_2:
                 switch_weapon("pistol")
-    if event is InputEventMouseButton and event.pressed and not dead and not controls_locked:
+    if event is InputEventMouseButton and event.pressed and not dead and not controls_locked and Input.get_mouse_mode() == Input.MOUSE_MODE_CAPTURED:
         if event.button_index == MOUSE_BUTTON_WHEEL_UP or event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
             if weapon_id == "pistol" and last_primary != "":
                 switch_weapon(last_primary)
