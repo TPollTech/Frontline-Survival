@@ -88,6 +88,7 @@ var downed_seconds: float = 0.0
 var last_stand_available: bool = true
 var self_revive_kits: int = 0
 var shot_serial: int = 0
+var suppress_fire_until_release: bool = false
 
 func _ready() -> void:
     collision_layer = 2
@@ -307,8 +308,10 @@ func _physics_process(delta: float) -> void:
     if is_instance_valid(optic_reticle):
         # Visible only once the real sight approaches the central camera ray.
         optic_reticle.visible = aim and not reloading and absf(gun.position.x) < 0.055 and sprint_blend < 0.15
-    # Automáticas continuam disparando enquanto o botão permanece pressionado.
-    if not controls_locked and Input.get_mouse_mode() == Input.MOUSE_MODE_CAPTURED:
+    # Um clique usado para recapturar o mouse nunca pode virar tiro automatico.
+    if suppress_fire_until_release and not Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
+        suppress_fire_until_release = false
+    if not controls_locked and Input.get_mouse_mode() == Input.MOUSE_MODE_CAPTURED and not suppress_fire_until_release:
         if Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT) and WEAPONS[weapon_id]["auto"]:
             shoot()
 
@@ -319,10 +322,13 @@ func _input(event: InputEvent) -> void:
         rotate_y(-event.relative.x * 0.002 * GameSettings.mouse_sensitivity)
         camera.rotate_x(event.relative.y * 0.002 * GameSettings.mouse_sensitivity * (1.0 if GameSettings.invert_mouse_y else -1.0))
         camera.rotation.x = clampf(camera.rotation.x, -1.45, 1.45)
+    if event is InputEventMouseButton and not event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+        suppress_fire_until_release = false
     if event is InputEventMouseButton and event.pressed:
         if event.button_index == MOUSE_BUTTON_LEFT and not dead and not controls_locked:
             if Input.get_mouse_mode() != Input.MOUSE_MODE_CAPTURED:
-                # O primeiro clique apenas recupera o foco; nao deve disparar.
+                # Bloqueia tambem o disparo automatico enquanto o clique segue pressionado.
+                suppress_fire_until_release = true
                 Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
             else:
                 shoot()
