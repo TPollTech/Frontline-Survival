@@ -259,7 +259,8 @@ func _physics_process(delta: float) -> void:
     var world_move := global_transform.basis * Vector3(movement.x, 0, movement.y)
     velocity.x = move_toward(velocity.x, world_move.x * speed, delta * 24.0)
     velocity.z = move_toward(velocity.z, world_move.z * speed, delta * 24.0)
-    if Input.is_key_pressed(KEY_SPACE) and is_on_floor() and posture == "stand" and not downed and not controls_locked:
+    # Saltar somente no pressionamento inicial: segurar ESPACO nao provoca saltos repetidos.
+    if Input.is_key_just_pressed(KEY_SPACE) and is_on_floor() and posture == "stand" and not downed and not controls_locked:
         velocity.y = 6.5
     move_and_slide()
     # A slight sprint FOV extension sells momentum; ADS always takes priority.
