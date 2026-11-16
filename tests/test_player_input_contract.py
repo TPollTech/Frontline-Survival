@@ -50,6 +50,16 @@ class PlayerInputContractTests(unittest.TestCase):
         self.assertIn("sprint_blend * motion_ratio > 0.55", physics)
         self.assertLess(physics.index("var motion_ratio:"), physics.index("var target_fov:"))
 
+    def test_mouse_look_requires_capture_and_clamps_pitch(self):
+        events = self.source.split("func _input(event: InputEvent) -> void:", 1)[1]
+        events = events.split("\nfunc shoot() -> void:", 1)[0]
+        self.assertIn(
+            "Input.get_mouse_mode() == Input.MOUSE_MODE_CAPTURED and not controls_locked and not dead:",
+            events,
+        )
+        self.assertIn("rotate_y(-event.relative.x * 0.002 * GameSettings.mouse_sensitivity)", events)
+        self.assertIn("camera.rotation.x = clampf(camera.rotation.x, -1.45, 1.45)", events)
+
     def test_weapon_scroll_requires_captured_mouse(self):
         events = self.source.split("func _input(event: InputEvent) -> void:", 1)[1]
         events = events.split("func shoot() -> void:", 1)[0]
