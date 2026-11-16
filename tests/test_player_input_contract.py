@@ -35,6 +35,14 @@ class PlayerInputContractTests(unittest.TestCase):
         self.assertIn("sprint_stride = sin(walk_clock * 1.16) * sprint_blend * motion_ratio", physics)
         self.assertNotIn("walk_clock += delta * movement.length()", physics)
 
+    def test_sprint_weapon_animation_requires_actual_movement(self):
+        physics = self.source.split("func _physics_process(delta: float) -> void:", 1)[1]
+        physics = physics.split("\\nfunc _input(", 1)[0]
+        self.assertIn(
+            "var sprint_ease: float = sprint_blend * sprint_blend * (3.0 - 2.0 * sprint_blend) * motion_ratio",
+            physics,
+        )
+
     def test_weapon_scroll_requires_captured_mouse(self):
         events = self.source.split("func _input(event: InputEvent) -> void:", 1)[1]
         events = events.split("func shoot() -> void:", 1)[0]
