@@ -403,13 +403,16 @@ func _run_tests() -> void:
         game._collect_loot(ammunition)
         _expect(game.player.reserves["smg"] == 16, "same-weapon ammunition not credited")
     var previous_reserve: int = game.player.reserves["smg"]
-    game._spawn_loot_pickup("ammo", "rifle", game.player.global_position, 16)
+    # Rifle was acquired in the weapon-swap QA above; LMG remains unowned here.
+    _expect(not game.player.owned_weapons.has("lmg"),
+        "unowned caliber QA requires the LMG to be unavailable at this point")
+    game._spawn_loot_pickup("ammo", "lmg", game.player.global_position, 16)
     var unowned_ammo: Node3D = game._nearest_loot()
     _expect(unowned_ammo != null, "unowned-caliber ammo spawn missing")
     if unowned_ammo != null:
         game._collect_loot(unowned_ammo)
         _expect(game.player.reserves["smg"] == previous_reserve,
-            "unowned rifle ammo incorrectly converted to equipped SMG ammo")
+            "unowned LMG ammo incorrectly converted to equipped SMG ammo")
         _expect(not unowned_ammo.is_queued_for_deletion(),
             "unowned caliber should stay on the ground until picked up with its weapon")
         unowned_ammo.queue_free()
