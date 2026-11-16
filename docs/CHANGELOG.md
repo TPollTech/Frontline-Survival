@@ -1,13 +1,18 @@
 # Frontline Survival — Histórico de versões
 
-## Em desenvolvimento após v0.9.20 — CT-03: postura física e câmera
+## 0.9.21 — CT-03: postura física e câmera (build para homologação Windows)
 
 - Corrigida a câmera para não ultrapassar o topo da cápsula durante a transição de agachar/deitar.
 - Corrida e salto só reativam depois que o colisor voltou à altura ereta; cenário de QA agora valida quadros intermediários a 60 FPS.
 - Sob teto baixo, recuperar-se da Última Chance conserva a postura física deitado (não mantém um estado `downed` obsoleto).
 - QA de integração com teto físico: bloqueio de levantar, rastejar/voltar ao agachamento, posição dos pés, câmera e recuperação sob cobertura.
-- 12 contratos Python de regressão para postura, salto, sprint, ADS e colisão.
-- **Status: código em validação; ainda falta homologação real no Windows.** O ZIP público v0.9.20 não contém estes commits posteriores.
+- 13 contratos Python de regressão para postura, salto, sprint, ADS e colisão.
+- **Status:** testes Python e Godot integrados passaram no CI; homologação real do jogador no Windows permanece pendente.
+- **Release:** v0.9.21 com ZIP Windows exportado somente após os gates de QA.
+
+[Notas da versão](releases/v0.9.21.md)
+
+---
 
 ## 0.9.20 — Build de testes atualizada: FPS e combate
 

@@ -574,3 +574,18 @@ O [plano de polimento do Campo de Testes](docs/M0_POLIMENTO_CAMPO_TESTES.md) reg
 **Aceite:** nenhuma declaração de “HUD profissional concluído” antes do teste real em Windows. [QA v0.9.19](docs/QA_V0_9_19.md) · [notas de release](docs/releases/v0.9.19.md). O backlog de personagens/IA permanece aberto.
 
 **Fechamento técnico v0.9.19:** [CI 43287202965](https://github.com/TPollTech/Frontline-Survival/actions/runs/43287202965) aprovado: 617 verificações integradas, 2.416 de ondas, 23 de Survival, [PNG 1280×720](https://github.com/TPollTech/Frontline-Survival/blob/main/docs/qa/hud_current.png) e [ZIP Windows de 37.133.826 bytes](https://github.com/TPollTech/Frontline-Survival/releases/tag/v0.9.19). O novo HUD ainda **não está marcado como visualmente aprovado pelo jogador**.
+
+
+## Sprint CT-03 — Posturas físicas e câmera — v0.9.21 (16/11/2026)
+
+**Status:** PARCIAL (código e CI); **homologação no Windows pendente**. Alterações posteriores ao ZIP v0.9.20.
+
+- [x] C/Ctrl agacham fisicamente e Z alterna prone, com câmera e cápsula em alturas coerentes — **CÓDIGO/CI**.
+- [x] Teste de teto físico bloqueia levantar sem espaço; prona pode passar a agachado; pés mantêm posição — **QA GODOT**.
+- [x] Recuperar da Última Chance sob cobertura não deixa estado de ferido obsoleto — **CÓDIGO/CI**.
+- [x] Câmera contida no colisor durante as transições, inclusive em 60 FPS; sprint/salto só após levantar fisicamente — **CÓDIGO/CI**.
+- [x] Testes regressivos de postura, colisões, ADS e câmera no workflow — **CÓDIGO/CI**.
+- [ ] Homologar no Windows real: passagem baixa/teto inclinado, colisão com paredes, cinco armas com ADS, mãos/recarga e Última Chance.
+- [ ] Medir FPS e observar possíveis travamentos/interpenetrações em 5–15 ondas e hardware-alvo.
+
+**Entrega para jogo real:** [Release v0.9.21](https://github.com/TPollTech/Frontline-Survival/releases/tag/v0.9.21) (o link exige publicação bem-sucedida do CI). Não alterar M0/M1 para concluído só por exportação.
