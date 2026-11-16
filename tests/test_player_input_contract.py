@@ -79,5 +79,23 @@ class PlayerInputContractTests(unittest.TestCase):
         self.assertIn("if suppress_fire_until_release and not Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):", self.source)
         self.assertIn("if event is InputEventMouseButton and not event.pressed and event.button_index == MOUSE_BUTTON_LEFT:", self.source)
 
+    def test_viewmodel_sprint_respects_actual_ground_movement(self):
+        physics = self.source.split("func _physics_process(delta: float) -> void:", 1)[1]
+        physics = physics.split("\nfunc _input(", 1)[0]
+        self.assertIn("var sprint_ease: float = sprint_blend * sprint_blend * (3.0 - 2.0 * sprint_blend) * motion_ratio", physics)
+        self.assertIn("_animate_viewmodel(delta, sprint_ease)", physics)
+        viewmodel = self.source.split("func _animate_viewmodel(delta: float, sprint_ease: float) -> void:", 1)[1]
+        viewmodel = viewmodel.split("\nfunc ", 1)[0]
+        self.assertNotIn("var sprint_ease:", viewmodel)
+        self.assertIn("sprint_stride * 0.046", viewmodel)
+
+    def test_ads_does_not_activate_when_sprint_starts(self):
+        physics = self.source.split("func _physics_process(delta: float) -> void:", 1)[1]
+        sprint_pos = physics.index("var sprinting :=")
+        aim_pos = physics.index("    aim = ")
+        self.assertLess(sprint_pos, aim_pos)
+        aim_line = next(line.strip() for line in physics.splitlines() if line.strip().startswith("aim = "))
+        self.assertIn("not sprinting", aim_line)
+
 if __name__ == "__main__":
     unittest.main()

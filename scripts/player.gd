@@ -252,7 +252,7 @@ func _physics_process(delta: float) -> void:
     _update_posture(delta, crouching)
     var sprinting := Input.is_key_pressed(KEY_SHIFT) and is_on_floor() and movement.y < -0.05 and posture == "stand" and not downed and not reloading and not controls_locked
     sprint_blend = move_toward(sprint_blend, 1.0 if sprinting else 0.0, delta * (5.0 if sprinting else 7.5))
-    aim = Input.get_mouse_mode() == Input.MOUSE_MODE_CAPTURED and Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT) and not controls_locked and sprint_blend < 0.20 and not downed
+    aim = Input.get_mouse_mode() == Input.MOUSE_MODE_CAPTURED and Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT) and not controls_locked and not sprinting and sprint_blend < 0.20 and not downed
     var speed := 0.8 if downed else (1.15 if posture == "prone" else (2.8 if posture == "crouch" else (8.0 if sprinting else (4.35 if aim else 5.2))))
     if active_perk == "mobility" and aim:
         speed *= 1.17
@@ -306,7 +306,7 @@ func _physics_process(delta: float) -> void:
     gun.rotation.x = lerpf(gun.rotation.x,
         -0.62 * sprint_ease + absf(sprint_stride) * 0.05 + cos(walk_clock) * sway_strength,
         minf(1.0, delta * 10.0))
-    _animate_viewmodel(delta, sprinting)
+    _animate_viewmodel(delta, sprint_ease)
     if is_instance_valid(optic_reticle):
         # Visible only once the real sight approaches the central camera ray.
         optic_reticle.visible = aim and not reloading and absf(gun.position.x) < 0.055 and sprint_blend < 0.15
@@ -799,7 +799,7 @@ func _build_attachment_models() -> void:
 func play_grenade_throw() -> void:
     grenade_throw_timer = 0.45
 
-func _animate_viewmodel(delta: float, sprinting: bool) -> void:
+func _animate_viewmodel(delta: float, sprint_ease: float) -> void:
     if not is_instance_valid(viewmodel_root) or not is_instance_valid(hand_rig):
         return
     var t := 0.0
@@ -815,7 +815,6 @@ func _animate_viewmodel(delta: float, sprinting: bool) -> void:
     var reload_tilt := sin(t * PI) if reloading else 0.0
     var equip_tilt := sin(clampf(equip_anim_timer / 0.34, 0.0, 1.0) * PI * 0.5)
     var melee_punch := sin((1.0 - melee_anim_timer / 0.40) * PI) if melee_anim_timer > 0.0 else 0.0
-    var sprint_ease: float = sprint_blend * sprint_blend * (3.0 - 2.0 * sprint_blend)
     var pos_target := Vector3(
         0.035 * reload_tilt + 0.028 * sprint_stride,
         -0.075 * reload_tilt - 0.26 * equip_tilt - 0.065 * sprint_ease,
