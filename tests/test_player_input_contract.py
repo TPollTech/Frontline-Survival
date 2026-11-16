@@ -13,6 +13,14 @@ class PlayerInputContractTests(unittest.TestCase):
         self.assertIn("Input.is_key_just_pressed(KEY_SPACE) and is_on_floor()", self.source)
         self.assertNotIn("Input.is_key_pressed(KEY_SPACE)", self.source)
 
+    def test_sprint_requires_ground_contact(self):
+        physics = self.source.split("func _physics_process(delta: float) -> void:", 1)[1]
+        sprint_line = next(line.strip() for line in physics.splitlines() if line.strip().startswith("var sprinting :="))
+        self.assertIn("Input.is_key_pressed(KEY_SHIFT)", sprint_line)
+        self.assertIn("is_on_floor()", sprint_line)
+        self.assertIn('posture == "stand"', sprint_line)
+        self.assertIn("not controls_locked", sprint_line)
+
     def test_camera_ads_requires_captured_mouse(self):
         physics = self.source.split("func _physics_process(delta: float) -> void:", 1)[1]
         aim_line = next(line.strip() for line in physics.splitlines() if line.strip().startswith("aim = "))
