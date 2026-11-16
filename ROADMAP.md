@@ -589,3 +589,17 @@ O [plano de polimento do Campo de Testes](docs/M0_POLIMENTO_CAMPO_TESTES.md) reg
 - [ ] Medir FPS e observar possíveis travamentos/interpenetrações em 5–15 ondas e hardware-alvo.
 
 **Entrega para jogo real:** [Release v0.9.21](https://github.com/TPollTech/Frontline-Survival/releases/tag/v0.9.21) (o link exige publicação bem-sucedida do CI). Não alterar M0/M1 para concluído só por exportação.
+
+
+## Etapa 4 manual — animações e mãos FPS (16/11/2026)
+
+**PARCIAL (em validação):** primeira correção isolada da sincronização das mãos com as peças animadas de cada arma.
+
+- [x] Mão de apoio acompanha a recarga de SMG, fuzil e LMG; retorna ao apoio quando não está recarregando — **código/testes**.
+- [x] Mão esquerda da escopeta segue o movimento da bomba na recarga — **código/testes**.
+- [x] Recarregar encerra ADS sem retícula 2D, conservando tiro/recarga no estado anterior — **código/testes**.
+- [ ] Rig anatômico original com punhos, dedos e cotovelos mais naturais, evitando cilindros/luvas geométricas — **pendente**.
+- [ ] Ciclo completo das cinco armas (equipar, idle, caminhar, corrida, ADS, tiro, recarga, troca, melee) com revisão visual — **pendente de Windows**.
+- [ ] Confirmar que mão de apoio não atravessa carregadores, arma, câmera ou os braços no Windows — **pendente de homologação**.
+
+**Importante:** a v0.9.21 pública é anterior a estas alterações. Não marcar como concluído sem análise visual.

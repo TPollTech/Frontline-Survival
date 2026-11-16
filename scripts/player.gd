@@ -256,7 +256,7 @@ func _physics_process(delta: float) -> void:
     _update_posture(delta, crouching)
     var sprinting := Input.is_key_pressed(KEY_SHIFT) and is_on_floor() and movement.y < -0.05 and posture == "stand" and current_body_height >= 1.79 and not downed and not reloading and not controls_locked
     sprint_blend = move_toward(sprint_blend, 1.0 if sprinting else 0.0, delta * (5.0 if sprinting else 7.5))
-    aim = Input.get_mouse_mode() == Input.MOUSE_MODE_CAPTURED and Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT) and not controls_locked and not sprinting and sprint_blend < 0.20 and not downed
+    aim = Input.get_mouse_mode() == Input.MOUSE_MODE_CAPTURED and Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT) and not controls_locked and not reloading and not sprinting and sprint_blend < 0.20 and not downed
     var speed := 0.8 if downed else (1.15 if posture == "prone" else (2.8 if posture == "crouch" else (8.0 if sprinting else (4.35 if aim else 5.2))))
     if active_perk == "mobility" and aim:
         speed *= 1.17
@@ -861,12 +861,21 @@ func _animate_viewmodel(delta: float, sprint_ease: float) -> void:
     hand_rig.position = hand_rig.position.lerp(hand_target, minf(1.0, delta * 16.0))
     hand_rig.rotation.z = lerpf(hand_rig.rotation.z, 0.12 * mag_out, minf(1.0, delta * 15.0))
     if is_instance_valid(left_hand_rig):
-        # Support hand releases the fore-end during sprint instead of being
-        # glued to the weapon in an accelerated walking pose.
+        # The support hand must follow the moving weapon mechanism during reload.
+        # Magazine-fed guns release the foregrip to reach the magazine; the
+        # shotgun stays on the sliding pump instead of reaching a fake magazine.
+        var support_reload_offset := Vector3.ZERO
+        if weapon_id != "pistol" and reloading:
+            if weapon_id == "shotgun":
+                support_reload_offset = Vector3(0.0, -0.045 * reload_tilt, pump)
+            else:
+                support_reload_offset = Vector3(0.10, -0.20, 0.24) * mag_out
+        # Sprint/grenade motion remains additive and returns to a neutral grip
+        # when their timers (and the reload animation) finish.
         left_hand_rig.position = left_hand_rig.position.lerp(
-            # Arm comes down along the chest instead of remaining on the foregrip.
             Vector3(-0.18, -0.41 + sprint_stride * 0.046, 0.25) * sprint_ease +
-            Vector3(0.0, 0.13, 0.06) * sin(PI * clampf(grenade_throw_timer / 0.45, 0.0, 1.0)),
+            Vector3(0.0, 0.13, 0.06) * sin(PI * clampf(grenade_throw_timer / 0.45, 0.0, 1.0)) +
+            support_reload_offset,
             minf(1.0, delta * 11.0)
         )
         left_hand_rig.rotation.z = lerpf(

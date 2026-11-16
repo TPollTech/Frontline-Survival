@@ -1,5 +1,13 @@
 # Frontline Survival — Histórico de versões
 
+## Em desenvolvimento após v0.9.21 — Etapa 4: animações e mãos do FPS
+
+- Mão de apoio dos três armamentos longos com carregador (SMG, fuzil e LMG) acompanha o ciclo visual do carregador durante a recarga, voltando suavemente à empunhadura ao finalizar/cancelar.
+- Escopeta: mão de apoio segue a bomba móvel durante a animação de recarga, em vez de simular troca de carregador.
+- Entrada em ADS deixa de permanecer ativa durante a recarga; preservados FOV, mira física e ausência de crosshair 2D permanente.
+- Regressão em Godot verifica offsets e retorno das mãos em cada tipo de arma, sem alterar cadência, dano, WAV ou geometria de modelos.
+- **Status:** refinamento parcial; ainda falta rig anatômico de mãos e avaliação visual real de empunhadura/recarga/ADS no Windows. Sem nova build Windows nesta rodada.
+
 ## 0.9.21 — CT-03: postura física e câmera (build para homologação Windows)
 
 - Corrigida a câmera para não ultrapassar o topo da cápsula durante a transição de agachar/deitar.

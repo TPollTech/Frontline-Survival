@@ -608,6 +608,45 @@ func _run_tests() -> void:
     game.player.weapon_id = starting_weapon
     game.player._update_shot_audio()
 
+    # FPS hand animation regression: the support hand reaches the magazine on
+    # all three magazine-fed long guns and returns to the foregrip afterwards.
+    var saved_primary: String = game.player.last_primary
+    var saved_grenade_timer: float = game.player.grenade_throw_timer
+    game.player.grenade_throw_timer = 0.0
+    game.player.sprint_stride = 0.0
+    for gun_id: String in ["smg", "rifle", "lmg"]:
+        game.player.equip(gun_id)
+        game.player.reloading = true
+        game.player.reload_elapsed = float(SurvivalPlayer.WEAPONS[gun_id]["reload"]) * 0.45
+        game.player._animate_viewmodel(0.20, 0.0)
+        _expect(game.player.left_hand_rig.position.z > 0.22
+            and game.player.left_hand_rig.position.y < -0.19,
+            "support hand failed to reach magazine while reloading " + gun_id)
+        game.player.reloading = false
+        game.player.reload_elapsed = 0.0
+        game.player._animate_viewmodel(0.20, 0.0)
+        _expect(game.player.left_hand_rig.position.length() < 0.02,
+            "support hand did not return to the foregrip after " + gun_id)
+    # Unlike box-magazine guns, the shotgun support hand follows its pump.
+    game.player.equip("shotgun")
+    game.player.reloading = true
+    game.player.reload_elapsed = float(SurvivalPlayer.WEAPONS["shotgun"]["reload"]) * 0.70
+    game.player._animate_viewmodel(0.20, 0.0)
+    var expected_pump: float = sin(0.70 * PI * 2.0) * 0.12
+    _expect(absf(game.player.left_hand_rig.position.z - expected_pump) < 0.015,
+        "shotgun support hand must track the pump during reload")
+    game.player.reloading = false
+    game.player.reload_elapsed = 0.0
+    game.player._animate_viewmodel(0.20, 0.0)
+    _expect(game.player.left_hand_rig.position.length() < 0.02,
+        "shotgun support hand did not return after reload")
+    game.player.equip("pistol")
+    _expect(game.player.left_hand_rig.get_child_count() == 0,
+        "pistol must not render a floating support hand")
+    game.player.switch_weapon(starting_weapon, true)
+    game.player.last_primary = saved_primary
+    game.player.grenade_throw_timer = saved_grenade_timer
+
     var stations: Array[Vector3] = []
     for station in game.shops:
         stations.append(station["position"])
