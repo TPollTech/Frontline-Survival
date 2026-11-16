@@ -274,6 +274,19 @@ func _run_tests() -> void:
     game.player.downed = false
     game.player.fire_timer = 0.0
     game.player.equip_anim_timer = 0.0
+    game.player.equip("smg")
+    game.player.equip("rifle")
+    game.player.switch_weapon("smg", true)
+    _expect(game.player.last_primary == "smg",
+        "switching to an owned primary must update the quick-toggle primary")
+    game.player.switch_weapon("pistol", true)
+    _expect(game.player.last_primary == "smg",
+        "pistol swap must remember the last actually equipped primary")
+    game.player.downed = true
+    game.player.equip("rifle")
+    _expect(game.player.weapon_id == "pistol" and game.player.last_primary == "smg",
+        "downed pickup must not overwrite the remembered active primary")
+    game.player.downed = false
     # Tactical sprint suppresses fire, distinct from merely speeding up walking.
     var original_ammo: int = int(game.player.magazines[game.player.weapon_id])
     game.player.sprint_blend = 1.0

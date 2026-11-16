@@ -81,6 +81,16 @@ class PlayerWeaponContractTests(unittest.TestCase):
         self.assertIn('(downed and id != "pistol")', swap)
         self.assertIn("not owned_weapons.has(id)", swap)
 
+    def test_last_primary_tracks_successful_equips_and_swaps(self):
+        equip = self.body("equip")
+        swap = self.body("switch_weapon")
+        self.assertNotIn("last_primary = id", equip)
+        self.assertIn('if id != "pistol":\n        last_primary = id', swap)
+        self.assertLess(swap.index("not owned_weapons.has(id)"),
+                        swap.index("last_primary = id"))
+        self.assertIn("switching to an owned primary must update the quick-toggle primary", self.runtime)
+        self.assertIn("downed pickup must not overwrite the remembered active primary", self.runtime)
+
     def test_refill_resets_reload_visual_and_timer(self):
         refill = self.body("refill_ammo")
         for marker in ["reloading = false", "reload_timer = 0.0",

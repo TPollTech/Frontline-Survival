@@ -477,8 +477,6 @@ func equip(id: String) -> void:
         return
     if not owned_weapons.has(id):
         owned_weapons.append(id)
-    if id != "pistol":
-        last_primary = id
     switch_weapon(id, true)
 
 func switch_weapon(id: String, force: bool = false) -> void:
@@ -487,6 +485,8 @@ func switch_weapon(id: String, force: bool = false) -> void:
     previous_weapon = weapon_id
     weapon_upgrades[weapon_id] = upgrades
     weapon_id = id
+    if id != "pistol":
+        last_primary = id
     reloading = false
     reload_timer = 0.0
     reload_sound.stop()
