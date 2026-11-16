@@ -216,6 +216,64 @@ func _run_tests() -> void:
     _expect(not game.player.downed and game.player.health >= 35.0,
         "a player pistol kill did not recover last stand")
     game.phase = "break"
+    # Combat contract: cancelled reloads must never create ammunition.
+    game.player.sprint_blend = 0.0
+    game.player.melee_timer = 0.0
+    game.player.grenade_throw_timer = 0.0
+    game.player.equip("rifle")
+    game.player.magazines["rifle"] = 3
+    game.player.reserves["rifle"] = 12
+    game.player.start_reload()
+    _expect(game.player.reloading and game.player.reload_timer > 0.0,
+        "manual reload with available reserve did not start")
+    game.player.switch_weapon("pistol", true)
+    _expect(not game.player.reloading and game.player.magazines["rifle"] == 3
+        and game.player.reserves["rifle"] == 12,
+        "switching weapons must cancel reload without creating ammunition")
+    game.player.switch_weapon("rifle", true)
+    game.player._finish_reload()
+    _expect(game.player.magazines["rifle"] == 3 and game.player.reserves["rifle"] == 12,
+        "a cancelled reload callback must not transfer ammunition")
+    game.player.start_reload()
+    game.player._finish_reload()
+    _expect(game.player.magazines["rifle"] == 15 and game.player.reserves["rifle"] == 0
+        and not game.player.reloading,
+        "partial reload must consume only remaining reserve ammunition")
+    game.player.magazines["rifle"] = 10
+    game.player.reserves["rifle"] = 20
+    game.player.controls_locked = true
+    game.player.start_reload()
+    _expect(not game.player.reloading, "shop/menu input lock must block starting a reload")
+    game.player.controls_locked = false
+    game.player.melee_timer = 0.5
+    game.player.start_reload()
+    _expect(not game.player.reloading, "reloading during a melee attack must be blocked")
+    game.player.fire_timer = 0.0
+    game.player.equip_anim_timer = 0.0
+    game.player.shoot()
+    _expect(game.player.magazines["rifle"] == 10,
+        "shooting during a melee attack must not spend ammunition")
+    game.player.melee_timer = 0.0
+    game.player.equip_anim_timer = 0.3
+    game.player.shoot()
+    _expect(game.player.magazines["rifle"] == 10,
+        "shooting before equip animation ends must be blocked")
+    game.player.equip_anim_timer = 0.0
+    game.player.fire_timer = 0.72
+    game.player.switch_weapon("pistol", true)
+    _expect(game.player.fire_timer >= 0.72,
+        "weapon swap must not bypass previous shotgun-rate cooldown")
+    game.player.switch_weapon("rifle", true)
+    _expect(game.player.fire_timer >= 0.72,
+        "switching back immediately must not reset the firing cooldown")
+    game.player.switch_weapon("pistol", true)
+    game.player.downed = true
+    game.player.switch_weapon("rifle", true)
+    _expect(game.player.weapon_id == "pistol",
+        "last stand must reject a non-pistol weapon even on forced swap")
+    game.player.downed = false
+    game.player.fire_timer = 0.0
+    game.player.equip_anim_timer = 0.0
     # Tactical sprint suppresses fire, distinct from merely speeding up walking.
     var original_ammo: int = int(game.player.magazines[game.player.weapon_id])
     game.player.sprint_blend = 1.0
@@ -226,12 +284,12 @@ func _run_tests() -> void:
     game.player.sprint_blend = 1.0
     game.player.walk_clock = 2.1
     game.player.sprint_stride = -0.55
-    game.player._animate_viewmodel(0.18, true)
+    game.player._animate_viewmodel(0.18, 1.0)
     _expect(game.player.left_hand_rig.position.y < -0.18,
         "sprint support arm should drop separately from walking")
     game.player.sprint_blend = 0.0
     game.player.sprint_stride = 0.0
-    game.player._animate_viewmodel(0.18, false)
+    game.player._animate_viewmodel(0.18, 0.0)
     # G must launch a REAL rigid body with fuse, gravity, bounce and blast.
     var grenades_before: int = game.grenades
     game._throw_grenade()

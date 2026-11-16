@@ -356,7 +356,11 @@ func _input(event: InputEvent) -> void:
                 switch_weapon("pistol")
 
 func shoot() -> void:
-    if dead or controls_locked or reloading or suppress_fire_until_release or Input.get_mouse_mode() != Input.MOUSE_MODE_CAPTURED or sprint_blend > 0.22 or grenade_throw_timer > 0.0 or fire_timer > 0.0:
+    if dead or controls_locked or reloading or suppress_fire_until_release:
+        return
+    if Input.get_mouse_mode() != Input.MOUSE_MODE_CAPTURED or sprint_blend > 0.22:
+        return
+    if grenade_throw_timer > 0.0 or melee_timer > 0.0 or equip_anim_timer > 0.0 or fire_timer > 0.0:
         return
     if downed and weapon_id != "pistol":
         return
@@ -447,7 +451,9 @@ func melee() -> void:
             hit_confirmed.emit()
 
 func start_reload() -> void:
-    if reloading or downed or magazines[weapon_id] >= WEAPONS[weapon_id]["mag"] or reserves[weapon_id] <= 0:
+    if dead or controls_locked or reloading or downed or melee_timer > 0.0 or grenade_throw_timer > 0.0:
+        return
+    if magazines[weapon_id] >= WEAPONS[weapon_id]["mag"] or reserves[weapon_id] <= 0:
         return
     reloading = true
     reload_timer = WEAPONS[weapon_id]["reload"] * (0.80 if active_perk == "quick_reload" else 1.0)
@@ -456,7 +462,11 @@ func start_reload() -> void:
     reload_sound.play()
 
 func _finish_reload() -> void:
+    # A cancelled reload can never grant ammunition on a late callback.
+    if not reloading:
+        return
     reloading = false
+    reload_timer = 0.0
     var needed: int = WEAPONS[weapon_id]["mag"] - magazines[weapon_id]
     var loaded: int = mini(needed, reserves[weapon_id])
     magazines[weapon_id] += loaded
@@ -472,15 +482,17 @@ func equip(id: String) -> void:
     switch_weapon(id, true)
 
 func switch_weapon(id: String, force: bool = false) -> void:
-    if dead or (controls_locked and not force) or not owned_weapons.has(id) or id == weapon_id:
+    if dead or (controls_locked and not force) or (downed and id != "pistol") or not owned_weapons.has(id) or id == weapon_id:
         return
     previous_weapon = weapon_id
     weapon_upgrades[weapon_id] = upgrades
     weapon_id = id
     reloading = false
+    reload_timer = 0.0
     reload_sound.stop()
     upgrades = int(weapon_upgrades.get(id, 0))
-    fire_timer = 0.14
+    # Preserve a previous weapon's shot cooldown across rapid swaps.
+    fire_timer = maxf(fire_timer, 0.14)
     shot_anim = 0.0
     reload_elapsed = 0.0
     _update_gun_mesh()
@@ -490,6 +502,8 @@ func refill_ammo() -> void:
     reserves[weapon_id] = WEAPONS[weapon_id]["reserve"]
     magazines[weapon_id] = WEAPONS[weapon_id]["mag"]
     reloading = false
+    reload_timer = 0.0
+    reload_elapsed = 0.0
     reload_sound.stop()
 
 func heal(amount: float) -> void:
