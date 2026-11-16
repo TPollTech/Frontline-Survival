@@ -43,6 +43,13 @@ class PlayerInputContractTests(unittest.TestCase):
             physics,
         )
 
+    def test_sprint_fov_requires_actual_ground_movement(self):
+        physics = self.source.split("func _physics_process(delta: float) -> void:", 1)[1]
+        physics = physics.split("\nfunc _input(", 1)[0]
+        self.assertIn("var motion_ratio: float = clampf(ground_motion / maxf(speed, 0.1), 0.0, 1.0)", physics)
+        self.assertIn("sprint_blend * motion_ratio > 0.55", physics)
+        self.assertLess(physics.index("var motion_ratio:"), physics.index("var target_fov:"))
+
     def test_weapon_scroll_requires_captured_mouse(self):
         events = self.source.split("func _input(event: InputEvent) -> void:", 1)[1]
         events = events.split("func shoot() -> void:", 1)[0]
