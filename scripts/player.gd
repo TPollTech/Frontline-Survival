@@ -263,12 +263,12 @@ func _physics_process(delta: float) -> void:
     if Input.is_key_just_pressed(KEY_SPACE) and is_on_floor() and posture == "stand" and not downed and not controls_locked:
         velocity.y = 6.5
     move_and_slide()
-    # A slight sprint FOV extension sells momentum; ADS always takes priority.
-    var target_fov: float = GameSettings.field_of_view * (0.70 if aim else (1.045 if sprint_blend > 0.55 else 1.0))
-    camera.fov = lerpf(camera.fov, target_fov, minf(1.0, delta * (14.0 if active_perk == "fast_ads" else 10.0)))
-    # Animar passos pela velocidade real, evitando bob ao pressionar contra paredes.
+    # Use actual grounded motion for both weapon animation and sprint FOV.
     var ground_motion: float = Vector2(velocity.x, velocity.z).length() if is_on_floor() else 0.0
     var motion_ratio: float = clampf(ground_motion / maxf(speed, 0.1), 0.0, 1.0)
+    # ADS takes priority; blocked movement must not widen the sprint FOV.
+    var target_fov: float = GameSettings.field_of_view * (0.70 if aim else (1.045 if sprint_blend * motion_ratio > 0.55 else 1.0))
+    camera.fov = lerpf(camera.fov, target_fov, minf(1.0, delta * (14.0 if active_perk == "fast_ads" else 10.0)))
     walk_clock += delta * motion_ratio * (10.0 if sprinting else 8.0)
     sprint_stride = sin(walk_clock * 1.16) * sprint_blend * motion_ratio
     shot_spread_kick = move_toward(shot_spread_kick, 0.0, delta * 1.25)
