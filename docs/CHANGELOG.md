@@ -3,6 +3,7 @@
 ## Em desenvolvimento após v0.9.20 — CT-03: postura física e câmera
 
 - Corrigida a câmera para não ultrapassar o topo da cápsula durante a transição de agachar/deitar.
+- Corrida e salto só reativam depois que o colisor voltou à altura ereta; cenário de QA agora valida quadros intermediários a 60 FPS.
 - Sob teto baixo, recuperar-se da Última Chance conserva a postura física deitado (não mantém um estado `downed` obsoleto).
 - QA de integração com teto físico: bloqueio de levantar, rastejar/voltar ao agachamento, posição dos pés, câmera e recuperação sob cobertura.
 - 12 contratos Python de regressão para postura, salto, sprint, ADS e colisão.

@@ -79,6 +79,8 @@ class PlayerPostureContractTests(unittest.TestCase):
         self.assertIn('posture == "stand"', jump)
         self.assertIn("not downed", sprint)
         self.assertIn("not downed", jump)
+        self.assertIn("current_body_height >= 1.79", sprint)
+        self.assertIn("current_body_height >= 1.79", jump)
 
     def test_prone_and_crouch_spread_reduction(self):
         shoot = self.body("shoot")
@@ -87,6 +89,12 @@ class PlayerPostureContractTests(unittest.TestCase):
         self.assertIn('elif posture == "prone":', shoot)
         self.assertIn("spread *= 0.65", shoot)
         self.assertIn("var origin := camera.global_position", shoot)
+
+    def test_runtime_transition_checks_camera_at_sixty_fps(self):
+        self.assertIn("for step in range(22):", RUNTIME)
+        self.assertIn("camera escaped collider while lowering", RUNTIME)
+        self.assertIn("capsule feet drifted while lowering", RUNTIME)
+        self.assertIn("camera escaped collider while standing", RUNTIME)
 
     def test_runtime_low_roof_rejects_stand_and_keeps_camera_inside(self):
         self.assertIn("test_roof_box.size = Vector3(3.0, 0.2, 3.0)", RUNTIME)

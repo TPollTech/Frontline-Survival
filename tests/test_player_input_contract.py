@@ -14,7 +14,7 @@ class PlayerInputContractTests(unittest.TestCase):
         self.assertIn("var jump_held: bool = Input.is_key_pressed(KEY_SPACE)", self.source)
         self.assertIn("var jump_just_pressed: bool = jump_held and not jump_was_held", self.source)
         self.assertIn("jump_was_held = jump_held", self.source)
-        self.assertIn('if jump_just_pressed and is_on_floor() and posture == "stand" and not downed and not controls_locked:', self.source)
+        self.assertIn('if jump_just_pressed and is_on_floor() and posture == "stand" and current_body_height >= 1.79 and not downed and not controls_locked:', self.source)
         self.assertNotIn("Input.is_key_just_pressed(", self.source)
 
     def test_sprint_requires_ground_contact(self):
@@ -23,6 +23,7 @@ class PlayerInputContractTests(unittest.TestCase):
         self.assertIn("Input.is_key_pressed(KEY_SHIFT)", sprint_line)
         self.assertIn("is_on_floor()", sprint_line)
         self.assertIn('posture == "stand"', sprint_line)
+        self.assertIn("current_body_height >= 1.79", sprint_line)
         self.assertIn("not controls_locked", sprint_line)
 
     def test_camera_ads_requires_captured_mouse(self):

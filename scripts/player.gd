@@ -254,7 +254,7 @@ func _physics_process(delta: float) -> void:
     movement = movement.normalized()
     var crouching := (Input.is_key_pressed(KEY_C) or Input.is_key_pressed(KEY_CTRL)) and not controls_locked
     _update_posture(delta, crouching)
-    var sprinting := Input.is_key_pressed(KEY_SHIFT) and is_on_floor() and movement.y < -0.05 and posture == "stand" and not downed and not reloading and not controls_locked
+    var sprinting := Input.is_key_pressed(KEY_SHIFT) and is_on_floor() and movement.y < -0.05 and posture == "stand" and current_body_height >= 1.79 and not downed and not reloading and not controls_locked
     sprint_blend = move_toward(sprint_blend, 1.0 if sprinting else 0.0, delta * (5.0 if sprinting else 7.5))
     aim = Input.get_mouse_mode() == Input.MOUSE_MODE_CAPTURED and Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT) and not controls_locked and not sprinting and sprint_blend < 0.20 and not downed
     var speed := 0.8 if downed else (1.15 if posture == "prone" else (2.8 if posture == "crouch" else (8.0 if sprinting else (4.35 if aim else 5.2))))
@@ -267,7 +267,7 @@ func _physics_process(delta: float) -> void:
     var jump_held: bool = Input.is_key_pressed(KEY_SPACE)
     var jump_just_pressed: bool = jump_held and not jump_was_held
     jump_was_held = jump_held
-    if jump_just_pressed and is_on_floor() and posture == "stand" and not downed and not controls_locked:
+    if jump_just_pressed and is_on_floor() and posture == "stand" and current_body_height >= 1.79 and not downed and not controls_locked:
         velocity.y = 6.5
     move_and_slide()
     # Use actual grounded motion for both weapon animation and sprint FOV.

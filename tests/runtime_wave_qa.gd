@@ -175,8 +175,28 @@ func _run_tests() -> void:
     game.player.prone_requested = false
     game.player._update_posture(0.5, false)
     _expect(game.player.capsule_shape.height > 1.3, "standing from prone failed in open space")
-    # A physical ceiling permits crouch/prone but must reject a stand-up.
+    # Exercise real 60 FPS transition frames; a one-call snap misses camera
+    # clipping that happens while the capsule is changing its height.
     game.player.set_physics_process(false)
+    game.player.prone_requested = true
+    for step in range(22):
+        game.player._update_posture(1.0 / 60.0, false)
+        var top: float = game.player.collider_node.position.y + game.player.capsule_shape.height * 0.5
+        var bottom: float = game.player.collider_node.position.y - game.player.capsule_shape.height * 0.5
+        _expect(game.player.camera.position.y <= top - 0.115,
+            "camera escaped collider while lowering at frame %d" % step)
+        _expect(absf(bottom + 0.9) < 0.015,
+            "capsule feet drifted while lowering at frame %d" % step)
+    game.player.prone_requested = false
+    for frame_up in range(22):
+        game.player._update_posture(1.0 / 60.0, false)
+        var top_standing: float = game.player.collider_node.position.y + game.player.capsule_shape.height * 0.5
+        _expect(game.player.camera.position.y <= top_standing - 0.115,
+            "camera escaped collider while standing at frame %d" % frame_up)
+    game.player._update_posture(0.5, false)
+    _expect(game.player.posture == "stand" and game.player.current_body_height > 1.79,
+        "posture transition did not finish standing up in an open area")
+    # A physical ceiling permits crouch/prone but must reject a stand-up.
     game.player._update_posture(0.5, true)
     var test_roof := StaticBody3D.new()
     test_roof.collision_layer = 1
