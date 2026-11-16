@@ -279,7 +279,8 @@ func _physics_process(delta: float) -> void:
     var gun_target := Vector3(0.0, sight_y, -0.62) if aim else Vector3(0.34, -0.27, -0.63)
     # Distinct military-style tactical sprint. Eased tuck, low muzzle and
     # stride/counter-swing keep this separate from an accelerated walk.
-    var sprint_ease: float = sprint_blend * sprint_blend * (3.0 - 2.0 * sprint_blend)
+    # Corrida visual acompanha deslocamento real, inclusive ao encontrar obstaculos.
+    var sprint_ease: float = sprint_blend * sprint_blend * (3.0 - 2.0 * sprint_blend) * motion_ratio
     var running_bob: float = absf(sin(walk_clock * 1.16)) * 0.032 * sprint_ease
     gun_target.y += sin(walk_clock) * 0.006 * motion_ratio
     gun_target = gun_target.lerp(Vector3(
