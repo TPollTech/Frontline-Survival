@@ -156,16 +156,19 @@ func _update_posture(delta: float, crouch_pressed: bool) -> void:
     var desired_state := "downed" if downed else ("prone" if prone_requested else ("crouch" if crouch_pressed else "stand"))
     var desired_height := 0.75 if desired_state in ["downed", "prone"] else (1.18 if desired_state == "crouch" else 1.8)
     if desired_height > current_body_height + 0.025 and not _can_expand_to_height(desired_height):
-        # Stand-up is rejected under a low roof, so the capsule never phases
-        # through overhead geometry.
-        desired_state = posture
+        # Keep the grounded capsule below the roof. Recovering from Last Stand
+        # under cover must not leave a living player in the "downed" posture.
+        desired_state = "prone" if posture == "downed" and not downed else posture
         desired_height = current_body_height
     posture = desired_state
     current_body_height = move_toward(current_body_height, desired_height, delta * 3.6)
     capsule_shape.height = maxf(0.72, current_body_height)
     collider_node.position.y = (current_body_height - 1.8) * 0.5
     var sight_level: float = camera_stand_height + (current_body_height - 1.8) * 0.88
-    camera.position.y = lerpf(camera.position.y, sight_level, minf(1.0, delta * 12.0))
+    # On lowering the body, clamp the camera to the current capsule top.
+    # Otherwise the view may briefly pass through a roof during interpolation.
+    var max_camera_y: float = collider_node.position.y + capsule_shape.height * 0.5 - 0.12
+    camera.position.y = minf(lerpf(camera.position.y, sight_level, minf(1.0, delta * 12.0)), max_camera_y)
 
 func has_attachment(slot: String, id: String) -> bool:
     return str(weapon_attachments.get(weapon_id, {}).get(slot, "")) == id

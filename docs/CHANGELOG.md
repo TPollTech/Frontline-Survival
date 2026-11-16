@@ -1,5 +1,13 @@
 # Frontline Survival — Histórico de versões
 
+## Em desenvolvimento após v0.9.20 — CT-03: postura física e câmera
+
+- Corrigida a câmera para não ultrapassar o topo da cápsula durante a transição de agachar/deitar.
+- Sob teto baixo, recuperar-se da Última Chance conserva a postura física deitado (não mantém um estado `downed` obsoleto).
+- QA de integração com teto físico: bloqueio de levantar, rastejar/voltar ao agachamento, posição dos pés, câmera e recuperação sob cobertura.
+- 12 contratos Python de regressão para postura, salto, sprint, ADS e colisão.
+- **Status: código em validação; ainda falta homologação real no Windows.** O ZIP público v0.9.20 não contém estes commits posteriores.
+
 ## 0.9.20 — Build de testes atualizada: FPS e combate
 
 - Corrigido o salto no Godot 4.4: `Input.is_key_just_pressed()` não existe; o código agora detecta a transição de Space pressionado para solto, sem auto-bunny-hop.

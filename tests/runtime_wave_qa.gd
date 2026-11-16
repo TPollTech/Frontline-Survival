@@ -175,6 +175,57 @@ func _run_tests() -> void:
     game.player.prone_requested = false
     game.player._update_posture(0.5, false)
     _expect(game.player.capsule_shape.height > 1.3, "standing from prone failed in open space")
+    # A physical ceiling permits crouch/prone but must reject a stand-up.
+    game.player.set_physics_process(false)
+    game.player._update_posture(0.5, true)
+    var test_roof := StaticBody3D.new()
+    test_roof.collision_layer = 1
+    test_roof.collision_mask = 0
+    var test_roof_collider := CollisionShape3D.new()
+    var test_roof_box := BoxShape3D.new()
+    test_roof_box.size = Vector3(3.0, 0.2, 3.0)
+    test_roof_collider.shape = test_roof_box
+    test_roof.add_child(test_roof_collider)
+    game.add_child(test_roof)
+    # The player's capsule bottom is always 0.9 m below its origin.
+    # The ceiling begins 1.4 m above the feet, above crouch but below stand.
+    test_roof.global_position = game.player.global_position + Vector3.UP * 0.6
+    await physics_frame
+    _expect(not game.player._can_expand_to_height(1.8),
+        "physics roof should block expanding the capsule to standing height")
+    game.player._update_posture(0.5, false)
+    _expect(game.player.posture == "crouch" and game.player.current_body_height <= 1.18,
+        "releasing crouch under a physical roof must not force standing")
+    var capsule_bottom: float = game.player.collider_node.position.y - game.player.capsule_shape.height * 0.5
+    _expect(absf(capsule_bottom + 0.9) < 0.015,
+        "crouch should keep the capsule feet at the same vertical position")
+    game.player.prone_requested = true
+    game.player._update_posture(0.5, false)
+    _expect(game.player.posture == "prone" and game.player.current_body_height < 0.85,
+        "prone must fit below the low ceiling")
+    var capsule_top: float = game.player.collider_node.position.y + game.player.capsule_shape.height * 0.5
+    _expect(game.player.camera.position.y <= capsule_top - 0.115,
+        "camera must stay below the prone capsule top instead of clipping the ceiling")
+    game.player.prone_requested = false
+    game.player._update_posture(0.5, false)
+    _expect(game.player.posture == "prone",
+        "letting go of prone under a roof must wait for stand-up clearance")
+    game.player._update_posture(0.5, true)
+    _expect(game.player.posture == "crouch" and game.player.capsule_shape.height < 1.3,
+        "low ceiling must still allow a safe prone-to-crouch transition")
+    game.player.downed = true
+    game.player._update_posture(0.5, false)
+    _expect(game.player.posture == "downed", "Last Stand should use the low physical capsule")
+    game.player.downed = false
+    game.player._update_posture(0.5, false)
+    _expect(game.player.posture == "prone",
+        "Last Stand recovery under a roof must not keep a stale downed posture")
+    test_roof.queue_free()
+    await physics_frame
+    game.player._update_posture(0.5, false)
+    _expect(game.player.posture == "stand" and game.player.capsule_shape.height > 1.79,
+        "player must stand again once the physical roof is removed")
+    game.player.set_physics_process(true)
     # A real lethal hit first gives a ten-second pistol last stand.
     game.player.invulnerability_timer = 0.0
     game.player.health = 8.0
