@@ -13,6 +13,28 @@ class PlayerInputContractTests(unittest.TestCase):
         self.assertIn("Input.is_key_just_pressed(KEY_SPACE) and is_on_floor()", self.source)
         self.assertNotIn("Input.is_key_pressed(KEY_SPACE)", self.source)
 
+    def test_camera_ads_requires_captured_mouse(self):
+        physics = self.source.split("func _physics_process(delta: float) -> void:", 1)[1]
+        aim_line = next(line.strip() for line in physics.splitlines() if line.strip().startswith("aim = "))
+        self.assertIn("Input.get_mouse_mode() == Input.MOUSE_MODE_CAPTURED", aim_line)
+        self.assertIn("not controls_locked", aim_line)
+
+    def test_footstep_animation_uses_actual_ground_velocity(self):
+        physics = self.source.split("func _physics_process(delta: float) -> void:", 1)[1]
+        self.assertIn("Vector2(velocity.x, velocity.z).length() if is_on_floor() else 0.0", physics)
+        self.assertIn("ground_motion / maxf(speed, 0.1)", physics)
+        self.assertIn("walk_clock += delta * motion_ratio", physics)
+        self.assertIn("sprint_stride = sin(walk_clock * 1.16) * sprint_blend * motion_ratio", physics)
+        self.assertNotIn("walk_clock += delta * movement.length()", physics)
+
+    def test_weapon_scroll_requires_captured_mouse(self):
+        events = self.source.split("func _input(event: InputEvent) -> void:", 1)[1]
+        events = events.split("func shoot() -> void:", 1)[0]
+        self.assertIn(
+            "not controls_locked and Input.get_mouse_mode() == Input.MOUSE_MODE_CAPTURED:",
+            events,
+        )
+
     def test_shoot_checks_mouse_capture(self):
         shoot = self.source.split("func shoot() -> void:", 1)[1]
         shoot = shoot.split("\nfunc ", 1)[0]
