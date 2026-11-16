@@ -9,6 +9,7 @@ import unittest
 ROOT = Path(__file__).resolve().parents[1]
 PLAYER = ROOT / "scripts" / "player.gd"
 INTEGRATION = ROOT / "tests" / "runtime_wave_qa.gd"
+MAIN = ROOT / "scripts" / "main.gd"
 
 
 class PlayerWeaponContractTests(unittest.TestCase):
@@ -16,6 +17,7 @@ class PlayerWeaponContractTests(unittest.TestCase):
     def setUpClass(cls):
         cls.source = PLAYER.read_text(encoding="utf-8")
         cls.runtime = INTEGRATION.read_text(encoding="utf-8")
+        cls.main = MAIN.read_text(encoding="utf-8")
 
     def body(self, name):
         return self.source.split(f"func {name}(", 1)[1].split("\nfunc ", 1)[0]
@@ -103,6 +105,14 @@ class PlayerWeaponContractTests(unittest.TestCase):
                        "weapon swap must not bypass previous shotgun-rate cooldown",
                        "last stand must reject a non-pistol weapon"]:
             self.assertIn(marker, self.runtime)
+
+    def test_ui_return_holds_fire_until_mouse_is_released(self):
+        for func_name in ["_on_game_start", "_on_resume", "_close_shop"]:
+            segment = self.main.split(f"func {func_name}(", 1)[1].split("\nfunc ", 1)[0]
+            self.assertIn(
+                "player.suppress_fire_until_release = Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT)",
+                segment,
+            )
 
     def test_sprint_qa_uses_float_easing_not_boolean(self):
         self.assertIn("game.player._animate_viewmodel(0.18, 1.0)", self.runtime)

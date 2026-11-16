@@ -151,11 +151,14 @@ func _ready() -> void:
     _notify("CAMPO DE TESTES  |  ONDAS CONTINUAS", 3.0)
 
 func _on_game_start() -> void:
+    # Starting via a menu click must not turn a held trigger into automatic fire.
+    player.suppress_fire_until_release = Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT)
     _show_banner("CAMPO DE TESTES", "25 segundos para comprar equipamentos antes da primeira onda.", 4.0)
     _notify("USE F PERTO DAS ESTACOES PARA COMPRAR  |  $1200 PARA TESTES", 4.0)
 
 func _on_resume() -> void:
-    pass
+    # Paused UI may still hold the left mouse button when gameplay resumes.
+    player.suppress_fire_until_release = Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT)
 
 func _prepare_pause() -> void:
     if shop_open:
@@ -640,6 +643,7 @@ func _open_shop(id: String) -> void:
 func _close_shop() -> void:
     shop_open = false
     shop_id = ""
+    player.suppress_fire_until_release = Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT)
     player.controls_locked = false
     if not player.dead and (game_menu == null or not game_menu.active):
         Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
