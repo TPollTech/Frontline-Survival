@@ -37,7 +37,7 @@ class PlayerInputContractTests(unittest.TestCase):
 
     def test_sprint_weapon_animation_requires_actual_movement(self):
         physics = self.source.split("func _physics_process(delta: float) -> void:", 1)[1]
-        physics = physics.split("\\nfunc _input(", 1)[0]
+        physics = physics.split("\nfunc _input(", 1)[0]
         self.assertIn(
             "var sprint_ease: float = sprint_blend * sprint_blend * (3.0 - 2.0 * sprint_blend) * motion_ratio",
             physics,
