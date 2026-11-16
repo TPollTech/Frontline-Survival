@@ -614,10 +614,16 @@ func _run_tests() -> void:
     var saved_grenade_timer: float = game.player.grenade_throw_timer
     game.player.grenade_throw_timer = 0.0
     game.player.sprint_stride = 0.0
+    # Resolve balance constants through the instantiated player script.
+    # A direct SurvivalPlayer class reference can compile before the game's
+    # GameSettings autoload has been registered in headless script tests.
+    var reload_specs: Dictionary = game.player.get_script().get_script_constant_map().get("WEAPONS", {})
+    _expect(reload_specs.has("smg") and reload_specs.has("shotgun"),
+        "player weapon reload configuration missing in animation QA")
     for gun_id: String in ["smg", "rifle", "lmg"]:
         game.player.equip(gun_id)
         game.player.reloading = true
-        game.player.reload_elapsed = float(SurvivalPlayer.WEAPONS[gun_id]["reload"]) * 0.45
+        game.player.reload_elapsed = float(reload_specs[gun_id]["reload"]) * 0.45
         game.player._animate_viewmodel(0.20, 0.0)
         _expect(game.player.left_hand_rig.position.z > 0.22
             and game.player.left_hand_rig.position.y < -0.19,
@@ -630,7 +636,7 @@ func _run_tests() -> void:
     # Unlike box-magazine guns, the shotgun support hand follows its pump.
     game.player.equip("shotgun")
     game.player.reloading = true
-    game.player.reload_elapsed = float(SurvivalPlayer.WEAPONS["shotgun"]["reload"]) * 0.70
+    game.player.reload_elapsed = float(reload_specs["shotgun"]["reload"]) * 0.70
     game.player._animate_viewmodel(0.20, 0.0)
     var expected_pump: float = sin(0.70 * PI * 2.0) * 0.12
     _expect(absf(game.player.left_hand_rig.position.z - expected_pump) < 0.015,

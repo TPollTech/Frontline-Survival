@@ -64,6 +64,10 @@ class FPSAnimationContractTests(unittest.TestCase):
         self.assertIn("support_reload_offset,", animate)
         self.assertIn("left_hand_rig.position = left_hand_rig.position.lerp(", animate)
 
+    def test_runtime_qa_uses_player_script_constants_not_global_class(self):
+        self.assertIn("game.player.get_script().get_script_constant_map()", RUNTIME)
+        self.assertNotIn("SurvivalPlayer.WEAPONS", RUNTIME)
+
     def test_runtime_qa_covers_long_guns_shotgun_and_pistol(self):
         for marker in (
             'for gun_id: String in ["smg", "rifle", "lmg"]:',
