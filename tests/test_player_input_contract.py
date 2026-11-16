@@ -10,8 +10,12 @@ class PlayerInputContractTests(unittest.TestCase):
         cls.source = PLAYER.read_text(encoding="utf-8")
 
     def test_jump_requires_fresh_press(self):
-        self.assertIn("Input.is_key_just_pressed(KEY_SPACE) and is_on_floor()", self.source)
-        self.assertNotIn("Input.is_key_pressed(KEY_SPACE)", self.source)
+        self.assertIn("var jump_was_held: bool = false", self.source)
+        self.assertIn("var jump_held: bool = Input.is_key_pressed(KEY_SPACE)", self.source)
+        self.assertIn("var jump_just_pressed: bool = jump_held and not jump_was_held", self.source)
+        self.assertIn("jump_was_held = jump_held", self.source)
+        self.assertIn('if jump_just_pressed and is_on_floor() and posture == "stand" and not downed and not controls_locked:', self.source)
+        self.assertNotIn("Input.is_key_just_pressed(", self.source)
 
     def test_sprint_requires_ground_contact(self):
         physics = self.source.split("func _physics_process(delta: float) -> void:", 1)[1]

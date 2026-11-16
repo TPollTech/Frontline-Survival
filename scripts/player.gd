@@ -89,6 +89,7 @@ var last_stand_available: bool = true
 var self_revive_kits: int = 0
 var shot_serial: int = 0
 var suppress_fire_until_release: bool = false
+var jump_was_held: bool = false
 
 func _ready() -> void:
     collision_layer = 2
@@ -259,8 +260,11 @@ func _physics_process(delta: float) -> void:
     var world_move := global_transform.basis * Vector3(movement.x, 0, movement.y)
     velocity.x = move_toward(velocity.x, world_move.x * speed, delta * 24.0)
     velocity.z = move_toward(velocity.z, world_move.z * speed, delta * 24.0)
-    # Saltar somente no pressionamento inicial: segurar ESPACO nao provoca saltos repetidos.
-    if Input.is_key_just_pressed(KEY_SPACE) and is_on_floor() and posture == "stand" and not downed and not controls_locked:
+    # Godot Input has no is_key_just_pressed; track a fresh Space edge explicitly.
+    var jump_held: bool = Input.is_key_pressed(KEY_SPACE)
+    var jump_just_pressed: bool = jump_held and not jump_was_held
+    jump_was_held = jump_held
+    if jump_just_pressed and is_on_floor() and posture == "stand" and not downed and not controls_locked:
         velocity.y = 6.5
     move_and_slide()
     # Use actual grounded motion for both weapon animation and sprint FOV.

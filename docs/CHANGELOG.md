@@ -1,5 +1,18 @@
 # Frontline Survival — Histórico de versões
 
+## 0.9.20 — Build de testes atualizada: FPS e combate
+
+- Corrigido o salto no Godot 4.4: `Input.is_key_just_pressed()` não existe; o código agora detecta a transição de Space pressionado para solto, sem auto-bunny-hop.
+- Consolidadas as alterações posteriores à 0.9.19: captura/foco do mouse, câmera, FOV e animação de corrida proporcional ao movimento real, e transições ADS.
+- Tiro e recarga: impedir disparos durante equipar/corpo a corpo, manter cooldown entre trocas, impedir munição criada após recarga cancelada, proteger menus/lojas e Última Chance.
+- Troca de armas: lembrar a última primária realmente equipada; pistola e lojas permanecem funcionais.
+- Suíte Python de regressão integrada ao workflow e novos cenários de QA do Godot para combate, recarga e troca.
+- **Finalidade:** build Windows para teste do jogador. QA em Godot/CI e desempenho/jogabilidade no Windows precisam ser observados antes de marcar a etapa como concluída.
+
+[Notas da versão](releases/v0.9.20.md)
+
+---
+
 ## 0.9.19 — Reconstrução estrutural do HUD de combate
 
 - Removidos os polígonos grandes preenchidos dos quatro instrumentos de combate; somente rótulos e linhas leves nas bordas da tela.
