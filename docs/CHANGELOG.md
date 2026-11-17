@@ -1,5 +1,13 @@
 # Frontline Survival — Histórico de versões
 
+## Estabilização funcional — contadores confiáveis das ondas
+
+- Durante combate, o controlador reconcilia periodicamente o contador de inimigos vivos com os NPCs realmente presentes e ativos na cena.
+- Evita duas falhas: encerrar uma onda prematuramente quando um inimigo ainda está vivo e manter uma onda travada após remoção inesperada de um NPC sem sinal de derrota.
+- Cadáveres, NPCs de outras cenas e elementos de suporte não entram na contagem. A reconciliação **não concede dinheiro nem abates**, preservando a economia.
+- Teste integrado Godot cobre contagem zerada com inimigo real, contagem inflada e remoção de inimigo sem recompensa.
+- **Não resolve, por si só, inimigos vivos presos atrás de paredes**; IA/rotas e 15 ondas no Windows continuam pendentes.
+
 ## Estabilização funcional — compras sem desperdício de créditos
 
 - Estação de equipamentos não cobra por munição, vida ou colete quando seus respectivos recursos já estão no máximo.

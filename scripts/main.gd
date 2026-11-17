@@ -75,6 +75,7 @@ var spawn_remaining: int = 0
 var alive: int = 0
 var spawn_clock: float = 0.0
 var spawn_retry_count: int = 0
+var wave_reconcile_timer: float = 0.0
 var shop_open: bool = false
 var shop_id: String = ""
 var shop_page: int = 0
@@ -194,12 +195,31 @@ func _physics_process(delta: float) -> void:
             _begin_wave()
     elif phase == "wave":
         round_stats.tick(delta)
+        wave_reconcile_timer -= delta
+        # An enemy can disappear without its defeat signal (scene cleanup,
+        # future despawn, or an unexpected error). Never trust a stale count
+        # to end a wave early or leave it stuck at one remaining.
+        if wave_reconcile_timer <= 0.0 or (spawn_remaining <= 0 and alive <= 0):
+            _reconcile_active_enemies()
+            wave_reconcile_timer = 0.75
         spawn_clock -= delta
         if spawn_remaining > 0 and alive < MAX_ACTIVE_ENEMIES and spawn_clock <= 0.0:
             var spawned := _spawn_enemy()
             spawn_clock = maxf(0.35, 0.95 - float(wave) * 0.025) if spawned else 0.60
         if spawn_remaining <= 0 and alive <= 0:
             _end_wave()
+
+func _reconcile_active_enemies() -> void:
+    # Count only living enemies owned by this game. Fallen bodies remain in the
+    # "enemies" group until their visual despawn, so do not count corpses.
+    var actual_alive: int = 0
+    for enemy in get_tree().get_nodes_in_group("enemies"):
+        if is_instance_valid(enemy) and enemy.get_parent() == self and not enemy.dead:
+            actual_alive += 1
+    if alive != actual_alive:
+        push_warning("Contador de inimigos ajustado na onda %d: %d -> %d" % [wave, alive, actual_alive])
+        alive = actual_alive
+
 
 func _unhandled_input(event: InputEvent) -> void:
     if not (event is InputEventKey) or not event.pressed or event.echo:
@@ -424,6 +444,7 @@ func _begin_wave() -> void:
     spawn_remaining = WaveRules.total_enemies(wave)
     alive = 0
     spawn_retry_count = 0
+    wave_reconcile_timer = 0.0
     spawn_clock = 0.3
     if WaveRules.is_armored_wave(wave):
         # No shrill alert; visual warning gives time to prepare for a heavy.

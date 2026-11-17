@@ -1055,6 +1055,41 @@ func _run_tests() -> void:
     )
     _expect(not rejected.get("valid", true), "overlapping player spawn must be rejected")
 
+    # Restore an incorrect living-enemy counter from actual scene ownership,
+    # without silently paying a bounty or ending a wave with enemies alive.
+    game.set_physics_process(false)
+    var survivor: Variant = tactical_script.new()
+    survivor.configure("soldier", 1, game.player, "rifle")
+    survivor.position = Vector3(-9.0, 1.5, 8.0)
+    game.add_child(survivor)
+    survivor.set_physics_process(false)
+    game.phase = "wave"
+    game.wave = 1
+    game.spawn_remaining = 0
+    var counter_wallet_before: int = game.wallet
+    var counter_kills_before: int = game.kills
+    game.alive = 0
+    game._physics_process(0.016)
+    _expect(game.phase == "wave" and game.alive == 1,
+        "a zero counter must not finish the wave while a living enemy exists")
+    game.alive = 5
+    game._reconcile_active_enemies()
+    _expect(game.alive == 1,
+        "counter recovery must remove phantom active enemies")
+    # Unexpected free without the defeat signal must not softlock the wave
+    # and must not be treated as a credited player elimination.
+    survivor.queue_free()
+    await physics_frame
+    game._reconcile_active_enemies()
+    _expect(game.alive == 0, "freed enemy left a phantom alive count")
+    _expect(game.wallet == counter_wallet_before and game.kills == counter_kills_before,
+        "scene reconciliation must not award credits or kills")
+    game.phase = "break"
+    game.wave = 0
+    game.spawn_remaining = 0
+    game.wave_reconcile_timer = 0.0
+    game.set_physics_process(true)
+
     # Run waves with real enemy scenes, but eliminate them immediately to
     # avoid long unattended combat. This tests counters and reward signal.
     for wave_number in [1, 2]:

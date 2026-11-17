@@ -692,3 +692,11 @@ O [plano de polimento do Campo de Testes](docs/M0_POLIMENTO_CAMPO_TESTES.md) reg
 - [x] Guardas para teclado/callbacks tardios e regressão de saldo, compra parcial e repetição — **código/QA**.
 - [ ] Aprovação em Windows com estações físicas e compra na mesma sessão — **pendente**.
 - [ ] Arte final das mãos/dedos adiada até o loop de jogabilidade estar estável.
+
+
+### Estabilização funcional — impedir contadores de ondas travados
+
+- [x] Recontagem leve (0,75s) de NPCs ativos da cena durante combate, incluindo guarda para não encerrar a onda se ainda houver inimigos vivos — **código/QA**.
+- [x] Regressão com remoção inesperada, contagem falsa de zero ou excesso e prevenção de recompensas indevidas — **código/QA**.
+- [ ] Revisar separadamente inimigos que permanecem vivos, mas ficam presos atrás de obstáculos por longos períodos — **pendente**.
+- [ ] Partida real no Windows atravessando 15 ondas, inspecionando contador e impacto no FPS — **pendente**.
