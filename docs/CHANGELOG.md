@@ -1,5 +1,13 @@
 # Frontline Survival — Histórico de versões
 
+## Etapa 4 — articulação funcional dos dedos das luvas
+
+- Substituídos os dedos estáticos de duas peças por duas juntas por dedo, preservando os nomes das malhas e a estrutura de ombro/cotovelo/punho.
+- O indicador da mão do gatilho dobra brevemente durante o tiro; as outras falanges fecham durante corpo a corpo.
+- A mão de apoio abre os dedos durante a retirada do carregador e fecha novamente no retorno à empunhadura, evitando dedos rígidos durante o movimento.
+- QA verifica os pivôs e a abertura/fechamento no Godot para todas as cinco armas, inclusive ausência de mão extra na pistola.
+- **Etapa ainda parcial:** contato real entre dedos e armas, arte anatômica e desempenho no Windows permanecem para aprovação.
+
 ## Etapa 4 — recuo animado por classe de arma
 
 - Recuo visual da pistola, SMG, fuzil, escopeta e LMG agora tem amplitudes distintas no viewmodel e nas articulações do braço, preservando dano, dispersão e cadência originais.

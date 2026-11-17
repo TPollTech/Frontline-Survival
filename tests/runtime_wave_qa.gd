@@ -657,8 +657,8 @@ func _run_tests() -> void:
             "trigger arm hierarchy is incomplete for " + gun_id)
         if wrist_joint != null:
             _expect(wrist_joint.get_node_or_null("Palm") != null
-                and wrist_joint.get_node_or_null("Finger0Proximal") != null
-                and wrist_joint.get_node_or_null("Finger0Distal") != null
+                and wrist_joint.get_node_or_null("Finger0Joint/Finger0Proximal") != null
+                and wrist_joint.get_node_or_null("Finger0Joint/Finger0TipJoint/Finger0Distal") != null
                 and wrist_joint.get_node_or_null("ThumbDistal") != null,
                 "gloved fingers/knuckles are incomplete for " + gun_id)
         if gun_id != "pistol":
@@ -678,6 +678,46 @@ func _run_tests() -> void:
         game.player._animate_viewmodel(0.25, 0.0)
         _expect(absf(game.player.trigger_elbow_joint.rotation.x) < 0.015,
             "trigger elbow must return to neutral without animation drift for " + gun_id)
+    # Hinged glove fingers: every weapon has four trigger-side pairs.
+    # Only long guns expose the support hand. A rifle mag change opens its
+    # fingers, and releasing the magazine closes the grip again.
+    for finger_gun: String in ["pistol", "smg", "rifle", "shotgun", "lmg"]:
+        game.player.equip(finger_gun)
+        _expect(game.player.trigger_finger_knuckles.size() == 4
+            and game.player.trigger_finger_tips.size() == 4,
+            "trigger glove joints missing for " + finger_gun)
+        _expect(game.player.support_finger_knuckles.size() == (0 if finger_gun == "pistol" else 4),
+            "support glove joints missing or leaking after swap " + finger_gun)
+        game.player.reloading = false
+        game.player.equip_anim_timer = 0.0
+        game.player.shot_anim = 0.0
+        game.player._animate_viewmodel(0.25, 0.0)
+        var trigger_rest: float = game.player.trigger_finger_knuckles[1].rotation.x
+        game.player.shot_anim = 1.0
+        game.player._animate_viewmodel(0.25, 0.0)
+        _expect(game.player.trigger_finger_knuckles[1].rotation.x > trigger_rest + 0.15,
+            "index finger must curl when firing " + finger_gun)
+        game.player.shot_anim = 0.0
+        game.player._animate_viewmodel(0.25, 0.0)
+        _expect(absf(game.player.trigger_finger_knuckles[1].rotation.x - trigger_rest) < 0.015,
+            "index finger must relax after firing " + finger_gun)
+    game.player.equip("rifle")
+    game.player.shot_anim = 0.0
+    game.player.reloading = false
+    game.player._animate_viewmodel(0.25, 0.0)
+    var support_rest: float = game.player.support_finger_knuckles[1].rotation.x
+    var support_tip_rest: float = game.player.support_finger_tips[1].rotation.x
+    game.player.reloading = true
+    game.player.reload_elapsed = float(reload_specs["rifle"]["reload"]) * 0.45
+    game.player._animate_viewmodel(0.25, 0.0)
+    _expect(game.player.support_finger_knuckles[1].rotation.x < support_rest - 0.12
+        and game.player.support_finger_tips[1].rotation.x < support_tip_rest - 0.15,
+        "support fingers must open to release the rifle magazine")
+    game.player.reloading = false
+    game.player.reload_elapsed = 0.0
+    game.player._animate_viewmodel(0.25, 0.0)
+    _expect(absf(game.player.support_finger_knuckles[1].rotation.x - support_rest) < 0.015,
+        "support fingers must close after reloading")
     # Recoil is visually distinct by weapon class without modifying combat damage.
     var observed_visual_kick: Dictionary = {}
     for recoil_gun: String in ["smg", "pistol", "rifle", "lmg", "shotgun"]:

@@ -27,6 +27,23 @@ class ArmHierarchyTests(unittest.TestCase):
             self.assertIn(name, body)
         self.assertIn("for finger in range(4):", body)
 
+    def test_proximal_and_distal_fingers_have_independent_pivots(self):
+        body = self.func("_add_first_person_arm")
+        for marker in ("knuckle_joint.position = knuckle",
+                       "wrist_joint.add_child(knuckle_joint)",
+                       "knuckle_joint.add_child(tip_joint)",
+                       "trigger_finger_knuckles.append(knuckle_joint)",
+                       "support_finger_tips.append(tip_joint)"):
+            self.assertIn(marker, body)
+        self.assertIn("middle - knuckle", body)
+        self.assertIn("fingertip - middle", body)
+
+    def test_weapon_rebuild_clears_both_finger_arrays(self):
+        build = self.func("_update_gun_mesh")
+        for name in ("trigger_finger_knuckles", "trigger_finger_tips",
+                     "support_finger_knuckles", "support_finger_tips"):
+            self.assertIn(name + ".clear()", build)
+
     def test_neutral_material_is_reused(self):
         body = self.func("_arm_piece")
         self.assertIn("if not arm_materials.has(material_key):", body)

@@ -85,6 +85,19 @@ class FPSAnimationContractTests(unittest.TestCase):
         self.assertIn("weapon classes must have visibly different recoil amplitudes", RUNTIME)
         self.assertIn("weapon should return to resting pose after recoil", RUNTIME)
 
+    def test_trigger_and_support_fingers_have_animated_curl(self):
+        animate = self.body("_animate_viewmodel")
+        for marker in ("for finger in range(trigger_finger_knuckles.size()):",
+                       "var press: float = 0.24 * visual_shot if finger == 1 else 0.0",
+                       "for finger in range(support_finger_knuckles.size()):",
+                       "0.22 - 0.18 * mag_out", "0.32 - 0.24 * mag_out"):
+            self.assertIn(marker, animate)
+
+    def test_runtime_finger_regressions_cover_five_guns(self):
+        self.assertIn('for finger_gun: String in ["pistol", "smg", "rifle", "shotgun", "lmg"]:', RUNTIME)
+        self.assertIn("index finger must relax after firing", RUNTIME)
+        self.assertIn("support fingers must close after reloading", RUNTIME)
+
     def test_runtime_qa_covers_long_guns_shotgun_and_pistol(self):
         for marker in (
             'for gun_id: String in ["smg", "rifle", "lmg"]:',

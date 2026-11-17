@@ -628,3 +628,10 @@ O [plano de polimento do Campo de Testes](docs/M0_POLIMENTO_CAMPO_TESTES.md) reg
 - [x] Amplitude distinta por classe (SMG, pistola, fuzil, LMG, escopeta) aplicada ao corpo da arma, cotovelo e punho; ADS reduz o deslocamento, mantendo mecânicas de dano/precisão — **código/QA**.
 - [x] Testes Godot verificam recuo e retorno ao repouso nas cinco classes — **código/QA**.
 - [ ] Aprovar sensação do recuo, animação do slide, pegada e ausência de clipping no Windows — **pendente**.
+
+
+### Etapa 4 — juntas funcionais das falanges
+
+- [x] Duas articulações por dedo na mão de gatilho e na mão de apoio (quando aplicável); malhas independentes acompanham juntas com hierarquia local — **código/CI**.
+- [x] Indicador reage ao disparo, luva fecha em melee e mão de apoio abre durante a troca de carregador, voltando ao repouso — **código/CI**.
+- [ ] Rever rig com mão anatômica, encaixe dos dedos nos carregadores e deformações nas cinco armas em Windows real — **homologação pendente**.

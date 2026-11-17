@@ -91,6 +91,10 @@ var trigger_elbow_joint: Node3D
 var trigger_wrist_joint: Node3D
 var support_elbow_joint: Node3D
 var support_wrist_joint: Node3D
+var trigger_finger_knuckles: Array[Node3D] = []
+var trigger_finger_tips: Array[Node3D] = []
+var support_finger_knuckles: Array[Node3D] = []
+var support_finger_tips: Array[Node3D] = []
 var arm_materials: Dictionary = {}
 var invulnerability_timer: float = 0.0
 var collider_node: CollisionShape3D
@@ -718,6 +722,10 @@ func _update_gun_mesh() -> void:
     trigger_wrist_joint = null
     support_elbow_joint = null
     support_wrist_joint = null
+    trigger_finger_knuckles.clear()
+    trigger_finger_tips.clear()
+    support_finger_knuckles.clear()
+    support_finger_tips.clear()
     # Scale/depth avoid placing long stocks behind the camera's near plane.
     viewmodel_scale = float({"pistol": 0.95, "smg": 0.84, "rifle": 0.78, "shotgun": 0.70, "lmg": 0.74}.get(weapon_id, 0.84))
     viewmodel_depth = float({"pistol": 0.0, "smg": -0.14, "rifle": -0.24, "shotgun": -0.24, "lmg": -0.24}.get(weapon_id, -0.14))
@@ -979,6 +987,23 @@ func _animate_viewmodel(delta: float, sprint_ease: float) -> void:
         support_wrist_joint.rotation.z = lerpf(support_wrist_joint.rotation.z,
             0.13 * mag_out - 0.07 * reload_tilt + 0.08 * sprint_ease,
             minf(1.0, delta * 16.0))
+    # Curl the trigger finger separately; clench the rest of the glove during
+    # melee. Support fingers open around the magazine and close on return.
+    for finger in range(trigger_finger_knuckles.size()):
+        var press: float = 0.24 * visual_shot if finger == 1 else 0.0
+        trigger_finger_knuckles[finger].rotation.x = lerpf(
+            trigger_finger_knuckles[finger].rotation.x,
+            0.20 + press + 0.18 * melee_punch, minf(1.0, delta * 14.0))
+        trigger_finger_tips[finger].rotation.x = lerpf(
+            trigger_finger_tips[finger].rotation.x,
+            0.30 + press * 0.8 + 0.22 * melee_punch, minf(1.0, delta * 14.0))
+    for finger in range(support_finger_knuckles.size()):
+        support_finger_knuckles[finger].rotation.x = lerpf(
+            support_finger_knuckles[finger].rotation.x,
+            0.22 - 0.18 * mag_out + 0.12 * melee_punch, minf(1.0, delta * 14.0))
+        support_finger_tips[finger].rotation.x = lerpf(
+            support_finger_tips[finger].rotation.x,
+            0.32 - 0.24 * mag_out + 0.15 * melee_punch, minf(1.0, delta * 14.0))
 
 func _arm_piece(shape: Mesh, at: Vector3, tint: Color, rotation: Vector3 = Vector3.ZERO) -> MeshInstance3D:
     var part := MeshInstance3D.new()
@@ -1055,8 +1080,27 @@ func _add_first_person_arm(elbow: Vector3, wrist: Vector3, trigger_hand: bool) -
         var knuckle := palm_location + Vector3(x, -0.006, -0.067)
         var middle := knuckle + Vector3(x * 0.06, -0.034, -0.055 * length_scale)
         var fingertip := middle + Vector3(x * 0.03, -0.022, -0.057 * length_scale)
-        _arm_capsule_link(knuckle, middle, 0.016, glove, "Finger%dProximal" % finger)
-        _arm_capsule_link(middle, fingertip, 0.013, glove, "Finger%dDistal" % finger)
+        # Each phalanx has a real pivot: the original two static meshes could
+        # not open for a reload or bend around the trigger.
+        var knuckle_joint := Node3D.new()
+        knuckle_joint.name = "Finger%dJoint" % finger
+        knuckle_joint.position = knuckle
+        wrist_joint.add_child(knuckle_joint)
+        active_arm_parent = knuckle_joint
+        _arm_capsule_link(Vector3.ZERO, middle - knuckle, 0.016, glove, "Finger%dProximal" % finger)
+        var tip_joint := Node3D.new()
+        tip_joint.name = "Finger%dTipJoint" % finger
+        tip_joint.position = middle - knuckle
+        knuckle_joint.add_child(tip_joint)
+        active_arm_parent = tip_joint
+        _arm_capsule_link(Vector3.ZERO, fingertip - middle, 0.013, glove, "Finger%dDistal" % finger)
+        if trigger_hand:
+            trigger_finger_knuckles.append(knuckle_joint)
+            trigger_finger_tips.append(tip_joint)
+        else:
+            support_finger_knuckles.append(knuckle_joint)
+            support_finger_tips.append(tip_joint)
+        active_arm_parent = wrist_joint
     var side: float = 1.0 if trigger_hand else -1.0
     var thumb_root := palm_location + Vector3(side * 0.046, 0.015, 0.014)
     var thumb_bend := thumb_root + Vector3(side * 0.038, -0.034, -0.040)
