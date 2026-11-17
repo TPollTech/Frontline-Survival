@@ -1,8 +1,8 @@
 extends SceneTree
-## Rendered stage-4 reference: five hipfire viewmodels plus rifle ADS.
-## Six labeled cells by row-major order (see docs/qa/viewmodel_layout.md).
+## Rendered stage-4 reference: 5 hipfire weapons, rifle ADS, 3 action poses.
+## Nine cells in row-major order (see docs/qa/viewmodel_layout.md).
 ## This is a real OpenGL screenshot, not evidence of Windows playtest approval.
-const GUNS: Array[String] = ["pistol", "smg", "rifle", "shotgun", "lmg", "rifle"]
+const GUNS: Array[String] = ["pistol", "smg", "rifle", "shotgun", "lmg", "rifle", "rifle", "shotgun", "pistol"]
 const CELL_W: int = 640
 const CELL_H: int = 360
 
@@ -30,13 +30,18 @@ func _capture() -> void:
     game.player.gun.visible = true
     game.combat_hud_root.visible = false
     var base_fov: float = game.player.camera.fov
-    var sheet: Image = Image.create(CELL_W * 3, CELL_H * 2, false, Image.FORMAT_RGBA8)
+    var specs: Dictionary = game.player.get_script().get_script_constant_map().get("WEAPONS", {})
+    if not specs.has("rifle") or not specs.has("shotgun"):
+        _fail("missing reload configurations")
+        return
+    var sheet: Image = Image.create(CELL_W * 3, CELL_H * 3, false, Image.FORMAT_RGBA8)
     sheet.fill(Color(0.025, 0.025, 0.03, 1.0))
     for idx in range(GUNS.size()):
         var id: String = GUNS[idx]
         game.player.equip(id)
         game.player.pending_weapon_id = ""
         game.player.reloading = false
+        game.player.reload_elapsed = 0.0
         game.player.holster_timer = 0.0
         game.player.equip_anim_timer = 0.0
         game.player.shot_anim = 0.0
@@ -46,7 +51,13 @@ func _capture() -> void:
         game.player.weapon_wall_blend = 0.0
         game.player.idle_clock = 0.0
         game.player.walk_anim_blend = 0.0
-        var ads: bool = idx == GUNS.size() - 1
+        var ads: bool = idx == 5
+        if idx == 6 or idx == 7:
+            game.player.reloading = true
+            game.player.reload_elapsed = float(specs[id]["reload"]) * (0.45 if idx == 6 else 0.70)
+        if idx == 8:
+            game.player.shot_anim = 1.0
+        game.player.muzzle_flash.visible = idx == 8
         game.player.aim = ads
         game.player.camera.fov = base_fov * (0.70 if ads else 1.0)
         game.player.gun.position = (
@@ -71,7 +82,7 @@ func _capture() -> void:
     if sheet.save_png(file_path) != OK:
         _fail("could not save contact sheet")
         return
-    print("QA_VIEWMODEL_SNAPSHOT_PASS %dx%d six poses: pistol, smg, rifle, shotgun, lmg, rifle ADS" % [
+    print("QA_VIEWMODEL_SNAPSHOT_PASS %dx%d nine poses: five hipfire, rifle ADS, rifle reload, shotgun pump, pistol firing" % [
         sheet.get_width(), sheet.get_height()
     ])
     quit(0)

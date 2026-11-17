@@ -1,5 +1,11 @@
 # Frontline Survival — Histórico de versões
 
+## Etapa 4 — QA renderizado das animações
+
+- Montagem de QA OpenGL ampliada para nove quadros: cinco armas em repouso, fuzil ADS, recarga do fuzil, bomba da escopeta e disparo da pistola.
+- As poses usam peças e dedos articulados atuais, sem introduzir arquivos de animação externos ou alterar gameplay.
+- **Parcial:** poses estáticas não substituem vídeo de transições reais nem homologação visual no Windows.
+
 ## Etapa 4 — articulação funcional dos dedos das luvas
 
 - Substituídos os dedos estáticos de duas peças por duas juntas por dedo, preservando os nomes das malhas e a estrutura de ombro/cotovelo/punho.

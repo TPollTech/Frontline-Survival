@@ -635,3 +635,9 @@ O [plano de polimento do Campo de Testes](docs/M0_POLIMENTO_CAMPO_TESTES.md) reg
 - [x] Duas articulações por dedo na mão de gatilho e na mão de apoio (quando aplicável); malhas independentes acompanham juntas com hierarquia local — **código/CI**.
 - [x] Indicador reage ao disparo, luva fecha em melee e mão de apoio abre durante a troca de carregador, voltando ao repouso — **código/CI**.
 - [ ] Rever rig com mão anatômica, encaixe dos dedos nos carregadores e deformações nas cinco armas em Windows real — **homologação pendente**.
+
+
+### Etapa 4 — cobertura visual de ações
+
+- [x] Montagem OpenGL de nove quadros inclui recarga do fuzil, bomba da escopeta e disparo da pistola além das cinco armas e ADS — **QA em código, sujeito a verificação no CI**.
+- [ ] Avaliar as nove poses e movimentos contínuos em Windows, ajustando interpenetração entre dedos, carregadores e armas — **pendente**.
