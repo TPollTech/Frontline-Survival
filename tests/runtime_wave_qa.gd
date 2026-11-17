@@ -757,7 +757,10 @@ func _run_tests() -> void:
     wall_collision.shape = wall_shape
     wall_probe.add_child(wall_collision)
     game.add_child(wall_probe)
-    wall_probe.global_position = game.player.camera.global_position - game.player.camera.global_transform.basis.z * 0.62
+    # Match the camera basis so the thin wall faces its ray even when the
+    # player has turned sideways; the ray must not start inside the box.
+    wall_probe.global_transform = Transform3D(game.player.camera.global_transform.basis,
+        game.player.camera.global_position - game.player.camera.global_transform.basis.z * 0.62)
     await physics_frame
     var rifle_wall_tuck: float = game.player._weapon_wall_proximity()
     _expect(rifle_wall_tuck > 0.45,
