@@ -1,5 +1,11 @@
 # Frontline Survival — Histórico de versões
 
+## Etapa 4 — inspeção renderizada de armas e mãos
+
+- O workflow agora produz montagem OpenGL das cinco armas em hipfire e do fuzil em ADS, mostrando os modelos e o rig de mãos efetivamente usados pelo Godot.
+- Montagem e layout documentados em `docs/qa/viewmodel_layout.md` com artefato próprio no GitHub Actions. Isso facilita identificar proporções e clipping nas mãos sem afirmar homologação visual.
+- **Etapa 4 permanece parcial:** ainda é necessário avaliar animações dinâmicas e o jogo no Windows.
+
 ## 0.9.23 — Testes da etapa 4: troca de armas e proteção contra paredes (Windows)
 
 - Troca manual com animação de saída da arma antiga antes de montar e animar a nova; equipação forçada por loot/loja permanece imediata.

@@ -615,3 +615,9 @@ O [plano de polimento do Campo de Testes](docs/M0_POLIMENTO_CAMPO_TESTES.md) reg
 - [x] Raycast no cenário reduz avanço e ângulo da arma FPS quando há obstáculos próximos, com distância específica para pistola e armas longas — código/QA Godot.
 - [x] ADS e retícula física não permanecem alinhados através da parede enquanto a arma está recolhida — código/QA.
 - [ ] Conferir visualmente no Windows proximidade a paredes, portas, cantos e objetos, sem atravessamento da luva, cano ou superfície; calibrar amplitudes — **parcial**.
+
+
+### Etapa 4 — evidência visual reproduzível
+
+- [x] Captura OpenGL reproduzível do viewmodel das 5 classes e do fuzil ADS, montada em `docs/qa/viewmodel_current.png` com layout documentado e artefato no CI — a conferir na execução.
+- [ ] Inspecionar as imagens, corrigir poses e proporções das mãos/armas; validar animações contínuas e clipping em Windows real — **pendente**.
