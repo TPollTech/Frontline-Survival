@@ -707,6 +707,49 @@ func _run_tests() -> void:
         game.player._animate_viewmodel(0.25, 0.0)
         _expect(absf(game.player.trigger_elbow_joint.rotation.x) < 0.015,
             "trigger elbow must return to neutral without animation drift for " + gun_id)
+    # Geometry regression based on the screenshot-reported floating fingers.
+    # The forearms are short, and fingers must stay near their palm instead
+    # of protruding far ahead of the weapon in their neutral grip.
+    for grip_gun: String in ["pistol", "smg", "rifle", "shotgun", "lmg"]:
+        game.player.equip(grip_gun)
+        game.player.shot_anim = 0.0
+        game.player.reloading = false
+        game.player._animate_viewmodel(0.25, 0.0)
+        var trigger_shoulder := game.player.hand_rig.get_node_or_null("TriggerShoulder") as Node3D
+        _expect(trigger_shoulder != null, "trigger shoulder missing on " + grip_gun)
+        if trigger_shoulder != null:
+            _expect(trigger_shoulder.global_position.distance_to(game.player.trigger_elbow_joint.global_position) < 0.53,
+                "trigger upper arm extends too far from the camera on " + grip_gun)
+            _expect(game.player.trigger_elbow_joint.global_position.distance_to(game.player.trigger_wrist_joint.global_position) < 0.53,
+                "trigger forearm is stretched across the viewport on " + grip_gun)
+        var trigger_palm := game.player.trigger_wrist_joint.get_node_or_null("Palm") as Node3D
+        _expect(trigger_palm != null, "trigger palm missing on " + grip_gun)
+        for finger_idx in range(4):
+            var distal_path: String = "Finger%dJoint/Finger%dTipJoint/Finger%dDistal" % [
+                finger_idx, finger_idx, finger_idx
+            ]
+            var distal := game.player.trigger_wrist_joint.get_node_or_null(distal_path) as Node3D
+            _expect(distal != null, "trigger fingertip missing on " + grip_gun)
+            if trigger_palm != null and distal != null:
+                _expect(trigger_palm.global_position.distance_to(distal.global_position) < 0.145,
+                    "trigger fingers project away from the grip on " + grip_gun)
+        if grip_gun != "pistol":
+            var support_shoulder := game.player.left_hand_rig.get_node_or_null("SupportShoulder") as Node3D
+            _expect(support_shoulder != null, "support shoulder missing on " + grip_gun)
+            if support_shoulder != null:
+                _expect(support_shoulder.global_position.distance_to(game.player.support_elbow_joint.global_position) < 0.53,
+                    "support upper arm extends too far on " + grip_gun)
+                _expect(game.player.support_elbow_joint.global_position.distance_to(game.player.support_wrist_joint.global_position) < 0.53,
+                    "support forearm is stretched across the viewport on " + grip_gun)
+            var support_palm := game.player.support_wrist_joint.get_node_or_null("Palm") as Node3D
+            for support_idx in range(4):
+                var support_path: String = "Finger%dJoint/Finger%dTipJoint/Finger%dDistal" % [
+                    support_idx, support_idx, support_idx
+                ]
+                var support_distal := game.player.support_wrist_joint.get_node_or_null(support_path) as Node3D
+                if support_palm != null and support_distal != null:
+                    _expect(support_palm.global_position.distance_to(support_distal.global_position) < 0.145,
+                        "support fingers project forward instead of gripping " + grip_gun)
     # Hinged glove fingers: every weapon has four trigger-side pairs.
     # Only long guns expose the support hand. A rifle mag change opens its
     # fingers, and releasing the magazine closes the grip again.

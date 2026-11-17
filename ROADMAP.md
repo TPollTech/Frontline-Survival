@@ -669,3 +669,10 @@ O [plano de polimento do Campo de Testes](docs/M0_POLIMENTO_CAMPO_TESTES.md) reg
 - [x] Roteiro de validação manual detalhado em `docs/releases/v0.9.24.md` — **documentado**.
 - [ ] Jogar no Windows e avaliar mãos, recargas, tiro, ADS, transições, clipping, lojas e desempenho no hardware-alvo.
 - [ ] Substituir mãos procedurais por rig 3D anatômico definitivo após avaliação visual — **não concluído**.
+
+
+### Etapa 4 — regressão visual relatada na v0.9.24
+
+- [x] Removido alongamento excessivo dos antebraços e dedos apontados para a frente: geometria procedural recalibrada para o punho de cada arma — **código/CI**.
+- [x] Teste Godot por arma assegura limite de comprimento e distância dos dedos à palma — **código/CI**.
+- [ ] Verificar a mesma cena/arma enviada pelo jogador na nova build Windows para aprovar enquadramento, contato real e clipes de recarga — **homologação pendente**.

@@ -54,6 +54,23 @@ class ArmHierarchyTests(unittest.TestCase):
                        "support_thumb_tip_joint = thumb_tip_joint"):
             self.assertIn(marker, body)
 
+    def test_fingertips_fold_back_instead_of_extending_along_barrel(self):
+        body = self.func("_add_first_person_arm")
+        self.assertIn("var fingertip := middle + Vector3(x * 0.02, -0.024, 0.022 * length_scale)", body)
+        self.assertIn("var thumb_tip := thumb_bend + Vector3(side * 0.010, -0.021, 0.013)", body)
+        self.assertIn("trigger_palm.global_position.distance_to(distal.global_position) < 0.145", QA)
+        self.assertIn("support_palm.global_position.distance_to(support_distal.global_position) < 0.145", QA)
+
+    def test_forearms_are_proportional_to_actual_grip_position(self):
+        body = self.func("_add_first_person_arm")
+        self.assertIn("wrist.z + 0.52", body)
+        self.assertIn("wrist.z + 0.50", body)
+        self.assertIn("0.052, 0.063, uniform", body)
+        build = self.func("_update_gun_mesh")
+        self.assertIn("grip_z + 0.24", build)
+        self.assertIn("support_z + 0.23", build)
+        self.assertIn("support forearm is stretched across the viewport", QA)
+
     def test_neutral_material_is_reused(self):
         body = self.func("_arm_piece")
         self.assertIn("if not arm_materials.has(material_key):", body)

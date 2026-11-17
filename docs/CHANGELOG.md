@@ -1,5 +1,13 @@
 # Frontline Survival — Histórico de versões
 
+## Etapa 4 — correção visual após captura real do jogador
+
+- Corrigida geometria do rig FPS: falanges deixaram de apontar em direção ao cano e agora dobram de volta para a palma; polegares também recolhidos.
+- Reduzido o comprimento e a espessura desproporcionais dos antebraços; os ombros passam a seguir a posição real do punho de cada arma, em vez de ficar num Z fixo distante da câmera.
+- Testes de regressão Godot verificam, nas cinco classes, comprimento dos braços e distância dos dedos à palma, evitando reaparecimento dos segmentos projetados.
+- Mantidos recarga sincronizada, troca de arma, ADS e munição; aspecto final ainda depende de jogo real no Windows.
+- **Status: correção dirigida ao problema visível no screenshot; não é aprovação final de anatomia.**
+
 ## 0.9.24 — Teste Windows: anatomia e recarga das mãos FPS
 
 - Atualizado o rig procedural com polegares articulados em duas juntas, acompanhando gatilho e abertura/fechamento da mão de apoio durante recarga.

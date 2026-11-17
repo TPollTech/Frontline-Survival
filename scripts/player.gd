@@ -782,13 +782,13 @@ func _update_gun_mesh() -> void:
     var grip_z: float = viewmodel_depth + viewmodel_scale * (0.035 if weapon_id == "pistol" else 0.16)
     var support_z: float = viewmodel_depth + viewmodel_scale * float({"smg": -0.39, "rifle": -0.48, "shotgun": -0.33, "lmg": -0.55}.get(weapon_id, -0.40))
     active_arm_parent = hand_rig
-    _add_first_person_arm(Vector3(0.30, -0.53, 0.52), Vector3(0.070, -0.18, grip_z), true)
+    _add_first_person_arm(Vector3(0.24, -0.44, grip_z + 0.24), Vector3(0.070, -0.18, grip_z), true)
     left_hand_rig = Node3D.new()
     left_hand_rig.name = "SupportArm"
     hand_rig.add_child(left_hand_rig)
     if long_gun:
         active_arm_parent = left_hand_rig
-        _add_first_person_arm(Vector3(-0.36, -0.54, 0.37), Vector3(-0.075, -0.13, support_z), false)
+        _add_first_person_arm(Vector3(-0.29, -0.42, support_z + 0.23), Vector3(-0.075, -0.13, support_z), false)
         # Resting palm center in SupportArm-local coordinates, before its
         # independent wrist animation. Used to match the magazine's grip.
         support_palm_rest = Vector3(-0.075, -0.085, support_z - 0.06)
@@ -1099,37 +1099,44 @@ func _add_first_person_arm(elbow: Vector3, wrist: Vector3, trigger_hand: bool) -
     var cuff := Color(0.16, 0.21, 0.18)
     var glove := Color(0.095, 0.11, 0.12)
     var old_parent := active_arm_parent
-    var shoulder: Vector3 = Vector3(0.47, -0.79, 0.88) if trigger_hand else Vector3(-0.49, -0.79, 0.81)
+    # Anchor both joints near their actual wrists: the previous fixed Z
+    # shoulders stretched forearms across the entire FPS viewport.
+    var shoulder: Vector3 = (
+        Vector3(0.39, -0.71, wrist.z + 0.52)
+        if trigger_hand else Vector3(-0.39, -0.72, wrist.z + 0.50)
+    )
     var shoulder_joint := Node3D.new()
     shoulder_joint.name = "TriggerShoulder" if trigger_hand else "SupportShoulder"
     shoulder_joint.position = shoulder
     old_parent.add_child(shoulder_joint)
     active_arm_parent = shoulder_joint
-    _arm_link(Vector3.ZERO, elbow - shoulder, 0.087, 0.099, uniform)
+    _arm_link(Vector3.ZERO, elbow - shoulder, 0.068, 0.075, uniform)
     var elbow_joint := Node3D.new()
     elbow_joint.name = "Elbow"
     elbow_joint.position = elbow - shoulder
     shoulder_joint.add_child(elbow_joint)
     active_arm_parent = elbow_joint
-    _arm_link(Vector3.ZERO, wrist - elbow, 0.074, 0.090, uniform)
+    _arm_link(Vector3.ZERO, wrist - elbow, 0.052, 0.063, uniform)
     var wrist_joint := Node3D.new()
     wrist_joint.name = "Wrist"
     wrist_joint.position = wrist - elbow
     elbow_joint.add_child(wrist_joint)
     active_arm_parent = wrist_joint
-    _arm_link(Vector3(0, -0.052, 0.028), Vector3(0, 0.045, -0.032), 0.077, 0.083, cuff)
+    _arm_link(Vector3(0, -0.045, 0.025), Vector3(0, 0.043, -0.032), 0.054, 0.062, cuff)
     var palm_location := Vector3(0, 0.045, -0.06)
     var palm := CapsuleMesh.new()
-    palm.radius = 0.064
-    palm.height = 0.17
+    palm.radius = 0.052
+    palm.height = 0.15
     var palm_part := _arm_piece(palm, palm_location, glove, Vector3(PI * 0.5, 0, 0))
     palm_part.name = "Palm"
     for finger in range(4):
         var x: float = (float(finger) - 1.5) * 0.030
         var length_scale: float = 0.75 if finger == 3 else (0.91 if finger == 0 else 1.0)
-        var knuckle := palm_location + Vector3(x, -0.006, -0.067)
-        var middle := knuckle + Vector3(x * 0.06, -0.034, -0.055 * length_scale)
-        var fingertip := middle + Vector3(x * 0.03, -0.022, -0.057 * length_scale)
+        # Close each finger around the pistol grip / fore-end instead of
+        # extending its two long capsules forward along the barrel.
+        var knuckle := palm_location + Vector3(x, -0.008, -0.046)
+        var middle := knuckle + Vector3(x * 0.04, -0.030, -0.022 * length_scale)
+        var fingertip := middle + Vector3(x * 0.02, -0.024, 0.022 * length_scale)
         # Each phalanx has a real pivot: the original two static meshes could
         # not open for a reload or bend around the trigger.
         var knuckle_joint := Node3D.new()
@@ -1137,13 +1144,13 @@ func _add_first_person_arm(elbow: Vector3, wrist: Vector3, trigger_hand: bool) -
         knuckle_joint.position = knuckle
         wrist_joint.add_child(knuckle_joint)
         active_arm_parent = knuckle_joint
-        _arm_capsule_link(Vector3.ZERO, middle - knuckle, 0.016, glove, "Finger%dProximal" % finger)
+        _arm_capsule_link(Vector3.ZERO, middle - knuckle, 0.014, glove, "Finger%dProximal" % finger)
         var tip_joint := Node3D.new()
         tip_joint.name = "Finger%dTipJoint" % finger
         tip_joint.position = middle - knuckle
         knuckle_joint.add_child(tip_joint)
         active_arm_parent = tip_joint
-        _arm_capsule_link(Vector3.ZERO, fingertip - middle, 0.013, glove, "Finger%dDistal" % finger)
+        _arm_capsule_link(Vector3.ZERO, fingertip - middle, 0.012, glove, "Finger%dDistal" % finger)
         if trigger_hand:
             trigger_finger_knuckles.append(knuckle_joint)
             trigger_finger_tips.append(tip_joint)
@@ -1153,8 +1160,8 @@ func _add_first_person_arm(elbow: Vector3, wrist: Vector3, trigger_hand: bool) -
         active_arm_parent = wrist_joint
     var side: float = 1.0 if trigger_hand else -1.0
     var thumb_root := palm_location + Vector3(side * 0.046, 0.015, 0.014)
-    var thumb_bend := thumb_root + Vector3(side * 0.038, -0.034, -0.040)
-    var thumb_tip := thumb_bend + Vector3(side * 0.014, -0.020, -0.037)
+    var thumb_bend := thumb_root + Vector3(side * 0.026, -0.032, -0.020)
+    var thumb_tip := thumb_bend + Vector3(side * 0.010, -0.021, 0.013)
     var thumb_joint := Node3D.new()
     thumb_joint.name = "ThumbJoint"
     thumb_joint.position = thumb_root
