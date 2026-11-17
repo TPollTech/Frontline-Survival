@@ -37,6 +37,13 @@ const VIEWMODEL_RECOIL_SCALE := {
     "shotgun": 1.45,
     "lmg": 1.18,
 }
+# Local mesh coordinates of the actual removable magazine/drum grip. These
+# follow the original meshes in tools/build_weapons.py, not a shared offset.
+const MAGAZINE_GRIP_POINTS := {
+    "smg": Vector3(-0.052, -0.19, -0.13),
+    "rifle": Vector3(-0.045, -0.26, -0.215),
+    "lmg": Vector3(-0.105, -0.27, -0.035),
+}
 
 var camera: Camera3D
 var gun: Node3D
@@ -45,6 +52,7 @@ var viewmodel_root: Node3D
 var hand_rig: Node3D
 var viewmodel_depth: float = 0.0
 var viewmodel_scale: float = 0.95
+var support_palm_rest: Vector3 = Vector3.ZERO
 var magazine_part: Node3D
 var action_part: Node3D
 var reload_elapsed: float = 0.0
@@ -726,6 +734,7 @@ func _update_gun_mesh() -> void:
     trigger_finger_tips.clear()
     support_finger_knuckles.clear()
     support_finger_tips.clear()
+    support_palm_rest = Vector3.ZERO
     # Scale/depth avoid placing long stocks behind the camera's near plane.
     viewmodel_scale = float({"pistol": 0.95, "smg": 0.84, "rifle": 0.78, "shotgun": 0.70, "lmg": 0.74}.get(weapon_id, 0.84))
     viewmodel_depth = float({"pistol": 0.0, "smg": -0.14, "rifle": -0.24, "shotgun": -0.24, "lmg": -0.24}.get(weapon_id, -0.14))
@@ -769,6 +778,9 @@ func _update_gun_mesh() -> void:
     if long_gun:
         active_arm_parent = left_hand_rig
         _add_first_person_arm(Vector3(-0.36, -0.54, 0.37), Vector3(-0.075, -0.13, support_z), false)
+        # Resting palm center in SupportArm-local coordinates, before its
+        # independent wrist animation. Used to match the magazine's grip.
+        support_palm_rest = Vector3(-0.075, -0.085, support_z - 0.06)
     active_arm_parent = hand_rig
     var muzzle_z: float = viewmodel_depth + viewmodel_scale * float({"pistol": -0.29, "smg": -0.69, "rifle": -0.95, "shotgun": -1.04, "lmg": -1.13}.get(weapon_id, -0.69))
     var muzzle_height := float({"pistol": 0.061, "rifle": 0.039, "shotgun": 0.065}.get(weapon_id, 0.018))
@@ -957,15 +969,21 @@ func _animate_viewmodel(delta: float, sprint_ease: float) -> void:
         if weapon_id != "pistol" and reloading:
             if weapon_id == "shotgun":
                 support_reload_offset = Vector3(0.0, -0.045 * reload_tilt, pump)
-            else:
-                support_reload_offset = Vector3(0.10, -0.20, 0.24) * mag_out
+            elif is_instance_valid(magazine_part) and MAGAZINE_GRIP_POINTS.has(weapon_id):
+                # Translate the hand towards a real point on the moving mag,
+                # including its animation rotation, player-weapon scale and the
+                # independent movement of the whole hands rig.
+                var grip_model: Vector3 = MAGAZINE_GRIP_POINTS[weapon_id]
+                var grip_root: Vector3 = magazine_part.transform * grip_model
+                var grip_hands: Vector3 = hand_rig.transform.affine_inverse() * grip_root
+                support_reload_offset = (grip_hands - support_palm_rest) * mag_out
         # Sprint/grenade motion remains additive and returns to a neutral grip
         # when their timers (and the reload animation) finish.
         left_hand_rig.position = left_hand_rig.position.lerp(
             Vector3(-0.18, -0.41 + sprint_stride * 0.046, 0.25) * sprint_ease +
             Vector3(0.0, 0.13, 0.06) * sin(PI * clampf(grenade_throw_timer / 0.45, 0.0, 1.0)) +
             support_reload_offset,
-            minf(1.0, delta * 11.0)
+            minf(1.0, delta * (24.0 if reloading else 11.0))
         )
         left_hand_rig.rotation.z = lerpf(
             left_hand_rig.rotation.z, -0.43 * sprint_ease + sprint_stride * 0.10, minf(1.0, delta * 11.0)

@@ -44,7 +44,22 @@ class FPSAnimationContractTests(unittest.TestCase):
     def test_magazine_fed_support_reaches_loading_hand(self):
         animate = self.body("_animate_viewmodel")
         self.assertIn('if weapon_id != "pistol" and reloading:', animate)
-        self.assertIn("support_reload_offset = Vector3(0.10, -0.20, 0.24) * mag_out", animate)
+        self.assertIn("MAGAZINE_GRIP_POINTS.has(weapon_id)", animate)
+        self.assertIn("magazine_part.transform * grip_model", animate)
+        self.assertIn("hand_rig.transform.affine_inverse() * grip_root", animate)
+        self.assertIn("(grip_hands - support_palm_rest) * mag_out", animate)
+
+    def test_detachable_magazines_have_independent_model_sockets(self):
+        for weapon in ("smg", "rifle", "lmg"):
+            self.assertIn(f'"{weapon}": Vector3(', PLAYER)
+        self.assertIn("const MAGAZINE_GRIP_POINTS", PLAYER)
+        self.assertIn("support_palm_rest = Vector3(-0.075, -0.085, support_z - 0.06)", self.body("_update_gun_mesh"))
+        self.assertIn("support_palm_rest = Vector3.ZERO", self.body("_update_gun_mesh"))
+
+    def test_reload_hand_tracks_real_mag_mesh_and_restores_idle(self):
+        self.assertIn("support palm misses actual magazine contact on", RUNTIME)
+        self.assertIn('reload_hand_travel["lmg"] > reload_hand_travel["rifle"] + 0.10', RUNTIME)
+        self.assertIn("minf(1.0, delta * (24.0 if reloading else 11.0))", self.body("_animate_viewmodel"))
 
     def test_shotgun_support_tracks_same_pump_as_action(self):
         animate = self.body("_animate_viewmodel")

@@ -641,3 +641,10 @@ O [plano de polimento do Campo de Testes](docs/M0_POLIMENTO_CAMPO_TESTES.md) reg
 
 - [x] Montagem OpenGL de nove quadros inclui recarga do fuzil, bomba da escopeta e disparo da pistola além das cinco armas e ADS — **QA em código, sujeito a verificação no CI**.
 - [ ] Avaliar as nove poses e movimentos contínuos em Windows, ajustando interpenetração entre dedos, carregadores e armas — **pendente**.
+
+
+### Etapa 4 — encaixe das mãos nas peças móveis
+
+- [x] SMG, fuzil e LMG usam pontos de pega específicos da geometria original; suporte acompanha a transformação do carregador e retorna ao apoio — **código/QA**.
+- [x] QA mede distância real entre a palma articulada e a peça animada, além da diferença entre LMG e fuzil — **código/QA**.
+- [ ] Aprovar dedos, textura das luvas, contato e ausência de atravessamentos em movimento contínuo no Windows — **pendente**.

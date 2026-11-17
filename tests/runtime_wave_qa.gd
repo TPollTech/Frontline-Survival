@@ -620,6 +620,10 @@ func _run_tests() -> void:
     var reload_specs: Dictionary = game.player.get_script().get_script_constant_map().get("WEAPONS", {})
     _expect(reload_specs.has("smg") and reload_specs.has("shotgun"),
         "player weapon reload configuration missing in animation QA")
+    var mag_sockets: Dictionary = game.player.get_script().get_script_constant_map().get("MAGAZINE_GRIP_POINTS", {})
+    _expect(mag_sockets.size() == 3,
+        "the three detachable magazine models must have their own grip socket")
+    var reload_hand_travel: Dictionary = {}
     for gun_id: String in ["smg", "rifle", "lmg"]:
         game.player.equip(gun_id)
         game.player.reloading = true
@@ -628,11 +632,24 @@ func _run_tests() -> void:
         _expect(game.player.left_hand_rig.position.z > 0.22
             and game.player.left_hand_rig.position.y < -0.19,
             "support hand failed to reach magazine while reloading " + gun_id)
+        reload_hand_travel[gun_id] = game.player.left_hand_rig.position.z
+        var support_palm := game.player.left_hand_rig.get_node_or_null(
+            "SupportShoulder/Elbow/Wrist/Palm") as Node3D
+        _expect(support_palm != null and game.player.magazine_part != null,
+            "magazine contact QA missing real support palm or moving mesh " + gun_id)
+        if support_palm != null and game.player.magazine_part != null:
+            var grip_local: Vector3 = mag_sockets[gun_id]
+            var grip_position: Vector3 = game.player.magazine_part.transform * grip_local
+            var palm_position: Vector3 = game.player.viewmodel_root.to_local(support_palm.global_position)
+            _expect(grip_position.distance_to(palm_position) < 0.15,
+                "support palm misses actual magazine contact on " + gun_id)
         game.player.reloading = false
         game.player.reload_elapsed = 0.0
         game.player._animate_viewmodel(0.20, 0.0)
         _expect(game.player.left_hand_rig.position.length() < 0.02,
             "support hand did not return to the foregrip after " + gun_id)
+    _expect(reload_hand_travel["lmg"] > reload_hand_travel["rifle"] + 0.10,
+        "LMG drum must require more hand travel than the rifle magazine")
     # Unlike box-magazine guns, the shotgun support hand follows its pump.
     game.player.equip("shotgun")
     game.player.reloading = true

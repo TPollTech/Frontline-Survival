@@ -1,5 +1,12 @@
 # Frontline Survival — Histórico de versões
 
+## Etapa 4 — encaixe da mão de apoio nos carregadores
+
+- SMG, fuzil e LMG agora têm pontos de pega definidos nas coordenadas das malhas originais do carregador e tambor, em vez do mesmo deslocamento fixo.
+- A mão acompanha a transformação real do carregador animado (posição/rotação/escala), compensando a posição do rig e voltando para o apoio quando a recarga acaba.
+- QA físico no Godot mede a distância entre a palma e o ponto de contato em cada arma, incluindo maior deslocamento necessário para o tambor da LMG.
+- **Status parcial:** referência geométrica aproximada ainda exige avaliação visual dos dedos, da mão, da recarga e do acabamento no Windows.
+
 ## Etapa 4 — QA renderizado das animações
 
 - Montagem de QA OpenGL ampliada para nove quadros: cinco armas em repouso, fuzil ADS, recarga do fuzil, bomba da escopeta e disparo da pistola.
