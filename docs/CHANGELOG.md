@@ -1,6 +1,18 @@
 # Frontline Survival — Histórico de versões
 
-## Em desenvolvimento após v0.9.21 — Etapa 4: animações e mãos do FPS
+## 0.9.22 — Teste da Etapa 4: animações e mãos (Windows)
+
+- Novo rig procedural leve com ombros, cotovelos e punhos independentes e dedos de duas articulações aparentes nas luvas; cinco armas cobertas.
+- Mão de apoio sincronizada com a recarga de SMG, fuzil, LMG e bomba da escopeta; retorno à empunhadura após concluir/cancelar.
+- Transições procedurais de recuo, equipar, corrida, corpo a corpo e recarga agora movimentam articulações locais. ADS não permanece ativo durante recarga.
+- Testes de regressão e integração no Godot aprovados na execução anterior: 58 testes Python, 744 asserções Godot, 2.416 de ondas e 23 Survival.
+- **Status da Etapa 4: PARCIAL.** Rig criado em código, não um modelo anatômico GLB final. Ainda falta avaliar clipping, mãos/dedos, transições e visual em Windows real.
+
+[Notas e roteiro de teste](releases/v0.9.22.md)
+
+---
+
+## Registro de implementação da Etapa 4 após v0.9.21
 
 - Mão de apoio dos três armamentos longos com carregador (SMG, fuzil e LMG) acompanha o ciclo visual do carregador durante a recarga, voltando suavemente à empunhadura ao finalizar/cancelar.
 - Escopeta: mão de apoio segue a bomba móvel durante a animação de recarga, em vez de simular troca de carregador.
