@@ -196,8 +196,9 @@ func _run_tests() -> void:
     game._buy(2) # Heal, 90
     _expect(game.wallet == full_wallet_before - 300,
         "partial consumable purchases charged the wrong total")
-    _expect(game.player.magazines["pistol"] == int(SurvivalPlayer.WEAPONS["pistol"]["mag"])
-        and game.player.reserves["pistol"] == int(SurvivalPlayer.WEAPONS["pistol"]["reserve"]),
+    var shop_weapon_specs: Dictionary = game.player.get_script().get_script_constant_map().get("WEAPONS", {})
+    _expect(game.player.magazines["pistol"] == int(shop_weapon_specs["pistol"]["mag"])
+        and game.player.reserves["pistol"] == int(shop_weapon_specs["pistol"]["reserve"]),
         "ammo purchase must refill magazine and reserve for the active weapon")
     _expect(game.player.armor == 100.0 and game.player.health == 100.0,
         "armor and medkit must clamp correctly without overfilling")
