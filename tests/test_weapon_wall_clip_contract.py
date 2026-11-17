@@ -43,6 +43,8 @@ class WallClipProtectionContracts(unittest.TestCase):
     def test_integration_uses_real_wall_and_frees_it(self):
         for marker in ("var wall_probe := StaticBody3D.new()",
                        "wall_probe.global_transform = Transform3D(",
+                       'wall_hit.get("collider") == wall_probe',
+                       "absf(rifle_wall_tuck - expected_tuck) < 0.02",
                        "nearby wall must tuck the long gun before muzzle clipping",
                        "pistol should need less wall clearance than the long gun",
                        "wall tuck must release when a physical obstruction is removed",
