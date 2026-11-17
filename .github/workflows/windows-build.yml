@@ -200,7 +200,7 @@ jobs:
             exit 1
           fi
 
-      - name: Rendered first-person viewmodel QA - six actual OpenGL poses
+      - name: Rendered first-person viewmodel QA - nine actual OpenGL poses
         shell: bash
         run: |
           set -o pipefail
