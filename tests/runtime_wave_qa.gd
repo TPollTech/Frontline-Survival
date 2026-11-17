@@ -658,6 +658,17 @@ func _run_tests() -> void:
     var expected_pump: float = sin(0.70 * PI * 2.0) * 0.12
     _expect(absf(game.player.left_hand_rig.position.z - expected_pump) < 0.015,
         "shotgun support hand must track the pump during reload")
+    var pump_socket: Vector3 = game.player.get_script().get_script_constant_map().get(
+        "SHOTGUN_PUMP_GRIP_POINT", Vector3.ZERO)
+    var pump_palm := game.player.left_hand_rig.get_node_or_null(
+        "SupportShoulder/Elbow/Wrist/Palm") as Node3D
+    _expect(pump_palm != null and game.player.action_part != null,
+        "shotgun pump contact requires a rendered palm and action mesh")
+    if pump_palm != null and game.player.action_part != null:
+        var pump_contact: Vector3 = game.player.action_part.transform * pump_socket
+        var pump_palm_position: Vector3 = game.player.viewmodel_root.to_local(pump_palm.global_position)
+        _expect(pump_contact.distance_to(pump_palm_position) < 0.12,
+            "shotgun support palm must stay on the moving pump grip")
     game.player.reloading = false
     game.player.reload_elapsed = 0.0
     game.player._animate_viewmodel(0.20, 0.0)

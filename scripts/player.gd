@@ -44,6 +44,9 @@ const MAGAZINE_GRIP_POINTS := {
     "rifle": Vector3(-0.045, -0.26, -0.215),
     "lmg": Vector3(-0.105, -0.27, -0.035),
 }
+# The shotgun pump is a separate action mesh; the left glove holds its
+# lower-left grip surface while it racks, not the gun receiver.
+const SHOTGUN_PUMP_GRIP_POINT := Vector3(-0.108, -0.12, -0.42)
 
 var camera: Camera3D
 var gun: Node3D
@@ -769,7 +772,7 @@ func _update_gun_mesh() -> void:
     viewmodel_root.add_child(hand_rig)
     var long_gun := weapon_id != "pistol"
     var grip_z: float = viewmodel_depth + viewmodel_scale * (0.035 if weapon_id == "pistol" else 0.16)
-    var support_z: float = viewmodel_depth + viewmodel_scale * float({"smg": -0.39, "rifle": -0.48, "shotgun": -0.43, "lmg": -0.55}.get(weapon_id, -0.40))
+    var support_z: float = viewmodel_depth + viewmodel_scale * float({"smg": -0.39, "rifle": -0.48, "shotgun": -0.33, "lmg": -0.55}.get(weapon_id, -0.40))
     active_arm_parent = hand_rig
     _add_first_person_arm(Vector3(0.30, -0.53, 0.52), Vector3(0.070, -0.18, grip_z), true)
     left_hand_rig = Node3D.new()
@@ -966,10 +969,14 @@ func _animate_viewmodel(delta: float, sprint_ease: float) -> void:
         # Magazine-fed guns release the foregrip to reach the magazine; the
         # shotgun stays on the sliding pump instead of reaching a fake magazine.
         var support_reload_offset := Vector3.ZERO
-        if weapon_id != "pistol" and reloading:
-            if weapon_id == "shotgun":
-                support_reload_offset = Vector3(0.0, -0.045 * reload_tilt, pump)
-            elif is_instance_valid(magazine_part) and MAGAZINE_GRIP_POINTS.has(weapon_id):
+        if weapon_id == "shotgun" and is_instance_valid(action_part):
+            # Hold the actual pump through its animation and bolt cycling. The
+            # support wrist's resting pose already matches this mesh socket.
+            var pump_grip_root: Vector3 = action_part.transform * SHOTGUN_PUMP_GRIP_POINT
+            var pump_grip_hands: Vector3 = hand_rig.transform.affine_inverse() * pump_grip_root
+            support_reload_offset = pump_grip_hands - support_palm_rest
+        elif weapon_id != "pistol" and reloading:
+            if is_instance_valid(magazine_part) and MAGAZINE_GRIP_POINTS.has(weapon_id):
                 # Translate the hand towards a real point on the moving mag,
                 # including its animation rotation, player-weapon scale and the
                 # independent movement of the whole hands rig.

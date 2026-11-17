@@ -648,3 +648,9 @@ O [plano de polimento do Campo de Testes](docs/M0_POLIMENTO_CAMPO_TESTES.md) reg
 - [x] SMG, fuzil e LMG usam pontos de pega específicos da geometria original; suporte acompanha a transformação do carregador e retorna ao apoio — **código/QA**.
 - [x] QA mede distância real entre a palma articulada e a peça animada, além da diferença entre LMG e fuzil — **código/QA**.
 - [ ] Aprovar dedos, textura das luvas, contato e ausência de atravessamentos em movimento contínuo no Windows — **pendente**.
+
+
+### Etapa 4 — alinhamento da mão na bomba da escopeta
+
+- [x] Suporte da escopeta ligado à transformação da peça `action`, com ponto de pega na geometria do modelo e verificação no Godot — **código/CI**.
+- [ ] Homologar contato dos dedos e movimento da bomba/luva na recarga e tiro no Windows real — **pendente**.

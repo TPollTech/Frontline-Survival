@@ -64,8 +64,16 @@ class FPSAnimationContractTests(unittest.TestCase):
     def test_shotgun_support_tracks_same_pump_as_action(self):
         animate = self.body("_animate_viewmodel")
         self.assertIn('if weapon_id == "shotgun":', animate)
-        self.assertIn("support_reload_offset = Vector3(0.0, -0.045 * reload_tilt, pump)", animate)
+        self.assertIn('weapon_id == "shotgun" and is_instance_valid(action_part)', animate)
+        self.assertIn("action_part.transform * SHOTGUN_PUMP_GRIP_POINT", animate)
+        self.assertIn("pump_grip_hands - support_palm_rest", animate)
+        self.assertIn('"shotgun": -0.33', self.body("_update_gun_mesh"))
         self.assertIn("viewmodel_depth + cycling + rack + pump", animate)
+
+    def test_runtime_pump_contact_uses_real_mesh_transform(self):
+        self.assertIn("shotgun support palm must stay on the moving pump grip", RUNTIME)
+        self.assertIn("SHOTGUN_PUMP_GRIP_POINT", PLAYER)
+        self.assertIn("pump_contact.distance_to(pump_palm_position) < 0.12", RUNTIME)
 
     def test_support_hand_preserves_sprint_and_grenade_motion(self):
         animate = self.body("_animate_viewmodel")

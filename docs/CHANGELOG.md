@@ -1,5 +1,12 @@
 # Frontline Survival — Histórico de versões
 
+## Etapa 4 — escopeta: mão acompanha a bomba física
+
+- Mão esquerda da escopeta agora acompanha o contato real da peça `action` (bomba), inclusive posição e rotação durante recarga e ciclo do mecanismo.
+- Reposicionada a pegada de repouso para a superfície inferior da bomba; removido deslocamento genérico que não considerava o modelo.
+- QA no Godot verifica distância entre palma e a bomba animada.
+- **Parcial:** textura, clip de dedos e fluidez real no Windows ainda precisam de avaliação.
+
 ## Etapa 4 — encaixe da mão de apoio nos carregadores
 
 - SMG, fuzil e LMG agora têm pontos de pega definidos nas coordenadas das malhas originais do carregador e tambor, em vez do mesmo deslocamento fixo.
