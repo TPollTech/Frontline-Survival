@@ -1,5 +1,17 @@
 # Frontline Survival — Histórico de versões
 
+## 0.9.25 — Correção de dedos projetados e antebraços esticados (Windows)
+
+- Corrigido o defeito visual observado no jogo real na v0.9.24: falanges muito projetadas pelo cano e antebraços longos e grossos próximos da câmera.
+- Redimensionados ombro, cotovelo, punho, palma e dedos, com ombros ancorados à distância de cada arma para impedir deformações de proporção no FPS.
+- As falanges agora curvam de volta à palma; polegares foram recolhidos e afinados mantendo articulações e resposta ao disparo/recarga.
+- Testes Godot de proporção por arma, cinco classes, além do QA de integração e montagem OpenGL com nove poses.
+- **Etapa 4 continua PARCIAL:** o encaixe visual de dedos e recarga ainda depende de teste no Windows; estes são modelos procedurais.
+
+[Notas de versão e roteiro de comparação](releases/v0.9.25.md)
+
+---
+
 ## Etapa 4 — correção visual após captura real do jogador
 
 - Corrigida geometria do rig FPS: falanges deixaram de apontar em direção ao cano e agora dobram de volta para a palma; polegares também recolhidos.
