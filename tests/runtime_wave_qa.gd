@@ -763,6 +763,15 @@ func _run_tests() -> void:
         game.player.camera.global_position - game.player.camera.global_transform.basis.z * 0.62)
     await physics_frame
     var rifle_wall_tuck: float = game.player._weapon_wall_proximity()
+    var probe_from: Vector3 = game.player.camera.global_position
+    var probe_direction: Vector3 = -game.player.camera.global_transform.basis.z
+    var debug_query := PhysicsRayQueryParameters3D.create(probe_from, probe_from + probe_direction * 1.25)
+    debug_query.collision_mask = 1
+    debug_query.exclude = [game.player.get_rid()]
+    var debug_hit: Dictionary = game.player.get_world_3d().direct_space_state.intersect_ray(debug_query)
+    print("QA_WALL_DIAG tuck=", rifle_wall_tuck, " hit=", debug_hit,
+        " origin=", probe_from, " direction=", probe_direction,
+        " wall_origin=", wall_probe.global_position, " wall_layer=", wall_probe.collision_layer)
     _expect(rifle_wall_tuck > 0.45,
         "nearby wall must tuck the long gun before muzzle clipping")
     game.player.equip("pistol")
