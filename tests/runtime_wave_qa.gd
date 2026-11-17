@@ -678,6 +678,30 @@ func _run_tests() -> void:
         game.player._animate_viewmodel(0.25, 0.0)
         _expect(absf(game.player.trigger_elbow_joint.rotation.x) < 0.015,
             "trigger elbow must return to neutral without animation drift for " + gun_id)
+    # Recoil is visually distinct by weapon class without modifying combat damage.
+    var observed_visual_kick: Dictionary = {}
+    for recoil_gun: String in ["smg", "pistol", "rifle", "lmg", "shotgun"]:
+        game.player.equip(recoil_gun)
+        game.player.aim = false
+        game.player.reloading = false
+        game.player.melee_anim_timer = 0.0
+        game.player.equip_anim_timer = 0.0
+        game.player.idle_clock = 0.0
+        game.player.walk_anim_blend = 0.0
+        game.player.shot_anim = 1.0
+        game.player._animate_viewmodel(0.25, 0.0)
+        observed_visual_kick[recoil_gun] = game.player.viewmodel_root.position.z
+        _expect(observed_visual_kick[recoil_gun] > 0.04,
+            "weapon recoil must visibly move the first-person model " + recoil_gun)
+        game.player.shot_anim = 0.0
+        game.player._animate_viewmodel(0.25, 0.0)
+        _expect(absf(game.player.viewmodel_root.position.z) < 0.005,
+            "weapon should return to resting pose after recoil " + recoil_gun)
+    _expect(observed_visual_kick["shotgun"] > observed_visual_kick["lmg"]
+        and observed_visual_kick["lmg"] > observed_visual_kick["rifle"]
+        and observed_visual_kick["rifle"] > observed_visual_kick["pistol"]
+        and observed_visual_kick["pistol"] > observed_visual_kick["smg"],
+        "weapon classes must have visibly different recoil amplitudes")
     # Player-initiated weapon switch should lower the OLD model before it swaps.
     # Forced shop/loot/recovery equip remains immediate and cancels pending changes.
     game.player.equip("rifle")

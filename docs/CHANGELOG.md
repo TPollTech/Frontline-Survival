@@ -1,5 +1,12 @@
 # Frontline Survival — Histórico de versões
 
+## Etapa 4 — recuo animado por classe de arma
+
+- Recuo visual da pistola, SMG, fuzil, escopeta e LMG agora tem amplitudes distintas no viewmodel e nas articulações do braço, preservando dano, dispersão e cadência originais.
+- Em ADS, o movimento do modelo é atenuado; o mecanismo (ferrolho/slide) mantém o ciclo existente.
+- Testes de regressão verificam amplitude relativa e retorno ao repouso nas cinco classes.
+- **Status parcial:** avaliação de realismo, sensação e FPS no Windows continua necessária.
+
 ## Etapa 4 — inspeção renderizada de armas e mãos
 
 - O workflow agora produz montagem OpenGL das cinco armas em hipfire e do fuzil em ADS, mostrando os modelos e o rig de mãos efetivamente usados pelo Godot.

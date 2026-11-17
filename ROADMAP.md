@@ -621,3 +621,10 @@ O [plano de polimento do Campo de Testes](docs/M0_POLIMENTO_CAMPO_TESTES.md) reg
 
 - [x] Captura OpenGL reproduzível do viewmodel das 5 classes e do fuzil ADS, montada em `docs/qa/viewmodel_current.png` com layout documentado e artefato no CI — a conferir na execução.
 - [ ] Inspecionar as imagens, corrigir poses e proporções das mãos/armas; validar animações contínuas e clipping em Windows real — **pendente**.
+
+
+### Etapa 4 — recuo visual específico por arma
+
+- [x] Amplitude distinta por classe (SMG, pistola, fuzil, LMG, escopeta) aplicada ao corpo da arma, cotovelo e punho; ADS reduz o deslocamento, mantendo mecânicas de dano/precisão — **código/QA**.
+- [x] Testes Godot verificam recuo e retorno ao repouso nas cinco classes — **código/QA**.
+- [ ] Aprovar sensação do recuo, animação do slide, pegada e ausência de clipping no Windows — **pendente**.

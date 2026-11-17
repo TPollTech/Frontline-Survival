@@ -28,6 +28,15 @@ const WEAPONS = {
     "shotgun": {"name":"Escopeta", "damage":17.0, "mag":8, "reserve":48, "rate":0.72, "reload":2.15, "spread":0.09, "auto":false, "pellets":8},
     "lmg": {"name":"Metralhadora leve", "damage":28.0, "mag":75, "reserve":225, "rate":0.105, "reload":3.65, "spread":0.018, "auto":true, "pellets":1}
 }
+# Independent visual feedback per weapon class; these values affect neither
+# shot direction nor the player-camera kick (only first-person geometry).
+const VIEWMODEL_RECOIL_SCALE := {
+    "pistol": 0.90,
+    "smg": 0.65,
+    "rifle": 1.0,
+    "shotgun": 1.45,
+    "lmg": 1.18,
+}
 
 var camera: Camera3D
 var gun: Node3D
@@ -904,17 +913,18 @@ func _animate_viewmodel(delta: float, sprint_ease: float) -> void:
     var reload_tilt := sin(t * PI) if reloading else 0.0
     var equip_tilt := sin(clampf(equip_anim_timer / 0.34, 0.0, 1.0) * PI * 0.5)
     var melee_punch := sin((1.0 - melee_anim_timer / 0.40) * PI) if melee_anim_timer > 0.0 else 0.0
+    var visual_shot: float = shot_anim * float(VIEWMODEL_RECOIL_SCALE.get(weapon_id, 1.0)) * (0.78 if aim else 1.0)
     var holster_blend: float = smoothstep(0.0, 1.0, 1.0 - holster_timer / HOLSTER_DURATION) if pending_weapon_id != "" else 0.0
     var idle_breath: float = sin(idle_clock * 1.6) * 0.004 * (0.25 if aim else 1.0)
     var walk_bob: float = sin(walk_clock) * 0.009 * walk_anim_blend
     var pos_target := Vector3(
         0.035 * reload_tilt + 0.028 * sprint_stride + 0.004 * cos(walk_clock) * walk_anim_blend + 0.05 * holster_blend,
         -0.075 * reload_tilt - 0.26 * equip_tilt - 0.065 * sprint_ease - 0.40 * holster_blend + idle_breath + walk_bob,
-        0.085 * shot_anim - 0.22 * melee_punch
+        0.085 * visual_shot - 0.22 * melee_punch
     )
     viewmodel_root.position = viewmodel_root.position.lerp(pos_target, minf(1.0, delta * 20.0))
     var rot_target := Vector3(
-        0.09 * reload_tilt + 0.06 * shot_anim - 0.12 * sprint_ease,
+        0.09 * reload_tilt + 0.06 * visual_shot - 0.12 * sprint_ease,
         0.12 * sprint_ease,
         -0.20 * reload_tilt + 0.36 * melee_punch + 0.065 * damage_anim - 0.12 * sprint_ease + 0.30 * holster_blend
     )
@@ -955,15 +965,15 @@ func _animate_viewmodel(delta: float, sprint_ease: float) -> void:
     # Local elbow/wrist motion is blended separately from the weapon body.
     if is_instance_valid(trigger_elbow_joint):
         trigger_elbow_joint.rotation.x = lerpf(trigger_elbow_joint.rotation.x,
-            -0.09 * shot_anim + 0.10 * reload_tilt + 0.05 * equip_tilt,
+            -0.09 * visual_shot + 0.10 * reload_tilt + 0.05 * equip_tilt,
             minf(1.0, delta * 13.0))
     if is_instance_valid(trigger_wrist_joint):
         trigger_wrist_joint.rotation.z = lerpf(trigger_wrist_joint.rotation.z,
-            -0.11 * shot_anim + 0.06 * reload_tilt + 0.14 * melee_punch,
+            -0.11 * visual_shot + 0.06 * reload_tilt + 0.14 * melee_punch,
             minf(1.0, delta * 16.0))
     if is_instance_valid(support_elbow_joint):
         support_elbow_joint.rotation.x = lerpf(support_elbow_joint.rotation.x,
-            -0.12 * mag_out - 0.08 * pump + 0.07 * sprint_ease,
+            -0.05 * visual_shot - 0.12 * mag_out - 0.08 * pump + 0.07 * sprint_ease,
             minf(1.0, delta * 13.0))
     if is_instance_valid(support_wrist_joint):
         support_wrist_joint.rotation.z = lerpf(support_wrist_joint.rotation.z,

@@ -68,6 +68,23 @@ class FPSAnimationContractTests(unittest.TestCase):
         self.assertIn("game.player.get_script().get_script_constant_map()", RUNTIME)
         self.assertNotIn("SurvivalPlayer.WEAPONS", RUNTIME)
 
+    def test_distinct_visual_recoil_without_gameplay_changes(self):
+        for weapon in ("pistol", "smg", "rifle", "shotgun", "lmg"):
+            self.assertIn(f'"{weapon}":', PLAYER)
+        self.assertIn("const VIEWMODEL_RECOIL_SCALE", PLAYER)
+        animate = self.body("_animate_viewmodel")
+        self.assertIn("var visual_shot: float = shot_anim * float(VIEWMODEL_RECOIL_SCALE.get(weapon_id, 1.0))", animate)
+        self.assertIn("0.085 * visual_shot", animate)
+        self.assertIn("0.06 * visual_shot", animate)
+        self.assertIn("-0.09 * visual_shot", animate)
+        self.assertIn("-0.11 * visual_shot", animate)
+        self.assertIn("0.048 * shot_anim", animate)
+
+    def test_runtime_recoil_breathes_and_returns_to_rest(self):
+        self.assertIn('for recoil_gun: String in ["smg", "pistol", "rifle", "lmg", "shotgun"]:', RUNTIME)
+        self.assertIn("weapon classes must have visibly different recoil amplitudes", RUNTIME)
+        self.assertIn("weapon should return to resting pose after recoil", RUNTIME)
+
     def test_runtime_qa_covers_long_guns_shotgun_and_pistol(self):
         for marker in (
             'for gun_id: String in ["smg", "rifle", "lmg"]:',
