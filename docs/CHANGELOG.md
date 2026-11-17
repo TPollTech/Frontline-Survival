@@ -1,5 +1,18 @@
 # Frontline Survival — Histórico de versões
 
+## 0.9.23 — Testes da etapa 4: troca de armas e proteção contra paredes (Windows)
+
+- Troca manual com animação de saída da arma antiga antes de montar e animar a nova; equipação forçada por loot/loja permanece imediata.
+- Disparo, recarga, melee e ADS respeitam a transição de troca de armamento; cancelamento de troca incluído na regressão.
+- Respiração sutil em idle, sway curto durante caminhada, mantendo a animação tática de corrida.
+- Raycast físico detecta parede à frente e suaviza retração/inclinação da arma no FPS. Pistola com distância de segurança menor; ADS reticle desativado se a arma estiver perto demais de obstáculo.
+- Testes Python e Godot das correções anteriores **passaram** (74 testes e 773 verificações integradas; 2.416 de ondas). A versão 0.9.23 deverá passar novamente pelo CI antes de ser disponibilizada.
+- **Status: Etapa 4 PARCIAL.** Clipping visual real de luvas, carregadores e canos e rig 3D definitivo precisam de aprovação no Windows. Android ainda não foi exportado.
+
+[Notas para testar](releases/v0.9.23.md)
+
+---
+
 ## Etapa 4 — proteção de arma contra paredes próximas
 
 - O modelo FPS agora recua e inclina suavemente ao aproximar arma/cano de uma parede detectada por raycast físico; o colisor, a câmera e a trajetória dos projéteis permanecem inalterados.
