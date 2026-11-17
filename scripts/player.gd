@@ -72,6 +72,11 @@ var sprint_stride: float = 0.0
 var grenade_throw_timer: float = 0.0
 var left_hand_rig: Node3D
 var active_arm_parent: Node3D
+var trigger_elbow_joint: Node3D
+var trigger_wrist_joint: Node3D
+var support_elbow_joint: Node3D
+var support_wrist_joint: Node3D
+var arm_materials: Dictionary = {}
 var invulnerability_timer: float = 0.0
 var collider_node: CollisionShape3D
 var capsule_shape: CapsuleShape3D
@@ -641,6 +646,10 @@ func _update_gun_mesh() -> void:
     action_part = null
     weapon_model = null
     optic_reticle = null
+    trigger_elbow_joint = null
+    trigger_wrist_joint = null
+    support_elbow_joint = null
+    support_wrist_joint = null
     # Scale/depth avoid placing long stocks behind the camera's near plane.
     viewmodel_scale = float({"pistol": 0.95, "smg": 0.84, "rifle": 0.78, "shotgun": 0.70, "lmg": 0.74}.get(weapon_id, 0.84))
     viewmodel_depth = float({"pistol": 0.0, "smg": -0.14, "rifle": -0.24, "shotgun": -0.24, "lmg": -0.24}.get(weapon_id, -0.14))
@@ -881,16 +890,37 @@ func _animate_viewmodel(delta: float, sprint_ease: float) -> void:
         left_hand_rig.rotation.z = lerpf(
             left_hand_rig.rotation.z, -0.43 * sprint_ease + sprint_stride * 0.10, minf(1.0, delta * 11.0)
         )
+    # Local elbow/wrist motion is blended separately from the weapon body.
+    if is_instance_valid(trigger_elbow_joint):
+        trigger_elbow_joint.rotation.x = lerpf(trigger_elbow_joint.rotation.x,
+            -0.09 * shot_anim + 0.10 * reload_tilt + 0.05 * equip_tilt,
+            minf(1.0, delta * 13.0))
+    if is_instance_valid(trigger_wrist_joint):
+        trigger_wrist_joint.rotation.z = lerpf(trigger_wrist_joint.rotation.z,
+            -0.11 * shot_anim + 0.06 * reload_tilt + 0.14 * melee_punch,
+            minf(1.0, delta * 16.0))
+    if is_instance_valid(support_elbow_joint):
+        support_elbow_joint.rotation.x = lerpf(support_elbow_joint.rotation.x,
+            -0.12 * mag_out - 0.08 * pump + 0.07 * sprint_ease,
+            minf(1.0, delta * 13.0))
+    if is_instance_valid(support_wrist_joint):
+        support_wrist_joint.rotation.z = lerpf(support_wrist_joint.rotation.z,
+            0.13 * mag_out - 0.07 * reload_tilt + 0.08 * sprint_ease,
+            minf(1.0, delta * 16.0))
 
 func _arm_piece(shape: Mesh, at: Vector3, tint: Color, rotation: Vector3 = Vector3.ZERO) -> MeshInstance3D:
     var part := MeshInstance3D.new()
     part.mesh = shape
     part.position = at
     part.rotation = rotation
-    var material := StandardMaterial3D.new()
-    material.albedo_color = tint
-    material.roughness = 0.84
-    part.material_override = material
+    # All segments of a glove/sleeve share one material to keep draw state low.
+    var material_key: String = tint.to_html()
+    if not arm_materials.has(material_key):
+        var created := StandardMaterial3D.new()
+        created.albedo_color = tint
+        created.roughness = 0.84
+        arm_materials[material_key] = created
+    part.material_override = arm_materials[material_key]
     active_arm_parent.add_child(part)
     return part
 
@@ -904,25 +934,67 @@ func _arm_link(start: Vector3, finish: Vector3, top_radius: float, bottom_radius
     if direction.length() > 0.001:
         part.quaternion = Quaternion(Vector3.UP, direction.normalized())
 
+func _arm_capsule_link(start: Vector3, finish: Vector3, radius: float, tint: Color, label: String) -> void:
+    var axis := finish - start
+    if axis.length_squared() < 0.000001:
+        return
+    var capsule := CapsuleMesh.new()
+    capsule.radius = radius
+    capsule.height = axis.length() + 2.0 * radius
+    var part := _arm_piece(capsule, (start + finish) * 0.5, tint)
+    part.name = label
+    part.quaternion = Quaternion(Vector3.UP, axis.normalized())
+
 func _add_first_person_arm(elbow: Vector3, wrist: Vector3, trigger_hand: bool) -> void:
-    # Braco com manga e luva afuniladas, palma oval e dedos articulados.
+    # Lightweight original FPS hierarchy: shoulder -> elbow -> wrist -> glove.
+    # Meshes are local to their joints, so they do not detach while animating.
     var uniform := Color(0.22, 0.29, 0.24)
     var cuff := Color(0.16, 0.21, 0.18)
     var glove := Color(0.095, 0.11, 0.12)
-    _arm_link(elbow, wrist, 0.068, 0.112, uniform)
-    _arm_link(wrist - Vector3(0, 0.038, 0), wrist + Vector3(0, 0.049, 0), 0.079, 0.075, cuff)
-    var palm_location := wrist + Vector3(0, 0.045, -0.06)
+    var old_parent := active_arm_parent
+    var shoulder: Vector3 = Vector3(0.47, -0.79, 0.88) if trigger_hand else Vector3(-0.49, -0.79, 0.81)
+    var shoulder_joint := Node3D.new()
+    shoulder_joint.name = "TriggerShoulder" if trigger_hand else "SupportShoulder"
+    shoulder_joint.position = shoulder
+    old_parent.add_child(shoulder_joint)
+    active_arm_parent = shoulder_joint
+    _arm_link(Vector3.ZERO, elbow - shoulder, 0.087, 0.099, uniform)
+    var elbow_joint := Node3D.new()
+    elbow_joint.name = "Elbow"
+    elbow_joint.position = elbow - shoulder
+    shoulder_joint.add_child(elbow_joint)
+    active_arm_parent = elbow_joint
+    _arm_link(Vector3.ZERO, wrist - elbow, 0.074, 0.090, uniform)
+    var wrist_joint := Node3D.new()
+    wrist_joint.name = "Wrist"
+    wrist_joint.position = wrist - elbow
+    elbow_joint.add_child(wrist_joint)
+    active_arm_parent = wrist_joint
+    _arm_link(Vector3(0, -0.052, 0.028), Vector3(0, 0.045, -0.032), 0.077, 0.083, cuff)
+    var palm_location := Vector3(0, 0.045, -0.06)
     var palm := CapsuleMesh.new()
-    palm.radius = 0.068
-    palm.height = 0.18
-    _arm_piece(palm, palm_location, glove, Vector3(PI * 0.5, 0, 0))
+    palm.radius = 0.064
+    palm.height = 0.17
+    var palm_part := _arm_piece(palm, palm_location, glove, Vector3(PI * 0.5, 0, 0))
+    palm_part.name = "Palm"
     for finger in range(4):
-        var x: float = (float(finger) - 1.5) * 0.031
-        var length := 0.11 if finger < 3 else 0.082
-        _arm_link(palm_location + Vector3(x, -0.005, -0.068),
-                  palm_location + Vector3(x, -0.052, -0.068 - length),
-                  0.014, 0.020, glove)
-    var sign_side := 1.0 if trigger_hand else -1.0
-    _arm_link(palm_location + Vector3(sign_side * 0.051, 0.01, 0.010),
-              palm_location + Vector3(sign_side * 0.093, -0.035, -0.066),
-              0.021, 0.026, glove)
+        var x: float = (float(finger) - 1.5) * 0.030
+        var length_scale: float = 0.75 if finger == 3 else (0.91 if finger == 0 else 1.0)
+        var knuckle := palm_location + Vector3(x, -0.006, -0.067)
+        var middle := knuckle + Vector3(x * 0.06, -0.034, -0.055 * length_scale)
+        var fingertip := middle + Vector3(x * 0.03, -0.022, -0.057 * length_scale)
+        _arm_capsule_link(knuckle, middle, 0.016, glove, "Finger%dProximal" % finger)
+        _arm_capsule_link(middle, fingertip, 0.013, glove, "Finger%dDistal" % finger)
+    var side: float = 1.0 if trigger_hand else -1.0
+    var thumb_root := palm_location + Vector3(side * 0.046, 0.015, 0.014)
+    var thumb_bend := thumb_root + Vector3(side * 0.038, -0.034, -0.040)
+    var thumb_tip := thumb_bend + Vector3(side * 0.014, -0.020, -0.037)
+    _arm_capsule_link(thumb_root, thumb_bend, 0.022, glove, "ThumbProximal")
+    _arm_capsule_link(thumb_bend, thumb_tip, 0.017, glove, "ThumbDistal")
+    if trigger_hand:
+        trigger_elbow_joint = elbow_joint
+        trigger_wrist_joint = wrist_joint
+    else:
+        support_elbow_joint = elbow_joint
+        support_wrist_joint = wrist_joint
+    active_arm_parent = old_parent

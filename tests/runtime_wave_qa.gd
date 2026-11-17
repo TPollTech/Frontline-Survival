@@ -646,6 +646,38 @@ func _run_tests() -> void:
     game.player._animate_viewmodel(0.20, 0.0)
     _expect(game.player.left_hand_rig.position.length() < 0.02,
         "shotgun support hand did not return after reload")
+    # Articulated arm hierarchy: no disconnected elbow/hand geometry during
+    # recoil, equip, reload, and the weapon-specific support hand animations.
+    for gun_id: String in ["pistol", "smg", "rifle", "shotgun", "lmg"]:
+        game.player.equip(gun_id)
+        var shoulder_joint := game.player.hand_rig.get_node_or_null("TriggerShoulder") as Node3D
+        var elbow_joint := shoulder_joint.get_node_or_null("Elbow") as Node3D if shoulder_joint != null else null
+        var wrist_joint := elbow_joint.get_node_or_null("Wrist") as Node3D if elbow_joint != null else null
+        _expect(shoulder_joint != null and elbow_joint != null and wrist_joint != null,
+            "trigger arm hierarchy is incomplete for " + gun_id)
+        if wrist_joint != null:
+            _expect(wrist_joint.get_node_or_null("Palm") != null
+                and wrist_joint.get_node_or_null("Finger0Proximal") != null
+                and wrist_joint.get_node_or_null("Finger0Distal") != null
+                and wrist_joint.get_node_or_null("ThumbDistal") != null,
+                "gloved fingers/knuckles are incomplete for " + gun_id)
+        if gun_id != "pistol":
+            _expect(game.player.support_elbow_joint != null and game.player.support_wrist_joint != null,
+                "support arm missing its independent articulated joints for " + gun_id)
+        else:
+            _expect(game.player.support_elbow_joint == null and game.player.support_wrist_joint == null,
+                "pistol should not create an unused support arm rig")
+        game.player.shot_anim = 0.7
+        game.player.equip_anim_timer = 0.16
+        game.player._animate_viewmodel(0.10, 0.0)
+        _expect(game.player.trigger_elbow_joint != null
+            and absf(game.player.trigger_elbow_joint.rotation.x) > 0.001,
+            "trigger elbow is not animated by recoil/equip for " + gun_id)
+        game.player.shot_anim = 0.0
+        game.player.equip_anim_timer = 0.0
+        game.player._animate_viewmodel(0.25, 0.0)
+        _expect(absf(game.player.trigger_elbow_joint.rotation.x) < 0.015,
+            "trigger elbow must return to neutral without animation drift for " + gun_id)
     game.player.equip("pistol")
     _expect(game.player.left_hand_rig.get_child_count() == 0,
         "pistol must not render a floating support hand")
