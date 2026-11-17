@@ -116,6 +116,13 @@ class FPSAnimationContractTests(unittest.TestCase):
                        "0.22 - 0.18 * mag_out", "0.32 - 0.24 * mag_out"):
             self.assertIn(marker, animate)
 
+    def test_thumb_grip_tracks_fire_magazine_and_melee(self):
+        animate = self.body("_animate_viewmodel")
+        for marker in ("trigger_thumb_joint.rotation.y", "trigger_thumb_tip_joint.rotation.x",
+                       "support_thumb_joint.rotation.y", "support_thumb_tip_joint.rotation.x",
+                       "0.22 * mag_out", "0.10 * visual_shot"):
+            self.assertIn(marker, animate)
+
     def test_runtime_finger_regressions_cover_five_guns(self):
         self.assertIn('for finger_gun: String in ["pistol", "smg", "rifle", "shotgun", "lmg"]:', RUNTIME)
         self.assertIn("index finger must relax after firing", RUNTIME)

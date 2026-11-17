@@ -654,3 +654,10 @@ O [plano de polimento do Campo de Testes](docs/M0_POLIMENTO_CAMPO_TESTES.md) reg
 
 - [x] Suporte da escopeta ligado à transformação da peça `action`, com ponto de pega na geometria do modelo e verificação no Godot — **código/CI**.
 - [ ] Homologar contato dos dedos e movimento da bomba/luva na recarga e tiro no Windows real — **pendente**.
+
+
+### Etapa 4 — articulação dos polegares (v0.9.24)
+
+- [x] Juntas independentes para duas falanges do polegar nas mãos FPS, ligadas ao tiro e recarga — **código/CI**.
+- [x] QA das cinco classes cobre movimento, retorno ao descanso e ausência da mão de suporte na pistola — **código/CI**.
+- [ ] Revisar contato e anatomia em Windows real, com calibração de clipping — **pendente**.

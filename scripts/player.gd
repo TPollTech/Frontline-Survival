@@ -102,6 +102,10 @@ var trigger_elbow_joint: Node3D
 var trigger_wrist_joint: Node3D
 var support_elbow_joint: Node3D
 var support_wrist_joint: Node3D
+var trigger_thumb_joint: Node3D
+var trigger_thumb_tip_joint: Node3D
+var support_thumb_joint: Node3D
+var support_thumb_tip_joint: Node3D
 var trigger_finger_knuckles: Array[Node3D] = []
 var trigger_finger_tips: Array[Node3D] = []
 var support_finger_knuckles: Array[Node3D] = []
@@ -733,6 +737,10 @@ func _update_gun_mesh() -> void:
     trigger_wrist_joint = null
     support_elbow_joint = null
     support_wrist_joint = null
+    trigger_thumb_joint = null
+    trigger_thumb_tip_joint = null
+    support_thumb_joint = null
+    support_thumb_tip_joint = null
     trigger_finger_knuckles.clear()
     trigger_finger_tips.clear()
     support_finger_knuckles.clear()
@@ -1029,6 +1037,23 @@ func _animate_viewmodel(delta: float, sprint_ease: float) -> void:
         support_finger_tips[finger].rotation.x = lerpf(
             support_finger_tips[finger].rotation.x,
             0.32 - 0.24 * mag_out + 0.15 * melee_punch, minf(1.0, delta * 14.0))
+    # Independent thumb joints release the magazine and settle back on the grip.
+    if is_instance_valid(trigger_thumb_joint):
+        trigger_thumb_joint.rotation.y = lerpf(trigger_thumb_joint.rotation.y,
+            -0.12 - 0.10 * visual_shot - 0.08 * melee_punch,
+            minf(1.0, delta * 14.0))
+    if is_instance_valid(trigger_thumb_tip_joint):
+        trigger_thumb_tip_joint.rotation.x = lerpf(trigger_thumb_tip_joint.rotation.x,
+            0.20 + 0.12 * visual_shot + 0.12 * melee_punch,
+            minf(1.0, delta * 14.0))
+    if is_instance_valid(support_thumb_joint):
+        support_thumb_joint.rotation.y = lerpf(support_thumb_joint.rotation.y,
+            0.12 + 0.22 * mag_out - 0.05 * melee_punch,
+            minf(1.0, delta * 14.0))
+    if is_instance_valid(support_thumb_tip_joint):
+        support_thumb_tip_joint.rotation.x = lerpf(support_thumb_tip_joint.rotation.x,
+            0.24 - 0.16 * mag_out + 0.08 * melee_punch,
+            minf(1.0, delta * 14.0))
 
 func _arm_piece(shape: Mesh, at: Vector3, tint: Color, rotation: Vector3 = Vector3.ZERO) -> MeshInstance3D:
     var part := MeshInstance3D.new()
@@ -1130,12 +1155,26 @@ func _add_first_person_arm(elbow: Vector3, wrist: Vector3, trigger_hand: bool) -
     var thumb_root := palm_location + Vector3(side * 0.046, 0.015, 0.014)
     var thumb_bend := thumb_root + Vector3(side * 0.038, -0.034, -0.040)
     var thumb_tip := thumb_bend + Vector3(side * 0.014, -0.020, -0.037)
-    _arm_capsule_link(thumb_root, thumb_bend, 0.022, glove, "ThumbProximal")
-    _arm_capsule_link(thumb_bend, thumb_tip, 0.017, glove, "ThumbDistal")
+    var thumb_joint := Node3D.new()
+    thumb_joint.name = "ThumbJoint"
+    thumb_joint.position = thumb_root
+    wrist_joint.add_child(thumb_joint)
+    active_arm_parent = thumb_joint
+    _arm_capsule_link(Vector3.ZERO, thumb_bend - thumb_root, 0.022, glove, "ThumbProximal")
+    var thumb_tip_joint := Node3D.new()
+    thumb_tip_joint.name = "ThumbTipJoint"
+    thumb_tip_joint.position = thumb_bend - thumb_root
+    thumb_joint.add_child(thumb_tip_joint)
+    active_arm_parent = thumb_tip_joint
+    _arm_capsule_link(Vector3.ZERO, thumb_tip - thumb_bend, 0.017, glove, "ThumbDistal")
     if trigger_hand:
         trigger_elbow_joint = elbow_joint
         trigger_wrist_joint = wrist_joint
+        trigger_thumb_joint = thumb_joint
+        trigger_thumb_tip_joint = thumb_tip_joint
     else:
         support_elbow_joint = elbow_joint
         support_wrist_joint = wrist_joint
+        support_thumb_joint = thumb_joint
+        support_thumb_tip_joint = thumb_tip_joint
     active_arm_parent = old_parent

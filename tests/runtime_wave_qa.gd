@@ -687,7 +687,8 @@ func _run_tests() -> void:
             _expect(wrist_joint.get_node_or_null("Palm") != null
                 and wrist_joint.get_node_or_null("Finger0Joint/Finger0Proximal") != null
                 and wrist_joint.get_node_or_null("Finger0Joint/Finger0TipJoint/Finger0Distal") != null
-                and wrist_joint.get_node_or_null("ThumbDistal") != null,
+                and wrist_joint.get_node_or_null("ThumbJoint/ThumbProximal") != null
+                and wrist_joint.get_node_or_null("ThumbJoint/ThumbTipJoint/ThumbDistal") != null,
                 "gloved fingers/knuckles are incomplete for " + gun_id)
         if gun_id != "pistol":
             _expect(game.player.support_elbow_joint != null and game.player.support_wrist_joint != null,
@@ -746,6 +747,39 @@ func _run_tests() -> void:
     game.player._animate_viewmodel(0.25, 0.0)
     _expect(absf(game.player.support_finger_knuckles[1].rotation.x - support_rest) < 0.015,
         "support fingers must close after reloading")
+    # Hinged thumbs on the five weapon classes: firing and magazine grasp.
+    for thumb_gun: String in ["pistol", "smg", "rifle", "shotgun", "lmg"]:
+        game.player.equip(thumb_gun)
+        _expect(game.player.trigger_thumb_joint != null and game.player.trigger_thumb_tip_joint != null,
+            "trigger thumb pivots missing for " + thumb_gun)
+        _expect((game.player.support_thumb_joint != null) == (thumb_gun != "pistol"),
+            "support thumb pivot should only exist for long guns " + thumb_gun)
+        game.player.reloading = false
+        game.player.shot_anim = 0.0
+        game.player._animate_viewmodel(0.25, 0.0)
+        var thumb_rest: float = game.player.trigger_thumb_joint.rotation.y
+        game.player.shot_anim = 1.0
+        game.player._animate_viewmodel(0.25, 0.0)
+        _expect(game.player.trigger_thumb_joint.rotation.y < thumb_rest - 0.035,
+            "trigger thumb must react to firing " + thumb_gun)
+        game.player.shot_anim = 0.0
+        game.player._animate_viewmodel(0.25, 0.0)
+        _expect(absf(game.player.trigger_thumb_joint.rotation.y - thumb_rest) < 0.015,
+            "trigger thumb must return to the grip " + thumb_gun)
+    game.player.equip("rifle")
+    game.player.reloading = false
+    game.player._animate_viewmodel(0.25, 0.0)
+    var support_thumb_rest: float = game.player.support_thumb_joint.rotation.y
+    game.player.reloading = true
+    game.player.reload_elapsed = float(reload_specs["rifle"]["reload"]) * 0.45
+    game.player._animate_viewmodel(0.25, 0.0)
+    _expect(game.player.support_thumb_joint.rotation.y > support_thumb_rest + 0.15,
+        "support thumb must release the magazine grip during reload")
+    game.player.reloading = false
+    game.player.reload_elapsed = 0.0
+    game.player._animate_viewmodel(0.25, 0.0)
+    _expect(absf(game.player.support_thumb_joint.rotation.y - support_thumb_rest) < 0.015,
+        "support thumb must close after magazine insertion")
     # Recoil is visually distinct by weapon class without modifying combat damage.
     var observed_visual_kick: Dictionary = {}
     for recoil_gun: String in ["smg", "pistol", "rifle", "lmg", "shotgun"]:

@@ -1,5 +1,12 @@
 # Frontline Survival — Histórico de versões
 
+## Etapa 4 — polegares articulados e empunhadura
+
+- Polegares das luvas FPS agora têm juntas independentes na base e na ponta, acompanhando as outras falanges.
+- O polegar do gatilho reage ao disparo; o de apoio abre e fecha durante recarga, mantendo a pegada da escopeta.
+- Regressão para as cinco armas verifica criação, movimento e retorno das juntas; não altera mecânicas de tiro.
+- **Parcial:** aprovação visual do encaixe entre dedos e peças e do desempenho depende do Windows.
+
 ## Etapa 4 — escopeta: mão acompanha a bomba física
 
 - Mão esquerda da escopeta agora acompanha o contato real da peça `action` (bomba), inclusive posição e rotação durante recarga e ciclo do mecanismo.

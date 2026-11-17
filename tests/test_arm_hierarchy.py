@@ -44,6 +44,16 @@ class ArmHierarchyTests(unittest.TestCase):
                      "support_finger_knuckles", "support_finger_tips"):
             self.assertIn(name + ".clear()", build)
 
+    def test_two_segment_thumb_is_jointed_on_both_hands(self):
+        body = self.func("_add_first_person_arm")
+        for marker in ('thumb_joint.name = "ThumbJoint"',
+                       'thumb_tip_joint.name = "ThumbTipJoint"',
+                       "wrist_joint.add_child(thumb_joint)",
+                       "thumb_joint.add_child(thumb_tip_joint)",
+                       "trigger_thumb_joint = thumb_joint",
+                       "support_thumb_tip_joint = thumb_tip_joint"):
+            self.assertIn(marker, body)
+
     def test_neutral_material_is_reused(self):
         body = self.func("_arm_piece")
         self.assertIn("if not arm_materials.has(material_key):", body)
@@ -52,7 +62,9 @@ class ArmHierarchyTests(unittest.TestCase):
     def test_weapon_rebuild_drops_old_joint_refs(self):
         body = self.func("_update_gun_mesh")
         for field in ("trigger_elbow_joint", "trigger_wrist_joint",
-                      "support_elbow_joint", "support_wrist_joint"):
+                      "support_elbow_joint", "support_wrist_joint",
+                      "trigger_thumb_joint", "trigger_thumb_tip_joint",
+                      "support_thumb_joint", "support_thumb_tip_joint"):
             self.assertIn(f"{field} = null", body)
 
     def test_trigger_elbow_and_wrist_follow_recoil_equip_melee(self):
