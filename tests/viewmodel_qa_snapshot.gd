@@ -29,6 +29,7 @@ func _capture() -> void:
     game.player.camera.rotation = Vector3.ZERO
     game.player.gun.visible = true
     game.combat_hud_root.visible = false
+    var base_fov: float = game.player.camera.fov
     var sheet: Image = Image.create(CELL_W * 3, CELL_H * 2, false, Image.FORMAT_RGBA8)
     sheet.fill(Color(0.025, 0.025, 0.03, 1.0))
     for idx in range(GUNS.size()):
@@ -47,7 +48,7 @@ func _capture() -> void:
         game.player.walk_anim_blend = 0.0
         var ads: bool = idx == GUNS.size() - 1
         game.player.aim = ads
-        game.player.camera.fov = GameSettings.field_of_view * (0.70 if ads else 1.0)
+        game.player.camera.fov = base_fov * (0.70 if ads else 1.0)
         game.player.gun.position = (
             Vector3(0.0, -game.player.viewmodel_scale * 0.177, -0.62)
             if ads else Vector3(0.34, -0.27, -0.63)
