@@ -44,6 +44,7 @@ var pending_weapon_id: String = ""
 var holster_timer: float = 0.0
 var idle_clock: float = 0.0
 var walk_anim_blend: float = 0.0
+var weapon_wall_blend: float = 0.0
 var equip_anim_timer: float = 0.0
 var shot_anim: float = 0.0
 var melee_anim_timer: float = 0.0
@@ -180,6 +181,21 @@ func _update_posture(delta: float, crouch_pressed: bool) -> void:
     var max_camera_y: float = collider_node.position.y + capsule_shape.height * 0.5 - 0.12
     camera.position.y = minf(lerpf(camera.position.y, sight_level, minf(1.0, delta * 12.0)), max_camera_y)
 
+func _weapon_wall_proximity() -> float:
+    # Sample only world geometry ahead of the view. Physics movement remains
+    # authoritative; this only tucks the gun to avoid penetrating nearby walls.
+    var reach: float = 0.75 if weapon_id == "pistol" else 1.25
+    var direction: Vector3 = -camera.global_transform.basis.z
+    var origin: Vector3 = camera.global_position
+    var query := PhysicsRayQueryParameters3D.create(origin, origin + direction * reach)
+    query.collision_mask = 1
+    query.exclude = [get_rid()]
+    var hit: Dictionary = get_world_3d().direct_space_state.intersect_ray(query)
+    if hit.is_empty():
+        return 0.0
+    var distance: float = origin.distance_to(hit["position"])
+    return clampf((reach - distance) / 0.70, 0.0, 1.0)
+
 func has_attachment(slot: String, id: String) -> bool:
     return str(weapon_attachments.get(weapon_id, {}).get(slot, "")) == id
 
@@ -268,7 +284,7 @@ func _physics_process(delta: float) -> void:
     _update_posture(delta, crouching)
     var sprinting := Input.is_key_pressed(KEY_SHIFT) and is_on_floor() and movement.y < -0.05 and posture == "stand" and current_body_height >= 1.79 and not downed and not reloading and not controls_locked
     sprint_blend = move_toward(sprint_blend, 1.0 if sprinting else 0.0, delta * (5.0 if sprinting else 7.5))
-    aim = Input.get_mouse_mode() == Input.MOUSE_MODE_CAPTURED and Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT) and not controls_locked and not reloading and pending_weapon_id == "" and equip_anim_timer <= 0.0 and not sprinting and sprint_blend < 0.20 and not downed
+    aim = Input.get_mouse_mode() == Input.MOUSE_MODE_CAPTURED and Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT) and not controls_locked and not reloading and pending_weapon_id == "" and equip_anim_timer <= 0.0 and weapon_wall_blend < 0.30 and not sprinting and sprint_blend < 0.20 and not downed
     var speed := 0.8 if downed else (1.15 if posture == "prone" else (2.8 if posture == "crouch" else (8.0 if sprinting else (4.35 if aim else 5.2))))
     if active_perk == "mobility" and aim:
         speed *= 1.17
@@ -308,6 +324,9 @@ func _physics_process(delta: float) -> void:
         -0.54 + running_bob,
         -0.51 + cos(walk_clock * 1.16) * 0.018 * sprint_ease
     ), sprint_ease)
+    weapon_wall_blend = move_toward(weapon_wall_blend, _weapon_wall_proximity(), delta * 7.0)
+    gun_target.z += 0.42 * weapon_wall_blend
+    gun_target.y -= 0.11 * weapon_wall_blend
     if grenade_throw_timer > 0.0:
         gun_target.y -= 0.12 * sin(PI * clampf(grenade_throw_timer / 0.45, 0.0, 1.0))
         gun_target.x += 0.06
@@ -324,12 +343,12 @@ func _physics_process(delta: float) -> void:
     gun.rotation.y = lerpf(gun.rotation.y, 0.24 * sprint_ease + sprint_stride * 0.027,
         minf(1.0, delta * 9.5))
     gun.rotation.x = lerpf(gun.rotation.x,
-        -0.62 * sprint_ease + absf(sprint_stride) * 0.05 + cos(walk_clock) * sway_strength,
+        -0.62 * sprint_ease + absf(sprint_stride) * 0.05 + cos(walk_clock) * sway_strength - 0.26 * weapon_wall_blend,
         minf(1.0, delta * 10.0))
     _animate_viewmodel(delta, sprint_ease)
     if is_instance_valid(optic_reticle):
         # Visible only once the real sight approaches the central camera ray.
-        optic_reticle.visible = aim and not reloading and absf(gun.position.x) < 0.055 and sprint_blend < 0.15
+        optic_reticle.visible = aim and not reloading and weapon_wall_blend < 0.30 and absf(gun.position.x) < 0.055 and sprint_blend < 0.15
     # Um clique usado para recapturar o mouse nunca pode virar tiro automatico.
     if suppress_fire_until_release and not Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
         suppress_fire_until_release = false

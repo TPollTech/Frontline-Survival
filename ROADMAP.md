@@ -608,3 +608,10 @@ O [plano de polimento do Campo de Testes](docs/M0_POLIMENTO_CAMPO_TESTES.md) reg
 ### Avanço da Etapa 4 após v0.9.22 — transições FPS
 
 **Estado: PARCIAL**. Troca manual encadeia holster da arma antiga e equip da arma nova, bloqueando disparo/recarga/melee nesse intervalo; force-equip mantém fluxo de loot/compras/reanimação. Respiração idle e sway de caminhada de baixa amplitude, sem alterar colisão de armas ou câmera. QA da cena mede movimentação e enquadramento conservador das palmas das cinco armas. **Ainda falta aprovação visual de clipping dos dedos/arma/câmera, rig definitivo e desempenho Windows.**
+
+
+### Etapa 4 — retração de arma junto a paredes
+
+- [x] Raycast no cenário reduz avanço e ângulo da arma FPS quando há obstáculos próximos, com distância específica para pistola e armas longas — código/QA Godot.
+- [x] ADS e retícula física não permanecem alinhados através da parede enquanto a arma está recolhida — código/QA.
+- [ ] Conferir visualmente no Windows proximidade a paredes, portas, cantos e objetos, sem atravessamento da luva, cano ou superfície; calibrar amplitudes — **parcial**.

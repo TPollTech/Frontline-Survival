@@ -1,5 +1,12 @@
 # Frontline Survival — Histórico de versões
 
+## Etapa 4 — proteção de arma contra paredes próximas
+
+- O modelo FPS agora recua e inclina suavemente ao aproximar arma/cano de uma parede detectada por raycast físico; o colisor, a câmera e a trajetória dos projéteis permanecem inalterados.
+- Pistola tem menor alcance de retração que SMG, fuzil, escopeta e LMG; ADS/retícula física são desativados quando a arma está demasiado próxima de uma parede.
+- Regressão com parede física no Godot testa aproximação, diferenças entre pistola e arma longa e retorno ao remover a obstrução.
+- **Parcial:** protege contra geometria do mundo à frente da câmera; a aprovação visual de possíveis interseções entre dedos, arma e câmera permanece pendente no Windows.
+
 ## Em desenvolvimento após v0.9.22 — Etapa 4, transições e enquadramento
 
 - Troca manual agora tem saída curta da arma antiga antes de montar a nova; compras/loot/recuperação por equipação forçada seguem imediatas.

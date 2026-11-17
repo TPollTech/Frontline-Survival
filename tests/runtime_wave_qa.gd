@@ -745,6 +745,32 @@ func _run_tests() -> void:
                 _expect(support_local.z < -0.10 and absf(support_local.x) < 1.3
                     and absf(support_local.y) < 1.3,
                     "support glove is behind camera or outside FPS framing for " + gun_id)
+    # Real world-collision regression: a short wall should fold a long gun
+    # without moving the camera, changing fire range, or hiding the world.
+    game.player.equip("rifle")
+    var wall_probe := StaticBody3D.new()
+    wall_probe.collision_layer = 1
+    wall_probe.collision_mask = 0
+    var wall_collision := CollisionShape3D.new()
+    var wall_shape := BoxShape3D.new()
+    wall_shape.size = Vector3(1.6, 1.5, 0.12)
+    wall_collision.shape = wall_shape
+    wall_probe.add_child(wall_collision)
+    game.add_child(wall_probe)
+    wall_probe.global_position = game.player.camera.global_position - game.player.camera.global_transform.basis.z * 0.62
+    await physics_frame
+    var rifle_wall_tuck: float = game.player._weapon_wall_proximity()
+    _expect(rifle_wall_tuck > 0.45,
+        "nearby wall must tuck the long gun before muzzle clipping")
+    game.player.equip("pistol")
+    _expect(game.player._weapon_wall_proximity() < rifle_wall_tuck,
+        "pistol should need less wall clearance than the long gun")
+    wall_probe.queue_free()
+    await physics_frame
+    game.player.equip("rifle")
+    _expect(game.player._weapon_wall_proximity() < 0.05,
+        "wall tuck must release when a physical obstruction is removed")
+    game.player.weapon_wall_blend = 0.0
     game.player.equip_anim_timer = 0.0
     game.player.equip("pistol")
     _expect(game.player.left_hand_rig.get_child_count() == 0,
