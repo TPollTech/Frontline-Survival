@@ -1,5 +1,13 @@
 # Frontline Survival — Histórico de versões
 
+## Em desenvolvimento após v0.9.22 — Etapa 4, transições e enquadramento
+
+- Troca manual agora tem saída curta da arma antiga antes de montar a nova; compras/loot/recuperação por equipação forçada seguem imediatas.
+- Disparo, recarga e corpo a corpo bloqueados durante a troca; ADS aguarda a arma nova terminar de equipar.
+- Respiração discreta na posição parada e oscilação própria da caminhada, sem alterar câmera ou trajetória dos tiros.
+- QA no Godot verifica saída/entrada da arma, cancelamento, recarga, movimento visual e posição de palmas no enquadramento para as cinco armas.
+- **PARCIAL:** estes testes não substituem revisão visual de contato/atravessamentos no Windows nem o modelo de luvas definitivo. A release v0.9.22 antecede esta mudança.
+
 ## 0.9.22 — Teste da Etapa 4: animações e mãos (Windows)
 
 - Novo rig procedural leve com ombros, cotovelos e punhos independentes e dedos de duas articulações aparentes nas luvas; cinco armas cobertas.

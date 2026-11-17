@@ -678,6 +678,74 @@ func _run_tests() -> void:
         game.player._animate_viewmodel(0.25, 0.0)
         _expect(absf(game.player.trigger_elbow_joint.rotation.x) < 0.015,
             "trigger elbow must return to neutral without animation drift for " + gun_id)
+    # Player-initiated weapon switch should lower the OLD model before it swaps.
+    # Forced shop/loot/recovery equip remains immediate and cancels pending changes.
+    game.player.equip("rifle")
+    var outgoing_weapon_root: Node3D = game.player.viewmodel_root
+    game.player.magazines["rifle"] = 8
+    game.player.reserves["rifle"] = 24
+    game.player.reloading = true
+    game.player.switch_weapon("pistol")
+    _expect(game.player.weapon_id == "rifle" and game.player.pending_weapon_id == "pistol"
+        and game.player.holster_timer > 0.0 and not game.player.reloading,
+        "manual swap must holster before replacing the model and cancel reload")
+    game.player._advance_weapon_switch(0.10)
+    game.player._animate_viewmodel(0.20, 0.0)
+    _expect(game.player.weapon_id == "rifle" and game.player.viewmodel_root == outgoing_weapon_root
+        and game.player.viewmodel_root.position.y < -0.08,
+        "outgoing gun should visibly lower while the old model remains mounted")
+    var magazine_before_swap: int = game.player.magazines["rifle"]
+    game.player.shoot()
+    game.player.start_reload()
+    _expect(game.player.magazines["rifle"] == magazine_before_swap and not game.player.reloading,
+        "switching blocks fire/reload while waiting for the incoming model")
+    game.player._advance_weapon_switch(0.11)
+    _expect(game.player.weapon_id == "pistol" and game.player.pending_weapon_id == ""
+        and game.player.equip_anim_timer > 0.0 and game.player.viewmodel_root != outgoing_weapon_root,
+        "incoming pistol should equip only after old gun is lowered")
+    game.player.switch_weapon("rifle")
+    game.player.equip("smg")
+    _expect(game.player.weapon_id == "smg" and game.player.pending_weapon_id == ""
+        and game.player.holster_timer == 0.0,
+        "forced equip must cancel a queued manual weapon switch")
+    game.player.switch_weapon("pistol")
+    game.player.switch_weapon("smg")
+    _expect(game.player.weapon_id == "smg" and game.player.pending_weapon_id == "",
+        "selecting the currently equipped gun should cancel a pending holster")
+    game.player.equip("rifle")
+    game.player.idle_clock = PI * 0.3125
+    game.player.walk_anim_blend = 0.0
+    game.player.shot_anim = 0.0
+    game.player.equip_anim_timer = 0.0
+    game.player._animate_viewmodel(0.25, 0.0)
+    var idle_height: float = game.player.viewmodel_root.position.y
+    game.player.walk_anim_blend = 1.0
+    game.player.walk_clock = PI * 0.5
+    game.player._animate_viewmodel(0.25, 0.0)
+    _expect(absf(game.player.viewmodel_root.position.y - idle_height) > 0.004,
+        "walking should produce controlled viewmodel bob separate from idle breathing")
+    game.player.walk_anim_blend = 0.0
+    game.player.walk_clock = 0.0
+    # Geometry sanity: glove palms must stay ahead of camera near plane,
+    # while remaining inside a conservative FPS framing envelope.
+    for gun_id: String in ["pistol", "smg", "rifle", "shotgun", "lmg"]:
+        game.player.equip(gun_id)
+        var palm_node := game.player.hand_rig.get_node_or_null("TriggerShoulder/Elbow/Wrist/Palm") as Node3D
+        _expect(palm_node != null, "trigger palm missing from FPS visual rig " + gun_id)
+        if palm_node != null:
+            var palm_local: Vector3 = game.player.camera.to_local(palm_node.global_position)
+            _expect(palm_local.z < -0.10 and absf(palm_local.x) < 1.3
+                and absf(palm_local.y) < 1.3,
+                "trigger glove is behind camera or outside FPS framing for " + gun_id)
+        if gun_id != "pistol":
+            var support_palm := game.player.left_hand_rig.get_node_or_null("SupportShoulder/Elbow/Wrist/Palm") as Node3D
+            _expect(support_palm != null, "support palm missing from FPS rig " + gun_id)
+            if support_palm != null:
+                var support_local: Vector3 = game.player.camera.to_local(support_palm.global_position)
+                _expect(support_local.z < -0.10 and absf(support_local.x) < 1.3
+                    and absf(support_local.y) < 1.3,
+                    "support glove is behind camera or outside FPS framing for " + gun_id)
+    game.player.equip_anim_timer = 0.0
     game.player.equip("pistol")
     _expect(game.player.left_hand_rig.get_child_count() == 0,
         "pistol must not render a floating support hand")

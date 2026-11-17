@@ -603,3 +603,8 @@ O [plano de polimento do Campo de Testes](docs/M0_POLIMENTO_CAMPO_TESTES.md) reg
 - [ ] Confirmar que mão de apoio não atravessa carregadores, arma, câmera ou os braços no Windows — **pendente de homologação**.
 
 **Importante:** a v0.9.21 pública é anterior a estas alterações. Não marcar como concluído sem análise visual.
+
+
+### Avanço da Etapa 4 após v0.9.22 — transições FPS
+
+**Estado: PARCIAL**. Troca manual encadeia holster da arma antiga e equip da arma nova, bloqueando disparo/recarga/melee nesse intervalo; force-equip mantém fluxo de loot/compras/reanimação. Respiração idle e sway de caminhada de baixa amplitude, sem alterar colisão de armas ou câmera. QA da cena mede movimentação e enquadramento conservador das palmas das cinco armas. **Ainda falta aprovação visual de clipping dos dedos/arma/câmera, rig definitivo e desempenho Windows.**

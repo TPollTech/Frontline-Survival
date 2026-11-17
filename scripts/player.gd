@@ -39,6 +39,11 @@ var viewmodel_scale: float = 0.95
 var magazine_part: Node3D
 var action_part: Node3D
 var reload_elapsed: float = 0.0
+const HOLSTER_DURATION: float = 0.20
+var pending_weapon_id: String = ""
+var holster_timer: float = 0.0
+var idle_clock: float = 0.0
+var walk_anim_blend: float = 0.0
 var equip_anim_timer: float = 0.0
 var shot_anim: float = 0.0
 var melee_anim_timer: float = 0.0
@@ -237,6 +242,8 @@ func _physics_process(delta: float) -> void:
     invulnerability_timer = maxf(0.0, invulnerability_timer - delta)
     flash_timer = maxf(flash_timer - delta, 0.0)
     equip_anim_timer = maxf(0.0, equip_anim_timer - delta)
+    _advance_weapon_switch(delta)
+    idle_clock += delta
     shot_anim = maxf(0.0, shot_anim - delta * 13.5)
     melee_anim_timer = maxf(0.0, melee_anim_timer - delta)
     damage_anim = maxf(0.0, damage_anim - delta * 3.4)
@@ -261,7 +268,7 @@ func _physics_process(delta: float) -> void:
     _update_posture(delta, crouching)
     var sprinting := Input.is_key_pressed(KEY_SHIFT) and is_on_floor() and movement.y < -0.05 and posture == "stand" and current_body_height >= 1.79 and not downed and not reloading and not controls_locked
     sprint_blend = move_toward(sprint_blend, 1.0 if sprinting else 0.0, delta * (5.0 if sprinting else 7.5))
-    aim = Input.get_mouse_mode() == Input.MOUSE_MODE_CAPTURED and Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT) and not controls_locked and not reloading and not sprinting and sprint_blend < 0.20 and not downed
+    aim = Input.get_mouse_mode() == Input.MOUSE_MODE_CAPTURED and Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT) and not controls_locked and not reloading and pending_weapon_id == "" and equip_anim_timer <= 0.0 and not sprinting and sprint_blend < 0.20 and not downed
     var speed := 0.8 if downed else (1.15 if posture == "prone" else (2.8 if posture == "crouch" else (8.0 if sprinting else (4.35 if aim else 5.2))))
     if active_perk == "mobility" and aim:
         speed *= 1.17
@@ -293,6 +300,7 @@ func _physics_process(delta: float) -> void:
     # stride/counter-swing keep this separate from an accelerated walk.
     # Corrida visual acompanha deslocamento real, inclusive ao encontrar obstaculos.
     var sprint_ease: float = sprint_blend * sprint_blend * (3.0 - 2.0 * sprint_blend) * motion_ratio
+    walk_anim_blend = motion_ratio * (1.0 - sprint_ease)
     var running_bob: float = absf(sin(walk_clock * 1.16)) * 0.032 * sprint_ease
     gun_target.y += sin(walk_clock) * 0.006 * motion_ratio
     gun_target = gun_target.lerp(Vector3(
@@ -368,7 +376,7 @@ func _input(event: InputEvent) -> void:
                 switch_weapon("pistol")
 
 func shoot() -> void:
-    if dead or controls_locked or reloading or suppress_fire_until_release:
+    if dead or controls_locked or reloading or suppress_fire_until_release or pending_weapon_id != "":
         return
     if Input.get_mouse_mode() != Input.MOUSE_MODE_CAPTURED or sprint_blend > 0.22:
         return
@@ -440,7 +448,7 @@ func shoot() -> void:
         start_reload()
 
 func melee() -> void:
-    if dead or controls_locked or downed or reloading or melee_timer > 0.0:
+    if dead or controls_locked or downed or reloading or pending_weapon_id != "" or melee_timer > 0.0:
         return
     melee_timer = 0.65
     melee_anim_timer = 0.40
@@ -463,7 +471,7 @@ func melee() -> void:
             hit_confirmed.emit()
 
 func start_reload() -> void:
-    if dead or controls_locked or reloading or downed or melee_timer > 0.0 or grenade_throw_timer > 0.0:
+    if dead or controls_locked or reloading or downed or pending_weapon_id != "" or melee_timer > 0.0 or grenade_throw_timer > 0.0:
         return
     if magazines[weapon_id] >= WEAPONS[weapon_id]["mag"] or reserves[weapon_id] <= 0:
         return
@@ -492,7 +500,26 @@ func equip(id: String) -> void:
     switch_weapon(id, true)
 
 func switch_weapon(id: String, force: bool = false) -> void:
+    if force and pending_weapon_id != "":
+        pending_weapon_id = ""
+        holster_timer = 0.0
+    # Pressing the current weapon key cancels a pending holster.
+    if pending_weapon_id != "" and id == weapon_id:
+        pending_weapon_id = ""
+        holster_timer = 0.0
+        return
     if dead or (controls_locked and not force) or (downed and id != "pistol") or not owned_weapons.has(id) or id == weapon_id:
+        return
+    if not force:
+        # Keep the outgoing model alive during its downward animation.
+        pending_weapon_id = id
+        if holster_timer <= 0.0:
+            holster_timer = HOLSTER_DURATION
+        reloading = false
+        reload_timer = 0.0
+        reload_elapsed = 0.0
+        reload_sound.stop()
+        aim = false
         return
     previous_weapon = weapon_id
     weapon_upgrades[weapon_id] = upgrades
@@ -509,6 +536,19 @@ func switch_weapon(id: String, force: bool = false) -> void:
     reload_elapsed = 0.0
     _update_gun_mesh()
     _update_shot_audio()
+
+func _advance_weapon_switch(delta: float) -> void:
+    if pending_weapon_id == "":
+        return
+    if dead or downed or controls_locked:
+        pending_weapon_id = ""
+        holster_timer = 0.0
+        return
+    holster_timer = maxf(0.0, holster_timer - delta)
+    if holster_timer <= 0.0:
+        var next_weapon: String = pending_weapon_id
+        pending_weapon_id = ""
+        switch_weapon(next_weapon, true)
 
 func refill_ammo() -> void:
     reserves[weapon_id] = WEAPONS[weapon_id]["reserve"]
@@ -845,16 +885,19 @@ func _animate_viewmodel(delta: float, sprint_ease: float) -> void:
     var reload_tilt := sin(t * PI) if reloading else 0.0
     var equip_tilt := sin(clampf(equip_anim_timer / 0.34, 0.0, 1.0) * PI * 0.5)
     var melee_punch := sin((1.0 - melee_anim_timer / 0.40) * PI) if melee_anim_timer > 0.0 else 0.0
+    var holster_blend: float = smoothstep(0.0, 1.0, 1.0 - holster_timer / HOLSTER_DURATION) if pending_weapon_id != "" else 0.0
+    var idle_breath: float = sin(idle_clock * 1.6) * 0.004 * (0.25 if aim else 1.0)
+    var walk_bob: float = sin(walk_clock) * 0.009 * walk_anim_blend
     var pos_target := Vector3(
-        0.035 * reload_tilt + 0.028 * sprint_stride,
-        -0.075 * reload_tilt - 0.26 * equip_tilt - 0.065 * sprint_ease,
+        0.035 * reload_tilt + 0.028 * sprint_stride + 0.004 * cos(walk_clock) * walk_anim_blend + 0.05 * holster_blend,
+        -0.075 * reload_tilt - 0.26 * equip_tilt - 0.065 * sprint_ease - 0.40 * holster_blend + idle_breath + walk_bob,
         0.085 * shot_anim - 0.22 * melee_punch
     )
     viewmodel_root.position = viewmodel_root.position.lerp(pos_target, minf(1.0, delta * 20.0))
     var rot_target := Vector3(
         0.09 * reload_tilt + 0.06 * shot_anim - 0.12 * sprint_ease,
         0.12 * sprint_ease,
-        -0.20 * reload_tilt + 0.36 * melee_punch + 0.065 * damage_anim - 0.12 * sprint_ease
+        -0.20 * reload_tilt + 0.36 * melee_punch + 0.065 * damage_anim - 0.12 * sprint_ease + 0.30 * holster_blend
     )
     viewmodel_root.rotation = viewmodel_root.rotation.lerp(rot_target, minf(1.0, delta * 17.0))
     if is_instance_valid(magazine_part):
