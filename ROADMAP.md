@@ -661,3 +661,11 @@ O [plano de polimento do Campo de Testes](docs/M0_POLIMENTO_CAMPO_TESTES.md) reg
 - [x] Juntas independentes para duas falanges do polegar nas mãos FPS, ligadas ao tiro e recarga — **código/CI**.
 - [x] QA das cinco classes cobre movimento, retorno ao descanso e ausência da mão de suporte na pistola — **código/CI**.
 - [ ] Revisar contato e anatomia em Windows real, com calibração de clipping — **pendente**.
+
+
+## v0.9.24 — Build Windows para homologação da Etapa 4 (17/11/2026)
+
+- [x] Rig articulado de dedos e polegares, contato por carregador e bomba, recuo específico de cinco armas — **código/testes CI**.
+- [x] Roteiro de validação manual detalhado em `docs/releases/v0.9.24.md` — **documentado**.
+- [ ] Jogar no Windows e avaliar mãos, recargas, tiro, ADS, transições, clipping, lojas e desempenho no hardware-alvo.
+- [ ] Substituir mãos procedurais por rig 3D anatômico definitivo após avaliação visual — **não concluído**.

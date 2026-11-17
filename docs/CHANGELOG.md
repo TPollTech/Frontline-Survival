@@ -1,5 +1,17 @@
 # Frontline Survival — Histórico de versões
 
+## 0.9.24 — Teste Windows: anatomia e recarga das mãos FPS
+
+- Atualizado o rig procedural com polegares articulados em duas juntas, acompanhando gatilho e abertura/fechamento da mão de apoio durante recarga.
+- SMG, fuzil e LMG usam contatos individuais com seus carregadores e tambor; escopeta acompanha a transformação real da bomba.
+- Mantidos os refinamentos de recuo visual específico por arma, poses ADS, entrada/saída da troca, respiração e proteção do cano perto de paredes desde v0.9.23.
+- Testes de regressão para cinco classes, verificação de distância entre mão e mecanismo, capturas renderizadas de nove poses e QA Godot integrados.
+- **Etapa 4 permanece PARCIAL** até verificar visualmente anatomia, contato dos dedos, recarga contínua e FPS no Windows.
+
+[Notas e roteiro de teste](releases/v0.9.24.md)
+
+---
+
 ## Etapa 4 — polegares articulados e empunhadura
 
 - Polegares das luvas FPS agora têm juntas independentes na base e na ponta, acompanhando as outras falanges.
