@@ -164,7 +164,53 @@ func _run_tests() -> void:
     var wallet_after_kit: int = game.wallet
     game._buy(0)
     _expect(game.wallet == wallet_after_kit, "duplicate revive kit charged twice")
+    game._change_shop_page(-1)
+    game.player.equip("pistol")
+    game.player.refill_ammo()
+    game.player.health = 100.0
+    game.player.armor = 100.0
+    game._render_shop()
+    _expect(game.shop_page == 0, "gear shop did not return to consumable page")
+    for option in [0, 1, 2]:
+        _expect(game.shop_option_buttons[option].disabled
+            and game.shop_option_buttons[option].text.contains("CHEIO"),
+            "full consumable must not be purchasable through mouse UI " + str(option))
+    var full_wallet_before: int = game.wallet
+    game._buy(0)
+    game._buy(1)
+    game._buy(2)
+    _expect(game.wallet == full_wallet_before,
+        "full ammo, armor, or health incorrectly charged credits")
+    # Partially empty resources must accept a purchase and clamp to their
+    # normal maximum. This also verifies the keyboard _buy path.
+    game.player.magazines["pistol"] = 2
+    game.player.health = 75.0
+    game.player.armor = 75.0
+    game._render_shop()
+    _expect(not game.shop_option_buttons[0].disabled
+        and not game.shop_option_buttons[1].disabled
+        and not game.shop_option_buttons[2].disabled,
+        "partially empty consumables must be enabled in the shop")
+    game._buy(0) # Ammo refill, 80
+    game._buy(1) # Armor refill, 130
+    game._buy(2) # Heal, 90
+    _expect(game.wallet == full_wallet_before - 300,
+        "partial consumable purchases charged the wrong total")
+    _expect(game.player.magazines["pistol"] == int(SurvivalPlayer.WEAPONS["pistol"]["mag"])
+        and game.player.reserves["pistol"] == int(SurvivalPlayer.WEAPONS["pistol"]["reserve"]),
+        "ammo purchase must refill magazine and reserve for the active weapon")
+    _expect(game.player.armor == 100.0 and game.player.health == 100.0,
+        "armor and medkit must clamp correctly without overfilling")
+    var wallet_before_repeat: int = game.wallet
+    game._buy(0)
+    game._buy(1)
+    game._buy(2)
+    _expect(game.wallet == wallet_before_repeat,
+        "repeated full consumable purchases must not charge again")
     game._close_shop()
+    game._buy(0)
+    _expect(game.wallet == wallet_before_repeat,
+        "stale shop callback charged money after the store closed")
     # Posture is physical, not merely walking speed.
     game.player._update_posture(0.5, true)
     _expect(game.player.capsule_shape.height < 1.3, "crouch did not shrink collider")

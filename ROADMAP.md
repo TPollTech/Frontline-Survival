@@ -684,3 +684,11 @@ O [plano de polimento do Campo de Testes](docs/M0_POLIMENTO_CAMPO_TESTES.md) reg
 - [x] Regressão de distância dedos–palma e comprimento das articulações nas cinco armas — **código / teste Godot**.
 - [ ] Aprovar no Windows a mesma posição e arma do screenshot da v0.9.24, conferindo que braços e dedos não ficam estendidos nem atravessam o modelo.
 - [ ] Revisar animação de recarga, ADS, sprint, desempenho e futuras mãos 3D definitivas, sem declarar etapa 4 concluída somente pelo CI.
+
+
+### Estabilização funcional — economia de consumíveis (após v0.9.25)
+
+- [x] Bloqueio de compra sem efeito para munição, vida e colete totalmente cheios; interface exibe `CHEIO` e desabilita o item — **código/QA**.
+- [x] Guardas para teclado/callbacks tardios e regressão de saldo, compra parcial e repetição — **código/QA**.
+- [ ] Aprovação em Windows com estações físicas e compra na mesma sessão — **pendente**.
+- [ ] Arte final das mãos/dedos adiada até o loop de jogabilidade estar estável.

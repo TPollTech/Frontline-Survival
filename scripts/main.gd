@@ -667,13 +667,16 @@ func _render_shop() -> void:
                 item_id in ["red_dot", "holo", "suppressor", "compensator"]
                 and player.has_attachment("optic" if item_id in ["red_dot", "holo"] else "muzzle", item_id)
             ) or (item_id.begins_with("perk_") and player.active_perk == item_id.substr(5))
+            var resource_full_reason: String = _shop_resource_full_reason(item_id)
             if already_owned:
                 button.text = "%d   %s       EQUIPAR" % [i + 1, entry[0]]
             elif already_equipped:
                 button.text = "%d   %s       EQUIPADO" % [i + 1, entry[0]]
+            elif resource_full_reason != "":
+                button.text = "%d   %s       CHEIO" % [i + 1, entry[0]]
             else:
                 button.text = "%d   %s       $%d" % [i + 1, entry[0], entry[1]]
-            button.disabled = already_equipped or (not already_owned and wallet < int(entry[1]))
+            button.disabled = already_equipped or resource_full_reason != "" or (not already_owned and wallet < int(entry[1]))
     shop_prev_button.disabled = shop_page <= 0
     shop_next_button.disabled = (shop_page + 1) * 5 >= options.size()
     for id in shop_tab_buttons:
@@ -697,7 +700,25 @@ func _switch_shop(id: String) -> void:
         return
     _render_shop()
 
+func _shop_resource_full_reason(id: String) -> String:
+    # Guard purchases with no possible benefit, before removing credits.
+    # A partial magazine/reserve refill is always allowed, even if one is full.
+    match id:
+        "ammo":
+            var stats: Dictionary = SurvivalPlayer.WEAPONS[player.weapon_id]
+            if int(player.magazines[player.weapon_id]) >= int(stats["mag"]) and int(player.reserves[player.weapon_id]) >= int(stats["reserve"]):
+                return "MUNICAO JA ESTA COMPLETA"
+        "armor":
+            if player.armor >= 100.0:
+                return "COLETE JA ESTA COMPLETO"
+        "medkit":
+            if player.health >= 100.0:
+                return "VIDA JA ESTA COMPLETA"
+    return ""
+
 func _buy(index: int) -> void:
+    if not shop_open or not SHOP_OPTIONS.has(shop_id):
+        return
     var options: Array = SHOP_OPTIONS[shop_id]
     var real_index := shop_page * 5 + index
     if real_index >= options.size() or index < 0:
@@ -708,6 +729,11 @@ func _buy(index: int) -> void:
     if id in ["smg", "rifle", "shotgun", "lmg"] and player.owned_weapons.has(id):
         player.equip(id)
         _notify("EQUIPADA: " + str(item[0]), 2.0)
+        _render_shop()
+        return
+    var full_reason: String = _shop_resource_full_reason(id)
+    if full_reason != "":
+        _notify(full_reason, 1.6)
         _render_shop()
         return
     if wallet < price:

@@ -1,5 +1,13 @@
 # Frontline Survival — Histórico de versões
 
+## Estabilização funcional — compras sem desperdício de créditos
+
+- Estação de equipamentos não cobra por munição, vida ou colete quando seus respectivos recursos já estão no máximo.
+- A interface identifica esses três itens como `CHEIO` e desativa o botão, enquanto compras parciais permanecem disponíveis.
+- As rotas por teclado/controle de compra também verificam recursos cheios antes de retirar dinheiro; callbacks antigos após fechar a loja não podem comprar.
+- Regressão no Godot testa UI, compras cheias, parciais, repetidas e loja fechada com saldo e inventário.
+- **Validação Windows pendente**: itens visuais da etapa 4 ficam adiados em favor da estabilidade do loop.
+
 ## 0.9.25 — Correção de dedos projetados e antebraços esticados (Windows)
 
 - Corrigido o defeito visual observado no jogo real na v0.9.24: falanges muito projetadas pelo cano e antebraços longos e grossos próximos da câmera.
