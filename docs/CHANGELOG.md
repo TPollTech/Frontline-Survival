@@ -1,5 +1,13 @@
 # Frontline Survival — Histórico de versões
 
+## Estabilização funcional — movimento de esquadrões em passagens estreitas
+
+- Inimigos agora consideram a proximidade de companheiros vivos durante o avanço para reduzir congestionamentos no mesmo corredor.
+- O vetor de afastamento é horizontal, limitado e calculado em intervalos de 0,16–0,24 s para preservar desempenho com até 12 inimigos simultâneos.
+- A direção para contornar paredes mantém prioridade; cobertura, recarga e ataque continuam regidos pelas mecânicas existentes.
+- Teste Godot com seis inimigos e paredes físicas verifica a separação dos lados, ausência de vetores inválidos e desconsideração de mortos.
+- **Limitação:** é separação local, não um navmesh global nem um teste real de percurso completo. Corredores longos e ondas prolongadas no Windows ainda precisam de aprovação.
+
 ## Estabilização funcional — inimigos desviam de paredes sem oscilar
 
 - O inimigo mantém o mesmo flanco enquanto o obstáculo continua no caminho; as verificações frequentes deixam de sortear novos lados e de cancelar o desvio antes de passar pelo bloqueio.

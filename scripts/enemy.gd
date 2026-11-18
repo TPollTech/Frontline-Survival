@@ -32,6 +32,9 @@ var navigation_check: float = 0.15
 var stalled_for: float = 0.0
 var last_motion_position: Vector3 = Vector3.ZERO
 var obstacle_preference: float = 1.0
+# Cached close-range separation, 4-6 checks/second rather than every frame.
+var crowd_check: float = 0.0
+var crowd_avoidance: Vector3 = Vector3.ZERO
 var hurt_flash: float = 0.0
 var hurt_lean: float = 0.0
 var stagger_remaining: float = 0.0
@@ -334,6 +337,7 @@ func _physics_process(delta: float) -> void:
     var visible := _has_sight()
     _update_obstacle_navigation(delta, direction, distance, goal_distance, visible)
     _update_tactics(delta, distance, visible)
+    _update_crowd_avoidance(delta)
     var chase := distance > goal_distance or not visible
     var steer := direction
     if tactical_state == "seek_cover":
@@ -351,6 +355,10 @@ func _physics_process(delta: float) -> void:
     if detour_remaining > 0.0:
         # Blend only once with the tactical goal, preserving a committed flank.
         steer = (steer * 0.40 + detour_direction * 0.90).normalized()
+    if chase and crowd_avoidance.length_squared() > 0.002:
+        # Static wall detours take precedence over neighboring soldiers.
+        var crowd_weight: float = 0.30 if detour_remaining > 0.0 else 0.65
+        steer = (steer + crowd_avoidance * crowd_weight).normalized()
     detour_remaining = maxf(0.0, detour_remaining - delta)
     strafe_timer -= delta
     if strafe_timer <= 0.0:
@@ -411,6 +419,32 @@ func _physics_process(delta: float) -> void:
         attack_cooldown = attack_interval
         if ammo_in_mag <= 0:
             _start_reload()
+
+func _update_crowd_avoidance(delta: float) -> void:
+    crowd_check -= delta
+    if crowd_check > 0.0:
+        return
+    crowd_check = randf_range(0.16, 0.24)
+    crowd_avoidance = Vector3.ZERO
+    # Keep this a tiny local steering nudge, not a costly navmesh simulation.
+    # Only active NPCs in our current game scene can push one another apart.
+    const CROWD_RADIUS: float = 1.50
+    for node in get_tree().get_nodes_in_group("enemies"):
+        var other := node as SurvivalEnemy
+        if other == null or other == self or other.dead or other.get_parent() != get_parent():
+            continue
+        var away: Vector3 = global_position - other.global_position
+        away.y = 0.0
+        var separation_sq: float = away.length_squared()
+        if separation_sq >= CROWD_RADIUS * CROWD_RADIUS:
+            continue
+        if separation_sq < 0.0001:
+            # Exact overlaps must resolve deterministically, without NaNs.
+            away = Vector3.LEFT if get_instance_id() < other.get_instance_id() else Vector3.RIGHT
+            separation_sq = 1.0
+        crowd_avoidance += away.normalized() * (1.0 - minf(sqrt(separation_sq) / CROWD_RADIUS, 1.0))
+    crowd_avoidance = crowd_avoidance.limit_length(1.0)
+
 
 func _update_obstacle_navigation(delta: float, direction: Vector3,
         distance: float, goal_distance: float, visible: bool) -> void:

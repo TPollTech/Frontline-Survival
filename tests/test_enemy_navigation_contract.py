@@ -36,6 +36,26 @@ class EnemyNavigationContracts(unittest.TestCase):
         self.assertIn('_set_tactical_posture("stand")', recovery)
         self.assertNotIn("queue_free", recovery)
 
+    def test_crowd_separation_is_local_and_cheap(self):
+        method = body("_update_crowd_avoidance")
+        self.assertIn("crowd_check = randf_range(0.16, 0.24)", method)
+        self.assertIn('get_nodes_in_group("enemies")', method)
+        self.assertIn("other.dead or other.get_parent() != get_parent()", method)
+        self.assertIn("away.y = 0.0", method)
+        self.assertIn("crowd_avoidance = crowd_avoidance.limit_length(1.0)", method)
+
+    def test_wall_navigation_takes_priority_over_crowd(self):
+        physics = body("_physics_process")
+        self.assertIn("_update_crowd_avoidance(delta)", physics)
+        self.assertIn("if chase and crowd_avoidance.length_squared() > 0.002:", physics)
+        self.assertIn("0.30 if detour_remaining > 0.0 else 0.65", physics)
+        self.assertLess(physics.index("detour_direction * 0.90"), physics.index("crowd_avoidance * crowd_weight"))
+
+    def test_six_enemy_corridor_regression_and_dead_filter(self):
+        self.assertIn("for crowd_index in range(6):", RUNTIME)
+        self.assertIn("outer soldiers in a crowded corridor must choose opposite separation", RUNTIME)
+        self.assertIn("fallen squadmates must not keep pushing living enemies", RUNTIME)
+
     def test_live_wall_regression(self):
         for marker in (
             "physical wall must block the NPC's approach",

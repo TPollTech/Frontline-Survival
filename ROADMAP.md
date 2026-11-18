@@ -708,3 +708,11 @@ O [plano de polimento do Campo de Testes](docs/M0_POLIMENTO_CAMPO_TESTES.md) reg
 - [x] Movimento sem dupla ponderação do desvio; travamento de cobertura provoca abandono controlado do waypoint, sem morte/despawn/teleporte do NPC — **código/QA**.
 - [x] Teste físico Godot com parede, repetição da sondagem e recuperação do estado de cobertura — **código/QA**.
 - [ ] Teste de percurso completo no Windows, especialmente obstáculos longos, corredores fechados, grupos de 12 inimigos e 15 ondas — **pendente**.
+
+
+### Estabilização funcional — grupos de inimigos em corredores
+
+- [x] Afastamento local entre inimigos próximos, limitado e de baixa frequência (0,16–0,24 s), priorizando desvios de obstáculos — **código/CI**.
+- [x] Teste com seis inimigos próximos e duas paredes físicas, cobrindo sentidos opostos, vetores finitos e cadáveres ignorados — **código/CI**.
+- [ ] Aprovar travessia de corredores complexos com NPCs em movimento contínuo e diferentes formações no Windows — **pendente**.
+- [ ] Medir custo de CPU e FPS até 12 inimigos simultâneos em uma partida prolongada — **pendente**.

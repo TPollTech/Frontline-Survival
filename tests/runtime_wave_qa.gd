@@ -557,6 +557,51 @@ func _run_tests() -> void:
     route_wall.queue_free()
     route_npc.queue_free()
     await physics_frame
+    # Six live enemies in a tight corridor should nudge away from one another
+    # instead of piling into the same gap or generating invalid velocity.
+    # This checks steering decisions, NOT a completed pathfinding simulation.
+    var crowd_origin: Vector3 = game.player.global_position + Vector3(15.0, 0.0, -14.0)
+    var corridor_walls: Array[StaticBody3D] = []
+    for side_sign in [-1.0, 1.0]:
+        var corridor_wall := StaticBody3D.new()
+        corridor_wall.collision_layer = 1
+        corridor_wall.collision_mask = 0
+        var corridor_collision := CollisionShape3D.new()
+        var corridor_shape := BoxShape3D.new()
+        corridor_shape.size = Vector3(0.24, 2.5, 5.0)
+        corridor_collision.shape = corridor_shape
+        corridor_wall.add_child(corridor_collision)
+        game.add_child(corridor_wall)
+        corridor_wall.global_position = crowd_origin + Vector3(float(side_sign) * 1.05, 0.0, 0.0)
+        corridor_walls.append(corridor_wall)
+    var crowd_pack: Array = []
+    for crowd_index in range(6):
+        var crowd_enemy: Variant = tactical_script.new()
+        crowd_enemy.configure("soldier", 4, game.player, "smg")
+        crowd_enemy.position = crowd_origin + Vector3((float(crowd_index) - 2.5) * 0.18, 0.0, 0.0)
+        game.add_child(crowd_enemy)
+        crowd_enemy.set_physics_process(false)
+        crowd_pack.append(crowd_enemy)
+    await physics_frame
+    for crowd_enemy in crowd_pack:
+        crowd_enemy._update_crowd_avoidance(1.0)
+        _expect(crowd_enemy.crowd_avoidance.is_finite()
+            and crowd_enemy.crowd_avoidance.length() <= 1.001
+            and absf(crowd_enemy.crowd_avoidance.y) < 0.001,
+            "group separation direction must be bounded and horizontal")
+    _expect(crowd_pack[0].crowd_avoidance.x < -0.30
+        and crowd_pack[5].crowd_avoidance.x > 0.30,
+        "outer soldiers in a crowded corridor must choose opposite separation")
+    for i in range(5):
+        crowd_pack[i].dead = true
+    crowd_pack[5]._update_crowd_avoidance(1.0)
+    _expect(crowd_pack[5].crowd_avoidance.length_squared() < 0.001,
+        "fallen squadmates must not keep pushing living enemies")
+    for crowd_enemy in crowd_pack:
+        crowd_enemy.queue_free()
+    for corridor_wall in corridor_walls:
+        corridor_wall.queue_free()
+    await physics_frame
     # A dropped gun and an ammunition box must be collectible with no UI shop.
     game._spawn_loot_pickup("weapon", "smg", game.player.global_position, 0)
     var weapon_drop: Node3D = game._nearest_loot()
