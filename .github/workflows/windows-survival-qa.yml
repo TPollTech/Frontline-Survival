@@ -23,7 +23,11 @@ jobs:
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Path build
-          $editor = (Get-Command godot).Source
+          $zip = Join-Path $env:RUNNER_TEMP 'godot-win.zip'
+          curl.exe -fsSL --retry 2 'https://github.com/godotengine/godot/releases/download/4.6.3-stable/Godot_v4.6.3-stable_win64.exe.zip' -o $zip
+          $dir = Join-Path $env:RUNNER_TEMP 'godot-win'
+          Expand-Archive $zip $dir
+          $editor = (Get-ChildItem $dir -Recurse -Filter '*win64.exe' | Select-Object -First 1).FullName
           $import = Start-Process $editor -ArgumentList '--headless --editor --import --log-file import.log' -Wait -PassThru
           Get-Content import.log
           if ($import.ExitCode -ne 0) { exit 1 }
