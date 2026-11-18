@@ -1,0 +1,33 @@
+name: Partida de 15 ondas no Windows
+on:
+  pull_request:
+    paths:
+      - 'scripts/**'
+      - 'tests/fifteen_waves_qa.gd'
+      - '.github/workflows/windows-survival-qa.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  partida:
+    runs-on: windows-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.6.3
+          use-dotnet: false
+          include-templates: true
+      - name: Exportar e testar o executável
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Path build
+          godot --headless --editor --import
+          if ($LASTEXITCODE -ne 0) { exit 1 }
+          godot --headless --export-release "Windows Desktop" build/FrontlineSurvival.exe
+          if ($LASTEXITCODE -ne 0) { exit 1 }
+          Push-Location build
+          $p = Start-Process .\FrontlineSurvival.exe -ArgumentList '--headless','--fixed-fps','60','--log-file','partida.log','--script','res://tests/fifteen_waves_qa.gd' -PassThru -Wait
+          Get-Content partida.log
+          if ($p.ExitCode -ne 0 -or !(Select-String -Path partida.log -SimpleMatch -Pattern 'QA_15_WAVES_PASS') -or (Select-String -Path partida.log -Pattern 'SCRIPT ERROR|^ERROR:')) { exit 1 }

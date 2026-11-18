@@ -555,6 +555,14 @@ func _run_tests() -> void:
     _expect(route_npc.tactical_state == "advance" and route_npc.tactical_posture == "stand"
         and route_npc.detour_remaining >= 1.1 and route_npc.stalled_for == 0.0,
         "stuck NPC must abandon blocked cover and resume movement")
+    route_npc.set_physics_process(true)
+    var regained_sight := false
+    for tick in range(300):
+        await physics_frame
+        if route_npc._has_sight():
+            regained_sight = true
+            break
+    _expect(regained_sight, "moving NPC must clear the physical wall and regain sight")
     route_wall.queue_free()
     route_npc.queue_free()
     await physics_frame
