@@ -1,5 +1,14 @@
 # Frontline Survival — Histórico de versões
 
+## Estabilização funcional — inimigos desviam de paredes sem oscilar
+
+- O inimigo mantém o mesmo flanco enquanto o obstáculo continua no caminho; as verificações frequentes deixam de sortear novos lados e de cancelar o desvio antes de passar pelo bloqueio.
+- A navegação também identifica obstáculos quando o jogador está próximo, mas fora da linha de visão (mesmo dentro da distância desejada de ataque).
+- O desvio agora se combina uma única vez com o alvo tático; recargas legítimas não são classificadas como travamento.
+- Se uma rota de cobertura ou peek realmente travar, o NPC abandona aquele waypoint e volta ao avanço com um novo desvio; não é teletransportado, eliminado ou recompensado.
+- Teste com parede física, persistência da direção e recuperação de cobertura no Godot.
+- **Ainda parcial:** isto é direção local, não navegação completa por navmesh; testar cenários com múltiplos contêineres, corredores e 15 ondas no Windows.
+
 ## Estabilização funcional — contadores confiáveis das ondas
 
 - Durante combate, o controlador reconcilia periodicamente o contador de inimigos vivos com os NPCs realmente presentes e ativos na cena.

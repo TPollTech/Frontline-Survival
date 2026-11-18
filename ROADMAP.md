@@ -700,3 +700,11 @@ O [plano de polimento do Campo de Testes](docs/M0_POLIMENTO_CAMPO_TESTES.md) reg
 - [x] Regressão com remoção inesperada, contagem falsa de zero ou excesso e prevenção de recompensas indevidas — **código/QA**.
 - [ ] Revisar separadamente inimigos que permanecem vivos, mas ficam presos atrás de obstáculos por longos períodos — **pendente**.
 - [ ] Partida real no Windows atravessando 15 ondas, inspecionando contador e impacto no FPS — **pendente**.
+
+
+### Estabilização funcional — IA contorna obstáculos sem alternar de lado
+
+- [x] Persistência do flanco escolhido enquanto a parede bloquear a linha direta ao jogador, incluindo casos próximos sem linha de visão — **código/QA**.
+- [x] Movimento sem dupla ponderação do desvio; travamento de cobertura provoca abandono controlado do waypoint, sem morte/despawn/teleporte do NPC — **código/QA**.
+- [x] Teste físico Godot com parede, repetição da sondagem e recuperação do estado de cobertura — **código/QA**.
+- [ ] Teste de percurso completo no Windows, especialmente obstáculos longos, corredores fechados, grupos de 12 inimigos e 15 ondas — **pendente**.

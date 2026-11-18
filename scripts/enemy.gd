@@ -331,14 +331,8 @@ func _physics_process(delta: float) -> void:
     var distance := to_player.length()
     var direction := to_player.normalized() if distance > 0.1 else Vector3.ZERO
     var goal_distance := 4.5 if kind == "runner" else (10.0 if kind == "heavy" else (5.5 if weapon_class == "shotgun" else 9.0))
-    navigation_check -= delta
-    if navigation_check <= 0.0:
-        navigation_check = randf_range(0.23, 0.36)
-        if distance > goal_distance and ObstacleSteering.blocked(self, direction, 2.35):
-            obstacle_preference *= -1.0 if randf() < 0.40 else 1.0
-            detour_direction = ObstacleSteering.choose_detour(self, direction, obstacle_preference)
-            detour_remaining = maxf(detour_remaining, 0.65)
     var visible := _has_sight()
+    _update_obstacle_navigation(delta, direction, distance, goal_distance, visible)
     _update_tactics(delta, distance, visible)
     var chase := distance > goal_distance or not visible
     var steer := direction
@@ -355,7 +349,8 @@ func _physics_process(delta: float) -> void:
     elif tactical_state == "hold_cover":
         chase = false
     if detour_remaining > 0.0:
-        steer = (direction * 0.40 + detour_direction * 0.90).normalized()
+        # Blend only once with the tactical goal, preserving a committed flank.
+        steer = (steer * 0.40 + detour_direction * 0.90).normalized()
     detour_remaining = maxf(0.0, detour_remaining - delta)
     strafe_timer -= delta
     if strafe_timer <= 0.0:
@@ -366,8 +361,6 @@ func _physics_process(delta: float) -> void:
         velocity.z = 0.0
     elif chase and stagger_remaining <= 0.0:
         var desired_speed := move_speed * (0.76 if tactical_state == "seek_cover" else 1.0)
-        if detour_remaining > 0.0:
-            steer = (steer * 0.40 + detour_direction * 0.90).normalized()
         velocity.x = steer.x * desired_speed
         velocity.z = steer.z * desired_speed
     elif visible and distance > 4.0 and kind != "heavy" and stagger_remaining <= 0.0:
@@ -386,15 +379,12 @@ func _physics_process(delta: float) -> void:
         global_position.z - last_motion_position.z
     ).length()
     last_motion_position = global_position
-    if chase and stagger_remaining <= 0.0 and planar_progress < 0.18 * delta:
+    if chase and reload_remaining <= 0.0 and stagger_remaining <= 0.0 and planar_progress < 0.18 * delta:
         stalled_for += delta
     else:
         stalled_for = maxf(0.0, stalled_for - delta * 1.9)
     if stalled_for > 0.72:
-        obstacle_preference *= -1.0
-        detour_direction = ObstacleSteering.choose_detour(self, direction, obstacle_preference)
-        detour_remaining = 1.15
-        stalled_for = 0.0
+        _recover_from_stall(direction)
     var moving := Vector2(velocity.x, velocity.z).length() > 0.2
     _animate_body(delta, moving)
     if chase and get_slide_collision_count() > 0 and detour_remaining <= 0.0:
@@ -421,6 +411,34 @@ func _physics_process(delta: float) -> void:
         attack_cooldown = attack_interval
         if ammo_in_mag <= 0:
             _start_reload()
+
+func _update_obstacle_navigation(delta: float, direction: Vector3,
+        distance: float, goal_distance: float, visible: bool) -> void:
+    navigation_check -= delta
+    if navigation_check > 0.0:
+        return
+    navigation_check = randf_range(0.23, 0.36)
+    # Even at preferred firing distance the player may be behind a wall.
+    if (distance <= goal_distance and visible) or not ObstacleSteering.blocked(self, direction, 2.35):
+        return
+    if detour_remaining <= 0.0 or detour_direction.length_squared() < 0.01:
+        detour_direction = ObstacleSteering.choose_detour(self, direction, obstacle_preference)
+    # Keep following the same side while the wall is ahead. Re-picking it on
+    # every 0.3s probe previously made soldiers oscillate left/right in place.
+    detour_remaining = maxf(detour_remaining, 0.85)
+
+func _recover_from_stall(direction: Vector3) -> void:
+    obstacle_preference *= -1.0
+    detour_direction = ObstacleSteering.choose_detour(self, direction, obstacle_preference)
+    detour_remaining = 1.15
+    stalled_for = 0.0
+    if tactical_state in ["seek_cover", "peek"]:
+        # A blocked cover waypoint is not a permanent movement order.
+        tactical_state = "advance"
+        tactical_timer = 0.0
+        tactical_timeout = 0.0
+        tactical_think = 2.4
+        _set_tactical_posture("stand")
 
 func _start_reload() -> void:
     if reload_remaining > 0.0 or dead:

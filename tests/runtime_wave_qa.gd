@@ -2,6 +2,7 @@ extends SceneTree
 ## CI integration test. Exercises actual Godot scene, enemies and transition
 ## through two waves, not just a parser/import smoke test.
 const SpawnSelector = preload("res://scripts/spawn_selector.gd")
+const ObstacleSteering = preload("res://scripts/obstacle_steering.gd")
 var failures: Array[String] = []
 var checked: int = 0
 
@@ -505,6 +506,57 @@ func _run_tests() -> void:
             cover_candidate["position"], game.player.global_position
         ), "cover position must block player line of sight")
     tactical_npc.queue_free()
+    # Regression: a nearby enemy behind a physical wall must pick a detour
+    # even when already inside its preferred gun range, then keep the chosen
+    # flank on subsequent obstacle probes instead of oscillating.
+    var route_npc: Variant = tactical_script.new()
+    route_npc.configure("soldier", 2, game.player, "shotgun")
+    route_npc.position = game.player.global_position + Vector3(-3.1, 0.0, -3.1)
+    game.add_child(route_npc)
+    route_npc.set_physics_process(false)
+    var route_direction: Vector3 = game.player.global_position - route_npc.global_position
+    route_direction.y = 0.0
+    route_direction = route_direction.normalized()
+    var route_wall := StaticBody3D.new()
+    route_wall.collision_layer = 1
+    route_wall.collision_mask = 0
+    var route_shape_node := CollisionShape3D.new()
+    var route_box := BoxShape3D.new()
+    route_box.size = Vector3(2.4, 2.0, 0.16)
+    route_shape_node.shape = route_box
+    route_wall.add_child(route_shape_node)
+    game.add_child(route_wall)
+    route_wall.global_transform = Transform3D(Basis.looking_at(route_direction, Vector3.UP),
+        route_npc.global_position + route_direction * 1.35)
+    await physics_frame
+    _expect(ObstacleSteering.blocked(route_npc, route_direction, 2.35),
+        "physical wall must block the NPC's approach before testing route recovery")
+    route_npc.navigation_check = 0.0
+    route_npc.detour_remaining = 0.0
+    route_npc._update_obstacle_navigation(0.12, route_direction, 4.4, 5.5, false)
+    _expect(route_npc.detour_remaining >= 0.8
+        and route_npc.detour_direction.length_squared() > 0.05,
+        "enemy behind nearby wall must select a viable flank")
+    var committed_flank: Vector3 = route_npc.detour_direction
+    route_npc.detour_remaining = 0.10
+    route_npc._update_obstacle_navigation(0.50, route_direction, 4.4, 5.5, false)
+    _expect(route_npc.detour_remaining >= 0.8
+        and route_npc.detour_direction.distance_to(committed_flank) < 0.001,
+        "repeated wall scans must not randomly reverse a committed flank")
+    route_npc.detour_remaining = 0.0
+    route_npc.navigation_check = 0.0
+    route_npc._update_obstacle_navigation(0.50, route_direction, 4.4, 5.5, true)
+    _expect(route_npc.detour_remaining == 0.0,
+        "NPC already in firing range with clear sight should not detour")
+    route_npc.tactical_state = "seek_cover"
+    route_npc._set_tactical_posture("crouch")
+    route_npc._recover_from_stall(route_direction)
+    _expect(route_npc.tactical_state == "advance" and route_npc.tactical_posture == "stand"
+        and route_npc.detour_remaining >= 1.1 and route_npc.stalled_for == 0.0,
+        "stuck NPC must abandon blocked cover and resume movement")
+    route_wall.queue_free()
+    route_npc.queue_free()
+    await physics_frame
     # A dropped gun and an ammunition box must be collectible with no UI shop.
     game._spawn_loot_pickup("weapon", "smg", game.player.global_position, 0)
     var weapon_drop: Node3D = game._nearest_loot()

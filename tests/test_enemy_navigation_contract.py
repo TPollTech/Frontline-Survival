@@ -1,0 +1,50 @@
+"""Enemy obstacle recovery: maintain a flank, avoid premature cancellation."""
+from pathlib import Path
+import unittest
+
+ROOT = Path(__file__).resolve().parents[1]
+ENEMY = (ROOT / "scripts" / "enemy.gd").read_text(encoding="utf-8")
+RUNTIME = (ROOT / "tests" / "runtime_wave_qa.gd").read_text(encoding="utf-8")
+
+
+def body(name: str) -> str:
+    return ENEMY.split(f"func {name}(", 1)[1].split("\nfunc ", 1)[0]
+
+
+class EnemyNavigationContracts(unittest.TestCase):
+    def test_wall_probes_preserve_committed_flank(self):
+        nav = body("_update_obstacle_navigation")
+        self.assertIn("detour_remaining <= 0.0 or detour_direction.length_squared() < 0.01", nav)
+        self.assertIn("detour_remaining = maxf(detour_remaining, 0.85)", nav)
+        self.assertNotIn("randf() < 0.40", nav)
+
+    def test_close_enemy_behind_wall_can_detour(self):
+        nav = body("_update_obstacle_navigation")
+        self.assertIn("(distance <= goal_distance and visible)", nav)
+        self.assertIn("ObstacleSteering.blocked(self, direction, 2.35)", nav)
+        self.assertIn("_update_obstacle_navigation(delta, direction, distance, goal_distance, visible)", body("_physics_process"))
+
+    def test_no_double_steering_and_reload_not_stall(self):
+        physics = body("_physics_process")
+        self.assertEqual(physics.count("detour_direction * 0.90"), 1)
+        self.assertIn("chase and reload_remaining <= 0.0 and stagger_remaining <= 0.0", physics)
+
+    def test_stuck_cover_route_resets_to_advance(self):
+        recovery = body("_recover_from_stall")
+        self.assertIn('if tactical_state in ["seek_cover", "peek"]:', recovery)
+        self.assertIn('tactical_state = "advance"', recovery)
+        self.assertIn('_set_tactical_posture("stand")', recovery)
+        self.assertNotIn("queue_free", recovery)
+
+    def test_live_wall_regression(self):
+        for marker in (
+            "physical wall must block the NPC's approach",
+            "enemy behind nearby wall must select a viable flank",
+            "repeated wall scans must not randomly reverse a committed flank",
+            "stuck NPC must abandon blocked cover and resume movement",
+        ):
+            self.assertIn(marker, RUNTIME)
+
+
+if __name__ == "__main__":
+    unittest.main()
