@@ -77,6 +77,8 @@ var spawn_clock: float = 0.0
 var spawn_retry_count: int = 0
 var wave_reconcile_timer: float = 0.0
 var shop_open: bool = false
+var shop_refresh_remaining := 0.0
+var shop_feedback: Label
 var shop_id: String = ""
 var shop_page: int = 0
 var shop_prev_button: Button
@@ -177,6 +179,10 @@ func _process(delta: float) -> void:
     reward_timer = maxf(0.0, reward_timer - delta)
     report_remaining = maxf(0.0, report_remaining - delta)
     banner_timer = maxf(0.0, banner_timer - delta)
+    if shop_open:
+        shop_refresh_remaining -= delta
+        if shop_refresh_remaining <= 0.0:
+            _render_shop()
     _refresh_ui()
 
 func _physics_process(delta: float) -> void:
@@ -659,6 +665,7 @@ func _open_shop(id: String) -> void:
     shop_id = id
     shop_page = 0
     shop_open = true
+    shop_feedback.text = ""
     player.controls_locked = true
     Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
     _render_shop()
@@ -672,6 +679,7 @@ func _close_shop() -> void:
         Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 
 func _render_shop() -> void:
+    shop_refresh_remaining = 0.2
     var titles := {"weapons":"ARSENAL DE ARMAS", "gear":"EQUIPAMENTOS", "support":"CENTRAL DE SUPORTE"}
     shop_title_hud.text = titles[shop_id]
     shop_wallet_hud.text = "SALDO   $%d" % wallet
@@ -823,7 +831,7 @@ func _call_squad() -> void:
     if ally_tokens <= 0:
         _notify("COMPRE UM ESQUADRAO NA ESTACAO DE SUPORTE", 2.5)
         return
-    if get_tree().get_nodes_in_group("allies").size() >= 6:
+    if get_tree().get_nodes_in_group("allies").size() + 2 > 6:
         _notify("LIMITE DE 6 SOLDADOS ALIADOS ATIVOS", 2.5)
         return
     ally_tokens -= 1
@@ -1063,6 +1071,8 @@ func _save_record() -> void:
         file.store_string(str(record_wave))
 
 func _notify(what: String, duration: float) -> void:
+    if shop_open:
+        shop_feedback.text = what
     status_text = what
     status_timer = duration
 
@@ -1232,6 +1242,7 @@ func _create_ui() -> void:
         option.pressed.connect(_buy.bind(i))
         shop_panel.add_child(option)
         shop_option_buttons.append(option)
+    shop_feedback = _add_label(shop_panel, Vector2(26, 63), Vector2(558, 24), 16)
     shop_hud = _add_label(shop_panel, Vector2(33, 401), Vector2(540, 20), 14)
     shop_prev_button = Button.new()
     shop_prev_button.text = "ANTERIOR"
@@ -1426,6 +1437,7 @@ func _refresh_ui() -> void:
     reward_hud.visible = reward_timer > 0.0 and not shop_open and not player.dead
     if reward_hud.visible:
         reward_hud.modulate.a = minf(1.0, reward_timer * 2.0)
+    shop_feedback.visible = status_timer > 0.0
     shop_panel.visible = shop_open and not player.dead
     # The three interactive shop tabs stay available; gameplay HUD is hidden
     # behind the shop so a separate menu never competes with live combat labels.

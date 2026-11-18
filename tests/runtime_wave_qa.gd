@@ -187,7 +187,7 @@ func _run_tests() -> void:
     game.player.magazines["pistol"] = 2
     game.player.health = 75.0
     game.player.armor = 75.0
-    game._render_shop()
+    game._process(0.21)
     _expect(not game.shop_option_buttons[0].disabled
         and not game.shop_option_buttons[1].disabled
         and not game.shop_option_buttons[2].disabled,
@@ -197,6 +197,7 @@ func _run_tests() -> void:
     game._buy(2) # Heal, 90
     _expect(game.wallet == full_wallet_before - 300,
         "partial consumable purchases charged the wrong total")
+    _expect(game.shop_feedback.text.contains("COMPRADO"), "purchase feedback missing inside shop")
     var shop_weapon_specs: Dictionary = game.player.get_script().get_script_constant_map().get("WEAPONS", {})
     _expect(game.player.magazines["pistol"] == int(shop_weapon_specs["pistol"]["mag"])
         and game.player.reserves["pistol"] == int(shop_weapon_specs["pistol"]["reserve"]),
@@ -719,6 +720,18 @@ func _run_tests() -> void:
             for child in part.get_children():
                 pending.append(child)
         _expect(found_palette, "weapon GLB palette was not applied on runtime mesh")
+    var occupied_slots: Array[Node] = []
+    for slot in range(5):
+        var ally_slot := Node.new()
+        game.add_child(ally_slot)
+        ally_slot.add_to_group("allies")
+        occupied_slots.append(ally_slot)
+    game.ally_tokens = 1
+    game._call_squad()
+    _expect(game.ally_tokens == 1 and get_nodes_in_group("allies").size() == 5,
+        "deploying a pair requires two free ally slots and must preserve the token")
+    for ally_slot in occupied_slots:
+        ally_slot.free()
     # Previous allied rigs were broken. Spawn and animate two support soldiers.
     game.ally_tokens = 1
     game._call_squad()
