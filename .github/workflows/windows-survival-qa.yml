@@ -35,6 +35,6 @@ jobs:
           Get-Content export.log
           if ($export.ExitCode -ne 0) { exit 1 }
           Push-Location build
-          $p = Start-Process .\FrontlineSurvival.exe -ArgumentList '--headless','--fixed-fps','60','--log-file','partida.log','--script','res://tests/fifteen_waves_qa.gd' -PassThru -Wait
+          $p = Start-Process .\FrontlineSurvival.exe -ArgumentList '--headless','--fixed-fps','60','--log-file','partida.log','--','--qa-15-waves' -PassThru -Wait
           Get-Content partida.log
           if ($p.ExitCode -ne 0 -or !(Select-String -Path partida.log -SimpleMatch -Pattern 'QA_15_WAVES_PASS') -or (Select-String -Path partida.log -Pattern 'SCRIPT ERROR|^ERROR:')) { exit 1 }

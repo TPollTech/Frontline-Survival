@@ -151,6 +151,8 @@ func _ready() -> void:
     game_menu.resume_requested.connect(_on_resume)
     game_menu.restart_requested.connect(_restart_game)
     game_menu.open_main()
+    if "--qa-15-waves" in OS.get_cmdline_user_args():
+        add_child(preload("res://tests/fifteen_waves_qa.gd").new())
     _notify("CAMPO DE TESTES  |  ONDAS CONTINUAS", 3.0)
 
 func _on_game_start() -> void:
