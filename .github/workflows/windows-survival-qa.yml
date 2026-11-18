@@ -23,10 +23,13 @@ jobs:
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Path build
-          godot --headless --editor --import
-          if ($LASTEXITCODE -ne 0) { exit 1 }
-          godot --headless --export-release "Windows Desktop" build/FrontlineSurvival.exe
-          if ($LASTEXITCODE -ne 0) { exit 1 }
+          $editor = (Get-Command godot).Source
+          $import = Start-Process $editor -ArgumentList '--headless --editor --import --log-file import.log' -Wait -PassThru
+          Get-Content import.log
+          if ($import.ExitCode -ne 0) { exit 1 }
+          $export = Start-Process $editor -ArgumentList '--headless --log-file export.log --export-release "Windows Desktop" build/FrontlineSurvival.exe' -Wait -PassThru
+          Get-Content export.log
+          if ($export.ExitCode -ne 0) { exit 1 }
           Push-Location build
           $p = Start-Process .\FrontlineSurvival.exe -ArgumentList '--headless','--fixed-fps','60','--log-file','partida.log','--script','res://tests/fifteen_waves_qa.gd' -PassThru -Wait
           Get-Content partida.log
