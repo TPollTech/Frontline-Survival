@@ -228,6 +228,8 @@ func _unhandled_input(event: InputEvent) -> void:
         if event.keycode == KEY_ENTER or event.keycode == KEY_KP_ENTER:
             get_tree().reload_current_scene()
         return
+    if player.downed:
+        return
     if event.keycode == KEY_F:
         if shop_open:
             _close_shop()
@@ -867,7 +869,7 @@ func _call_airstrike() -> void:
     marker.material_override = marker_mat
     marker.position = Vector3(target.x, 0.06, target.z)
     add_child(marker)
-    var timer := get_tree().create_timer(1.0)
+    var timer := get_tree().create_timer(1.0, false)
     timer.timeout.connect(_airstrike_impact.bind(target, marker))
 
 func _airstrike_impact(at: Vector3, marker: MeshInstance3D) -> void:
@@ -1393,8 +1395,9 @@ func _refresh_ui() -> void:
         challenges_hud.text = "METAS +$500: %s  /  %s" % [
             round_stats.active_challenges[0], round_stats.active_challenges[1]
         ]
-    var shop_near := _nearest_shop() if not player.dead else ""
-    var loot_near := _nearest_loot() if not player.dead else null
+    var can_interact := not player.dead and not player.downed and not shop_open
+    var shop_near := _nearest_shop() if can_interact else ""
+    var loot_near := _nearest_loot() if can_interact else null
     if shop_open:
         help_hud.text = ""
     elif loot_near != null:
@@ -1435,4 +1438,4 @@ func _refresh_ui() -> void:
     damage_overlay.color.a = (1.0 - player.health / 100.0) * 0.09 + player.damage_anim * 0.12
     death_panel.visible = player.dead and not GameSettings.training_respawns
     if death_panel.visible:
-        death_hud.text = "FIM DE JOGO\nOnda %d  |  %d abates\nENTER para recomecar" % [wave, kills]
+        death_hud.text = "FIM DE JOGO\nOnda %d  |  %d abates\nRecorde: onda %d\nENTER para recomecar" % [wave, kills, record_wave]
