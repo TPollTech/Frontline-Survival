@@ -15,7 +15,7 @@ const MAX_CORPSES := 12
 const MAX_LOOT := 18
 const MAX_BLOOD_EFFECTS := 14
 const INITIAL_PREPARATION_SECONDS := 25.0
-const TEST_STARTING_CREDITS := 1200
+const TEST_STARTING_CREDITS := 3500 # Training-map budget: sniper + 2x + 4x available from start.
 const MAP_ID := "campo_de_testes"
 const SHOP_OPTIONS := {
     "weapons": [
@@ -26,7 +26,10 @@ const SHOP_OPTIONS := {
         ["Mira Red Dot (arma atual)", 190, "red_dot"],
         ["Mira Holografica (arma atual)", 240, "holo"],
         ["Silenciador (arma atual)", 270, "suppressor"],
-        ["Compensador (arma atual)", 180, "compensator"]
+        ["Compensador (arma atual)", 180, "compensator"],
+        ["MRS-7 Sniper (iron sight)", 1600, "sniper"],
+        ["Luneta 2x da sniper", 650, "scope_2x"],
+        ["Luneta 4x da sniper (exige 2x)", 1000, "scope_4x"]
     ],
     "gear": [
         ["Repor municao", 80, "ammo"],
@@ -682,22 +685,25 @@ func _render_shop() -> void:
             var entry: Array = options[real_index]
             var item_id: String = str(entry[2])
             var already_owned := (
-                item_id in ["smg", "rifle", "shotgun", "lmg"] and player.owned_weapons.has(item_id)
+                item_id in ["smg", "rifle", "shotgun", "lmg", "sniper"] and player.owned_weapons.has(item_id)
             )
             var already_equipped := (
-                item_id in ["red_dot", "holo", "suppressor", "compensator"]
-                and player.has_attachment("optic" if item_id in ["red_dot", "holo"] else "muzzle", item_id)
+                item_id in ["red_dot", "holo", "scope_2x", "scope_4x", "suppressor", "compensator"]
+                and player.has_attachment("optic" if item_id in ["red_dot", "holo", "scope_2x", "scope_4x"] else "muzzle", item_id)
             ) or (item_id.begins_with("perk_") and player.active_perk == item_id.substr(5))
             var resource_full_reason: String = _shop_resource_full_reason(item_id)
+            var optic_block_reason: String = _shop_optic_block_reason(item_id)
             if already_owned:
                 button.text = "%d   %s       EQUIPAR" % [i + 1, entry[0]]
             elif already_equipped:
                 button.text = "%d   %s       EQUIPADO" % [i + 1, entry[0]]
             elif resource_full_reason != "":
                 button.text = "%d   %s       CHEIO" % [i + 1, entry[0]]
+            elif optic_block_reason != "":
+                button.text = "%d   %s       %s" % [i + 1, entry[0], optic_block_reason]
             else:
                 button.text = "%d   %s       $%d" % [i + 1, entry[0], entry[1]]
-            button.disabled = already_equipped or resource_full_reason != "" or (not already_owned and wallet < int(entry[1]))
+            button.disabled = already_equipped or resource_full_reason != "" or optic_block_reason != "" or (not already_owned and wallet < int(entry[1]))
     shop_prev_button.disabled = shop_page <= 0
     shop_next_button.disabled = (shop_page + 1) * 5 >= options.size()
     for id in shop_tab_buttons:
@@ -737,6 +743,20 @@ func _shop_resource_full_reason(id: String) -> String:
                 return "VIDA JA ESTA COMPLETA"
     return ""
 
+func _shop_optic_block_reason(id: String) -> String:
+    if id in ["red_dot", "holo"] and player.weapon_id == "sniper":
+        return "INCOMPATIVEL"
+    if id not in ["scope_2x", "scope_4x"]:
+        return ""
+    if player.weapon_id != "sniper" or not player.owned_weapons.has("sniper"):
+        return "EQUIPE SNIPER"
+    var current: String = player._sniper_scope()
+    if current == "scope_4x" or (id == "scope_2x" and current != ""):
+        return "JA ADQUIRIDA"
+    if id == "scope_4x" and current != "scope_2x":
+        return "EXIGE LUNETA 2X"
+    return ""
+
 func _buy(index: int) -> void:
     if not shop_open or not SHOP_OPTIONS.has(shop_id):
         return
@@ -747,7 +767,7 @@ func _buy(index: int) -> void:
     var item: Array = options[real_index]
     var price: int = item[1]
     var id: String = item[2]
-    if id in ["smg", "rifle", "shotgun", "lmg"] and player.owned_weapons.has(id):
+    if id in ["smg", "rifle", "shotgun", "lmg", "sniper"] and player.owned_weapons.has(id):
         player.equip(id)
         _notify("EQUIPADA: " + str(item[0]), 2.0)
         _render_shop()
@@ -757,11 +777,16 @@ func _buy(index: int) -> void:
         _notify(full_reason, 1.6)
         _render_shop()
         return
+    var optic_block_reason: String = _shop_optic_block_reason(id)
+    if optic_block_reason != "":
+        _notify(optic_block_reason, 1.9)
+        _render_shop()
+        return
     if wallet < price:
         _notify("Dinheiro insuficiente!", 2.0)
         return
-    if id in ["red_dot", "holo", "suppressor", "compensator"]:
-        var slot := "optic" if id in ["red_dot", "holo"] else "muzzle"
+    if id in ["red_dot", "holo", "scope_2x", "scope_4x", "suppressor", "compensator"]:
+        var slot := "optic" if id in ["red_dot", "holo", "scope_2x", "scope_4x"] else "muzzle"
         if player.has_attachment(slot, id):
             _notify("ACESSORIO JA INSTALADO", 1.5)
             return
@@ -781,11 +806,11 @@ func _buy(index: int) -> void:
     if phase == "wave":
         round_stats.spent(price)
     match id:
-        "smg", "rifle", "shotgun", "lmg":
+        "smg", "rifle", "shotgun", "lmg", "sniper":
             player.equip(id)
         "ammo":
             player.refill_ammo()
-        "red_dot", "holo":
+        "red_dot", "holo", "scope_2x", "scope_4x":
             player.install_attachment("optic", id)
         "suppressor", "compensator":
             player.install_attachment("muzzle", id)
@@ -1377,10 +1402,16 @@ func _refresh_ui() -> void:
         waves_hud.text = "REANIME  %02ds" % ceili(player.downed_seconds)
 
     var gun_name: String = SurvivalPlayer.WEAPONS[player.weapon_id]["name"]
+    if player.weapon_id == "sniper":
+        var equipped_scope: String = player._sniper_scope()
+        gun_name += "  |  " + ("MIRA 4X" if equipped_scope == "scope_4x" else ("MIRA 2X" if equipped_scope == "scope_2x" else "IRON SIGHT"))
     weapon_name_hud.text = gun_name.to_upper()
     ammo_hud.text = str(player.magazines[player.weapon_id])
     ammo_reserve_hud.text = "/ %d" % int(player.reserves[player.weapon_id])
-    ammo_reload_hud.text = "RECARREGANDO" if player.reloading else ""
+    ammo_reload_hud.text = "RECARREGANDO" if player.reloading else (
+        "QUICK SCOPE" if player.weapon_id == "sniper" and player.aim
+        and player.sniper_ads_seconds >= 0.11 and player.sniper_ads_seconds <= 0.36 else ""
+    )
     support_hud.text = "G FRAG %d    3 REF %d    4 AÉREO %d\nKIT %d     PERK %s" % [
         grenades, ally_tokens, airstrike_tokens, player.self_revive_kits,
         player.active_perk.to_upper() if player.active_perk != "" else "—"
