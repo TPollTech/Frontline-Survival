@@ -78,7 +78,7 @@ class MRS7SniperContracts(unittest.TestCase):
     def test_recorded_wav_not_generated_beeps(self):
         self.assertIn('"sniper": preload("res://assets/audio/weapons/rifle.wav")', AUDIO)
         self.assertIn('"sniper": preload("res://assets/audio/reloads/rifle.wav")', AUDIO)
-        self.assertIn('shot_sound.pitch_scale = 0.76 if weapon_id == "sniper"', PLAYER)
+        self.assertIn('shot_sound.pitch_scale = 0.64 if weapon_id == "bolt_sniper" else (0.76 if weapon_id == "sniper"', PLAYER)
 
     def test_integration_checks_all_purchase_and_quick_scope_paths(self):
         for marker in ("sniper did not start with iron sights",

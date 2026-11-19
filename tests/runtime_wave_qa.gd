@@ -261,13 +261,13 @@ func _run_tests() -> void:
     game.player.sprint_blend = 0.0
     game.player.suppress_fire_until_release = false
     var first_bolt_serial: int = game.player.shot_serial
-    game.player.shoot()
+    game.player.shoot(Input.MOUSE_MODE_CAPTURED)
     _expect(game.player.magazines["bolt_sniper"] == 3
         and game.player.shot_serial == first_bolt_serial + 1
         and game.player.bolt_cycle_remaining > 1.40,
         "VLR-8 first shot must open the bolt and consume exactly one round")
     game.player.fire_timer = 0.0 # Attempt to bypass rate cooldown.
-    game.player.shoot()
+    game.player.shoot(Input.MOUSE_MODE_CAPTURED)
     _expect(game.player.magazines["bolt_sniper"] == 3
         and game.player.shot_serial == first_bolt_serial + 1,
         "bolt-action firing cannot bypass an unchambered round")
@@ -281,7 +281,7 @@ func _run_tests() -> void:
     game.player.equip("bolt_sniper")
     game.player.fire_timer = 0.0
     game.player.equip_anim_timer = 0.0
-    game.player.shoot()
+    game.player.shoot(Input.MOUSE_MODE_CAPTURED)
     _expect(game.player.magazines["bolt_sniper"] == 3,
         "weapon swapping must not reset incomplete bolt cycling")
     game.player._advance_bolt_cycle(1.0)
@@ -289,7 +289,7 @@ func _run_tests() -> void:
         "bolt cycle should finish and close the chamber")
     game.player.fire_timer = 0.0
     game.player.equip_anim_timer = 0.0
-    game.player.shoot()
+    game.player.shoot(Input.MOUSE_MODE_CAPTURED)
     _expect(game.player.magazines["bolt_sniper"] == 2
         and game.player.shot_serial == first_bolt_serial + 2,
         "VLR-8 must fire again after the bolt closes")

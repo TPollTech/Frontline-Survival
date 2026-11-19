@@ -481,10 +481,10 @@ func _input(event: InputEvent) -> void:
             else:
                 switch_weapon("pistol")
 
-func shoot() -> void:
+func shoot(mouse_mode: int = Input.get_mouse_mode()) -> void:
     if dead or controls_locked or reloading or suppress_fire_until_release or pending_weapon_id != "":
         return
-    if Input.get_mouse_mode() != Input.MOUSE_MODE_CAPTURED or sprint_blend > 0.22:
+    if mouse_mode != Input.MOUSE_MODE_CAPTURED or sprint_blend > 0.22:
         return
     if grenade_throw_timer > 0.0 or melee_timer > 0.0 or equip_anim_timer > 0.0 or fire_timer > 0.0:
         return

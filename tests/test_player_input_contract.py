@@ -57,29 +57,29 @@ class PlayerInputContractTests(unittest.TestCase):
 
     def test_mouse_look_requires_capture_and_clamps_pitch(self):
         events = self.source.split("func _input(event: InputEvent) -> void:", 1)[1]
-        events = events.split("\nfunc shoot() -> void:", 1)[0]
+        events = events.split("\nfunc shoot(mouse_mode: int = Input.get_mouse_mode()) -> void:", 1)[0]
         self.assertIn(
             "Input.get_mouse_mode() == Input.MOUSE_MODE_CAPTURED and not controls_locked and not dead:",
             events,
         )
         self.assertIn("rotate_y(-event.relative.x * 0.002 * GameSettings.mouse_sensitivity * scope_sensitivity)", events)
-        self.assertIn('if weapon_id == "sniper" and aim:', events)
+        self.assertIn('if weapon_id in ["sniper", "bolt_sniper"] and aim:', events)
         self.assertIn("scope_sensitivity = 0.42", events)
         self.assertIn("camera.rotation.x = clampf(camera.rotation.x, -1.45, 1.45)", events)
 
     def test_weapon_scroll_requires_captured_mouse(self):
         events = self.source.split("func _input(event: InputEvent) -> void:", 1)[1]
-        events = events.split("func shoot() -> void:", 1)[0]
+        events = events.split("func shoot(mouse_mode: int = Input.get_mouse_mode()) -> void:", 1)[0]
         self.assertIn(
             "not controls_locked and Input.get_mouse_mode() == Input.MOUSE_MODE_CAPTURED:",
             events,
         )
 
     def test_shoot_checks_mouse_capture(self):
-        shoot = self.source.split("func shoot() -> void:", 1)[1]
+        shoot = self.source.split("func shoot(mouse_mode: int = Input.get_mouse_mode()) -> void:", 1)[1]
         shoot = shoot.split("\nfunc ", 1)[0]
         self.assertIn("suppress_fire_until_release", shoot)
-        self.assertIn("Input.get_mouse_mode() != Input.MOUSE_MODE_CAPTURED", shoot)
+        self.assertIn("mouse_mode != Input.MOUSE_MODE_CAPTURED", shoot)
 
     def test_recovery_click_suppresses_automatic_fire(self):
         self.assertIn("suppress_fire_until_release = true", self.source)

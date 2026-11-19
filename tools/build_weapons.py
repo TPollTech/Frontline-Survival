@@ -336,7 +336,7 @@ def bolt_sniper():
     g.chamfer((0.0, -.225, -.06), (.101, .177, .142), 'black', .012, name='magazine_box')
     g.chamfer((0.0, -.31, -.065), (.11, .025, .15), 'steel', .006, name='magazine_heel')
     g.cylinder((0.0, .050, -.85), .023, 1.20, 'steel', sections=16, name='long_barrel')
-    g.chamfer((0.0, .053, -1.42), (.052, .069, .086), 'black', .010, name='front_sight_base')
+    g.chamfer((0.0, .053, -1.42), (.052, .069, .086), 'black', .010, name='fixed_front_sight_base')
     g.ring((0.0, .051, -1.47), .032, .017, .065, 'steel', name='open_muzzle')
     # Rear notch and forward blade allow proper scoped and unscoped tests.
     for side in (-.032,.032):
@@ -347,7 +347,7 @@ def bolt_sniper():
     g.chamfer((.048,.090,.03),(.043,.043,.26),'steel',.008,name='charging_handle_bolt_body')
     g.rod((.094,.092,.08),(.178,.10,.07),.012,'steel',name='charging_handle_stem')
     g.cylinder((.182,.102,.07),.020,.037,'black',angles=(0,np.pi/2,0),name='charging_handle_knob')
-    g.chamfer((.073,.102,-.04),(.012,.035,.17),'recess',.004,name='ejection_port')
+    g.chamfer((.073,.102,-.04),(.012,.035,.17),'recess',.004,name='fixed_ejection_port')
     g.save('bolt_sniper')
 
 
