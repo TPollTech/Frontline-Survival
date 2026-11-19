@@ -53,7 +53,7 @@ class FPSAnimationContractTests(unittest.TestCase):
         for weapon in ("smg", "rifle", "lmg"):
             self.assertIn(f'"{weapon}": Vector3(', PLAYER)
         self.assertIn("const MAGAZINE_GRIP_POINTS", PLAYER)
-        self.assertIn("support_palm_rest = Vector3(-0.075, -0.085, support_z - 0.06)", self.body("_update_gun_mesh"))
+        self.assertIn("support_palm_rest = Vector3(-0.045, -0.042, support_z)", self.body("_update_gun_mesh"))
         self.assertIn("support_palm_rest = Vector3.ZERO", self.body("_update_gun_mesh"))
 
     def test_reload_hand_tracks_real_mag_mesh_and_restores_idle(self):

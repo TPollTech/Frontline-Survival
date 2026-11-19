@@ -1,0 +1,60 @@
+name: Partida de 15 ondas no Windows
+on:
+  pull_request:
+    paths:
+      - 'scripts/**'
+      - 'tests/fifteen_waves_qa.gd'
+      - '.github/workflows/windows-survival-qa.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  partida:
+    runs-on: windows-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.6.3
+          use-dotnet: false
+          include-templates: true
+      - name: Exportar e testar o executável
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Path build
+          $zip = Join-Path $env:RUNNER_TEMP 'godot-win.zip'
+          curl.exe -fsSL --retry 2 'https://github.com/godotengine/godot/releases/download/4.6.3-stable/Godot_v4.6.3-stable_win64.exe.zip' -o $zip
+          $dir = Join-Path $env:RUNNER_TEMP 'godot-win'
+          Expand-Archive $zip $dir
+          $editor = (Get-ChildItem $dir -Recurse -Filter '*win64.exe' | Select-Object -First 1).FullName
+          $import = Start-Process $editor -ArgumentList '--headless --editor --import --log-file import.log' -Wait -PassThru
+          Get-Content import.log
+          if ($import.ExitCode -ne 0) { exit 1 }
+          $export = Start-Process $editor -ArgumentList '--headless --log-file export.log --export-release "Windows Desktop" build/FrontlineSurvival.exe' -Wait -PassThru
+          Get-Content export.log
+          if ($export.ExitCode -ne 0) { exit 1 }
+          Push-Location build
+          $p = Start-Process .\FrontlineSurvival.exe -ArgumentList '--headless','--fixed-fps','60','--log-file','partida.log','--','--qa-15-waves' -PassThru -Wait
+          Get-Content partida.log
+          if ($p.ExitCode -ne 0 -or !(Select-String -Path partida.log -SimpleMatch -Pattern 'QA_15_WAVES_PASS') -or (Select-String -Path partida.log -Pattern 'SCRIPT ERROR|^ERROR:')) { exit 1 }
+  visual:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.6.3
+          use-dotnet: false
+          include-templates: false
+      - run: godot --headless --editor --import
+      - name: Capturar armas na câmera de jogo
+        run: xvfb-run -a -s '-screen 0 1280x720x24' godot --rendering-driver opengl3 --script tests/viewmodel_qa_snapshot.gd
+      - uses: actions/upload-artifact@v4
+        with:
+          name: primeira-pessoa
+          path: |
+            docs/qa/viewmodel_current.png
+            docs/qa/sentinela.png
+          retention-days: 7

@@ -125,7 +125,7 @@ func _detonate() -> void:
     if explosion_sound.stream != null:
         explosion_sound.play()
     detonated.emit(targets_hit)
-    get_tree().create_timer(EFFECT_LIFETIME).timeout.connect(queue_free)
+    get_tree().create_timer(EFFECT_LIFETIME, false).timeout.connect(queue_free)
 
 func _damage_enemies(origin: Vector3) -> int:
     var count: int = 0

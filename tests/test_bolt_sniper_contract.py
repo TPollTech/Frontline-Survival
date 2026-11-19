@@ -28,7 +28,7 @@ class VLR8BoltSniperContracts(unittest.TestCase):
 
     def test_separate_weapon_station_purchase(self):
         self.assertIn('["VLR-8 Sniper Bolt Action (iron sight)", 1800, "bolt_sniper"]',MAIN)
-        self.assertIn('"sniper", "bolt_sniper"] and player.owned_weapons.has(id)',MAIN)
+        self.assertIn('"sniper", "bolt_sniper", "sentinela"] and player.owned_weapons.has(id)',MAIN)
 
     def test_mechanical_chamber_prevents_double_fire(self):
         shot=body(PLAYER,"shoot")

@@ -30,7 +30,9 @@ const SHOP_OPTIONS := {
         ["MRS-7 Sniper (iron sight)", 1600, "sniper"],
         ["Luneta 2x da sniper", 650, "scope_2x"],
         ["Luneta 4x da sniper (exige 2x)", 1000, "scope_4x"],
-        ["VLR-8 Sniper Bolt Action (iron sight)", 1800, "bolt_sniper"]
+        ["VLR-8 Sniper Bolt Action (iron sight)", 1800, "bolt_sniper"],
+        ["Sentinela · Fuzil de precisão", 850, "sentinela"],
+        ["Luneta 4× · Sentinela", 320, "scope4"]
     ],
     "gear": [
         ["Repor municao", 80, "ammo"],
@@ -81,6 +83,8 @@ var spawn_clock: float = 0.0
 var spawn_retry_count: int = 0
 var wave_reconcile_timer: float = 0.0
 var shop_open: bool = false
+var shop_refresh_remaining := 0.0
+var shop_feedback: Label
 var shop_id: String = ""
 var shop_page: int = 0
 var shop_prev_button: Button
@@ -173,6 +177,22 @@ func _read_checkpoint() -> Dictionary:
     for key in PLAYER_FIELDS:
         if typeof(data.get(key)) != typeof(player.get(key)):
             return {}
+    # Legacy Sentinela saves predate the independent bolt rifle inventory.
+    if data.magazines.has("sniper") and not data.magazines.has("bolt_sniper"):
+        for key in ["magazines", "reserves", "weapon_upgrades", "weapon_attachments"]:
+            if data[key].has("sniper"):
+                data[key]["sentinela"] = data[key]["sniper"]
+                data[key].erase("sniper")
+        var index: int = data.owned_weapons.find("sniper")
+        if index >= 0:
+            data.owned_weapons[index] = "sentinela"
+        for key in ["weapon", "last_primary"]:
+            if data.get(key) == "sniper":
+                data[key] = "sentinela"
+    for id in ["sniper", "bolt_sniper", "sentinela"]:
+        if not data.magazines.has(id) and not id in data.owned_weapons:
+            data.magazines[id] = SurvivalPlayer.WEAPONS[id].mag
+            data.reserves[id] = SurvivalPlayer.WEAPONS[id].reserve
     for id in SurvivalPlayer.WEAPONS:
         if not data.magazines.get(id) is int or not data.reserves.get(id) is int:
             return {}
@@ -249,6 +269,8 @@ func _ready() -> void:
     briefing_camera.make_current()
     combat_hud_root.hide()
     game_menu.open_main()
+    if "--qa-15-waves" in OS.get_cmdline_user_args():
+        add_child(preload("res://tests/fifteen_waves_qa.gd").new())
     _notify("CAMPO DE TESTES  |  ONDAS CONTINUAS", 3.0)
 
 func _on_game_start() -> void:
@@ -282,6 +304,10 @@ func _process(delta: float) -> void:
     reward_timer = maxf(0.0, reward_timer - delta)
     report_remaining = maxf(0.0, report_remaining - delta)
     banner_timer = maxf(0.0, banner_timer - delta)
+    if shop_open:
+        shop_refresh_remaining -= delta
+        if shop_refresh_remaining <= 0.0:
+            _render_shop()
     _refresh_ui()
 
 func _physics_process(delta: float) -> void:
@@ -333,6 +359,8 @@ func _unhandled_input(event: InputEvent) -> void:
         if event.keycode == KEY_ENTER or event.keycode == KEY_KP_ENTER:
             get_tree().reload_current_scene()
         return
+    if player.downed:
+        return
     if event.keycode == KEY_F:
         if shop_open:
             _close_shop()
@@ -366,18 +394,22 @@ func _create_world() -> void:
     environment.background_mode = Environment.BG_SKY
     var sky := Sky.new()
     var sky_mat := ProceduralSkyMaterial.new()
-    sky_mat.sky_top_color = Color(0.26, 0.51, 0.76)
-    sky_mat.sky_horizon_color = Color(0.73, 0.82, 0.86)
+    sky_mat.sky_top_color = Color(0.25, 0.38, 0.49)
+    sky_mat.sky_horizon_color = Color(0.78, 0.76, 0.70)
     sky_mat.ground_bottom_color = Color(0.17, 0.20, 0.19)
     sky.sky_material = sky_mat
     environment.sky = sky
     environment.ambient_light_source = Environment.AMBIENT_SOURCE_SKY
     environment.ambient_light_energy = 0.65
+    environment.fog_enabled = true
+    environment.fog_light_color = Color(0.64, 0.68, 0.69)
+    environment.fog_density = 0.0025
     world_env.environment = environment
     add_child(world_env)
     var sun := DirectionalLight3D.new()
-    sun.rotation_degrees = Vector3(-52, -32, 0)
-    sun.light_energy = 1.15
+    sun.rotation_degrees = Vector3(-32, -49, 0)
+    sun.light_color = Color(1.0, 0.90, 0.77)
+    sun.light_energy = 1.24
     sun.shadow_enabled = true
     add_child(sun)
     var ground := _add_box(Vector3(0, -0.5, 0), Vector3(52, 1, 52), Color(0.83, 0.87, 0.83))
@@ -509,6 +541,10 @@ func _add_box(pos: Vector3, dimensions: Vector3, tint: Color, solid: bool = true
     cube.size = dimensions
     model.mesh = cube
     var mat := StandardMaterial3D.new()
+    if solid and dimensions.y > 4.0 and maxf(dimensions.x, dimensions.z) > 30.0:
+        mat.albedo_texture = preload("res://assets/textures/depot_concrete.png")
+        mat.uv1_triplanar = true
+        mat.uv1_scale = Vector3.ONE * 0.27
     mat.albedo_color = tint
     mat.roughness = 0.92
     model.material_override = mat
@@ -540,8 +576,10 @@ func _begin_wave() -> void:
     if shop_open:
         _close_shop()
     wave += 1
-    record_wave = maxi(record_wave, wave)
-    _save_record()
+    if wave > record_wave:
+        record_wave = wave
+        if not "--qa-15-waves" in OS.get_cmdline_user_args():
+            _save_record()
     phase = "wave"
     report_remaining = 0.0
     wave_kills = 0
@@ -724,13 +762,16 @@ func _end_wave() -> void:
     previous_wave_kills = wave_kills
     var bonus := 60 + wave * 20
     wallet += bonus
+    var health_before := player.health
     player.heal(15.0)
+    var recovered := roundi(player.health) - roundi(health_before)
     round_stats.finish(bonus)
     var accuracy_value: float = round_stats.accuracy()
     var accuracy_text := "--" if accuracy_value < 0.0 else "%d%%" % roundi(accuracy_value)
     # One compact, temporary recap; no central modal, no repeated countdown.
-    round_report.text = "ONDA %02d CONCLUIDA   +$%d  |  +15 VIDA\n%d ABATES   •   %d HEADSHOTS   •   PRECISAO %s" % [
-        wave, bonus, previous_wave_kills, round_stats.headshot_kills, accuracy_text
+    round_report.text = "ONDA %02d CONCLUIDA   +$%d%s\n%d ABATES   •   %d HEADSHOTS   •   PRECISAO %s" % [
+        wave, bonus, "  |  +%d VIDA" % recovered if recovered > 0 else "",
+        previous_wave_kills, round_stats.headshot_kills, accuracy_text
     ]
     report_remaining = 4.0
     banner_timer = 0.0
@@ -763,6 +804,7 @@ func _open_shop(id: String) -> void:
     shop_id = id
     shop_page = 0
     shop_open = true
+    shop_feedback.text = ""
     player.controls_locked = true
     Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
     _render_shop()
@@ -776,6 +818,7 @@ func _close_shop() -> void:
         Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 
 func _render_shop() -> void:
+    shop_refresh_remaining = 0.2
     var titles := {"weapons":"ARSENAL DE ARMAS", "gear":"EQUIPAMENTOS", "support":"CENTRAL DE SUPORTE"}
     shop_title_hud.text = titles[shop_id]
     shop_wallet_hud.text = "SALDO   $%d" % wallet
@@ -788,11 +831,11 @@ func _render_shop() -> void:
             var entry: Array = options[real_index]
             var item_id: String = str(entry[2])
             var already_owned := (
-                item_id in ["smg", "rifle", "shotgun", "lmg", "sniper", "bolt_sniper"] and player.owned_weapons.has(item_id)
+                item_id in ["smg", "rifle", "shotgun", "lmg", "sniper", "bolt_sniper", "sentinela"] and player.owned_weapons.has(item_id)
             )
             var already_equipped := (
-                item_id in ["red_dot", "holo", "scope_2x", "scope_4x", "suppressor", "compensator"]
-                and player.has_attachment("optic" if item_id in ["red_dot", "holo", "scope_2x", "scope_4x"] else "muzzle", item_id)
+                item_id in ["red_dot", "holo", "scope_2x", "scope4", "scope_4x", "suppressor", "compensator"]
+                and player.has_attachment("optic" if item_id in ["red_dot", "holo", "scope_2x", "scope4", "scope_4x"] else "muzzle", item_id)
             ) or (item_id.begins_with("perk_") and player.active_perk == item_id.substr(5))
             var resource_full_reason: String = _shop_resource_full_reason(item_id)
             var optic_block_reason: String = _shop_optic_block_reason(item_id)
@@ -834,6 +877,9 @@ func _shop_resource_full_reason(id: String) -> String:
     # Guard purchases with no possible benefit, before removing credits.
     # A partial magazine/reserve refill is always allowed, even if one is full.
     match id:
+        "scope4":
+            if player.weapon_id != "sentinela":
+                return "EQUIPE A SENTINELA"
         "ammo":
             var stats: Dictionary = SurvivalPlayer.WEAPONS[player.weapon_id]
             if int(player.magazines[player.weapon_id]) >= int(stats["mag"]) and int(player.reserves[player.weapon_id]) >= int(stats["reserve"]):
@@ -870,7 +916,7 @@ func _buy(index: int) -> void:
     var item: Array = options[real_index]
     var price: int = item[1]
     var id: String = item[2]
-    if id in ["smg", "rifle", "shotgun", "lmg", "sniper", "bolt_sniper"] and player.owned_weapons.has(id):
+    if id in ["smg", "rifle", "shotgun", "lmg", "sniper", "bolt_sniper", "sentinela"] and player.owned_weapons.has(id):
         player.equip(id)
         _notify("EQUIPADA: " + str(item[0]), 2.0)
         _render_shop()
@@ -888,8 +934,8 @@ func _buy(index: int) -> void:
     if wallet < price:
         _notify("Dinheiro insuficiente!", 2.0)
         return
-    if id in ["red_dot", "holo", "scope_2x", "scope_4x", "suppressor", "compensator"]:
-        var slot := "optic" if id in ["red_dot", "holo", "scope_2x", "scope_4x"] else "muzzle"
+    if id in ["red_dot", "holo", "scope_2x", "scope4", "scope_4x", "suppressor", "compensator"]:
+        var slot := "optic" if id in ["red_dot", "holo", "scope_2x", "scope4", "scope_4x"] else "muzzle"
         if player.has_attachment(slot, id):
             _notify("ACESSORIO JA INSTALADO", 1.5)
             return
@@ -909,11 +955,11 @@ func _buy(index: int) -> void:
     if phase == "wave":
         round_stats.spent(price)
     match id:
-        "smg", "rifle", "shotgun", "lmg", "sniper", "bolt_sniper":
+        "smg", "rifle", "shotgun", "lmg", "sniper", "bolt_sniper", "sentinela":
             player.equip(id)
         "ammo":
             player.refill_ammo()
-        "red_dot", "holo", "scope_2x", "scope_4x":
+        "red_dot", "holo", "scope_2x", "scope4", "scope_4x":
             player.install_attachment("optic", id)
         "suppressor", "compensator":
             player.install_attachment("muzzle", id)
@@ -949,7 +995,7 @@ func _call_squad() -> void:
     if ally_tokens <= 0:
         _notify("COMPRE UM ESQUADRAO NA ESTACAO DE SUPORTE", 2.5)
         return
-    if get_tree().get_nodes_in_group("allies").size() >= 6:
+    if get_tree().get_nodes_in_group("allies").size() + 2 > 6:
         _notify("LIMITE DE 6 SOLDADOS ALIADOS ATIVOS", 2.5)
         return
     ally_tokens -= 1
@@ -995,7 +1041,7 @@ func _call_airstrike() -> void:
     marker.material_override = marker_mat
     marker.position = Vector3(target.x, 0.06, target.z)
     add_child(marker)
-    var timer := get_tree().create_timer(1.0)
+    var timer := get_tree().create_timer(1.0, false)
     timer.timeout.connect(_airstrike_impact.bind(target, marker))
 
 func _airstrike_impact(at: Vector3, marker: MeshInstance3D) -> void:
@@ -1189,6 +1235,8 @@ func _save_record() -> void:
         file.store_string(str(record_wave))
 
 func _notify(what: String, duration: float) -> void:
+    if shop_open:
+        shop_feedback.text = what
     status_text = what
     status_timer = duration
 
@@ -1358,6 +1406,7 @@ func _create_ui() -> void:
         option.pressed.connect(_buy.bind(i))
         shop_panel.add_child(option)
         shop_option_buttons.append(option)
+    shop_feedback = _add_label(shop_panel, Vector2(26, 63), Vector2(558, 24), 16)
     shop_hud = _add_label(shop_panel, Vector2(33, 401), Vector2(540, 20), 14)
     shop_prev_button = Button.new()
     shop_prev_button.text = "ANTERIOR"
@@ -1529,8 +1578,9 @@ func _refresh_ui() -> void:
         challenges_hud.text = "METAS +$500: %s  /  %s" % [
             round_stats.active_challenges[0], round_stats.active_challenges[1]
         ]
-    var shop_near := _nearest_shop() if not player.dead else ""
-    var loot_near := _nearest_loot() if not player.dead else null
+    var can_interact := not player.dead and not player.downed and not shop_open
+    var shop_near := _nearest_shop() if can_interact else ""
+    var loot_near := _nearest_loot() if can_interact else null
     if shop_open:
         help_hud.text = ""
     elif loot_near != null:
@@ -1559,6 +1609,7 @@ func _refresh_ui() -> void:
     reward_hud.visible = reward_timer > 0.0 and not shop_open and not player.dead
     if reward_hud.visible:
         reward_hud.modulate.a = minf(1.0, reward_timer * 2.0)
+    shop_feedback.visible = status_timer > 0.0
     shop_panel.visible = shop_open and not player.dead
     # The three interactive shop tabs stay available; gameplay HUD is hidden
     # behind the shop so a separate menu never competes with live combat labels.
@@ -1571,4 +1622,4 @@ func _refresh_ui() -> void:
     damage_overlay.color.a = (1.0 - player.health / 100.0) * 0.09 + player.damage_anim * 0.12
     death_panel.visible = player.dead and not GameSettings.training_respawns
     if death_panel.visible:
-        death_hud.text = "FIM DE JOGO\nOnda %d  |  %d abates\nENTER para recomecar" % [wave, kills]
+        death_hud.text = "FIM DE JOGO\nOnda %d  |  %d abates\nRecorde: onda %d\nENTER para recomecar" % [wave, kills, record_wave]

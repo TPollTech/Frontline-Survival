@@ -335,7 +335,6 @@ func _physics_process(delta: float) -> void:
     var direction := to_player.normalized() if distance > 0.1 else Vector3.ZERO
     var goal_distance := 4.5 if kind == "runner" else (10.0 if kind == "heavy" else (5.5 if weapon_class == "shotgun" else 9.0))
     var visible := _has_sight()
-    _update_obstacle_navigation(delta, direction, distance, goal_distance, visible)
     _update_tactics(delta, distance, visible)
     _update_crowd_avoidance(delta)
     var chase := distance > goal_distance or not visible
@@ -352,6 +351,11 @@ func _physics_process(delta: float) -> void:
         chase = towards_peek.length_squared() > 0.09
     elif tactical_state == "hold_cover":
         chase = false
+    if chase:
+        if tactical_state in ["seek_cover", "peek"]:
+            _update_obstacle_navigation(delta, steer, distance, 0.0, false)
+        else:
+            _update_obstacle_navigation(delta, direction, distance, goal_distance, visible)
     if detour_remaining > 0.0:
         # Blend only once with the tactical goal, preserving a committed flank.
         steer = (steer * 0.40 + detour_direction * 0.90).normalized()
@@ -373,6 +377,9 @@ func _physics_process(delta: float) -> void:
         velocity.z = steer.z * desired_speed
     elif visible and distance > 4.0 and kind != "heavy" and stagger_remaining <= 0.0:
         var lateral := Vector3(-direction.z, 0, direction.x) * strafe_sign
+        if is_on_wall() and lateral.dot(get_wall_normal()) < 0.0:
+            strafe_sign *= -1.0
+            lateral = -lateral
         velocity.x = lateral.x * 0.85
         velocity.z = lateral.z * 0.85
     else:
@@ -392,7 +399,7 @@ func _physics_process(delta: float) -> void:
     else:
         stalled_for = maxf(0.0, stalled_for - delta * 1.9)
     if stalled_for > 0.72:
-        _recover_from_stall(direction)
+        _recover_from_stall(steer)
     var moving := Vector2(velocity.x, velocity.z).length() > 0.2
     _animate_body(delta, moving)
     if chase and get_slide_collision_count() > 0 and detour_remaining <= 0.0:

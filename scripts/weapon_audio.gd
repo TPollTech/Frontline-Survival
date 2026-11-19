@@ -1,6 +1,7 @@
 extends RefCounted
 
 const SHOTS = {
+    "sentinela": preload("res://assets/audio/weapons/rifle.wav"),
     "pistol": preload("res://assets/audio/weapons/pistol.wav"),
     "smg": preload("res://assets/audio/weapons/smg.wav"),
     "rifle": preload("res://assets/audio/weapons/rifle.wav"),
@@ -11,6 +12,7 @@ const SHOTS = {
 }
 
 const RELOADS = {
+    "sentinela": preload("res://assets/audio/reloads/rifle.wav"),
     "pistol": preload("res://assets/audio/reloads/pistol.wav"),
     "smg": preload("res://assets/audio/reloads/smg.wav"),
     "rifle": preload("res://assets/audio/reloads/rifle.wav"),

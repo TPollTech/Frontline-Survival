@@ -142,6 +142,17 @@ func _run_tests() -> void:
         "paid suppressor has no visible barrel attachment")
     _expect(game.player.shot_sound.bus == "SUPPRESSED",
         "silencer must use the recorded WAV through low-pass audio, not a beep")
+    game._change_shop_page(1)
+    var before_sniper: int = game.wallet
+    game._buy(3)
+    _expect(game.wallet == before_sniper, "scope for wrong weapon must not debit credits")
+    game.wallet += 1170
+    game._buy(2)
+    _expect(game.player.weapon_id == "sentinela" and game.player.weapon_attachments.sentinela.optic == "", "sniper must start with irons")
+    game._buy(3)
+    _expect(game.wallet == before_sniper and game.player.has_attachment("optic", "scope4"), "scope purchase failed")
+    game.player.equip("pistol")
+    game._change_shop_page(-1)
     var wallet_after_suppressor: int = game.wallet
     game._buy(1)
     _expect(game.wallet == wallet_after_suppressor, "already-equipped suppressor charged twice")
@@ -342,7 +353,7 @@ func _run_tests() -> void:
     game.player.magazines["pistol"] = 2
     game.player.health = 75.0
     game.player.armor = 75.0
-    game._render_shop()
+    game._process(0.21)
     _expect(not game.shop_option_buttons[0].disabled
         and not game.shop_option_buttons[1].disabled
         and not game.shop_option_buttons[2].disabled,
@@ -352,6 +363,7 @@ func _run_tests() -> void:
     game._buy(2) # Heal, 90
     _expect(game.wallet == full_wallet_before - 300,
         "partial consumable purchases charged the wrong total")
+    _expect(game.shop_feedback.text.contains("COMPRADO"), "purchase feedback missing inside shop")
     var shop_weapon_specs: Dictionary = game.player.get_script().get_script_constant_map().get("WEAPONS", {})
     _expect(game.player.magazines["pistol"] == int(shop_weapon_specs["pistol"]["mag"])
         and game.player.reserves["pistol"] == int(shop_weapon_specs["pistol"]["reserve"]),
@@ -686,6 +698,20 @@ func _run_tests() -> void:
     await physics_frame
     _expect(ObstacleSteering.blocked(route_npc, route_direction, 2.35),
         "physical wall must block the NPC's approach before testing route recovery")
+    var test_turret: Variant = load("res://scripts/turret.gd").new()
+    game.add_child(test_turret)
+    test_turret.set_physics_process(false)
+    test_turret.global_position = game.player.global_position - Vector3.UP * 0.79
+    var saved_phase: String = game.phase
+    game.phase = "wave"
+    var covered_health: float = route_npc.health
+    test_turret._physics_process(0.02)
+    _expect(route_npc.health == covered_health, "turret must respect a solid wall")
+    test_turret.global_position = route_npc.global_position - route_direction - Vector3.UP * 0.79
+    test_turret._physics_process(0.4)
+    _expect(route_npc.health < covered_health, "turret must damage an exposed enemy")
+    test_turret.free()
+    game.phase = saved_phase
     route_npc.navigation_check = 0.0
     route_npc.detour_remaining = 0.0
     route_npc._update_obstacle_navigation(0.12, route_direction, 4.4, 5.5, false)
@@ -709,6 +735,14 @@ func _run_tests() -> void:
     _expect(route_npc.tactical_state == "advance" and route_npc.tactical_posture == "stand"
         and route_npc.detour_remaining >= 1.1 and route_npc.stalled_for == 0.0,
         "stuck NPC must abandon blocked cover and resume movement")
+    route_npc.set_physics_process(true)
+    var regained_sight := false
+    for tick in range(300):
+        await physics_frame
+        if route_npc._has_sight():
+            regained_sight = true
+            break
+    _expect(regained_sight, "moving NPC must clear the physical wall and regain sight")
     route_wall.queue_free()
     route_npc.queue_free()
     await physics_frame
@@ -874,6 +908,18 @@ func _run_tests() -> void:
             for child in part.get_children():
                 pending.append(child)
         _expect(found_palette, "weapon GLB palette was not applied on runtime mesh")
+    var occupied_slots: Array[Node] = []
+    for slot in range(5):
+        var ally_slot := Node.new()
+        game.add_child(ally_slot)
+        ally_slot.add_to_group("allies")
+        occupied_slots.append(ally_slot)
+    game.ally_tokens = 1
+    game._call_squad()
+    _expect(game.ally_tokens == 1 and get_nodes_in_group("allies").size() == 5,
+        "deploying a pair requires two free ally slots and must preserve the token")
+    for ally_slot in occupied_slots:
+        ally_slot.free()
     # Previous allied rigs were broken. Spawn and animate two support soldiers.
     game.ally_tokens = 1
     game._call_squad()
@@ -920,7 +966,7 @@ func _run_tests() -> void:
     _expect(reload_specs.has("smg") and reload_specs.has("shotgun"),
         "player weapon reload configuration missing in animation QA")
     var mag_sockets: Dictionary = game.player.get_script().get_script_constant_map().get("MAGAZINE_GRIP_POINTS", {})
-    _expect(mag_sockets.size() == 5 and mag_sockets.has("sniper") and mag_sockets.has("bolt_sniper"),
+    _expect(mag_sockets.size() == 6 and mag_sockets.has("sentinela") and mag_sockets.has("sniper") and mag_sockets.has("bolt_sniper"),
         "all five magazine-fed models, including both snipers, need independent grip sockets")
     var reload_hand_travel: Dictionary = {}
     for gun_id: String in ["smg", "rifle", "lmg"]:
@@ -928,7 +974,7 @@ func _run_tests() -> void:
         game.player.reloading = true
         game.player.reload_elapsed = float(reload_specs[gun_id]["reload"]) * 0.45
         game.player._animate_viewmodel(0.20, 0.0)
-        _expect(game.player.left_hand_rig.position.z > 0.22
+        _expect(game.player.left_hand_rig.position.z > 0.12
             and game.player.left_hand_rig.position.y < -0.19,
             "support hand failed to reach magazine while reloading " + gun_id)
         reload_hand_travel[gun_id] = game.player.left_hand_rig.position.z

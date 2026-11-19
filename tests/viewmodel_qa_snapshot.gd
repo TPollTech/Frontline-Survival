@@ -57,6 +57,18 @@ func _capture() -> void:
         game.player.idle_clock = 0.0
         game.player.walk_anim_blend = 0.0
         var ads: bool = idx in [5, 9, 10, 11, 12, 13]
+        if idx == 2:
+            # Capture both corrected long-gun silhouettes at the same camera pose.
+            game.player.equip("sentinela")
+            game.player.equip_anim_timer = 0.0
+            game.player.gun.position = game.player.hip_position()
+            game.player._animate_viewmodel(0.25, 0.0)
+            for frame in range(5):
+                await process_frame
+            var sentinela_image := root.get_texture().get_image()
+            sentinela_image.save_png("res://docs/qa/sentinela.png")
+            game.player.equip(id)
+            game.player.equip_anim_timer = 0.0
         if idx == 6 or idx == 7:
             game.player.reloading = true
             game.player.reload_elapsed = float(specs[id]["reload"]) * (0.45 if idx == 6 else 0.70)
@@ -68,7 +80,7 @@ func _capture() -> void:
         var sight: float = 0.252 if id in ["sniper", "bolt_sniper"] and game.player._sniper_scope() != "" else (0.182 if id == "sniper" else (0.201 if id == "bolt_sniper" else 0.177))
         game.player.gun.position = (
             Vector3(0.0, -game.player.viewmodel_scale * sight, -0.62)
-            if ads else Vector3(0.34, -0.27, -0.63)
+            if ads else game.player.hip_position()
         )
         game.player.gun.rotation = Vector3.ZERO
         game.player._animate_viewmodel(0.25, 0.0)
