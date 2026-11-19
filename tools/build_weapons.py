@@ -319,5 +319,37 @@ def sniper():
     g.save('sniper')
 
 
+def bolt_sniper():
+    g=Gun()
+    # VLR-8: traditional walnut-stock rifle, open bolt/ejection assembly.
+    # Distinct silhouette from the MRS-7's modern freefloat polymer chassis.
+    g.chamfer((0.0, -.044, .23), (.158, .165, 1.16), 'walnut', .026, name='stock_body')
+    g.chamfer((0.0, -.050, .73), (.155, .20, .20), 'walnut_dark', .02, name='cheek_rest')
+    g.chamfer((0.0, -.048, .86), (.18, .20, .047), 'black', .012, name='stock_pad')
+    g.chamfer((0.0, -.03, -.185), (.177, .155, .50), 'walnut_dark', .018, name='forearm_wood')
+    for side in (-.076,.076):
+        for z in (-.22,-.32,-.43):
+            g.chamfer((side,-.075,z),(.007,.017,.07),'walnut',.003,name='wood_grip_rib')
+    g.chamfer((0.0, .043, -.04), (.145, .145, .37), 'steel', .018, name='steel_receiver')
+    g.chamfer((0.0, .122, -.04), (.102, .022, .34), 'recess', .006, name='receiver_sight_rail')
+    g.chamfer((0.0, -.17, .03), (.084, .25, .106), 'walnut', .017, angles=(-.29,0,0), name='grip_stock')
+    g.chamfer((0.0, -.225, -.06), (.101, .177, .142), 'black', .012, name='magazine_box')
+    g.chamfer((0.0, -.31, -.065), (.11, .025, .15), 'steel', .006, name='magazine_heel')
+    g.cylinder((0.0, .050, -.85), .023, 1.20, 'steel', sections=16, name='long_barrel')
+    g.chamfer((0.0, .053, -1.42), (.052, .069, .086), 'black', .010, name='front_sight_base')
+    g.ring((0.0, .051, -1.47), .032, .017, .065, 'steel', name='open_muzzle')
+    # Rear notch and forward blade allow proper scoped and unscoped tests.
+    for side in (-.032,.032):
+        g.chamfer((side,.183,-.13),(.011,.043,.035),'black',.003,name='iron_rear_notch')
+        g.chamfer((side,.17,-1.42),(.010,.046,.029),'black',.003,name='iron_front_wing')
+    g.chamfer((0.0,.183,-1.42),(.009,.026,.015),'steel',.003,name='iron_front_blade')
+    # All moving bolt parts belong to the action GLB for real animation.
+    g.chamfer((.048,.090,.03),(.043,.043,.26),'steel',.008,name='charging_handle_bolt_body')
+    g.rod((.094,.092,.08),(.178,.10,.07),.012,'steel',name='charging_handle_stem')
+    g.cylinder((.182,.102,.07),.020,.037,'black',angles=(0,np.pi/2,0),name='charging_handle_knob')
+    g.chamfer((.073,.102,-.04),(.012,.035,.17),'recess',.004,name='ejection_port')
+    g.save('bolt_sniper')
+
+
 if __name__=='__main__':
-    pistol();smg();rifle();shotgun();lmg();sniper()
+    pistol();smg();rifle();shotgun();lmg();sniper();bolt_sniper()
