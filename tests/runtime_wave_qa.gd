@@ -217,6 +217,96 @@ func _run_tests() -> void:
     game.player.equip("pistol")
     _expect(game.player.has_attachment("optic", "red_dot"),
         "changing weapons lost paid pistol optic")
+    # Separate VLR-8: a real bolt cycle must survive rapid weapon swaps.
+    # Extra credits isolate this dedicated shop scenario from earlier tests.
+    game.wallet = 8000
+    game._open_shop("weapons")
+    game._change_shop_page(1)
+    game._change_shop_page(1)
+    _expect(game.shop_page == 2 and game.shop_option_buttons[1].visible,
+        "VLR-8 bolt action missing from arsenal third page")
+    var vlr_wallet_before: int = game.wallet
+    game._buy(1) # Third page, second item: VLR-8.
+    _expect(game.player.weapon_id == "bolt_sniper"
+        and game.player.owned_weapons.has("bolt_sniper")
+        and game.player._sniper_scope() == "",
+        "new bolt-action sniper must be independent and start with iron sight")
+    _expect(game.wallet == vlr_wallet_before - 1800,
+        "bolt-action rifle purchase charged incorrect price")
+    _expect(game.player.weapon_model != null and game.player.action_part != null,
+        "VLR-8 must render a separate bolt-action GLB")
+    var vlr_owned_wallet: int = game.wallet
+    game._buy(1)
+    _expect(game.wallet == vlr_owned_wallet, "repurchasing owned bolt sniper charged twice")
+    game._buy(0) # 4x scope cannot be the first scope on this new rifle.
+    _expect(game.wallet == vlr_owned_wallet and game.player._sniper_scope() == "",
+        "4x scope on VLR-8 bypassed 2x progression")
+    game._change_shop_page(-1)
+    game._buy(4) # 2x scope on bolt rifle
+    _expect(game.player._sniper_scope() == "scope_2x"
+        and game.player.viewmodel_root.find_child("Attachment_Optic_scope_2x", true, false) != null,
+        "VLR-8 did not install its paid 2x scope")
+    game._change_shop_page(1)
+    game._buy(0)
+    _expect(game.player._sniper_scope() == "scope_4x"
+        and game.player.viewmodel_root.find_child("Attachment_Optic_scope_4x", true, false) != null,
+        "VLR-8 did not install its paid 4x scope")
+    game._close_shop()
+    game.player.magazines["bolt_sniper"] = 4
+    game.player.reserves["bolt_sniper"] = 4
+    game.player.fire_timer = 0.0
+    game.player.equip_anim_timer = 0.0
+    game.player.grenade_throw_timer = 0.0
+    game.player.melee_timer = 0.0
+    game.player.sprint_blend = 0.0
+    game.player.suppress_fire_until_release = false
+    var first_bolt_serial: int = game.player.shot_serial
+    game.player.shoot()
+    _expect(game.player.magazines["bolt_sniper"] == 3
+        and game.player.shot_serial == first_bolt_serial + 1
+        and game.player.bolt_cycle_remaining > 1.40,
+        "VLR-8 first shot must open the bolt and consume exactly one round")
+    game.player.fire_timer = 0.0 # Attempt to bypass rate cooldown.
+    game.player.shoot()
+    _expect(game.player.magazines["bolt_sniper"] == 3
+        and game.player.shot_serial == first_bolt_serial + 1,
+        "bolt-action firing cannot bypass an unchambered round")
+    game.player._advance_bolt_cycle(0.65)
+    game.player._animate_viewmodel(0.30, 0.0)
+    _expect(game.player.action_part.position.z > game.player.viewmodel_depth + 0.12,
+        "VLR-8 bolt mesh must physically retract during chambering")
+    _expect(game.player.bolt_sound.stream is AudioStreamWAV,
+        "bolt cycle must use an actual recorded WAV source")
+    game.player.equip("pistol")
+    game.player.equip("bolt_sniper")
+    game.player.fire_timer = 0.0
+    game.player.equip_anim_timer = 0.0
+    game.player.shoot()
+    _expect(game.player.magazines["bolt_sniper"] == 3,
+        "weapon swapping must not reset incomplete bolt cycling")
+    game.player._advance_bolt_cycle(1.0)
+    _expect(game.player.bolt_cycle_remaining == 0.0,
+        "bolt cycle should finish and close the chamber")
+    game.player.fire_timer = 0.0
+    game.player.equip_anim_timer = 0.0
+    game.player.shoot()
+    _expect(game.player.magazines["bolt_sniper"] == 2
+        and game.player.shot_serial == first_bolt_serial + 2,
+        "VLR-8 must fire again after the bolt closes")
+    game.player.start_reload()
+    _expect(game.player.reloading and game.player.bolt_cycle_remaining == 0.0,
+        "magazine reload must replace and cancel an unfinished bolt cycle")
+    game.player._finish_reload()
+    _expect(game.player.magazines["bolt_sniper"] == 5
+        and game.player.reserves["bolt_sniper"] == 1,
+        "bolt-action reload must conserve spare ammunition")
+    game.player.equip("sniper")
+    _expect(game.player._sniper_scope() == "scope_4x",
+        "original MRS-7 scope must survive purchase of second sniper")
+    game.player.equip("bolt_sniper")
+    _expect(game.player._sniper_scope() == "scope_4x",
+        "VLR-8 scope must survive switching between precision rifles")
+    game.player.equip("pistol")
     game._open_shop("support")
     game._buy(3) # quick reload perk
     _expect(game.player.active_perk == "quick_reload", "perk purchase did not apply")
@@ -830,8 +920,8 @@ func _run_tests() -> void:
     _expect(reload_specs.has("smg") and reload_specs.has("shotgun"),
         "player weapon reload configuration missing in animation QA")
     var mag_sockets: Dictionary = game.player.get_script().get_script_constant_map().get("MAGAZINE_GRIP_POINTS", {})
-    _expect(mag_sockets.size() == 4 and mag_sockets.has("sniper"),
-        "all four detachable magazine models, including MRS-7, require independent grip sockets")
+    _expect(mag_sockets.size() == 5 and mag_sockets.has("sniper") and mag_sockets.has("bolt_sniper"),
+        "all five magazine-fed models, including both snipers, need independent grip sockets")
     var reload_hand_travel: Dictionary = {}
     for gun_id: String in ["smg", "rifle", "lmg"]:
         game.player.equip(gun_id)
