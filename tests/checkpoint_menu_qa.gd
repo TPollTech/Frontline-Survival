@@ -11,6 +11,7 @@ func run() -> void:
     root.add_child(game)
     var ok: bool = paused and game.game_menu.navigation.get_child(1).disabled
     game.game_menu._start()
+    game.player.last_stand_available = false
     game.wallet = 1377
     game.player.equip("rifle")
     game.player.magazines["rifle"] = 7
@@ -27,6 +28,7 @@ func run() -> void:
     game.game_menu._cancel_action()
     game.game_menu.navigation.get_child(1).pressed.emit()
     ok = ok and not paused and game.wave == 3 and game.wallet == credits and game.player.weapon_id == "rifle" and game.player.magazines["rifle"] == 7
+    ok = ok and not game.player.last_stand_available
     game._prepare_pause()
     game.game_menu.open_pause()
     game.game_menu._show_options()

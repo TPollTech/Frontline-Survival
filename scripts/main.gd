@@ -143,6 +143,7 @@ func _write_checkpoint() -> void:
     if "--qa-15-waves" in OS.get_cmdline_user_args() or ("--script" in OS.get_cmdline_args() and checkpoint_path.begins_with("user://")):
         return
     var data := {"version": 1, "weapon": player.weapon_id, "units": []}
+    data["last_stand_available"] = player.last_stand_available
     for key in MATCH_FIELDS:
         data[key] = get(key)
     for key in PLAYER_FIELDS:
@@ -177,6 +178,8 @@ func _read_checkpoint() -> Dictionary:
     for key in PLAYER_FIELDS:
         if typeof(data.get(key)) != typeof(player.get(key)):
             return {}
+    if not data.get("last_stand_available", true) is bool:
+        return {}
     # Legacy Sentinela saves predate the independent bolt rifle inventory.
     if data.magazines.has("sniper") and not data.magazines.has("bolt_sniper"):
         for key in ["magazines", "reserves", "weapon_upgrades", "weapon_attachments"]:
@@ -211,6 +214,7 @@ func _load_checkpoint() -> void:
         return
     for key in MATCH_FIELDS:
         set(key, data[key])
+    player.last_stand_available = data.get("last_stand_available", true)
     for key in PLAYER_FIELDS:
         player.set(key, data[key])
     player.upgrades = int(player.weapon_upgrades.get(player.weapon_id, 0))
@@ -413,6 +417,7 @@ func _create_world() -> void:
     sun.shadow_enabled = true
     add_child(sun)
     var ground := _add_box(Vector3(0, -0.5, 0), Vector3(52, 1, 52), Color(0.83, 0.87, 0.83))
+    ground.add_to_group("deployment_ground")
     var floor_mesh := ground.get_child(0) as MeshInstance3D
     var floor_material := floor_mesh.material_override as StandardMaterial3D
     floor_material.albedo_texture = load("res://assets/textures/asphalt.png")
@@ -877,9 +882,6 @@ func _shop_resource_full_reason(id: String) -> String:
     # Guard purchases with no possible benefit, before removing credits.
     # A partial magazine/reserve refill is always allowed, even if one is full.
     match id:
-        "scope4":
-            if player.weapon_id != "sentinela":
-                return "EQUIPE A SENTINELA"
         "ammo":
             var stats: Dictionary = SurvivalPlayer.WEAPONS[player.weapon_id]
             if int(player.magazines[player.weapon_id]) >= int(stats["mag"]) and int(player.reserves[player.weapon_id]) >= int(stats["reserve"]):
@@ -893,6 +895,8 @@ func _shop_resource_full_reason(id: String) -> String:
     return ""
 
 func _shop_optic_block_reason(id: String) -> String:
+    if id == "scope4" and player.weapon_id != "sentinela":
+        return "EQUIPE A SENTINELA"
     if id in ["red_dot", "holo"] and player.weapon_id in ["sniper", "bolt_sniper"]:
         return "INCOMPATIVEL"
     if id not in ["scope_2x", "scope_4x"]:
@@ -948,9 +952,15 @@ func _buy(index: int) -> void:
     if id == "upgrade" and player.upgrades >= 3:
         _notify("Arma no nivel maximo!", 2.0)
         return
+    var turret_position := Vector3.ZERO
     if id == "turret" and get_tree().get_nodes_in_group("turrets").size() >= 2:
         _notify("Limite de 2 torretas ativas!", 2.0)
         return
+    if id == "turret":
+        turret_position = _turret_position()
+        if not turret_position.is_finite():
+            _notify("Sem espaço para a torreta à sua frente.", 2.0)
+            return
     wallet -= price
     if phase == "wave":
         round_stats.spent(price)
@@ -978,10 +988,7 @@ func _buy(index: int) -> void:
             grenades += 2
         "turret":
             var turret := SurvivalTurret.new()
-            var forward := -player.camera.global_transform.basis.z
-            forward.y = 0
-            turret.position = player.global_position + forward.normalized() * 2.3
-            turret.position.y = 0.0
+            turret.position = turret_position
             add_child(turret)
             turret.add_to_group("turrets")
         "squad":
@@ -990,6 +997,30 @@ func _buy(index: int) -> void:
             airstrike_tokens += 1
     _notify("COMPRADO: " + str(item[0]), 2.2)
     _render_shop()
+
+func _turret_position() -> Vector3:
+    var origin := player.global_position
+    var ahead := origin - player.global_transform.basis.z * 2.3
+    var space := get_world_3d().direct_space_state
+    if not space.intersect_ray(PhysicsRayQueryParameters3D.create(origin, ahead, 1)).is_empty():
+        return Vector3.INF
+    var floor_hit := space.intersect_ray(PhysicsRayQueryParameters3D.create(ahead + Vector3.UP, ahead + Vector3.DOWN * 5.0, 1))
+    if floor_hit.is_empty() or not floor_hit.collider.is_in_group("deployment_ground"):
+        return Vector3.INF
+    var point: Vector3 = floor_hit.position
+    var shape := CylinderShape3D.new()
+    shape.radius = 0.46
+    shape.height = 1.0
+    var query := PhysicsShapeQueryParameters3D.new()
+    query.shape = shape
+    query.transform.origin = point + Vector3.UP * 0.55
+    query.collision_mask = 3
+    if not space.intersect_shape(query, 1).is_empty():
+        return Vector3.INF
+    for turret in get_tree().get_nodes_in_group("turrets"):
+        if turret.global_position.distance_to(point) < 0.92:
+            return Vector3.INF
+    return point
 
 func _call_squad() -> void:
     if ally_tokens <= 0:
@@ -1015,17 +1046,26 @@ func _call_airstrike() -> void:
     if phase != "wave":
         _notify("ATAQUE AEREO DISPONIVEL DURANTE O COMBATE", 2.5)
         return
-    airstrike_tokens -= 1
     var origin := player.camera.global_position
     var forward := -player.camera.global_transform.basis.z
     var hit_query := PhysicsRayQueryParameters3D.create(origin, origin + forward * 75.0)
     hit_query.exclude = [player.get_rid()]
     hit_query.collision_mask = 3
     var hit := get_world_3d().direct_space_state.intersect_ray(hit_query)
-    var target := origin + forward * 32.0
-    if not hit.is_empty():
-        target = hit["position"]
-    target.y = maxf(target.y, 0.10)
+    if hit.is_empty() or (hit.collider is StaticBody3D and hit.normal.y < 0.6):
+        _notify("Mire no terreno ou em um inimigo.", 2.0)
+        return
+    var target: Vector3 = hit.position
+    if hit.collider is CharacterBody3D:
+        if not hit.collider is SurvivalEnemy:
+            _notify("Alvo aliado. Escolha outro ponto.", 2.0)
+            return
+        var surface := get_world_3d().direct_space_state.intersect_ray(
+            PhysicsRayQueryParameters3D.create(target, target + Vector3.DOWN * 12.0, 1))
+        if surface.is_empty():
+            return
+        target = surface.position
+    airstrike_tokens -= 1
     _notify("ATAQUE AEREO SOLICITADO! IMPACTO EM 1 SEGUNDO", 2.5)
     # Marcador temporario no solo. A explosao usa dano em area, nao elimina o mapa inteiro.
     var marker := MeshInstance3D.new()
@@ -1039,7 +1079,7 @@ func _call_airstrike() -> void:
     marker_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
     marker_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
     marker.material_override = marker_mat
-    marker.position = Vector3(target.x, 0.06, target.z)
+    marker.position = target + Vector3.UP * 0.06
     add_child(marker)
     var timer := get_tree().create_timer(1.0, false)
     timer.timeout.connect(_airstrike_impact.bind(target, marker))
@@ -1049,14 +1089,17 @@ func _airstrike_impact(at: Vector3, marker: MeshInstance3D) -> void:
         marker.queue_free()
     if not is_inside_tree():
         return
-    var defeated_count := 0
+    var hits := 0
+    var eliminations := 0
     for enemy in get_tree().get_nodes_in_group("enemies"):
         var victim := enemy as SurvivalEnemy
         if is_instance_valid(victim) and not victim.dead:
             var distance := victim.global_position.distance_to(at)
             if distance < 13.0:
                 victim.take_damage(275.0 * (1.0 - distance / 18.0))
-                defeated_count += 1
+                hits += 1
+                if victim.dead:
+                    eliminations += 1
     var blast := MeshInstance3D.new()
     var sphere := SphereMesh.new()
     sphere.radius = 1.0
@@ -1072,7 +1115,7 @@ func _airstrike_impact(at: Vector3, marker: MeshInstance3D) -> void:
     var tween := create_tween()
     tween.tween_property(blast, "scale", Vector3(10.0, 6.0, 10.0), 0.38)
     tween.tween_callback(blast.queue_free)
-    _notify("IMPACTO AEREO  |  %d ALVOS ATINGIDOS" % defeated_count, 3.0)
+    _notify("IMPACTO AÉREO  |  %d atingidos · %d abates" % [hits, eliminations], 3.0)
 
 func _throw_grenade() -> void:
     if grenades <= 0:

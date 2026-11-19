@@ -30,11 +30,21 @@ func _run() -> void:
             "Wave transition left controls locked or wrong wave")
         if item == 0:
             check(get_tree().get_nodes_in_group("turrets").size() > 0, "Turret missing")
+            var balance: int = game.wallet
+            game._open_shop("support")
+            game._buy(0)
+            check(game.wallet == balance and get_tree().get_nodes_in_group("turrets").size() == 1, "Overlapping turret charged credits")
+            game._close_shop()
         elif item == 1:
             game._call_squad()
             check(game.ally_tokens == 0 and get_tree().get_nodes_in_group("allies").size() == 2, "Squad deployment failed")
         else:
+            game.player.camera.rotation.x = 1.4
             game._call_airstrike()
+            check(game.airstrike_tokens == 1, "Invalid sky target consumed a credit")
+            game.player.camera.rotation.x = -1.1
+            game._call_airstrike()
+            game.player.camera.rotation.x = 0.0
             check(game.airstrike_tokens == 0, "Airstrike credit was not consumed")
         var expected: int = game.wave_kills + game.spawn_remaining + game.alive
         for tick in range(600):
