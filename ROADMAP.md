@@ -727,3 +727,15 @@ O [plano de polimento do Campo de Testes](docs/M0_POLIMENTO_CAMPO_TESTES.md) reg
 - [ ] Verificar no Windows alinhamento óptico, scope zoom, movimentos, áudio e qualidade do modelo.
 - [ ] Testar progressão até 15 ondas com sniper; reequilibrar dano, preço e dinheiro de testes conforme feedback.
 - [ ] Substituir WAV provisório por áudio de sniper gravado e licenciado.
+
+
+## v0.9.27 — Segunda sniper VLR-8 com ferrolho funcional
+
+- [x] MRS-7 de v0.9.26 mantida no arsenal sem substituir modelo e progressão.
+- [x] Nova VLR-8 com coronha de madeira, carregador 5+20, dano e recuo específicos, modelo original GLB com ação mecânica destacada — **código**.
+- [x] Ferrolho abre e fecha após cada tiro; a câmara impede segundo tiro prematuro, inclusive após equipar outra arma e retornar — **código/QA**.
+- [x] Recarga cancela o ciclo e insere cartuchos sem duplicação; sons baseados em WAVs reais provisórios — **código/QA**.
+- [x] Lunetas 2x e 4x por rifle, com custo e desbloqueio individuais; HUD de ferrolho e captura 3D de 15 poses — **código/QA**.
+- [ ] Homologar animação mecânica, áudio e ergonomia do quickscope em Windows real.
+- [ ] Substituir sons provisórios por gravação dedicada e refinar mão do ferrolho conforme testes do usuário.
+- [ ] Testar desempenho e estabilidade com duas snipers ao longo de 15 ondas.

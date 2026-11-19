@@ -1,5 +1,19 @@
 # Frontline Survival — Histórico de versões
 
+## 0.9.27 — VLR-8 bolt-action adicional (MRS-7 preservada)
+
+- Duas snipers independentes na estação de armas: a MRS-7 v0.9.26 segue como antes e a nova VLR-8 oferece ferrolho mecânico real.
+- VLR-8: modelo GLB original com coronha de madeira, mecanismo de extração visível, 5+20 munições, dano base 215, recarga 3,25 s e preço $1800.
+- Após cada tiro, a VLR-8 entra num ciclo de 1,45 s: levanta, recua, avança e trava o ferrolho; disparos durante a abertura ficam bloqueados mesmo que a cadência ou a troca de armas tente contornar o sistema.
+- Ciclo com áudio WAV já gravado, ouvido após o estampido. Ainda não há gravação exclusiva do ferrolho: usa um trecho provisório já existente no projeto.
+- MRS-7 e VLR-8 podem comprar luneta 2x e depois 4x separadamente, com propriedade de acessórios específica de cada arma; nenhuma compra é transferida entre elas.
+- HUD indica `ACIONANDO FERROLHO`, munição e luneta. Continuidade da primeira pessoa renderizada em 15 quadros, incluindo ferrolho aberto.
+- Teste Godot de compras, troca de arma no meio do ciclo, bloqueio de segundo tiro, recarga e contagem de cartuchos. Homologação visual e sensação real no Windows ainda pendentes.
+
+[Notas da release e guia de teste](releases/v0.9.27.md)
+
+---
+
 ## 0.9.26 — MRS-7 sniper, quick scope e lunetas compráveis
 
 - Arma de precisão MRS-7 com pente de cinco cartuchos, 25 de reserva, 165 de dano base, ação lenta e modelo GLB original com ferrolho e iron sight.
