@@ -145,10 +145,75 @@ func _run_tests() -> void:
     var wallet_after_suppressor: int = game.wallet
     game._buy(1)
     _expect(game.wallet == wallet_after_suppressor, "already-equipped suppressor charged twice")
+    # MRS-7: iron sights at purchase, followed by 2x and then 4x optics.
+    _expect(game.shop_page == 1, "sniper QA requires second arsenal page")
+    _expect(game.shop_option_buttons[4].disabled,
+        "sniper scope available before purchasing the rifle")
+    game._buy(4) # Attempt scope without sniper should not charge.
+    _expect(not game.player.owned_weapons.has("sniper"),
+        "scope purchase without sniper must not unlock it")
+    var sniper_wallet_before: int = game.wallet
+    game._buy(3) # Sniper on second arsenal page.
+    _expect(game.player.weapon_id == "sniper" and game.player.owned_weapons.has("sniper")
+        and game.player._sniper_scope() == "", "sniper did not start with iron sights")
+    _expect(game.wallet == sniper_wallet_before - 1600, "sniper purchase charged wrong price")
+    _expect(game.player.weapon_model != null, "sniper body GLB missing on first equip")
+    game._change_shop_page(1)
+    var locked_scope_wallet: int = game.wallet
+    game._buy(0) # Advanced 4x before 2x must fail.
+    _expect(game.wallet == locked_scope_wallet and game.player._sniper_scope() == "",
+        "4x scope bypassed required 2x progression or charged credits")
+    game._change_shop_page(-1)
+    game._buy(4) # Basic 2x.
+    _expect(game.player._sniper_scope() == "scope_2x"
+        and game.player.viewmodel_root.find_child("Attachment_Optic_scope_2x", true, false) != null,
+        "paid 2x optic missing or not installed")
+    _expect(game.player._ads_fov_multiplier() > 0.40,
+        "basic sniper scope must have moderate zoom")
+    game._change_shop_page(1)
+    game._buy(0) # Advanced 4x.
+    _expect(game.player._sniper_scope() == "scope_4x"
+        and game.player.viewmodel_root.find_child("Attachment_Optic_scope_4x", true, false) != null,
+        "paid 4x optic missing or not installed")
+    var upgraded_wallet: int = game.wallet
+    game._buy(0)
+    _expect(game.wallet == upgraded_wallet, "duplicate 4x scope charged twice")
+    game._change_shop_page(-1)
+    game._buy(4)
+    _expect(game.wallet == upgraded_wallet and game.player._sniper_scope() == "scope_4x",
+        "scope downgrade charged credits or lost 4x progression")
+    _expect(game.player._ads_fov_multiplier() < 0.35,
+        "advanced scope zoom must exceed the iron/2x zoom")
+    game.player.aim = false
+    var sniper_hipfire: float = game.player._sniper_shot_spread()
+    game.player.aim = true
+    game.player.sniper_ads_seconds = 0.05
+    var sniper_early_ads: float = game.player._sniper_shot_spread()
+    game.player.sniper_ads_seconds = 0.15
+    var sniper_quick_scope: float = game.player._sniper_shot_spread()
+    game.player.sniper_ads_seconds = 0.80
+    var sniper_steady_ads: float = game.player._sniper_shot_spread()
+    _expect(sniper_hipfire > sniper_early_ads and sniper_early_ads > sniper_quick_scope * 5.0
+        and is_equal_approx(sniper_quick_scope, sniper_steady_ads),
+        "quick scope timing must reward 110ms ADS without accurate hipfire")
+    game.player.aim = false
+    game.player.sniper_ads_seconds = 0.0
     game._close_shop()
+    game.player.magazines["sniper"] = 2
+    game.player.reserves["sniper"] = 3
+    game.player.start_reload()
+    _expect(game.player.reloading and game.player.reload_timer > 0.0,
+        "sniper must support functional bolt-action magazine reloading")
+    game.player._finish_reload()
+    _expect(game.player.magazines["sniper"] == 5 and game.player.reserves["sniper"] == 0,
+        "sniper reload must transfer only five available rounds")
+    game.player.refill_ammo()
     game.player.equip("smg")
     _expect(not game.player.has_attachment("optic", "red_dot"),
         "red dot must be bought per weapon, not copied between guns")
+    game.player.equip("sniper")
+    _expect(game.player._sniper_scope() == "scope_4x",
+        "upgraded sniper scope lost after weapon switch")
     game.player.equip("pistol")
     _expect(game.player.has_attachment("optic", "red_dot"),
         "changing weapons lost paid pistol optic")
