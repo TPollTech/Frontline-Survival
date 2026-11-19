@@ -22,6 +22,7 @@ const PERKS := {
     "resistance": "RESISTENCIA"
 }
 const WEAPONS = {
+    "sniper": {"name":"Sentinela", "damage":125.0, "mag":5, "reserve":25, "rate":0.88, "reload":2.6, "spread":0.075, "auto":false, "pellets":1},
     "pistol": {"name":"Pistola", "damage":30.0, "mag":15, "reserve":90, "rate":0.20, "reload":1.25, "spread":0.008, "auto":false, "pellets":1},
     "smg": {"name":"Submetralhadora", "damage":19.0, "mag":32, "reserve":160, "rate":0.085, "reload":1.70, "spread":0.023, "auto":true, "pellets":1},
     "rifle": {"name":"Fuzil", "damage":34.0, "mag":30, "reserve":150, "rate":0.13, "reload":1.95, "spread":0.011, "auto":true, "pellets":1},
@@ -40,6 +41,7 @@ const VIEWMODEL_RECOIL_SCALE := {
 # Local mesh coordinates of the actual removable magazine/drum grip. These
 # follow the original meshes in tools/build_weapons.py, not a shared offset.
 const MAGAZINE_GRIP_POINTS := {
+    "sniper": Vector3(-0.04,-0.14,-0.12),
     "smg": Vector3(-0.052, -0.19, -0.13),
     "rifle": Vector3(-0.045, -0.26, -0.215),
     "lmg": Vector3(-0.105, -0.27, -0.035),
@@ -48,6 +50,8 @@ const MAGAZINE_GRIP_POINTS := {
 # lower-left grip surface while it racks, not the gun receiver.
 const SHOTGUN_PUMP_GRIP_POINT := Vector3(-0.108, -0.12, -0.42)
 
+var scope_mask: ColorRect
+var precision_click := false
 var camera: Camera3D
 var gun: Node3D
 var weapon_model: Node3D
@@ -147,6 +151,17 @@ func _ready() -> void:
     camera.current = true
     add_child(camera)
     gun = Node3D.new()
+    scope_mask = ColorRect.new()
+    var scope_layer := CanvasLayer.new()
+    scope_layer.layer = 0
+    add_child(scope_layer)
+    scope_layer.add_child(scope_mask)
+    scope_mask.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+    scope_mask.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    var lens := ShaderMaterial.new()
+    lens.shader = preload("res://scripts/scope.gdshader")
+    scope_mask.material = lens
+    scope_mask.hide()
     gun.position = Vector3(0.32, -0.28, -0.65)
     camera.add_child(gun)
     muzzle_flash = MeshInstance3D.new()
@@ -228,7 +243,9 @@ func has_attachment(slot: String, id: String) -> bool:
     return str(weapon_attachments.get(weapon_id, {}).get(slot, "")) == id
 
 func install_attachment(slot: String, id: String) -> bool:
-    if slot == "optic" and id not in ["red_dot", "holo"]:
+    if id == "scope4" and weapon_id != "sniper":
+        return false
+    if slot == "optic" and id not in ["red_dot", "holo", "scope4"]:
         return false
     if slot == "muzzle" and id not in ["suppressor", "compensator"]:
         return false
@@ -260,6 +277,8 @@ func recover_downed(using_kit: bool = false) -> void:
     downed_recovered.emit()
 
 func _die_finally() -> void:
+    scope_mask.hide()
+    precision_click = false
     downed = false
     dead = true
     reload_sound.stop()
@@ -331,15 +350,20 @@ func _physics_process(delta: float) -> void:
     var motion_ratio: float = clampf(ground_motion / maxf(speed, 0.1), 0.0, 1.0)
     # ADS takes priority; blocked movement must not widen the sprint FOV.
     var target_fov: float = GameSettings.field_of_view * (0.70 if aim else (1.045 if sprint_blend * motion_ratio > 0.55 else 1.0))
+    var use_scope := weapon_id == "sniper" and aim and has_attachment("optic", "scope4")
+    if use_scope:
+        target_fov = rad_to_deg(2.0 * atan(tan(deg_to_rad(GameSettings.field_of_view * 0.5)) / 4.0))
+    scope_mask.visible = use_scope and absf(gun.position.x) < 0.055
+    gun.visible = not scope_mask.visible
     camera.fov = lerpf(camera.fov, target_fov, minf(1.0, delta * (14.0 if active_perk == "fast_ads" else 10.0)))
     walk_clock += delta * motion_ratio * (10.0 if sprinting else 8.0)
     sprint_stride = sin(walk_clock * 1.16) * sprint_blend * motion_ratio
     shot_spread_kick = move_toward(shot_spread_kick, 0.0, delta * 1.25)
     # Align the physical front/rear sight with the camera's central ray.
     # No on-screen crosshair: the actual sight must indicate point of aim.
-    var sight_height: float = float({"pistol": 0.121, "smg": 0.232, "rifle": 0.177, "shotgun": 0.140, "lmg": 0.232}.get(weapon_id, 0.20))
+    var sight_height: float = float({"pistol": 0.121, "smg": 0.232, "sniper": 0.17, "rifle": 0.177, "shotgun": 0.140, "lmg": 0.232}.get(weapon_id, 0.20))
     var sight_y := -viewmodel_scale * sight_height
-    var gun_target := Vector3(0.0, sight_y, -0.62) if aim else Vector3(0.34, -0.27, -0.63)
+    var gun_target := Vector3(0.0, sight_y, -0.62) if aim else hip_position()
     # Distinct military-style tactical sprint. Eased tuck, low muzzle and
     # stride/counter-swing keep this separate from an accelerated walk.
     # Corrida visual acompanha deslocamento real, inclusive ao encontrar obstaculos.
@@ -377,6 +401,10 @@ func _physics_process(delta: float) -> void:
     if is_instance_valid(optic_reticle):
         # Visible only once the real sight approaches the central camera ray.
         optic_reticle.visible = aim and not reloading and weapon_wall_blend < 0.30 and absf(gun.position.x) < 0.055 and sprint_blend < 0.15
+    if precision_click:
+        precision_click = false
+        if weapon_id == "sniper":
+            shoot()
     # Um clique usado para recapturar o mouse nunca pode virar tiro automatico.
     if suppress_fire_until_release and not Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
         suppress_fire_until_release = false
@@ -399,6 +427,8 @@ func _input(event: InputEvent) -> void:
                 # Bloqueia tambem o disparo automatico enquanto o clique segue pressionado.
                 suppress_fire_until_release = true
                 Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+            elif weapon_id == "sniper":
+                precision_click = true
             else:
                 shoot()
     if event is InputEventKey and event.pressed and not event.echo:
@@ -454,6 +484,8 @@ func shoot() -> void:
     var did_headshot := false
     var pellet_count: int = WEAPONS[weapon_id]["pellets"]
     var spread: float = (WEAPONS[weapon_id]["spread"] + shot_spread_kick) * (0.35 if aim else 1.0)
+    if weapon_id == "sniper" and aim:
+        spread = 0.0008
     if active_perk == "steady":
         spread *= 0.75
     if posture == "crouch":
@@ -747,8 +779,8 @@ func _update_gun_mesh() -> void:
     support_finger_tips.clear()
     support_palm_rest = Vector3.ZERO
     # Scale/depth avoid placing long stocks behind the camera's near plane.
-    viewmodel_scale = float({"pistol": 0.95, "smg": 0.84, "rifle": 0.78, "shotgun": 0.70, "lmg": 0.74}.get(weapon_id, 0.84))
-    viewmodel_depth = float({"pistol": 0.0, "smg": -0.14, "rifle": -0.24, "shotgun": -0.24, "lmg": -0.24}.get(weapon_id, -0.14))
+    viewmodel_scale = float({"pistol": 0.95, "smg": 0.84, "sniper": 0.59, "rifle": 0.60, "shotgun": 0.70, "lmg": 0.74}.get(weapon_id, 0.84))
+    viewmodel_depth = float({"pistol": 0.0, "smg": -0.14, "sniper": -0.24, "rifle": -0.24, "shotgun": -0.24, "lmg": -0.24}.get(weapon_id, -0.14))
     viewmodel_root = Node3D.new()
     viewmodel_root.name = "Viewmodel"
     gun.add_child(viewmodel_root)
@@ -788,12 +820,12 @@ func _update_gun_mesh() -> void:
     hand_rig.add_child(left_hand_rig)
     if long_gun:
         active_arm_parent = left_hand_rig
-        _add_first_person_arm(Vector3(-0.29, -0.42, support_z + 0.23), Vector3(-0.075, -0.13, support_z), false)
-        # Resting palm center in SupportArm-local coordinates, before its
-        # independent wrist animation. Used to match the magazine's grip.
-        support_palm_rest = Vector3(-0.075, -0.085, support_z - 0.06)
+        support_palm_rest = Vector3(-0.045, -0.042, support_z)
+        if weapon_id == "shotgun":
+            support_palm_rest = action_part.transform * SHOTGUN_PUMP_GRIP_POINT
+        _add_first_person_arm(Vector3(-0.25, -0.40, support_z + 0.23), support_palm_rest - Vector3(0, 0.045, -0.06), false)
     active_arm_parent = hand_rig
-    var muzzle_z: float = viewmodel_depth + viewmodel_scale * float({"pistol": -0.29, "smg": -0.69, "rifle": -0.95, "shotgun": -1.04, "lmg": -1.13}.get(weapon_id, -0.69))
+    var muzzle_z: float = viewmodel_depth + viewmodel_scale * float({"pistol": -0.29, "smg": -0.69, "sniper": -1.12, "rifle": -0.95, "shotgun": -1.04, "lmg": -1.13}.get(weapon_id, -0.69))
     var muzzle_height := float({"pistol": 0.061, "rifle": 0.039, "shotgun": 0.065}.get(weapon_id, 0.018))
     muzzle_flash.position = Vector3(0, viewmodel_scale * muzzle_height, muzzle_z)
     _build_attachment_models()
@@ -810,7 +842,7 @@ func _build_attachment_models() -> void:
         optic_root.name = "Attachment_Optic_" + optic
         viewmodel_root.add_child(optic_root)
         var heights: Dictionary = {
-            "pistol": 0.121, "smg": 0.232, "rifle": 0.177,
+            "pistol": 0.121, "smg": 0.232, "sniper": 0.17, "rifle": 0.177,
             "shotgun": 0.140, "lmg": 0.232
         }
         var y: float = float(heights.get(weapon_id, 0.18)) * viewmodel_scale
@@ -825,8 +857,8 @@ func _build_attachment_models() -> void:
         glass_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
         glass_material.cull_mode = BaseMaterial3D.CULL_DISABLED
         # Compact red-dot tubular ring; holographic model uses a thin rectangular frame.
-        if optic == "red_dot":
-            for depth in [0.0, 0.031]:
+        if optic in ["red_dot", "scope4"]:
+            for depth in ([-0.13, -0.10, 0.0, 0.04] if optic == "scope4" else [0.0, 0.031]):
                 var ring := MeshInstance3D.new()
                 ring.name = "Optic_HollowRing"
                 var torus := TorusMesh.new()
@@ -914,7 +946,7 @@ func _build_attachment_models() -> void:
         cylinder.height = 0.30 if muzzle == "suppressor" else 0.11
         tube.mesh = cylinder
         tube.rotation.x = PI * 0.5
-        var front_z: float = float({"pistol":-0.29,"smg":-0.69,"rifle":-0.95,"shotgun":-1.04,"lmg":-1.13}.get(weapon_id, -0.75))
+        var front_z: float = float({"pistol":-0.29,"smg":-0.69,"sniper":-1.12,"rifle":-0.95,"shotgun":-1.04,"lmg":-1.13}.get(weapon_id, -0.75))
         tube.position = Vector3(0.0, 0.04 * viewmodel_scale, viewmodel_depth + front_z * viewmodel_scale - cylinder.height * 0.48)
         var barrel_mat := StandardMaterial3D.new()
         barrel_mat.albedo_color = Color(0.12, 0.135, 0.14)
@@ -927,6 +959,9 @@ func _build_attachment_models() -> void:
 
 func play_grenade_throw() -> void:
     grenade_throw_timer = 0.45
+
+func hip_position() -> Vector3:
+    return Vector3(0.34, -0.27, -0.63) if weapon_id == "pistol" else Vector3(0.30, -0.32, -0.77)
 
 func _animate_viewmodel(delta: float, sprint_ease: float) -> void:
     if not is_instance_valid(viewmodel_root) or not is_instance_valid(hand_rig):
@@ -1018,7 +1053,7 @@ func _animate_viewmodel(delta: float, sprint_ease: float) -> void:
             minf(1.0, delta * 13.0))
     if is_instance_valid(support_wrist_joint):
         support_wrist_joint.rotation.z = lerpf(support_wrist_joint.rotation.z,
-            0.13 * mag_out - 0.07 * reload_tilt + 0.08 * sprint_ease,
+            -1.25 + 0.13 * mag_out - 0.07 * reload_tilt + 0.08 * sprint_ease,
             minf(1.0, delta * 16.0))
     # Curl the trigger finger separately; clench the rest of the glove during
     # melee. Support fingers open around the magazine and close on return.
@@ -1076,7 +1111,7 @@ func _arm_link(start: Vector3, finish: Vector3, top_radius: float, bottom_radius
     var segment := CylinderMesh.new()
     segment.top_radius = top_radius
     segment.bottom_radius = bottom_radius
-    segment.height = direction.length()
+    segment.height = direction.length() + minf(top_radius, bottom_radius) * 0.7
     var part := _arm_piece(segment, (start + finish) * 0.5, tint)
     if direction.length() > 0.001:
         part.quaternion = Quaternion(Vector3.UP, direction.normalized())
@@ -1123,6 +1158,11 @@ func _add_first_person_arm(elbow: Vector3, wrist: Vector3, trigger_hand: bool) -
     elbow_joint.add_child(wrist_joint)
     active_arm_parent = wrist_joint
     _arm_link(Vector3(0, -0.045, 0.025), Vector3(0, 0.043, -0.032), 0.054, 0.062, cuff)
+    if not trigger_hand:
+        wrist_joint.rotation.z = -1.25
+        # Keep the glove center on its socket when turning the fingers around the fore-end.
+        var palm_offset := Vector3(0, 0.045, -0.06)
+        wrist_joint.position += palm_offset - wrist_joint.basis * palm_offset
     var palm_location := Vector3(0, 0.045, -0.06)
     var palm := CapsuleMesh.new()
     palm.radius = 0.052

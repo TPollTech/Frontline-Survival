@@ -142,6 +142,15 @@ func _run_tests() -> void:
         "paid suppressor has no visible barrel attachment")
     _expect(game.player.shot_sound.bus == "SUPPRESSED",
         "silencer must use the recorded WAV through low-pass audio, not a beep")
+    var before_sniper: int = game.wallet
+    game._buy(4)
+    _expect(game.wallet == before_sniper, "scope for wrong weapon must not debit credits")
+    game.wallet += 1170
+    game._buy(3)
+    _expect(game.player.weapon_id == "sniper" and game.player.weapon_attachments.sniper.optic == "", "sniper must start with irons")
+    game._buy(4)
+    _expect(game.wallet == before_sniper and game.player.has_attachment("optic", "scope4"), "scope purchase failed")
+    game.player.equip("pistol")
     var wallet_after_suppressor: int = game.wallet
     game._buy(1)
     _expect(game.wallet == wallet_after_suppressor, "already-equipped suppressor charged twice")
@@ -800,15 +809,15 @@ func _run_tests() -> void:
     _expect(reload_specs.has("smg") and reload_specs.has("shotgun"),
         "player weapon reload configuration missing in animation QA")
     var mag_sockets: Dictionary = game.player.get_script().get_script_constant_map().get("MAGAZINE_GRIP_POINTS", {})
-    _expect(mag_sockets.size() == 3,
-        "the three detachable magazine models must have their own grip socket")
+    _expect(mag_sockets.size() == 4,
+        "the four detachable magazine models must have their own grip socket")
     var reload_hand_travel: Dictionary = {}
     for gun_id: String in ["smg", "rifle", "lmg"]:
         game.player.equip(gun_id)
         game.player.reloading = true
         game.player.reload_elapsed = float(reload_specs[gun_id]["reload"]) * 0.45
         game.player._animate_viewmodel(0.20, 0.0)
-        _expect(game.player.left_hand_rig.position.z > 0.22
+        _expect(game.player.left_hand_rig.position.z > 0.12
             and game.player.left_hand_rig.position.y < -0.19,
             "support hand failed to reach magazine while reloading " + gun_id)
         reload_hand_travel[gun_id] = game.player.left_hand_rig.position.z

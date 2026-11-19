@@ -26,7 +26,9 @@ const SHOP_OPTIONS := {
         ["Mira Red Dot (arma atual)", 190, "red_dot"],
         ["Mira Holografica (arma atual)", 240, "holo"],
         ["Silenciador (arma atual)", 270, "suppressor"],
-        ["Compensador (arma atual)", 180, "compensator"]
+        ["Compensador (arma atual)", 180, "compensator"],
+        ["Sentinela · Fuzil de precisão", 850, "sniper"],
+        ["Luneta 4× · Sentinela", 320, "scope4"]
     ],
     "gear": [
         ["Repor municao", 80, "ammo"],
@@ -171,6 +173,10 @@ func _read_checkpoint() -> Dictionary:
     for key in PLAYER_FIELDS:
         if typeof(data.get(key)) != typeof(player.get(key)):
             return {}
+    # Checkpoints from before the Sentinela have no ammunition entry for it.
+    if not data.magazines.has("sniper") and not "sniper" in data.owned_weapons:
+        data.magazines.sniper = SurvivalPlayer.WEAPONS.sniper.mag
+        data.reserves.sniper = SurvivalPlayer.WEAPONS.sniper.reserve
     for id in SurvivalPlayer.WEAPONS:
         if not data.magazines.get(id) is int or not data.reserves.get(id) is int:
             return {}
@@ -809,11 +815,11 @@ func _render_shop() -> void:
             var entry: Array = options[real_index]
             var item_id: String = str(entry[2])
             var already_owned := (
-                item_id in ["smg", "rifle", "shotgun", "lmg"] and player.owned_weapons.has(item_id)
+                item_id in ["smg", "rifle", "shotgun", "lmg", "sniper"] and player.owned_weapons.has(item_id)
             )
             var already_equipped := (
-                item_id in ["red_dot", "holo", "suppressor", "compensator"]
-                and player.has_attachment("optic" if item_id in ["red_dot", "holo"] else "muzzle", item_id)
+                item_id in ["scope4", "red_dot", "holo", "suppressor", "compensator"]
+                and player.has_attachment("optic" if item_id in ["red_dot", "holo", "scope4"] else "muzzle", item_id)
             ) or (item_id.begins_with("perk_") and player.active_perk == item_id.substr(5))
             var resource_full_reason: String = _shop_resource_full_reason(item_id)
             if already_owned:
@@ -822,6 +828,8 @@ func _render_shop() -> void:
                 button.text = "%d   %s       EQUIPADO" % [i + 1, entry[0]]
             elif resource_full_reason != "":
                 button.text = "%d   %s       CHEIO" % [i + 1, entry[0]]
+                if item_id == "scope4":
+                    button.text = "Luneta 4×   ·   Equipe a Sentinela"
             else:
                 button.text = "%d   %s       $%d" % [i + 1, entry[0], entry[1]]
             button.disabled = already_equipped or resource_full_reason != "" or (not already_owned and wallet < int(entry[1]))
@@ -852,6 +860,9 @@ func _shop_resource_full_reason(id: String) -> String:
     # Guard purchases with no possible benefit, before removing credits.
     # A partial magazine/reserve refill is always allowed, even if one is full.
     match id:
+        "scope4":
+            if player.weapon_id != "sniper":
+                return "EQUIPE A SENTINELA"
         "ammo":
             var stats: Dictionary = SurvivalPlayer.WEAPONS[player.weapon_id]
             if int(player.magazines[player.weapon_id]) >= int(stats["mag"]) and int(player.reserves[player.weapon_id]) >= int(stats["reserve"]):
@@ -874,7 +885,7 @@ func _buy(index: int) -> void:
     var item: Array = options[real_index]
     var price: int = item[1]
     var id: String = item[2]
-    if id in ["smg", "rifle", "shotgun", "lmg"] and player.owned_weapons.has(id):
+    if id in ["smg", "rifle", "shotgun", "lmg", "sniper"] and player.owned_weapons.has(id):
         player.equip(id)
         _notify("EQUIPADA: " + str(item[0]), 2.0)
         _render_shop()
@@ -887,8 +898,8 @@ func _buy(index: int) -> void:
     if wallet < price:
         _notify("Dinheiro insuficiente!", 2.0)
         return
-    if id in ["red_dot", "holo", "suppressor", "compensator"]:
-        var slot := "optic" if id in ["red_dot", "holo"] else "muzzle"
+    if id in ["scope4", "red_dot", "holo", "suppressor", "compensator"]:
+        var slot := "optic" if id in ["red_dot", "holo", "scope4"] else "muzzle"
         if player.has_attachment(slot, id):
             _notify("ACESSORIO JA INSTALADO", 1.5)
             return
@@ -908,11 +919,11 @@ func _buy(index: int) -> void:
     if phase == "wave":
         round_stats.spent(price)
     match id:
-        "smg", "rifle", "shotgun", "lmg":
+        "smg", "rifle", "shotgun", "lmg", "sniper":
             player.equip(id)
         "ammo":
             player.refill_ammo()
-        "red_dot", "holo":
+        "scope4", "red_dot", "holo":
             player.install_attachment("optic", id)
         "suppressor", "compensator":
             player.install_attachment("muzzle", id)

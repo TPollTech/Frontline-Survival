@@ -304,5 +304,20 @@ def lmg():
     g.chamfer((0,.09,-.16),(.16,.05,.14),'steel',.008,name='feed_cover')
     optic(g,.12); g.save('lmg')
 
+def sniper():
+    g = Gun()
+    g.chamfer((0,-.045,.32),(.14,.16,.62),'darktan',.03,name='heavy_stock')
+    g.chamfer((0,-.02,-.30),(.13,.12,.56),'darktan',.022,name='lower_handguard')
+    g.chamfer((0,-.12,.14),(.084,.17,.10),'polymer',.016,angles=(-.25,0,0),name='grip')
+    g.cylinder((0,.055,-.02),.054,.47,'receiver',sections=20,name='receiver')
+    g.cylinder((0,.055,-.68),.025,.88,'steel',sections=20,name='barrel')
+    g.ring((0,.055,-1.12),.032,.015,.075,'black')
+    g.chamfer((0,-.13,-.12),(.08,.16,.12),'black',.01,name='magazine')
+    g.rod((.035,.065,.12),(.09,.015,.15),.012,'steel',name='charging_handle')
+    g.chamfer((0,.13,-.99),(.01,.08,.014),'black',.002,name='sight_post')
+    for x in (-.024,.024):
+        g.chamfer((x,.133,.12),(.014,.074,.025),'black',.003,name='sight_notch')
+    g.save('sniper')
+
 if __name__=='__main__':
-    pistol();smg();rifle();shotgun();lmg()
+    pistol();smg();rifle();shotgun();lmg();sniper()
