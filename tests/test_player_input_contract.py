@@ -62,7 +62,9 @@ class PlayerInputContractTests(unittest.TestCase):
             "Input.get_mouse_mode() == Input.MOUSE_MODE_CAPTURED and not controls_locked and not dead:",
             events,
         )
-        self.assertIn("rotate_y(-event.relative.x * 0.002 * GameSettings.mouse_sensitivity)", events)
+        self.assertIn("rotate_y(-event.relative.x * 0.002 * GameSettings.mouse_sensitivity * scope_sensitivity)", events)
+        self.assertIn('if weapon_id == "sniper" and aim:', events)
+        self.assertIn("scope_sensitivity = 0.42", events)
         self.assertIn("camera.rotation.x = clampf(camera.rotation.x, -1.45, 1.45)", events)
 
     def test_weapon_scroll_requires_captured_mouse(self):
