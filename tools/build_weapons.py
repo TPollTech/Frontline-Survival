@@ -48,6 +48,21 @@ class Gun:
         for y, inset in [(-h/2,b*.75),(-h/2+b,0),(h/2-b,0),(h/2,b*.75)]:
             rings += [(px-np.sign(px)*inset, y, pz-np.sign(pz)*inset) for px,pz in points]
         vs=np.asarray(rings,dtype=float)
+        # Shape the furniture in profile while keeping the attachment interfaces fixed.
+        fore = (.5 - vs[:,2] / d)
+        if name in ('wood_stock', 'solid_stock', 'heavy_stock'):
+            vs[:,0] *= 1.0 - .34 * fore
+            vs[:,1] *= 1.0 - .48 * fore
+            vs[:,1] += h * (.17 * fore - .18 * (1.0 - fore)**2)
+        elif name in ('slide', 'slide_top', 'dust_cover'):
+            vs[:,0] *= 1.0 - .16 * fore**3
+            vs[:,1] -= h * .09 * fore**3
+        elif name in ('front_handguard', 'pump_action', 'cooling_shroud', 'lower_handguard'):
+            vs[:,0] *= .84 + .16 * (1.0 - abs(vs[:,1]) / (h / 2))
+            vs[:,1] += .08 * h * fore
+        elif name in ('grip', 'pistol_grip', 'foregrip'):
+            vs[:,0] *= .88 + .14 * (.5 - vs[:,1] / h)
+            vs[:,2] += .12 * d * (.5 - vs[:,1] / h)**2
         fs=[]
         for j in range(3):
             for i in range(8):
@@ -176,10 +191,10 @@ def pistol():
 def common_receiver(g,back,front,main_color='receiver',body=(.20,.16)):
     length=back-front
     g.chamfer((0,0,(front+back)*.5),(body[0],body[1],length),main_color,.026,name='receiver')
-    g.chamfer((0,.115,(front+back)*.5),(.10,.028,length*.88),'recess',.005,name='top_rail')
+    g.chamfer((0,body[1]*.5+.009,(front+back)*.5),(.10,.028,length*.88),'recess',.005,name='top_rail')
     for i in range(9):
         z=back-.065-i*(length-.13)/8
-        g.chamfer((0,.133,z),(.105,.013,.014),'edge',.003,name='rail_tooth')
+        g.chamfer((0,body[1]*.5+.027,z),(.105,.013,.014),'edge',.003,name='rail_tooth')
     # Trigger and guard, folding stock, receiver fasteners.
     g.chamfer((0,-.18,back-.085),(.095,.25,.13),'polymer',.014,angles=(-.23,0,0),name='pistol_grip')
     g.rod((-.075,-.07,back-.18),(-.075,-.22,back-.18),.008,'black',name='guard')
@@ -199,7 +214,7 @@ def smg():
     g=Gun()
     common_receiver(g,.25,-.34,'black',(.19,.18))
     g.chamfer((0,-.16,-.13),(.09,.32,.085),'receiver',.012,angles=(-.10,0,0),name='stick_magazine')
-    g.chamfer((0,-.23,-.16),(.10,.035,.09),'steel',.008,name='magazine_heel')
+    g.chamfer((0,-.319,-.147),(.10,.035,.09),'steel',.008,name='magazine_heel')
     g.chamfer((0,0,-.39),(.21,.15,.32),'polymer',.024,name='front_handguard')
     for x in [-.112,.112]:
         for j in range(4):
@@ -268,7 +283,7 @@ def shotgun():
 def lmg():
     g=Gun()
     common_receiver(g,.32,-.31,'black',(.265,.23))
-    g.chamfer((0,-.03,-.54),(.29,.20,.45),'receiver',.03,name='cooling_shroud')
+    g.chamfer((0,-.012,-.54),(.29,.20,.45),'receiver',.03,name='cooling_shroud')
     for x in [-.153,.153]:
         for z in np.linspace(-.36,-.72,6):
             g.chamfer((x,-.015,z),(.015,.075,.035),'recess',.006,name='heat_port')
