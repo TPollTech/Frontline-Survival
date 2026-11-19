@@ -830,8 +830,8 @@ func _run_tests() -> void:
     _expect(reload_specs.has("smg") and reload_specs.has("shotgun"),
         "player weapon reload configuration missing in animation QA")
     var mag_sockets: Dictionary = game.player.get_script().get_script_constant_map().get("MAGAZINE_GRIP_POINTS", {})
-    _expect(mag_sockets.size() == 3,
-        "the three detachable magazine models must have their own grip socket")
+    _expect(mag_sockets.size() == 4 and mag_sockets.has("sniper"),
+        "all four detachable magazine models, including MRS-7, require independent grip sockets")
     var reload_hand_travel: Dictionary = {}
     for gun_id: String in ["smg", "rifle", "lmg"]:
         game.player.equip(gun_id)
