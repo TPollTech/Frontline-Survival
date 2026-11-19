@@ -26,7 +26,8 @@ const WEAPONS = {
     "smg": {"name":"Submetralhadora", "damage":19.0, "mag":32, "reserve":160, "rate":0.085, "reload":1.70, "spread":0.023, "auto":true, "pellets":1},
     "rifle": {"name":"Fuzil", "damage":34.0, "mag":30, "reserve":150, "rate":0.13, "reload":1.95, "spread":0.011, "auto":true, "pellets":1},
     "shotgun": {"name":"Escopeta", "damage":17.0, "mag":8, "reserve":48, "rate":0.72, "reload":2.15, "spread":0.09, "auto":false, "pellets":8},
-    "lmg": {"name":"Metralhadora leve", "damage":28.0, "mag":75, "reserve":225, "rate":0.105, "reload":3.65, "spread":0.018, "auto":true, "pellets":1}
+    "lmg": {"name":"Metralhadora leve", "damage":28.0, "mag":75, "reserve":225, "rate":0.105, "reload":3.65, "spread":0.018, "auto":true, "pellets":1},
+    "sniper": {"name":"Fuzil de Precisao MRS-7", "damage":165.0, "mag":5, "reserve":25, "rate":1.35, "reload":2.90, "spread":0.13, "auto":false, "pellets":1}
 }
 # Independent visual feedback per weapon class; these values affect neither
 # shot direction nor the player-camera kick (only first-person geometry).
@@ -36,6 +37,7 @@ const VIEWMODEL_RECOIL_SCALE := {
     "rifle": 1.0,
     "shotgun": 1.45,
     "lmg": 1.18,
+    "sniper": 1.55,
 }
 # Local mesh coordinates of the actual removable magazine/drum grip. These
 # follow the original meshes in tools/build_weapons.py, not a shared offset.
@@ -43,6 +45,7 @@ const MAGAZINE_GRIP_POINTS := {
     "smg": Vector3(-0.052, -0.19, -0.13),
     "rifle": Vector3(-0.045, -0.26, -0.215),
     "lmg": Vector3(-0.105, -0.27, -0.035),
+    "sniper": Vector3(-0.045, -0.24, -0.18),
 }
 # The shotgun pump is a separate action mesh; the left glove holds its
 # lower-left grip surface while it racks, not the gun receiver.
@@ -93,6 +96,7 @@ var previous_weapon: String = "pistol"
 var owned_weapons: Array[String] = ["pistol"]
 var weapon_upgrades: Dictionary = {}
 var shot_spread_kick: float = 0.0
+var sniper_ads_seconds: float = 0.0 # Quick scope timer, resets when ADS releases.
 var sprint_blend: float = 0.0
 var sprint_stride: float = 0.0
 var grenade_throw_timer: float = 0.0
@@ -224,12 +228,46 @@ func _weapon_wall_proximity() -> float:
     var distance: float = origin.distance_to(hit["position"])
     return clampf((reach - distance) / 0.70, 0.0, 1.0)
 
+func _sniper_scope() -> String:
+    var slots: Dictionary = weapon_attachments.get("sniper", {})
+    return str(slots.get("optic", ""))
+
+func _ads_fov_multiplier() -> float:
+    if weapon_id != "sniper":
+        return 0.70
+    match _sniper_scope():
+        "scope_2x":
+            return 0.48
+        "scope_4x":
+            return 0.29
+    return 0.70 # Iron sight is the starter optic.
+
+func _sniper_shot_spread() -> float:
+    if not aim:
+        return 0.13 # Hipfire is deliberately imprecise.
+    if sniper_ads_seconds < 0.11:
+        return 0.045 # No early accuracy before the sights begin to align.
+    # Quick scope starts at 110ms; held ADS remains accurate.
+    match _sniper_scope():
+        "scope_4x":
+            return 0.0012
+        "scope_2x":
+            return 0.0018
+    return 0.0025
+
 func has_attachment(slot: String, id: String) -> bool:
     return str(weapon_attachments.get(weapon_id, {}).get(slot, "")) == id
 
 func install_attachment(slot: String, id: String) -> bool:
-    if slot == "optic" and id not in ["red_dot", "holo"]:
-        return false
+    if slot == "optic":
+        if weapon_id == "sniper":
+            if id not in ["scope_2x", "scope_4x"]:
+                return false
+            var previous_scope: String = _sniper_scope()
+            if previous_scope == "scope_4x" or (id == "scope_4x" and previous_scope != "scope_2x"):
+                return false
+        elif id not in ["red_dot", "holo"]:
+            return false
     if slot == "muzzle" and id not in ["suppressor", "compensator"]:
         return false
     var selections: Dictionary = weapon_attachments.get(weapon_id, {"optic":"", "muzzle":""})
@@ -313,6 +351,7 @@ func _physics_process(delta: float) -> void:
     var sprinting := Input.is_key_pressed(KEY_SHIFT) and is_on_floor() and movement.y < -0.05 and posture == "stand" and current_body_height >= 1.79 and not downed and not reloading and not controls_locked
     sprint_blend = move_toward(sprint_blend, 1.0 if sprinting else 0.0, delta * (5.0 if sprinting else 7.5))
     aim = Input.get_mouse_mode() == Input.MOUSE_MODE_CAPTURED and Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT) and not controls_locked and not reloading and pending_weapon_id == "" and equip_anim_timer <= 0.0 and weapon_wall_blend < 0.30 and not sprinting and sprint_blend < 0.20 and not downed
+    sniper_ads_seconds = minf(2.0, sniper_ads_seconds + delta) if (weapon_id == "sniper" and aim) else 0.0
     var speed := 0.8 if downed else (1.15 if posture == "prone" else (2.8 if posture == "crouch" else (8.0 if sprinting else (4.35 if aim else 5.2))))
     if active_perk == "mobility" and aim:
         speed *= 1.17
@@ -330,14 +369,15 @@ func _physics_process(delta: float) -> void:
     var ground_motion: float = Vector2(velocity.x, velocity.z).length() if is_on_floor() else 0.0
     var motion_ratio: float = clampf(ground_motion / maxf(speed, 0.1), 0.0, 1.0)
     # ADS takes priority; blocked movement must not widen the sprint FOV.
-    var target_fov: float = GameSettings.field_of_view * (0.70 if aim else (1.045 if sprint_blend * motion_ratio > 0.55 else 1.0))
-    camera.fov = lerpf(camera.fov, target_fov, minf(1.0, delta * (14.0 if active_perk == "fast_ads" else 10.0)))
+    var target_fov: float = GameSettings.field_of_view * (_ads_fov_multiplier() if aim else (1.045 if sprint_blend * motion_ratio > 0.55 else 1.0))
+    var fov_speed: float = 22.0 if (aim and weapon_id == "sniper") else (14.0 if active_perk == "fast_ads" else 10.0)
+    camera.fov = lerpf(camera.fov, target_fov, minf(1.0, delta * fov_speed))
     walk_clock += delta * motion_ratio * (10.0 if sprinting else 8.0)
     sprint_stride = sin(walk_clock * 1.16) * sprint_blend * motion_ratio
     shot_spread_kick = move_toward(shot_spread_kick, 0.0, delta * 1.25)
     # Align the physical front/rear sight with the camera's central ray.
     # No on-screen crosshair: the actual sight must indicate point of aim.
-    var sight_height: float = float({"pistol": 0.121, "smg": 0.232, "rifle": 0.177, "shotgun": 0.140, "lmg": 0.232}.get(weapon_id, 0.20))
+    var sight_height: float = float({"pistol": 0.121, "smg": 0.232, "rifle": 0.177, "shotgun": 0.140, "lmg": 0.232, "sniper": 0.252 if _sniper_scope() != "" else 0.182}.get(weapon_id, 0.20))
     var sight_y := -viewmodel_scale * sight_height
     var gun_target := Vector3(0.0, sight_y, -0.62) if aim else Vector3(0.34, -0.27, -0.63)
     # Distinct military-style tactical sprint. Eased tuck, low muzzle and
@@ -388,8 +428,11 @@ func _physics_process(delta: float) -> void:
 # depende mais de _unhandled_input (que pode descartar o clique).
 func _input(event: InputEvent) -> void:
     if event is InputEventMouseMotion and Input.get_mouse_mode() == Input.MOUSE_MODE_CAPTURED and not controls_locked and not dead:
-        rotate_y(-event.relative.x * 0.002 * GameSettings.mouse_sensitivity)
-        camera.rotate_x(event.relative.y * 0.002 * GameSettings.mouse_sensitivity * (1.0 if GameSettings.invert_mouse_y else -1.0))
+        var scope_sensitivity: float = 1.0
+        if weapon_id == "sniper" and aim:
+            scope_sensitivity = 0.42 if _sniper_scope() == "scope_4x" else (0.65 if _sniper_scope() == "scope_2x" else 0.88)
+        rotate_y(-event.relative.x * 0.002 * GameSettings.mouse_sensitivity * scope_sensitivity)
+        camera.rotate_x(event.relative.y * 0.002 * GameSettings.mouse_sensitivity * scope_sensitivity * (1.0 if GameSettings.invert_mouse_y else -1.0))
         camera.rotation.x = clampf(camera.rotation.x, -1.45, 1.45)
     if event is InputEventMouseButton and not event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
         suppress_fire_until_release = false
@@ -437,11 +480,11 @@ func shoot() -> void:
     magazines[weapon_id] -= 1
     shot_serial += 1
     fire_timer = WEAPONS[weapon_id]["rate"]
-    recoil = 0.13 if weapon_id == "shotgun" else (0.075 if weapon_id == "lmg" else 0.055)
+    recoil = 0.16 if weapon_id == "sniper" else (0.13 if weapon_id == "shotgun" else (0.075 if weapon_id == "lmg" else 0.055))
     if has_attachment("muzzle", "compensator"):
         recoil *= 0.80
     shot_spread_kick = minf(0.015, shot_spread_kick + (0.0015 if has_attachment("muzzle", "compensator") else 0.002))
-    var kick_degrees := 0.55 if weapon_id == "shotgun" else (0.22 if weapon_id == "smg" else 0.32)
+    var kick_degrees := 1.35 if weapon_id == "sniper" else (0.55 if weapon_id == "shotgun" else (0.22 if weapon_id == "smg" else 0.32))
     if aim:
         kick_degrees *= 0.78
     flash_timer = 0.047 if weapon_id != "shotgun" else 0.080
@@ -454,6 +497,8 @@ func shoot() -> void:
     var did_headshot := false
     var pellet_count: int = WEAPONS[weapon_id]["pellets"]
     var spread: float = (WEAPONS[weapon_id]["spread"] + shot_spread_kick) * (0.35 if aim else 1.0)
+    if weapon_id == "sniper":
+        spread = _sniper_shot_spread() + shot_spread_kick * 0.15
     if active_perk == "steady":
         spread *= 0.75
     if posture == "crouch":
@@ -526,6 +571,7 @@ func start_reload() -> void:
     reload_timer = WEAPONS[weapon_id]["reload"] * (0.80 if active_perk == "quick_reload" else 1.0)
     reload_elapsed = 0.0
     reload_sound.stop()
+    sniper_ads_seconds = 0.0
     reload_sound.play()
 
 func _finish_reload() -> void:
@@ -571,6 +617,7 @@ func switch_weapon(id: String, force: bool = false) -> void:
     previous_weapon = weapon_id
     weapon_upgrades[weapon_id] = upgrades
     weapon_id = id
+    sniper_ads_seconds = 0.0
     if id != "pistol":
         last_primary = id
     reloading = false
@@ -707,6 +754,9 @@ func _build_muzzle_flash() -> ArrayMesh:
 func _update_shot_audio() -> void:
     shot_sound.stream = WeaponAudio.shot_for(weapon_id)
     reload_sound.stream = WeaponAudio.reload_for(weapon_id)
+    # Recorded WAV samples, pitched rather than scripted gunfire.
+    shot_sound.pitch_scale = 0.76 if weapon_id == "sniper" else 1.0
+    reload_sound.pitch_scale = 0.90 if weapon_id == "sniper" else 1.0
     if has_attachment("muzzle", "suppressor"):
         if AudioServer.get_bus_index("SUPPRESSED") < 0:
             AudioServer.add_bus()
@@ -747,8 +797,8 @@ func _update_gun_mesh() -> void:
     support_finger_tips.clear()
     support_palm_rest = Vector3.ZERO
     # Scale/depth avoid placing long stocks behind the camera's near plane.
-    viewmodel_scale = float({"pistol": 0.95, "smg": 0.84, "rifle": 0.78, "shotgun": 0.70, "lmg": 0.74}.get(weapon_id, 0.84))
-    viewmodel_depth = float({"pistol": 0.0, "smg": -0.14, "rifle": -0.24, "shotgun": -0.24, "lmg": -0.24}.get(weapon_id, -0.14))
+    viewmodel_scale = float({"pistol": 0.95, "smg": 0.84, "rifle": 0.78, "shotgun": 0.70, "lmg": 0.74, "sniper": 0.73}.get(weapon_id, 0.84))
+    viewmodel_depth = float({"pistol": 0.0, "smg": -0.14, "rifle": -0.24, "shotgun": -0.24, "lmg": -0.24, "sniper": -0.29}.get(weapon_id, -0.14))
     viewmodel_root = Node3D.new()
     viewmodel_root.name = "Viewmodel"
     gun.add_child(viewmodel_root)
@@ -780,7 +830,7 @@ func _update_gun_mesh() -> void:
     viewmodel_root.add_child(hand_rig)
     var long_gun := weapon_id != "pistol"
     var grip_z: float = viewmodel_depth + viewmodel_scale * (0.035 if weapon_id == "pistol" else 0.16)
-    var support_z: float = viewmodel_depth + viewmodel_scale * float({"smg": -0.39, "rifle": -0.48, "shotgun": -0.33, "lmg": -0.55}.get(weapon_id, -0.40))
+    var support_z: float = viewmodel_depth + viewmodel_scale * float({"smg": -0.39, "rifle": -0.48, "shotgun": -0.33, "lmg": -0.55, "sniper": -0.53}.get(weapon_id, -0.40))
     active_arm_parent = hand_rig
     _add_first_person_arm(Vector3(0.24, -0.44, grip_z + 0.24), Vector3(0.070, -0.18, grip_z), true)
     left_hand_rig = Node3D.new()
@@ -793,17 +843,81 @@ func _update_gun_mesh() -> void:
         # independent wrist animation. Used to match the magazine's grip.
         support_palm_rest = Vector3(-0.075, -0.085, support_z - 0.06)
     active_arm_parent = hand_rig
-    var muzzle_z: float = viewmodel_depth + viewmodel_scale * float({"pistol": -0.29, "smg": -0.69, "rifle": -0.95, "shotgun": -1.04, "lmg": -1.13}.get(weapon_id, -0.69))
+    var muzzle_z: float = viewmodel_depth + viewmodel_scale * float({"pistol": -0.29, "smg": -0.69, "rifle": -0.95, "shotgun": -1.04, "lmg": -1.13, "sniper": -1.35}.get(weapon_id, -0.69))
     var muzzle_height := float({"pistol": 0.061, "rifle": 0.039, "shotgun": 0.065}.get(weapon_id, 0.018))
     muzzle_flash.position = Vector3(0, viewmodel_scale * muzzle_height, muzzle_z)
     _build_attachment_models()
     equip_anim_timer = 0.34
 
+func _build_sniper_scope(optic: String) -> void:
+    # Hollow physical optic: no opaque full-screen barrel and no 2D crosshair.
+    var scope_root := Node3D.new()
+    scope_root.name = "Attachment_Optic_" + optic
+    viewmodel_root.add_child(scope_root)
+    var advanced: bool = optic == "scope_4x"
+    var tube_length: float = (0.31 if advanced else 0.22) * viewmodel_scale
+    var y: float = 0.252 * viewmodel_scale
+    var z: float = viewmodel_depth - 0.12 * viewmodel_scale
+    var metal := StandardMaterial3D.new()
+    metal.albedo_color = Color(0.07, 0.09, 0.105)
+    metal.metallic = 0.72
+    metal.roughness = 0.38
+    for ring_index in range(4):
+        var ring := MeshInstance3D.new()
+        ring.name = "Scope_HollowRing"
+        var torus := TorusMesh.new()
+        var radius: float = (0.057 if advanced else 0.045) * viewmodel_scale
+        torus.inner_radius = radius - 0.008
+        torus.outer_radius = radius
+        torus.ring_segments = 18
+        torus.rings = 12
+        ring.mesh = torus
+        ring.rotation.x = PI * 0.5
+        ring.position = Vector3(0.0, y, z - tube_length * float(ring_index) / 3.0)
+        ring.material_override = metal
+        scope_root.add_child(ring)
+    for side in [-1.0, 1.0]:
+        var rail := MeshInstance3D.new()
+        rail.name = "Scope_TubeRail"
+        var rail_mesh := BoxMesh.new()
+        rail_mesh.size = Vector3(0.008 * viewmodel_scale, 0.010 * viewmodel_scale, tube_length)
+        rail.mesh = rail_mesh
+        rail.position = Vector3(side * 0.036 * viewmodel_scale, y, z - tube_length * 0.5)
+        rail.material_override = metal
+        scope_root.add_child(rail)
+        var mount := MeshInstance3D.new()
+        mount.name = "Scope_RailMount"
+        var mount_mesh := BoxMesh.new()
+        mount_mesh.size = Vector3(0.014, 0.075 * viewmodel_scale, 0.038)
+        mount.mesh = mount_mesh
+        mount.position = Vector3(side * 0.022, y - 0.052 * viewmodel_scale, z - tube_length * 0.5)
+        mount.material_override = metal
+        scope_root.add_child(mount)
+    var dot := MeshInstance3D.new()
+    dot.name = "Optic_EmissiveReticle"
+    var point := SphereMesh.new()
+    point.radius = 0.0034 if advanced else 0.0041
+    point.height = point.radius * 2.0
+    dot.mesh = point
+    dot.position = Vector3(0.0, y, z - tube_length - 0.008)
+    var emitter := StandardMaterial3D.new()
+    emitter.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+    emitter.albedo_color = Color(0.8, 0.95, 0.78) if advanced else Color(0.97, 0.43, 0.21)
+    emitter.emission_enabled = true
+    emitter.emission = emitter.albedo_color
+    emitter.emission_energy_multiplier = 1.7
+    dot.material_override = emitter
+    dot.visible = false
+    scope_root.add_child(dot)
+    optic_reticle = dot
+
 func _build_attachment_models() -> void:
     var attach: Dictionary = weapon_attachments.get(weapon_id, {})
     var optic: String = str(attach.get("optic", ""))
     var muzzle: String = str(attach.get("muzzle", ""))
-    if optic != "":
+    if optic.begins_with("scope_"):
+        _build_sniper_scope(optic)
+    elif optic != "":
         # A real sight picture: hollow housing + glass pane + emissive dot.
         # The camera looks THROUGH the hole, not into a solid black box.
         var optic_root := Node3D.new()
@@ -914,7 +1028,7 @@ func _build_attachment_models() -> void:
         cylinder.height = 0.30 if muzzle == "suppressor" else 0.11
         tube.mesh = cylinder
         tube.rotation.x = PI * 0.5
-        var front_z: float = float({"pistol":-0.29,"smg":-0.69,"rifle":-0.95,"shotgun":-1.04,"lmg":-1.13}.get(weapon_id, -0.75))
+        var front_z: float = float({"pistol":-0.29,"smg":-0.69,"rifle":-0.95,"shotgun":-1.04,"lmg":-1.13,"sniper":-1.35}.get(weapon_id, -0.75))
         tube.position = Vector3(0.0, 0.04 * viewmodel_scale, viewmodel_depth + front_z * viewmodel_scale - cylinder.height * 0.48)
         var barrel_mat := StandardMaterial3D.new()
         barrel_mat.albedo_color = Color(0.12, 0.135, 0.14)
@@ -966,6 +1080,8 @@ func _animate_viewmodel(delta: float, sprint_ease: float) -> void:
         magazine_part.rotation.z = lerpf(magazine_part.rotation.z, 0.22 * mag_out, minf(1.0, delta * 27.0))
     if is_instance_valid(action_part):
         var cycling := 0.048 * shot_anim
+        if weapon_id == "sniper":
+            cycling = 0.12 * shot_anim
         var rack := 0.055 * (sin(t * PI * 3.0) ** 2.0) if reloading and t > 0.67 else 0.0
         var action_target := Vector3(0, 0, viewmodel_depth + cycling + rack + pump)
         action_part.position = action_part.position.lerp(action_target, minf(1.0, delta * 26.0))

@@ -6,6 +6,7 @@ const SHOTS = {
     "rifle": preload("res://assets/audio/weapons/rifle.wav"),
     "shotgun": preload("res://assets/audio/weapons/shotgun.wav"),
     "lmg": preload("res://assets/audio/weapons/lmg.wav"),
+    "sniper": preload("res://assets/audio/weapons/rifle.wav"), # Temporary real recorded gunshot.
 }
 
 const RELOADS = {
@@ -14,6 +15,7 @@ const RELOADS = {
     "rifle": preload("res://assets/audio/reloads/rifle.wav"),
     "shotgun": preload("res://assets/audio/reloads/shotgun.wav"),
     "lmg": preload("res://assets/audio/reloads/lmg.wav"),
+    "sniper": preload("res://assets/audio/reloads/rifle.wav"), # Real recorded reload.
 }
 
 static func reload_for(weapon_id: String) -> AudioStreamWAV:

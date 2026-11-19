@@ -289,5 +289,35 @@ def lmg():
     g.chamfer((0,.09,-.16),(.16,.05,.14),'steel',.008,name='feed_cover')
     optic(g,.12); g.save('lmg')
 
+def sniper():
+    g=Gun()
+    # MRS-7: original lightweight bolt-action precision rifle; forward is -Z.
+    g.chamfer((0.0, 0.0, -0.095), (.188, .172, .57), 'receiver', .020, name='receiver')
+    g.chamfer((0.0, .094, -.12), (.145, .045, .51), 'black', .012, name='receiver_rail')
+    g.chamfer((0.0, -.040, .35), (.108, .135, .54), 'polymer', .023, name='stock_wrist')
+    g.chamfer((0.0, -.055, .66), (.17, .22, .29), 'black', .03, name='precision_stock')
+    g.chamfer((0.0, -.058, .815), (.19, .235, .055), 'polymer', .015, name='butt_pad')
+    g.chamfer((0.0, -.174, .135), (.100, .23, .13), 'polymer', .02, angles=(-.22,0,0), name='pistol_grip')
+    g.chamfer((0.0, -.22, -.165), (.108, .20, .136), 'black', .015, name='magazine_box')
+    g.chamfer((0.0, -.326, -.16), (.111, .027, .144), 'steel', .007, name='magazine_heel')
+    g.chamfer((0.0, -.01, -.47), (.245, .17, .50), 'polymer', .026, name='freefloat_handguard')
+    for x in (-.126,.126):
+        for z in np.linspace(-.35,-.66,6):
+            g.chamfer((x, .015, z), (.013, .026, .057), 'recess', .004, name='vent_slot')
+    g.cylinder((0.0, .037, -.91), .025, 1.12, 'steel', sections=16, name='precision_barrel')
+    g.cylinder((0.0, .037, -1.35), .042, .14, 'black', sections=16, name='barrel_brake')
+    g.ring((0.0, .037, -1.425), .040, .020, .06, 'steel', name='muzzle_ring')
+    g.chamfer((.112, .053, -.018), (.030, .023, .10), 'steel', .006, name='charging_handle')
+    g.chamfer((.078, .063, -.10), (.014, .027, .19), 'recess', .004, name='bolt_slot')
+    g.chamfer((0.0, .15, -.20), (.095, .024, .08), 'black', .008, name='iron_rear_base')
+    for side in (-.037, .037):
+        g.chamfer((side, .188, -.22), (.012, .05, .033), 'steel', .004, name='iron_rear_sight')
+        g.chamfer((side, .183, -1.17), (.010, .051, .038), 'steel', .003, name='iron_front_guard')
+    g.chamfer((0.0, .178, -1.17), (.010, .031, .018), 'steel', .003, name='iron_front_post')
+    for x in (-.11, .11):
+        g.rod((x,-.10,-.71),(x*1.5,-.41,-.80),.012,'black',name='folding_bipod')
+    g.save('sniper')
+
+
 if __name__=='__main__':
-    pistol();smg();rifle();shotgun();lmg()
+    pistol();smg();rifle();shotgun();lmg();sniper()
