@@ -532,6 +532,20 @@ func _run_tests() -> void:
     await physics_frame
     _expect(ObstacleSteering.blocked(route_npc, route_direction, 2.35),
         "physical wall must block the NPC's approach before testing route recovery")
+    var test_turret: Variant = load("res://scripts/turret.gd").new()
+    game.add_child(test_turret)
+    test_turret.set_physics_process(false)
+    test_turret.global_position = game.player.global_position - Vector3.UP * 0.79
+    var saved_phase: String = game.phase
+    game.phase = "wave"
+    var covered_health: float = route_npc.health
+    test_turret._physics_process(0.02)
+    _expect(route_npc.health == covered_health, "turret must respect a solid wall")
+    test_turret.global_position = route_npc.global_position - route_direction - Vector3.UP * 0.79
+    test_turret._physics_process(0.4)
+    _expect(route_npc.health < covered_health, "turret must damage an exposed enemy")
+    test_turret.free()
+    game.phase = saved_phase
     route_npc.navigation_check = 0.0
     route_npc.detour_remaining = 0.0
     route_npc._update_obstacle_navigation(0.12, route_direction, 4.4, 5.5, false)

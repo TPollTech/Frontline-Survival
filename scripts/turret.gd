@@ -31,7 +31,7 @@ func _ready() -> void:
     light.position.y = 0.95
     add_child(light)
 
-func _process(delta: float) -> void:
+func _physics_process(delta: float) -> void:
     # Torretas compradas durante o intervalo guardam seu tempo de combate.
     var game := get_parent()
     if game != null and game.get("phase") == "break":
@@ -43,13 +43,17 @@ func _process(delta: float) -> void:
     shot_cooldown -= delta
     if shot_cooldown > 0.0:
         return
+    shot_cooldown = 0.15
     var nearest: SurvivalEnemy = null
     var nearest_distance := 16.0
     for target in get_tree().get_nodes_in_group("enemies"):
         if not is_instance_valid(target) or target.dead:
             continue
         var distance := global_position.distance_to(target.global_position)
-        if distance < nearest_distance:
+        if distance >= nearest_distance:
+            continue
+        var sight := PhysicsRayQueryParameters3D.create(barrel.global_position, target.global_position, 1)
+        if get_world_3d().direct_space_state.intersect_ray(sight).is_empty():
             nearest = target
             nearest_distance = distance
     if nearest != null:

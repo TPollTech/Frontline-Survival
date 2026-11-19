@@ -445,8 +445,10 @@ func _begin_wave() -> void:
     if shop_open:
         _close_shop()
     wave += 1
-    record_wave = maxi(record_wave, wave)
-    _save_record()
+    if wave > record_wave:
+        record_wave = wave
+        if not "--qa-15-waves" in OS.get_cmdline_user_args():
+            _save_record()
     phase = "wave"
     report_remaining = 0.0
     wave_kills = 0
@@ -629,13 +631,16 @@ func _end_wave() -> void:
     previous_wave_kills = wave_kills
     var bonus := 60 + wave * 20
     wallet += bonus
+    var health_before := player.health
     player.heal(15.0)
+    var recovered := roundi(player.health) - roundi(health_before)
     round_stats.finish(bonus)
     var accuracy_value: float = round_stats.accuracy()
     var accuracy_text := "--" if accuracy_value < 0.0 else "%d%%" % roundi(accuracy_value)
     # One compact, temporary recap; no central modal, no repeated countdown.
-    round_report.text = "ONDA %02d CONCLUIDA   +$%d  |  +15 VIDA\n%d ABATES   •   %d HEADSHOTS   •   PRECISAO %s" % [
-        wave, bonus, previous_wave_kills, round_stats.headshot_kills, accuracy_text
+    round_report.text = "ONDA %02d CONCLUIDA   +$%d%s\n%d ABATES   •   %d HEADSHOTS   •   PRECISAO %s" % [
+        wave, bonus, "  |  +%d VIDA" % recovered if recovered > 0 else "",
+        previous_wave_kills, round_stats.headshot_kills, accuracy_text
     ]
     report_remaining = 4.0
     banner_timer = 0.0
