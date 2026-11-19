@@ -2,11 +2,19 @@ extends CanvasLayer
 class_name SurvivalGameMenu
 ## Tela inicial, pausa e menu de configuracoes. Funciona com a arvore pausada.
 
+signal load_requested
 signal start_requested
 signal pause_requested
 signal resume_requested
 signal restart_requested
 
+var checkpoint_wave := -1
+var current_wave := 0
+var balance := 0
+var pending_action := ""
+var kicker: Label
+var footer: Label
+var rail: MarginContainer
 var backdrop: ColorRect
 var container: PanelContainer
 var title: Label
@@ -33,7 +41,9 @@ func _input(event: InputEvent) -> void:
     if event.keycode != KEY_ESCAPE:
         return
     if active:
-        if in_options:
+        if pending_action != "":
+            _cancel_action()
+        elif in_options:
             in_options = false
             _render()
         elif mode == "pause":
@@ -49,26 +59,32 @@ func _build() -> void:
     backdrop.color = Color(0.018, 0.035, 0.045, 0.91)
     backdrop.mouse_filter = Control.MOUSE_FILTER_STOP
     add_child(backdrop)
-    var centered := CenterContainer.new()
-    centered.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-    backdrop.add_child(centered)
+    var shade := TextureRect.new()
+    var ramp := Gradient.new()
+    ramp.colors = PackedColorArray([Color(0.025,0.035,0.032,0.99), Color(0.04,0.05,0.04,0.82), Color(0.07,0.08,0.05,0.1)])
+    ramp.offsets = PackedFloat32Array([0.0, 0.44, 1.0])
+    var texture := GradientTexture2D.new()
+    texture.gradient = ramp
+    texture.fill_to = Vector2.RIGHT
+    shade.texture = texture
+    shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+    shade.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    backdrop.add_child(shade)
+    rail = MarginContainer.new()
+    rail.set_anchors_and_offsets_preset(Control.PRESET_CENTER_LEFT)
+    rail.grow_vertical = Control.GROW_DIRECTION_BOTH
+    rail.offset_left = 64
+    backdrop.add_child(rail)
     container = PanelContainer.new()
-    container.custom_minimum_size = Vector2(710, 0)
-    var style := StyleBoxFlat.new()
-    style.bg_color = Color(0.035, 0.061, 0.079, 0.98)
-    style.border_color = Color(0.21, 0.64, 0.71, 0.62)
-    style.set_border_width_all(1)
-    style.set_corner_radius_all(12)
-    style.set_content_margin_all(24)
-    container.add_theme_stylebox_override("panel", style)
-    centered.add_child(container)
+    container.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
+    rail.add_child(container)
     var column := VBoxContainer.new()
     column.add_theme_constant_override("separation", 10)
     container.add_child(column)
-    var kicker := Label.new()
+    kicker = Label.new()
     kicker.text = "FRONTLINE   /   SURVIVAL 0.9.19"
     kicker.add_theme_font_size_override("font_size", 15)
-    kicker.add_theme_color_override("font_color", Color(0.34, 0.79, 0.85))
+    kicker.add_theme_color_override("font_color", Color(0.84, 0.84, 0.48))
     column.add_child(kicker)
     title = Label.new()
     title.text = "FRONTLINE SURVIVAL"
@@ -95,7 +111,7 @@ func _build() -> void:
     options.size_flags_horizontal = Control.SIZE_EXPAND_FILL
     options.add_theme_constant_override("separation", 8)
     options_scroll.add_child(options)
-    var footer := Label.new()
+    footer = Label.new()
     footer.text = "MAPA DE TESTES  |  RYZEN 5 7530U  |  ESC: PAUSAR / VOLTAR"
     footer.add_theme_font_size_override("font_size", 12)
     footer.add_theme_color_override("font_color", Color(0.46, 0.56, 0.61))
@@ -104,13 +120,17 @@ func _build() -> void:
 func _button(parent: Control, caption: String, callback: Callable, main_action: bool = false) -> void:
     var button := Button.new()
     button.text = caption
-    button.custom_minimum_size = Vector2(605, 44)
+    button.custom_minimum_size = Vector2(340, 48)
     button.add_theme_font_size_override("font_size", 17)
-    if main_action:
+    button.alignment = HORIZONTAL_ALIGNMENT_LEFT
+    for state in ["normal","hover","pressed","focus"]:
         var style := StyleBoxFlat.new()
-        style.bg_color = Color(0.13, 0.43, 0.51)
-        style.set_corner_radius_all(5)
-        button.add_theme_stylebox_override("normal", style)
+        style.bg_color = Color(0.24,0.27,0.17,0.95) if main_action or state != "normal" else Color(0.1,0.12,0.1,0.84)
+        style.border_width_left = 3
+        style.border_color = Color(0.84,0.85,0.48) if state != "normal" or main_action else Color(0.3,0.34,0.28)
+        style.content_margin_left = 18
+        style.set_corner_radius_all(1)
+        button.add_theme_stylebox_override(state, style)
     button.pressed.connect(callback)
     parent.add_child(button)
 
@@ -258,23 +278,59 @@ func _render() -> void:
         (settings_tabs.get_child(index) as Button).button_pressed = (
             index == ["graphics", "audio", "controls", "gameplay"].find(settings_category)
         )
+    backdrop.color = Color(0.02,0.03,0.025,0.19 if mode == "main" else 0.56)
+    kicker.text = "FRONTLINE    /    SURVIVAL" if mode == "pause" else "OPERAÇÕES    /    SOLO"
+    footer.text = "ESC   VOLTAR" if in_options or pending_action != "" else ""
     if in_options:
-        title.text = "CONFIGURACOES"
-        subtitle.text = "GRAFICOS  /  AUDIO  /  CONTROLES  /  JOGABILIDADE"
+        title.text = "Configurações"
+        subtitle.text = ""
         _build_options()
+        settings_tabs.get_child(0).grab_focus()
+        return
+    if pending_action != "":
+        title.text = "Confirmar"
+        subtitle.text = "Substituir o checkpoint e começar de novo?" if pending_action == "new" else "O progresso após o último checkpoint será perdido."
+        _button(navigation, "Voltar", _cancel_action, true)
+        _button(navigation, "Confirmar", _confirm_action)
     elif mode == "main":
-        title.text = "SURVIVAL"
-        subtitle.text = "CAMPO DE TESTES  |  OPERACAO SOLO  |  PROGRESSAO POR ONDAS"
-        _button(navigation, "JOGAR  /  INICIAR OPERACAO", _start, true)
-        _button(navigation, "CONFIGURACOES", _show_options)
-        _button(navigation, "ENCERRAR JOGO", _quit)
+        title.text = "FRONTLINE SURVIVAL"
+        title.add_theme_font_size_override("font_size", 52)
+        subtitle.text = "Campo de testes   /   Sobrevivência por ondas"
+        _button(navigation, "Novo jogo", _request.bind("new"), true)
+        var label := "Carregar jogo   ·   Onda %02d" % (checkpoint_wave + 1) if checkpoint_wave >= 0 else "Carregar jogo   ·   Sem checkpoint"
+        _button(navigation, label, load_requested.emit)
+        (navigation.get_child(1) as Button).disabled = checkpoint_wave < 0
+        _button(navigation, "Configurações", _show_options)
+        _button(navigation, "Sair do jogo", _quit)
     else:
-        title.text = "OPERACAO PAUSADA"
-        subtitle.text = "A partida esta pausada. Ajustes salvos automaticamente."
-        _button(navigation, "CONTINUAR", resume, true)
-        _button(navigation, "CONFIGURACOES", _show_options)
-        _button(navigation, "REINICIAR PARTIDA", _restart)
-        _button(navigation, "SAIR DO JOGO", _quit)
+        title.text = "Partida pausada"
+        title.add_theme_font_size_override("font_size", 36)
+        subtitle.text = "Onda %02d    /    $%d" % [current_wave, balance]
+        _button(navigation, "Retomar partida", resume, true)
+        _button(navigation, "Configurações", _show_options)
+        _button(navigation, "Voltar ao menu inicial", _request.bind("main"))
+        _button(navigation, "Sair do jogo", _request.bind("quit"))
+        footer.text = "Checkpoint automático ao concluir cada onda."
+    navigation.get_child(0).grab_focus()
+
+func _request(action: String) -> void:
+    if action == "new" and checkpoint_wave < 0:
+        _start()
+        return
+    pending_action = action
+    _render()
+
+func _cancel_action() -> void:
+    pending_action = ""
+    _render()
+
+func _confirm_action() -> void:
+    var action := pending_action
+    pending_action = ""
+    match action:
+        "new": _start()
+        "main": _restart()
+        "quit": _quit()
 
 func open_main() -> void:
     mode = "main"

@@ -127,6 +127,94 @@ var death_panel: Panel
 var death_hud: Label
 const RECORD_PATH := "user://frontline_best_wave.txt"
 
+var checkpoint_path := "user://operation-v1.save"
+const MATCH_FIELDS := ["wave", "wallet", "kills", "grenades", "ally_tokens", "airstrike_tokens"]
+const PLAYER_FIELDS := ["health", "armor", "magazines", "reserves", "owned_weapons", "weapon_upgrades", "weapon_attachments", "active_perk", "self_revive_kits", "last_primary"]
+
+var briefing_camera: Camera3D
+
+func _write_checkpoint() -> void:
+    if "--qa-15-waves" in OS.get_cmdline_user_args() or ("--script" in OS.get_cmdline_args() and checkpoint_path.begins_with("user://")):
+        return
+    var data := {"version": 1, "weapon": player.weapon_id, "units": []}
+    for key in MATCH_FIELDS:
+        data[key] = get(key)
+    for key in PLAYER_FIELDS:
+        data[key] = player.get(key)
+    for group in ["turrets", "allies"]:
+        for unit in get_tree().get_nodes_in_group(group):
+            if unit.get_parent() == self and not unit.is_queued_for_deletion():
+                data.units.append([group, unit.position, unit.time_left if group == "turrets" else unit.health, unit.lifetime if group == "allies" else 0.0])
+    var file := FileAccess.open(checkpoint_path + ".tmp", FileAccess.WRITE)
+    if file != null:
+        file.store_var(data)
+        file.flush()
+        var ok := file.get_error() == OK
+        file.close()
+        if ok and DirAccess.rename_absolute(checkpoint_path + ".tmp", checkpoint_path) == OK:
+            game_menu.checkpoint_wave = wave
+            return
+    _notify("Não foi possível salvar o checkpoint.", 4.0)
+
+func _read_checkpoint() -> Dictionary:
+    if not FileAccess.file_exists(checkpoint_path):
+        return {}
+    var file := FileAccess.open(checkpoint_path, FileAccess.READ)
+    if file == null or file.get_length() > 524288:
+        return {}
+    var data: Variant = file.get_var(false)
+    if not data is Dictionary or data.get("version") != 1 or not SurvivalPlayer.WEAPONS.has(data.get("weapon")):
+        return {}
+    for key in MATCH_FIELDS:
+        if not data.get(key) is int or data[key] < 0:
+            return {}
+    for key in PLAYER_FIELDS:
+        if typeof(data.get(key)) != typeof(player.get(key)):
+            return {}
+    for id in SurvivalPlayer.WEAPONS:
+        if not data.magazines.get(id) is int or not data.reserves.get(id) is int:
+            return {}
+    if not data.weapon in data.owned_weapons or not "pistol" in data.owned_weapons or not data.get("units") is Array:
+        return {}
+    for unit in data.units:
+        if not unit is Array or unit.size() != 4 or not unit[0] in ["turrets","allies"] or not unit[1] is Vector3 or not unit[2] is float or not unit[3] is float:
+            return {}
+    return data
+
+func _load_checkpoint() -> void:
+    var data := _read_checkpoint()
+    if data.is_empty():
+        game_menu.checkpoint_wave = -1
+        game_menu.open_main()
+        return
+    for key in MATCH_FIELDS:
+        set(key, data[key])
+    for key in PLAYER_FIELDS:
+        player.set(key, data[key])
+    player.upgrades = int(player.weapon_upgrades.get(player.weapon_id, 0))
+    player.equip(data.weapon)
+    player._update_gun_mesh()
+    for entry in data.units:
+        if entry[0] == "turrets":
+            var turret := SurvivalTurret.new()
+            turret.position = entry[1]
+            turret.time_left = entry[2]
+            add_child(turret)
+            turret.add_to_group("turrets")
+        else:
+            var ally := SurvivalAlly.new()
+            ally.configure(player)
+            ally.position = entry[1]
+            ally.health = entry[2]
+            ally.lifetime = entry[3]
+            add_child(ally)
+    break_duration = float(GameSettings.intermission_seconds) if wave > 0 else INITIAL_PREPARATION_SECONDS
+    break_remaining = break_duration
+    player.camera.make_current()
+    combat_hud_root.show()
+    game_menu.resume()
+    _show_banner("CHECKPOINT CARREGADO", "Preparação para a onda %02d" % (wave + 1), 3.0)
+
 func _ready() -> void:
     randomize()
     _load_record()
@@ -150,12 +238,23 @@ func _ready() -> void:
     game_menu.start_requested.connect(_on_game_start)
     game_menu.resume_requested.connect(_on_resume)
     game_menu.restart_requested.connect(_restart_game)
+    game_menu.load_requested.connect(_load_checkpoint)
+    game_menu.checkpoint_wave = _read_checkpoint().get("wave", -1)
+    briefing_camera = Camera3D.new()
+    add_child(briefing_camera)
+    briefing_camera.position = Vector3(17, 9, 18)
+    briefing_camera.look_at(Vector3(-3, 1, -8))
+    briefing_camera.make_current()
+    combat_hud_root.hide()
     game_menu.open_main()
     if "--qa-15-waves" in OS.get_cmdline_user_args():
         add_child(preload("res://tests/fifteen_waves_qa.gd").new())
     _notify("CAMPO DE TESTES  |  ONDAS CONTINUAS", 3.0)
 
 func _on_game_start() -> void:
+    player.camera.make_current()
+    combat_hud_root.show()
+    _write_checkpoint()
     # Starting via a menu click must not turn a held trigger into automatic fire.
     player.suppress_fire_until_release = Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT)
     _show_banner("CAMPO DE TESTES", "25 segundos para comprar equipamentos antes da primeira onda.", 4.0)
@@ -166,6 +265,8 @@ func _on_resume() -> void:
     player.suppress_fire_until_release = Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT)
 
 func _prepare_pause() -> void:
+    game_menu.current_wave = wave
+    game_menu.balance = wallet
     if shop_open:
         _close_shop()
 
@@ -645,6 +746,7 @@ func _end_wave() -> void:
     report_remaining = 4.0
     banner_timer = 0.0
     status_timer = 0.0
+    _write_checkpoint()
 
 func _clock(seconds: float) -> String:
     var remaining: int = maxi(0, ceili(seconds))
