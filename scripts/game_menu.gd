@@ -105,6 +105,7 @@ func _build() -> void:
     _build_settings_tabs()
     options_scroll = ScrollContainer.new()
     options_scroll.custom_minimum_size = Vector2(645, 370)
+    options_scroll.follow_focus = true
     options_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
     column.add_child(options_scroll)
     options = VBoxContainer.new()
@@ -136,15 +137,21 @@ func _button(parent: Control, caption: String, callback: Callable, main_action: 
 
 func _build_settings_tabs() -> void:
     var categories := [
-        ["graphics", "GRAFICOS"],
-        ["audio", "AUDIO"],
-        ["controls", "CONTROLES"],
-        ["gameplay", "JOGABILIDADE"]
+        ["graphics", "Vídeo"],
+        ["audio", "Áudio"],
+        ["controls", "Controles"],
+        ["gameplay", "Partida"]
     ]
     for entry in categories:
         var button := Button.new()
         button.text = entry[1]
         button.toggle_mode = true
+        var selected := StyleBoxFlat.new()
+        selected.bg_color = Color(0.18, 0.20, 0.15)
+        selected.border_width_bottom = 3
+        selected.border_color = Color(0.84, 0.85, 0.48)
+        button.add_theme_stylebox_override("pressed", selected)
+        button.add_theme_stylebox_override("hover_pressed", selected)
         button.custom_minimum_size = Vector2(145, 38)
         button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
         button.add_theme_font_size_override("font_size", 14)
@@ -155,21 +162,35 @@ func _select_category(id: String) -> void:
     settings_category = id
     _render()
 
-func _heading(caption: String) -> void:
-    var label := Label.new()
-    label.text = caption
-    label.add_theme_font_size_override("font_size", 19)
-    label.add_theme_color_override("font_color", Color(0.38, 0.84, 0.88))
-    options.add_child(label)
-
-func _note(caption: String) -> void:
-    var label := Label.new()
-    label.text = caption
-    label.custom_minimum_size = Vector2(540, 0)
-    label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-    label.add_theme_font_size_override("font_size", 13)
-    label.add_theme_color_override("font_color", Color(0.64, 0.74, 0.77))
-    options.add_child(label)
+func _bindings() -> void:
+    var reveal := Button.new()
+    reveal.text = "Ver comandos"
+    reveal.toggle_mode = true
+    options.add_child(reveal)
+    var grid := GridContainer.new()
+    grid.columns = 4
+    grid.add_theme_constant_override("h_separation", 20)
+    grid.add_theme_constant_override("v_separation", 7)
+    options.add_child(grid)
+    for pair in [
+        ["Mover", "WASD"], ["Correr", "Shift"], ["Agachar", "C / Ctrl"], ["Deitar", "Z"],
+        ["Pular", "Espaço"], ["Interagir", "F"], ["Atirar", "Mouse 1"], ["Mirar", "Mouse 2"],
+        ["Recarregar", "R"], ["Corpo a corpo", "E"], ["Trocar arma", "1 / 2"], ["Granada", "G"],
+        ["Esquadrão", "3"], ["Apoio aéreo", "4"], ["Antecipar onda", "N"], ["Pausar", "Esc"]
+    ]:
+        var action := Label.new()
+        action.text = pair[0]
+        action.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+        grid.add_child(action)
+        var key := Label.new()
+        key.text = pair[1]
+        key.add_theme_color_override("font_color", Color(0.86, 0.87, 0.62))
+        grid.add_child(key)
+    grid.hide()
+    reveal.toggled.connect(func(expanded: bool):
+        grid.visible = expanded
+        reveal.text = "Ocultar comandos" if expanded else "Ver comandos"
+    )
 
 func _build_options() -> void:
     for child in options.get_children():
@@ -178,36 +199,26 @@ func _build_options() -> void:
     options_scroll.scroll_vertical = 0
     match settings_category:
         "graphics":
-            _heading("VIDEO E DESEMPENHO")
-            _note("Graficos leves para o Ryzen 5 7530U. Alteracoes aplicadas na hora.")
             _toggle("Tela cheia", "fullscreen", GameSettings.fullscreen)
-            _toggle("Sincronizacao vertical (VSync)", "vsync", GameSettings.vsync)
-            _slider("Escala da imagem 3D", "render_scale", GameSettings.render_scale, 0.7, 1.0, 0.05)
-            _toggle("Mostrar contador de FPS", "fps", GameSettings.show_fps)
-            _note("70-80% aumenta o desempenho, mas reduz nitidez; 100% preserva a resolucao.")
+            _toggle("Sincronização vertical (VSync)", "vsync", GameSettings.vsync)
+            _slider("Escala de resolução", "render_scale", GameSettings.render_scale, 0.7, 1.0, 0.05)
+            _toggle("Exibir FPS", "fps", GameSettings.show_fps)
         "audio":
-            _heading("MIXAGEM DE AUDIO")
-            _note("Sem apitos de hitmarker. Disparos e recargas usam arquivos WAV do projeto.")
             _slider("Volume principal", "master", GameSettings.master_volume, 0, 100, 1)
             _slider("Armas e efeitos", "sfx", GameSettings.sfx_volume, 0, 100, 1)
             _slider("Interface e avisos", "ui", GameSettings.ui_volume, 0, 100, 1)
-            _note("Sugestao para o notebook: geral 48%, armas 28%, interface 42%.")
         "controls":
-            _heading("MOUSE E CONTROLES")
             _slider("Sensibilidade do mouse", "sensitivity", GameSettings.mouse_sensitivity, 0.35, 3.0, 0.05)
-            _toggle("Inverter eixo vertical do mouse", "invert_y", GameSettings.invert_mouse_y)
-            _note("WASD mover  |  Shift correr  |  C/Ctrl agachar  |  Z deitar\nMouse esquerdo atirar  |  Direito mirar  |  R recarregar\nF interagir/comprar  |  E corpo a corpo  |  G granada\n1/2 trocar arma  |  3 esquadrao  |  4 apoio aereo\nN antecipar onda na preparacao  |  Esc pausar/voltar")
-            _note("Remapeamento individual de teclas fica para uma etapa posterior.")
+            _toggle("Inverter eixo vertical", "invert_y", GameSettings.invert_mouse_y)
+            _bindings()
         "gameplay":
-            _heading("PARTIDA E INTERFACE")
-            _slider("Tempo de preparacao", "intermission", float(GameSettings.intermission_seconds), 30, 120, 15)
+            _slider("Intervalo entre ondas", "intermission", float(GameSettings.intermission_seconds), 30, 120, 15)
             _toggle("Reanimar no Campo de Testes", "training_respawns", GameSettings.training_respawns)
-            _toggle("Hitmarker discreto ao acertar", "hitmarker", GameSettings.hitmarker_enabled)
-            _toggle("Indicadores vermelhos de dano", "damage_direction", GameSettings.damage_direction_enabled)
-            _note("Onda continua automaticamente. No modo classico, a morte encerra a partida.\nPerks, attachments e ultima chance continuam funcionando.")
+            _toggle("Marcador de acerto", "hitmarker", GameSettings.hitmarker_enabled)
+            _toggle("Direção do dano recebido", "damage_direction", GameSettings.damage_direction_enabled)
     var line := HSeparator.new()
     options.add_child(line)
-    _button(options, "VOLTAR", _back_options)
+    _button(options, "Voltar", _back_options)
 
 func _slider(caption: String, key: String, current: float, minimum: float, maximum: float, step: float) -> void:
     var line := HBoxContainer.new()
@@ -215,7 +226,7 @@ func _slider(caption: String, key: String, current: float, minimum: float, maxim
     options.add_child(line)
     var label := Label.new()
     label.text = caption
-    label.custom_minimum_size = Vector2(220, 26)
+    label.custom_minimum_size = Vector2(226, 46)
     label.add_theme_font_size_override("font_size", 14)
     line.add_child(label)
     var control := HSlider.new()
@@ -250,6 +261,7 @@ func _on_slider_changed(value: float, key: String, output: Label) -> void:
 
 func _toggle(caption: String, key: String, current: bool) -> void:
     var toggle := CheckButton.new()
+    toggle.custom_minimum_size.y = 46
     toggle.text = caption
     toggle.button_pressed = current
     toggle.toggled.connect(_on_toggle.bind(key))
@@ -281,11 +293,17 @@ func _render() -> void:
     backdrop.color = Color(0.02,0.03,0.025,0.19 if mode == "main" else 0.56)
     kicker.text = "FRONTLINE    /    SURVIVAL" if mode == "pause" else "OPERAÇÕES    /    SOLO"
     footer.text = "ESC   VOLTAR" if in_options or pending_action != "" else ""
+    kicker.visible = not in_options
+    subtitle.visible = not in_options
+    footer.visible = not in_options and footer.text != ""
     if in_options:
+        title.add_theme_font_size_override("font_size", 36)
         title.text = "Configurações"
         subtitle.text = ""
         _build_options()
-        settings_tabs.get_child(0).grab_focus()
+        for tab in settings_tabs.get_children():
+            if tab.button_pressed:
+                tab.grab_focus()
         return
     if pending_action != "":
         title.text = "Confirmar"
@@ -311,6 +329,7 @@ func _render() -> void:
         _button(navigation, "Voltar ao menu inicial", _request.bind("main"))
         _button(navigation, "Sair do jogo", _request.bind("quit"))
         footer.text = "Checkpoint automático ao concluir cada onda."
+    footer.visible = footer.text != ""
     navigation.get_child(0).grab_focus()
 
 func _request(action: String) -> void:
