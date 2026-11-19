@@ -716,3 +716,14 @@ O [plano de polimento do Campo de Testes](docs/M0_POLIMENTO_CAMPO_TESTES.md) reg
 - [x] Teste com seis inimigos próximos e duas paredes físicas, cobrindo sentidos opostos, vetores finitos e cadáveres ignorados — **código/CI**.
 - [ ] Aprovar travessia de corredores complexos com NPCs em movimento contínuo e diferentes formações no Windows — **pendente**.
 - [ ] Medir custo de CPU e FPS até 12 inimigos simultâneos em uma partida prolongada — **pendente**.
+
+
+## v0.9.26 — Sniper jogável e quick scope (teste Windows)
+
+- [x] Sniper MRS-7, iron sight, disparo semi-automático lento, recarga e novo modelo 3D original — **código/QA**.
+- [x] Lunetas 2x e 4x na estação, em sequência, mantendo aquisição ao trocar armas e bloqueando dinheiro perdido — **código/QA**.
+- [x] Quick scope com ADS preciso a partir de 110 ms, penalidade de hipfire e FOV/sensibilidade por mira — **código/QA**.
+- [x] Novo HUD e captura renderizada de doze posições incluindo três variantes da sniper — **código/QA**.
+- [ ] Verificar no Windows alinhamento óptico, scope zoom, movimentos, áudio e qualidade do modelo.
+- [ ] Testar progressão até 15 ondas com sniper; reequilibrar dano, preço e dinheiro de testes conforme feedback.
+- [ ] Substituir WAV provisório por áudio de sniper gravado e licenciado.

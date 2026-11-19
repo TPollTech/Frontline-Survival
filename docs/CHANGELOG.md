@@ -1,5 +1,19 @@
 # Frontline Survival — Histórico de versões
 
+## 0.9.26 — MRS-7 sniper, quick scope e lunetas compráveis
+
+- Arma de precisão MRS-7 com pente de cinco cartuchos, 25 de reserva, 165 de dano base, ação lenta e modelo GLB original com ferrolho e iron sight.
+- Compra na estação de armas: sniper $1600, luneta 2x $650, luneta 4x $1000 (exige 2x). Bloqueio de compra sem a sniper equipada, de ordem inválida e de cobrança duplicada.
+- Quick scope com precisão após 110ms em ADS; hipfire impreciso, FOV e sensibilidade de mouse específicos por luneta; mira física em 3D, sem crosshair 2D fixo.
+- Recuo e animação de ferrolho reforçados; HUD informa luneta e janela de quick scope. Sons baseados em gravações WAV reais já presentes no jogo, com ajuste de velocidade — gravações exclusivas de sniper ainda pendentes.
+- Mapa de testes começa temporariamente com $3500, suficiente para comprar sniper e lunetas e testar imediatamente. Reequilibrar posteriormente.
+- A suíte inclui compras, recarga, níveis de luneta, troca de armas e imagem OpenGL com 12 poses.
+- **Homologação Windows ainda pendente**: verificar alinhamento da mira, precisão real, sensação de zoom, animações e desempenho após a primeira compilação.
+
+[Notas da release e roteiro de teste](releases/v0.9.26.md)
+
+---
+
 ## Estabilização funcional — movimento de esquadrões em passagens estreitas
 
 - Inimigos agora consideram a proximidade de companheiros vivos durante o avanço para reduzir congestionamentos no mesmo corredor.
