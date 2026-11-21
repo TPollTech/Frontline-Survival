@@ -232,7 +232,28 @@ def rifle():
     g=Gun()
     # Stamped receiver, wooden furniture and continuous curved magazine.
     g.chamfer((0,.009,.016),(.150,.147,.522),'receiver',.010,name='receiver')
-    g.chamfer((0,.096,.014),(.139,.089,.466),'black',.023,name='top_cover')
+    # Rounded stamped cover with shallow transverse ribs and tapered ends.
+    sections = [(-.233,.83),(-.222,.96),(-.18,1.0),(-.17,1.045),(-.16,1.0),
+                (-.025,1.0),(-.015,1.045),(-.005,1.0),(.135,1.0),(.145,1.045),
+                (.155,1.0),(.218,.96),(.233,.83)]
+    outline = [(np.cos(a)*.068, .070 + np.sin(a)*.065) for a in np.linspace(0,np.pi,13)]
+    outline.extend([(-.066,.056),(.066,.056)])
+    vertices = [(x*scale, .070+(y-.070)*scale, z+.014)
+                for z,scale in sections for x,y in outline]
+    count = len(outline)
+    faces = []
+    for row in range(len(sections)-1):
+        for side in range(count):
+            a = row*count + side
+            b = row*count + (side+1)%count
+            faces.extend([(a,b,b+count),(a,b+count,a+count)])
+    end = (len(sections)-1)*count
+    for side in range(1,count-1):
+        faces.extend([(0,side+1,side),(end,end+side,end+side+1)])
+    cover = trimesh.Trimesh(vertices=vertices,faces=faces,process=False)
+    if cover.volume < 0:
+        cover.invert()
+    g.add(cover,'receiver','top_cover')
     g.chamfer((0,.019,.399),(.105,.096,.299),'walnut_dark',.013,name='stock_wrist')
     g.chamfer((0,-.004,.589),(.136,.175,.353),'walnut',.024,angles=(.13,0,0),name='wood_stock')
     g.chamfer((0,-.035,.769),(.139,.174,.031),'steel',.006,name='butt_plate')

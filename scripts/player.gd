@@ -1114,6 +1114,8 @@ func play_grenade_throw() -> void:
     grenade_throw_timer = 0.45
 
 func hip_position() -> Vector3:
+    if weapon_id == "rifle":
+        return Vector3(0.26, -0.30, -0.53)
     return Vector3(0.34, -0.27, -0.63) if weapon_id == "pistol" else Vector3(0.30, -0.32, -0.77)
 
 func _animate_viewmodel(delta: float, sprint_ease: float) -> void:
@@ -1272,11 +1274,34 @@ func _arm_piece(shape: Mesh, at: Vector3, tint: Color, rotation: Vector3 = Vecto
 
 func _arm_link(start: Vector3, finish: Vector3, top_radius: float, bottom_radius: float, tint: Color) -> void:
     var direction := finish - start
-    var segment := CylinderMesh.new()
-    segment.top_radius = top_radius
-    segment.bottom_radius = bottom_radius
-    segment.height = direction.length() + minf(top_radius, bottom_radius) * 0.7
-    var part := _arm_piece(segment, (start + finish) * 0.5, tint)
+    # Elliptical cloth sections overlap at the animated elbow and wrist.
+    var profile := [0.90, 1.08, 1.00, 1.13, 1.06, 1.01, 1.09, 0.90]
+    var rings := [0.0, 0.09, 0.17, 0.32, 0.51, 0.74, 0.86, 1.0]
+    var surface := SurfaceTool.new()
+    surface.begin(Mesh.PRIMITIVE_TRIANGLES)
+    var length := direction.length() + minf(top_radius, bottom_radius) * 0.7
+    const SIDES := 16
+    for row in range(rings.size()):
+        var t: float = rings[row]
+        var radius: float = lerpf(bottom_radius, top_radius, t) * profile[row]
+        for side in range(SIDES):
+            var angle := TAU * side / SIDES
+            var fold := 1.0 + 0.045 * sin(3.0 * angle + 2.0 * t)
+            var tilt := 0.012 * sin(angle + t * PI) * sin(t * PI)
+            surface.add_vertex(Vector3(cos(angle) * radius * fold,
+                (t - 0.5) * length + tilt, sin(angle) * radius * 0.84 * fold))
+    for row in range(rings.size() - 1):
+        for side in range(SIDES):
+            var a := row * SIDES + side
+            var b := row * SIDES + (side + 1) % SIDES
+            for index in [a, b, a + SIDES, b, b + SIDES, a + SIDES]:
+                surface.add_index(index)
+    var last := (rings.size() - 1) * SIDES
+    for side in range(1, SIDES - 1):
+        for index in [0, side + 1, side, last, last + side, last + side + 1]:
+            surface.add_index(index)
+    surface.generate_normals()
+    var part := _arm_piece(surface.commit(), (start + finish) * 0.5, tint)
     if direction.length() > 0.001:
         part.quaternion = Quaternion(Vector3.UP, direction.normalized())
 
@@ -1333,6 +1358,15 @@ func _add_first_person_arm(elbow: Vector3, wrist: Vector3, trigger_hand: bool) -
     palm.height = 0.15
     var palm_part := _arm_piece(palm, palm_location, glove, Vector3(PI * 0.5, 0, 0))
     palm_part.name = "Palm"
+    palm_part.scale = Vector3(1.06, 1.0, 0.65)
+    # A single low-profile leather panel runs across the back of the glove.
+    var guard := SphereMesh.new()
+    guard.radius = 1.0
+    guard.height = 2.0
+    guard.radial_segments = 16
+    guard.rings = 6
+    var back := _arm_piece(guard, palm_location + Vector3(0, 0.024, -0.012), Color(0.19, 0.20, 0.19))
+    back.scale = Vector3(0.047, 0.013, 0.047)
     for finger in range(4):
         var x: float = (float(finger) - 1.5) * 0.030
         var length_scale: float = 0.75 if finger == 3 else (0.91 if finger == 0 else 1.0)
