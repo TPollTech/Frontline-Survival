@@ -1,6 +1,8 @@
 extends CharacterBody3D
 class_name SurvivalEnemy
 
+const ModelSurface = preload("res://scripts/model_surface.gd")
+
 const GunMaterials = preload("res://scripts/weapon_materials.gd")
 const WeaponAudio = preload("res://scripts/weapon_audio.gd")
 const ArmPose = preload("res://scripts/weapon_pose.gd")
@@ -140,8 +142,7 @@ func _part(parent: Node3D, shape: Mesh, location: Vector3, tint: Color, name_hin
     return piece
 
 func _box(parent: Node3D, location: Vector3, size: Vector3, tint: Color, name_hint: String = "Equipment") -> MeshInstance3D:
-    var shape := BoxMesh.new()
-    shape.size = size
+    var shape := ModelSurface.body(size, ModelSurface.Profile.PADDED)
     return _part(parent, shape, location, tint, name_hint)
 
 func _capsule(parent: Node3D, location: Vector3, radius: float, height: float, tint: Color, name_hint: String = "Body") -> MeshInstance3D:

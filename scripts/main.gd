@@ -1,5 +1,7 @@
 extends Node3D
 
+const ModelSurface = preload("res://scripts/model_surface.gd")
+
 const SpawnSelector = preload("res://scripts/spawn_selector.gd")
 const WaveRules = preload("res://scripts/wave_rules.gd")
 const HitMarkerUI = preload("res://scripts/hit_marker.gd")
@@ -480,13 +482,10 @@ func _add_sandbags(center: Vector3, count: int, levels: int) -> void:
             var x := center.x + (float(i) - float(count - 1) * 0.5) * 0.85 + (0.23 if level % 2 == 1 else 0.0)
             var position := Vector3(x, 0.21 + float(level) * 0.34, center.z)
             # Base invisivel simplificada para impedir atravessar a barricada.
-            var sandbag := CapsuleMesh.new()
-            sandbag.radius = 0.20
-            sandbag.height = 0.82
             var item := MeshInstance3D.new()
-            item.mesh = sandbag
+            item.mesh = ModelSurface.body(Vector3(0.90, 0.39, 0.46), ModelSurface.Profile.PADDED)
             item.position = position
-            item.rotation.z = PI * 0.5
+            item.rotation.y = sin(float(i * 7 + level)) * 0.09
             var mat := StandardMaterial3D.new()
             mat.albedo_color = color.lightened(randf_range(0.0, 0.12))
             mat.roughness = 1.0
@@ -544,7 +543,7 @@ func _add_box(pos: Vector3, dimensions: Vector3, tint: Color, solid: bool = true
     var model := MeshInstance3D.new()
     var cube := BoxMesh.new()
     cube.size = dimensions
-    model.mesh = cube
+    model.mesh = cube if solid or dimensions[dimensions.min_axis_index()] < 0.035 else ModelSurface.body(dimensions, ModelSurface.Profile.MACHINED)
     var mat := StandardMaterial3D.new()
     if solid and dimensions.y > 4.0 and maxf(dimensions.x, dimensions.z) > 30.0:
         mat.albedo_texture = preload("res://assets/textures/depot_concrete.png")

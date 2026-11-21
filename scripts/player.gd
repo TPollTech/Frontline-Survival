@@ -1,6 +1,8 @@
 extends CharacterBody3D
 class_name SurvivalPlayer
 
+const ModelSurface = preload("res://scripts/model_surface.gd")
+
 const GunMaterials = preload("res://scripts/weapon_materials.gd")
 const WeaponAudio = preload("res://scripts/weapon_audio.gd")
 
@@ -950,16 +952,14 @@ func _build_sniper_scope(optic: String) -> void:
     for side in [-1.0, 1.0]:
         var rail := MeshInstance3D.new()
         rail.name = "Scope_TubeRail"
-        var rail_mesh := BoxMesh.new()
-        rail_mesh.size = Vector3(0.008 * viewmodel_scale, 0.010 * viewmodel_scale, tube_length)
+        var rail_mesh := ModelSurface.body(Vector3(0.008 * viewmodel_scale, 0.010 * viewmodel_scale, tube_length), ModelSurface.Profile.MACHINED)
         rail.mesh = rail_mesh
         rail.position = Vector3(side * 0.036 * viewmodel_scale, y, z - tube_length * 0.5)
         rail.material_override = metal
         scope_root.add_child(rail)
         var mount := MeshInstance3D.new()
         mount.name = "Scope_RailMount"
-        var mount_mesh := BoxMesh.new()
-        mount_mesh.size = Vector3(0.014, 0.075 * viewmodel_scale, 0.038)
+        var mount_mesh := ModelSurface.body(Vector3(0.014, 0.075 * viewmodel_scale, 0.038), ModelSurface.Profile.MACHINED)
         mount.mesh = mount_mesh
         mount.position = Vector3(side * 0.022, y - 0.052 * viewmodel_scale, z - tube_length * 0.5)
         mount.material_override = metal
@@ -1028,8 +1028,7 @@ func _build_attachment_models() -> void:
             for edge_index in range(4):
                 var frame := MeshInstance3D.new()
                 frame.name = "Optic_HoloFrame"
-                var rim := BoxMesh.new()
-                rim.size = Vector3(0.086, 0.009, 0.018) if edge_index < 2 else Vector3(0.009, 0.083, 0.018)
+                var rim := ModelSurface.body(Vector3(0.086, 0.009, 0.018) if edge_index < 2 else Vector3(0.009, 0.083, 0.018), ModelSurface.Profile.MACHINED)
                 frame.mesh = rim
                 var horizontal: bool = edge_index < 2
                 frame.position = Vector3(
@@ -1056,16 +1055,14 @@ func _build_attachment_models() -> void:
         for side in [-1.0, 1.0]:
             var mount := MeshInstance3D.new()
             mount.name = "Optic_Mount"
-            var support := BoxMesh.new()
-            support.size = Vector3(0.008, 0.045, 0.029)
+            var support := ModelSurface.body(Vector3(0.008, 0.045, 0.029), ModelSurface.Profile.MACHINED)
             mount.mesh = support
             mount.position = Vector3(side * 0.027, y - 0.061, z + 0.012)
             mount.material_override = metal
             optic_root.add_child(mount)
         var base := MeshInstance3D.new()
         base.name = "Optic_RailMount"
-        var rail := BoxMesh.new()
-        rail.size = Vector3(0.075, 0.011, 0.052)
+        var rail := ModelSurface.body(Vector3(0.075, 0.011, 0.052), ModelSurface.Profile.MACHINED)
         base.mesh = rail
         base.position = Vector3(0.0, y - 0.087, z + 0.010)
         base.material_override = metal

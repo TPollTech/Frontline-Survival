@@ -1,6 +1,8 @@
 extends Node3D
 class_name SurvivalTurret
 
+const ModelSurface = preload("res://scripts/model_surface.gd")
+
 var time_left: float = 115.0
 var shot_cooldown: float = 0.0
 var barrel: MeshInstance3D
@@ -18,8 +20,7 @@ func _ready() -> void:
     mat.albedo_color = Color(0.10, 0.45, 0.50)
     base.material_override = mat
     barrel = MeshInstance3D.new()
-    var tube := BoxMesh.new()
-    tube.size = Vector3(0.11, 0.11, 0.75)
+    var tube := ModelSurface.body(Vector3(0.11, 0.11, 0.75), ModelSurface.Profile.MACHINED)
     barrel.mesh = tube
     barrel.position = Vector3(0, 0.79, -0.35)
     barrel.material_override = mat

@@ -1,6 +1,8 @@
 extends CharacterBody3D
 class_name SurvivalAlly
 
+const ModelSurface = preload("res://scripts/model_surface.gd")
+
 const GunMaterials = preload("res://scripts/weapon_materials.gd")
 const WeaponAudio = preload("res://scripts/weapon_audio.gd")
 const ArmPose = preload("res://scripts/weapon_pose.gd")
@@ -55,8 +57,7 @@ func _piece(parent: Node3D, shape: Mesh, at: Vector3, tint: Color, label: String
     return part
 
 func _box(parent: Node3D, at: Vector3, size: Vector3, tint: Color, label: String) -> MeshInstance3D:
-    var shape := BoxMesh.new()
-    shape.size = size
+    var shape := ModelSurface.body(size, ModelSurface.Profile.PADDED)
     return _piece(parent, shape, at, tint, label)
 
 func _capsule(parent: Node3D, at: Vector3, radius: float, height: float, tint: Color, label: String) -> MeshInstance3D:

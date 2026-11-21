@@ -16,6 +16,19 @@ func _expect(condition: bool, message: String) -> void:
         push_error("QA ERROR: " + message)
 
 func _run_tests() -> void:
+    var recipe := preload("res://scripts/model_surface.gd")
+    var size := Vector3(0.90, 0.39, 0.46)
+    var bag := recipe.body(size, recipe.Profile.PADDED)
+    _expect(bag == recipe.body(size, recipe.Profile.PADDED), "identical model recipes must share geometry")
+    _expect(bag != recipe.body(size, recipe.Profile.MACHINED), "profile changes must produce distinct shapes")
+    _expect(bag.get_aabb().size.is_equal_approx(size), "model envelope must match specified dimensions")
+    var surface := bag.surface_get_arrays(0)
+    var faces: PackedInt32Array = surface[Mesh.ARRAY_INDEX]
+    var positions: PackedVector3Array = surface[Mesh.ARRAY_VERTEX]
+    var a := positions[faces[0]]
+    var b := positions[faces[1]]
+    var c := positions[faces[2]]
+    _expect((c-a).cross(b-a).dot(a) > 0.0, "profile exterior must face the camera with backface culling")
     var packed: PackedScene = load("res://scenes/main.tscn")
     _expect(packed != null, "main scene loads")
     if packed == null:
