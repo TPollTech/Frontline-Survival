@@ -79,7 +79,7 @@ func _capture() -> void:
         game.player.camera.fov = base_fov * (game.player._ads_fov_multiplier() if ads else 1.0)
         var sight: float = 0.252 if id in ["sniper", "bolt_sniper"] and game.player._sniper_scope() != "" else (0.182 if id == "sniper" else (0.201 if id == "bolt_sniper" else 0.177))
         game.player.gun.position = (
-            Vector3(0.0, -game.player.viewmodel_scale * sight, -0.62)
+            Vector3(0.0, -game.player.viewmodel_scale * sight, game.player.ads_depth())
             if ads else game.player.hip_position()
         )
         game.player.gun.rotation = Vector3.ZERO

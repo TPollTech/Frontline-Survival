@@ -424,6 +424,7 @@ func _create_world() -> void:
     var floor_material := floor_mesh.material_override as StandardMaterial3D
     floor_material.albedo_texture = load("res://assets/textures/asphalt.png")
     floor_material.uv1_scale = Vector3(16, 16, 1)
+    floor_material.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
     _add_box(Vector3(0, 2.2, -26), Vector3(52, 4.4, 1), Color(0.33, 0.37, 0.41))
     _add_box(Vector3(0, 2.2, 26), Vector3(52, 4.4, 1), Color(0.34, 0.37, 0.40))
     _add_box(Vector3(-26, 2.2, 0), Vector3(1, 4.4, 52), Color(0.35, 0.39, 0.41))

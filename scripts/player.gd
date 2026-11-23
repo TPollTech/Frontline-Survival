@@ -421,7 +421,7 @@ func _physics_process(delta: float) -> void:
     # No on-screen crosshair: the actual sight must indicate point of aim.
     var sight_height: float = float({"pistol": 0.121, "smg": 0.232, "rifle": 0.177, "shotgun": 0.140, "lmg": 0.232, "sentinela": 0.17, "sniper": 0.252 if _sniper_scope() != "" else 0.182, "bolt_sniper": 0.252 if _sniper_scope() != "" else 0.201}.get(weapon_id, 0.20))
     var sight_y := -viewmodel_scale * sight_height
-    var gun_target := Vector3(0.0, sight_y, -0.62) if aim else hip_position()
+    var gun_target := Vector3(0.0, sight_y, ads_depth()) if aim else hip_position()
     # Distinct military-style tactical sprint. Eased tuck, low muzzle and
     # stride/counter-swing keep this separate from an accelerated walk.
     # Corrida visual acompanha deslocamento real, inclusive ao encontrar obstaculos.
@@ -1109,6 +1109,9 @@ func _build_attachment_models() -> void:
 
 func play_grenade_throw() -> void:
     grenade_throw_timer = 0.45
+
+func ads_depth() -> float:
+    return -0.17 if weapon_id == "rifle" else -0.62
 
 func hip_position() -> Vector3:
     if weapon_id == "rifle":
