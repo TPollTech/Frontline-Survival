@@ -5,7 +5,7 @@ var visual: MeshInstance3D
 var body: StaticBody3D
 var shape: CollisionShape3D
 var meshes: Array[ArrayMesh] = []
-const LODSelector = preload("res://lod_selector.gd")
+const LODSelector = preload("lod_selector.gd")
 
 func fail(message: String) -> void:
     push_error("LOD_COLLISION_FAIL " + message)
