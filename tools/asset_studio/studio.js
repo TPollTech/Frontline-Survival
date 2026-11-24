@@ -57,7 +57,7 @@ async function load(p){
      for(const dep of catalog.resources[p].gltf_dependencies||[]){
        const url=new URL(dep.uri,base);
        const expectedURL=new URL(safePath(dep.path),location.href);
-       if(url.href!==expectedURL.href||!catalog.resources[dep.path]||catalog.resources[dep.path].status==='missing')throw Error('Dependência não catalogada: '+dep.uri);
+       if(url.origin!==expectedURL.origin||url.search||url.hash||decodeURIComponent(url.pathname)!==decodeURIComponent(expectedURL.pathname)||!catalog.resources[dep.path]||catalog.resources[dep.path].status==='missing')throw Error('Dependência não catalogada: '+dep.uri);
        const raw=await verified(dep.path);
        if(token!==request)return;
        const types={png:'image/png',jpg:'image/jpeg',jpeg:'image/jpeg',webp:'image/webp',ktx2:'image/ktx2',bin:'application/octet-stream'};
