@@ -202,6 +202,7 @@ func _build_options() -> void:
             _toggle("Tela cheia", "fullscreen", GameSettings.fullscreen)
             _toggle("Sincronização vertical (VSync)", "vsync", GameSettings.vsync)
             _slider("Escala de resolução", "render_scale", GameSettings.render_scale, 0.7, 1.0, 0.05)
+            _slider("Campo de visão (FOV)", "fov", GameSettings.field_of_view, 60.0, 100.0, 1.0)
             _toggle("Exibir FPS", "fps", GameSettings.show_fps)
         "audio":
             _slider("Volume principal", "master", GameSettings.master_volume, 0, 100, 1)
@@ -248,7 +249,7 @@ func _formatted(key: String, value: float) -> String:
     if key == "sensitivity":
         return "%.2fx" % value
     if key == "fov":
-        return "%d" % roundi(value)
+        return "%d°" % roundi(value)
     if key == "intermission":
         return "%ds" % roundi(value)
     if key == "render_scale":
