@@ -26,6 +26,8 @@ var hitmarker_enabled: bool = true
 var damage_direction_enabled: bool = true
 
 func _ready() -> void:
+    if DisplayServer.get_name() != "headless":
+        DisplayServer.window_set_title("Frontline Survival — %s" % str(ProjectSettings.get_setting("application/config/version", "")))
     _ensure_bus("SFX")
     _ensure_bus("UI")
     _load()

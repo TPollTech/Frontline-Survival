@@ -1,12 +1,23 @@
 # Frontline Survival — Histórico de versões
 
+## 0.9.29 — FOV persistente e validação de regressão
+
+- FOV vertical de 60° a 100° (76° padrão) disponível no menu inicial e de pausa, com atualização imediata da câmera do jogador.
+- Limites compartilhados, proteção contra valores inválidos, preservação do zoom ADS e corrida.
+- QA headless e renderizado de menu, persistência e câmera nas oito armas.
+- O nome interno do projeto permanece fixo para preservar a pasta de dados de 0.9.28; a versão exibida na janela e no executável é 0.9.29.
+
+[Notas da release](releases/v0.9.29.md)
+
+---
+
 ## 0.9.28 — Encaixes visuais das miras das três snipers
 
 - Corrige vãos entre as malhas decorativas das miras abertas e seus suportes no gerador GLB da MRS-7, VLR-8 e Sentinela.
 - Suportes derivados dos limites das malhas e mantidos no corpo estático, sem mover junto ao ferrolho.
 - ADS e capturas QA usam a mesma altura de referência visual; FOV, lunetas, dano, cadência, compras e recarga preservados.
 - QA geométrico verifica interseção real entre peças convexas; montagem OpenGL expandida para 18 poses, incluindo Sentinela em ADS.
-- Controle FOV restaurado e aplicado imediatamente à câmera mesmo durante pausa; limites compartilhados, normalização de valores inválidos, persistência e QA de menu/câmera em headless e OpenGL. Aprovação visual manual no Windows pendente.
+- Inclui o controle de FOV restaurado no commit anterior. Aprovação visual manual no Windows pendente.
 
 [Notas da release](releases/v0.9.28.md)
 
