@@ -24,7 +24,9 @@ def main():
         shutil.copyfile(src,dst)
         if fingerprint(out,name)["sha256"]!=rec["sha256"]:raise ValueError("copy mismatch "+name)
     studio=root/"tools/asset_studio"
-    for name in ("index.html","studio.css","studio.js"):shutil.copyfile(studio/name,out/name)
+    for name in ("index.html","studio.css","studio.js","lighting.js"):shutil.copyfile(studio/name,out/name)
+    from generate_hdri import write
+    write(out)
     three=studio/"node_modules/three"
     for name in ("build","examples/jsm"):
         shutil.copytree(three/name,out/"vendor/three"/name)

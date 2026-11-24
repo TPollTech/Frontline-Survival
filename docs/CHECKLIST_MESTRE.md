@@ -17,7 +17,7 @@ Atualizado em 24/11/2026. Mantém as 96 tarefas anteriores e adiciona a fundaç�
 - [ ] Implementar exportação determinística GLB/glTF 2.0 e rastreabilidade de fontes — Parcial: 115/115 testes Blender/Python e reprodução byte a byte aprovados; importação Godot falhou na checagem de atributos (CI 45466926460), diagnóstico ampliado. [Biblioteca](BIBLIOTECA_PARAMETRICA.md).
 - [ ] Implementar descoberta automática e catálogo de todos os assets reais — Parcial: 8/8 testes, 52 registros, reconciliação runtime e reprodução aprovadas no CI 45469213836; cobertura dinâmica e exportação das composições permanecem pendentes. [Catálogo](CATALOGO_VIVO.md).
 - [ ] Criar Asset Studio HTML/CSS/JS com Three.js e WebGL — Parcial: 32/32 GLBs carregados no CI Chromium 45469214133; revisão visual manual e composição runtime pendentes; workflow Pages implementado. [Studio](ASSET_STUDIO.md).
-- [ ] Implementar iluminação HDRI, sombras, antialiasing, sRGB, ACES e piso técnico
+- [ ] Implementar iluminação HDRI, sombras, antialiasing, sRGB, ACES e piso técnico — Parcial: HDRI local RGBE/PMREM, PCFSoft, ACES/sRGB, MSAA e piso métrico implementados; teste Chromium e inspeção visual pendentes. [Studio](ASSET_STUDIO.md).
 - [ ] Implementar OrbitControls, damping, enquadramento por bounding box, zoom, pan e reset
 - [ ] Implementar seis vistas ortográficas, perspectiva e tela cheia
 - [ ] Implementar vistas reais de primeira e terceira pessoa e prévia de mapas completos
