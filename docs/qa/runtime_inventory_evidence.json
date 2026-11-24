@@ -1,0 +1,158 @@
+{
+  "schema_version": 1,
+  "kind": "frontline_runtime_inventory_evidence",
+  "commit": "1726a0d083ed722035407ff43d9d222c2522dadf",
+  "run_id": 45439036106,
+  "job_id": 138604681975,
+  "artifact_id": 14941018963,
+  "artifact_sha256": "1a4a753135a8a096b8f4c56303f521947b5eea34ac8d8045ebe39745ecc1f510",
+  "runtime_json_sha256": "562fead2b53d717452d36a12430dd8e60cf37ea89b3a44530338dbb550b4dfff",
+  "engine": "Godot 4.4.1-stable official, X11/OpenGL3",
+  "checks": {
+    "static_files": 60,
+    "manifest_tests_passed": 18,
+    "engine_import": "pass",
+    "runtime_collector": "pass",
+    "runtime_report_verifier": "pass",
+    "capture_failures": 0
+  },
+  "samples": {
+    "total": 83,
+    "fps": 57,
+    "node_records": 6350,
+    "mesh_records": 2993,
+    "collider_records": 100,
+    "skeleton_records": 1,
+    "surface_records": 2993,
+    "surface_records_without_uv": 578,
+    "surface_records_without_normals": 248,
+    "mesh_records_without_resource_path": 2801,
+    "counts_are_across_samples_not_unique_instances": true
+  },
+  "coverage": {
+    "glb_files_observed": [
+      "assets/characters/quaternius_base_male.glb",
+      "assets/models/bolt_sniper.glb",
+      "assets/models/bolt_sniper_action.glb",
+      "assets/models/bolt_sniper_body.glb",
+      "assets/models/bolt_sniper_mag.glb",
+      "assets/models/lmg.glb",
+      "assets/models/lmg_action.glb",
+      "assets/models/lmg_body.glb",
+      "assets/models/lmg_mag.glb",
+      "assets/models/pistol.glb",
+      "assets/models/pistol_action.glb",
+      "assets/models/pistol_body.glb",
+      "assets/models/pistol_mag.glb",
+      "assets/models/rifle.glb",
+      "assets/models/rifle_action.glb",
+      "assets/models/rifle_body.glb",
+      "assets/models/rifle_mag.glb",
+      "assets/models/sentinela.glb",
+      "assets/models/sentinela_action.glb",
+      "assets/models/sentinela_body.glb",
+      "assets/models/sentinela_mag.glb",
+      "assets/models/shotgun.glb",
+      "assets/models/shotgun_action.glb",
+      "assets/models/shotgun_body.glb",
+      "assets/models/smg.glb",
+      "assets/models/smg_action.glb",
+      "assets/models/smg_body.glb",
+      "assets/models/smg_mag.glb",
+      "assets/models/sniper.glb",
+      "assets/models/sniper_action.glb",
+      "assets/models/sniper_body.glb",
+      "assets/models/sniper_mag.glb"
+    ],
+    "glb_expected": 32,
+    "glb_missing": [],
+    "texture_paths_observed": [
+      "assets/textures/asphalt.png",
+      "assets/textures/depot_concrete.png",
+      "assets/textures/weapon_metal_albedo.png",
+      "assets/textures/weapon_metal_normal.png"
+    ],
+    "texture_paths_not_observed": [
+      "assets/textures/weapon_polymer_albedo.png",
+      "assets/textures/weapon_polymer_normal.png"
+    ],
+    "runtime_family_sample_tags": {
+      "ally:legacy": 1,
+      "camera:briefing": 1,
+      "character:quaternius_equipment": 1,
+      "effect:blood": 1,
+      "effect:combat": 1,
+      "effect:grenade": 1,
+      "effect:muzzle": 57,
+      "effect:scope_overlay": 57,
+      "enemy:legacy": 9,
+      "environment:lighting": 1,
+      "geometry:model_surface": 57,
+      "map:campo_de_testes": 1,
+      "material:weapon_overrides": 57,
+      "object:grenade": 1,
+      "object:loot": 9,
+      "object:turret": 1,
+      "player:collision": 57,
+      "viewmodel:assembly": 57,
+      "viewmodel:attachments": 57,
+      "viewmodel:hands": 57
+    },
+    "runtime_family_tags_missing": [
+      "effect:enemy_tracer",
+      "query:enemy_tactics",
+      "query:spawn",
+      "query:turret"
+    ],
+    "tagging_does_not_prove_all_variants_or_actual_independent_effects": true,
+    "nonrendered_resources_not_assessed_by_mesh_capture": true
+  },
+  "screenshots": [
+    {
+      "file": "map_briefing.png",
+      "sha256": "18d926e4082788d470ad44057b0ce0fd4660185f7bf15bf2aa7ef72e9d9f5035",
+      "observation": "Menu real; containers, sacos e iluminação visíveis parcialmente; overlay escurece/oculta parte do mapa.",
+      "width": 1280,
+      "height": 720,
+      "inspected": true,
+      "artistic_approval": false
+    },
+    {
+      "file": "fps_rifle_ads.png",
+      "sha256": "7bb91188f08211cbb09e4484fd6bcc0327518fd0457bb6f451dba8a71526a8ce",
+      "observation": "Red dot visível no centro; silhueta e mãos ainda simplificadas, sem aprovação geral de miras.",
+      "width": 1280,
+      "height": 720,
+      "inspected": true,
+      "artistic_approval": false
+    },
+    {
+      "file": "enemy_rifle.png",
+      "sha256": "725baf51e5c892f110c337593df0835e0592f2eed444ce7842c4f3e494dc52f4",
+      "observation": "Soldado legado de costas; volumes segmentados, mãos e arma do jogador de baixa fidelidade.",
+      "width": 1280,
+      "height": 720,
+      "inspected": true,
+      "artistic_approval": false
+    },
+    {
+      "file": "enemy_experimental.png",
+      "sha256": "a6b5426b05cb9cc467f99ff13a97371f42c5c73ff4ed50e38bddddabaf6308e8",
+      "observation": "Humanoide experimental de costas em T-pose, sem pose animada demonstrada; permanece experimental.",
+      "width": 1280,
+      "height": 720,
+      "inspected": true,
+      "artistic_approval": false
+    }
+  ],
+  "limitations": [
+    "finite sampled states; no exhaustive runtime verification",
+    "no full geometry buffers or LOD index arrays",
+    "physics queries source-only, enemy tracer not captured, airstrike subeffects absent",
+    "two polymer maps not seen as effective materials in samples",
+    "tangent warnings from actual Godot logs",
+    "no Asset Studio, no local interactive game run",
+    "Windows build 45439035738 failed on individual arsenal QA"
+  ],
+  "status": "partial"
+}
