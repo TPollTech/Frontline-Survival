@@ -41,6 +41,18 @@ class ExportTests(unittest.TestCase):
         for name,info in d["outputs"].items():
             self.assertEqual(info["sha256"],digest(self.files[name]))
 
+    def test_canonical_source_order_and_validation(self):
+        a={"revision":"fixture-v1","files":[{"path":"b.py","sha256":"1"*64},{"path":"a.py","sha256":"2"*64}]}
+        b={"revision":a["revision"],"files":list(reversed(a["files"]))}
+        self.assertEqual(export_bundle(self.scene,self.renders,self.lib,sources=a,rig=self.rig),
+                         export_bundle(self.scene,self.renders,self.lib,sources=b,rig=self.rig))
+        for files in ([a["files"][0],a["files"][0]],
+                      [{"path":"../outside","sha256":"1"*64}],
+                      [{"path":"a.py","sha256":"xyz"}]):
+            with self.subTest(files=files),self.assertRaises(ValueError):
+                export_bundle(self.scene,self.renders,self.lib,sources={"revision":"fixture-v1","files":files},rig=self.rig)
+
+
     def test_gltf_glb_equivalence(self):
         d,b=unpack(self.files)
         g=json.loads(self.files["asset.gltf"])
