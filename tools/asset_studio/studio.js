@@ -33,7 +33,7 @@ function clear(){navigation?.clear();$('view').disabled=true;$('zoom-in').disabl
 function fit(){if(model)navigation.reset();}
 function resources(a){return [...new Set([a.preview?.resource,...(a.outputs||[]).map(x=>x.path)].filter(p=>p&&catalog.resources[p]?.status!=='missing'&&catalog.resources[p]))];}
 function renderList(){const q=$('search').value.trim().toLowerCase(),cat=$('category').value;const list=catalog.assets.filter(a=>(!cat||a.category===cat)&&(!q||[a.id,a.category,a.source?.path,...resources(a)].join(' ').toLowerCase().includes(q)));$('count').textContent=list.length+' de '+catalog.assets.length+' registros';$('assets').replaceChildren(...list.map(a=>{const b=document.createElement('button');b.type='button';b.dataset.asset=a.id;b.setAttribute('aria-current',String(a===selected));b.textContent=a.id;const sm=document.createElement('small');sm.textContent=a.category+' · '+(a.runtime_views?.length?'captura Godot disponível':resources(a).length?'arquivo real':'captura pendente');b.append(sm);b.addEventListener('click',()=>select(a));return b;}));}
-function details(a,p){$('details').replaceChildren();row('ID',a.id);row('Categoria',a.category);row('Uso',a.usage);row('Fonte',a.source?.path);row('Arquivo',p);row('SHA-256',catalog.resources[p]?.sha256);row('Runtime',a.validation?.runtime);row('Homologação','Não homologado');row('Procedência',a.provenance);textList($('deps'),[...(a.dependencies?.resources||[]),...(a.dependencies?.assets||[]),...(a.dependencies?.sources||[])]);textList($('gaps'),[...(a.gaps||[]),'Prévia não certifica materiais ou poses efetivos do Godot.']);}
+function details(a,p){$('details').replaceChildren();row('ID',a.id);row('Categoria',a.category);row('Uso',a.usage);row('Fonte',a.source?.path);row('Arquivo',p);row('SHA-256',catalog.resources[p]?.sha256);row('Runtime',a.validation?.runtime);row('Homologação','Não homologado');row('Procedência',a.provenance);textList($('deps'),[...new Set([...(a.dependencies?.resources||[]),...(a.dependencies?.assets||[]),...(a.dependencies?.sources||[]),...(catalog.resources[p]?.gltf_dependencies||[]).map(d=>d.path)])]);textList($('gaps'),[...(a.gaps||[]),'Prévia não certifica materiais ou poses efetivos do Godot.']);}
 function select(a){selected=a;$('title').textContent=a.id;renderList();const paths=resources(a);$('variant').replaceChildren(...paths.map(p=>{const o=document.createElement('option');o.value=p;o.textContent=p.split('/').pop();return o;}));$('variant').disabled=!paths.length;
  const selector=$('runtime-view');selector.replaceChildren(new Option('Arquivo 3D / recurso',''),...(a.runtime_views||[]).map(v=>new Option(v.label,v.id)));selector.disabled=!(a.runtime_views||[]).length;selector.value='';
  load(paths.includes(a.preview?.resource)?a.preview.resource:paths[0]);}
@@ -47,10 +47,31 @@ async function load(p){
  const bytes=await verified(p);if(token!==request)return;
  const ext=p.split('.').pop().toLowerCase();
  if(ext==='glb'||ext==='gltf'){
-   const loader=new GLTFLoader();
-   // Only repository-local, catalogued external dependencies may load.
-   loader.manager.setURLModifier(url=>{if(url.startsWith('data:')||url.startsWith('blob:'))return url;const resolved=new URL(url,location.href);if(resolved.origin!==location.origin)throw Error('Dependência externa proibida');return resolved.href;});
-   const data=await loader.parseAsync(bytes,new URL(safePath(p),location.href).href.replace(/[^/]+$/,''));
+   // Each load uses its own manager; never modify the global loading manager.
+   // Preverify external glTF resources and pass those exact bytes to the loader.
+   const manager=new THREE.LoadingManager(),loader=new GLTFLoader(manager);
+   const base=new URL(safePath(p),location.href).href.replace(/[^/]+$/,'');
+   const dependencyURLs=new Map(),objectURLs=[];
+   let data;
+   try {
+     for(const dep of catalog.resources[p].gltf_dependencies||[]){
+       const url=new URL(dep.uri,base);
+       const expectedURL=new URL(safePath(dep.path),location.href);
+       if(url.href!==expectedURL.href||!catalog.resources[dep.path]||catalog.resources[dep.path].status==='missing')throw Error('Dependência não catalogada: '+dep.uri);
+       const raw=await verified(dep.path);
+       if(token!==request)return;
+       const types={png:'image/png',jpg:'image/jpeg',jpeg:'image/jpeg',webp:'image/webp',ktx2:'image/ktx2',bin:'application/octet-stream'};
+       const objectURL=URL.createObjectURL(new Blob([raw],{type:types[dep.path.split('.').pop().toLowerCase()]||'application/octet-stream'}));
+       objectURLs.push(objectURL);dependencyURLs.set(url.href,objectURL);
+     }
+     manager.setURLModifier(url=>{
+       if(url.startsWith('data:')||url.startsWith('blob:'))return url;
+       const resolved=new URL(url,base).href;
+       if(!dependencyURLs.has(resolved))throw Error('Dependência não verificada: '+url);
+       return dependencyURLs.get(resolved);
+     });
+     data=await loader.parseAsync(bytes,base);
+   } finally {for(const url of objectURLs)URL.revokeObjectURL(url);}
    if(token!==request){dispose(data.scene);return;}
    const box=new THREE.Box3().setFromObject(data.scene,true);if(box.isEmpty()) {dispose(data.scene);throw Error('Modelo vazio');}
    model=data.scene;scene.add(model);const step=lighting.place(model,box);$('grid-scale').textContent=Number(step.toPrecision(4))+' m / célula';viewport.dataset.lighting=JSON.stringify(lighting.diagnostics());navigation.setBounds(box);$('view').disabled=false;$('reset').disabled=false;$('zoom-in').disabled=false;$('zoom-out').disabled=false;state('Modelo original carregado','ready');
