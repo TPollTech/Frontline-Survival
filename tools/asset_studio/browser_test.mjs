@@ -1,5 +1,6 @@
 import { chromium } from 'playwright';
 import assert from 'node:assert/strict';
+import {createHash} from 'node:crypto';
 import {readFile,writeFile,mkdir} from 'node:fs/promises';
 const url=process.env.STUDIO_URL||'http://127.0.0.1:8765';
 const dir=process.env.STUDIO_EVIDENCE||'/tmp/studio-evidence';
@@ -125,6 +126,49 @@ if(catalog.runtime_views){
  assert.equal(captures.length,4);
  console.log('STUDIO_RUNTIME_VIEWS_PASS',captures.join(','));
 }else if(process.env.REQUIRE_RUNTIME_VIEWS==='1')throw Error('missing Godot captures');
+// Browser-only neutral test fixture: never written into the production catalog or package.
+const dependencyPage=await browser.newPage({viewport:{width:1280,height:800}});
+const fixturePath='qa-fixture/models/panel.gltf',bufferPath='qa-fixture/buffers/qa mesh.bin';
+const buffer=Buffer.alloc(44);
+[-1,0,0,1,0,0,0,1,0].forEach((v,i)=>buffer.writeFloatLE(v,i*4));
+[0,1,2].forEach((v,i)=>buffer.writeUInt16LE(v,36+i*2));
+const fixture=Buffer.from(JSON.stringify({asset:{version:'2.0'},scene:0,scenes:[{nodes:[0]}],nodes:[{mesh:0}],
+ meshes:[{primitives:[{attributes:{POSITION:0},indices:1}]}],
+ buffers:[{uri:'../buffers/qa%20mesh.bin',byteLength:44}],
+ bufferViews:[{buffer:0,byteOffset:0,byteLength:36,target:34962},{buffer:0,byteOffset:36,byteLength:6,target:34963}],
+ accessors:[{bufferView:0,componentType:5126,count:3,type:'VEC3',min:[-1,0,0],max:[1,1,0]},{bufferView:1,componentType:5123,count:3,type:'SCALAR'}]}));
+const hash=b=>createHash('sha256').update(b).digest('hex');
+const fixtureCatalog={kind:catalog.kind,schema_version:catalog.schema_version,revision:catalog.revision,
+ assets:[{id:'qa:dependency_fixture',category:'model',usage:'test_only',source:{path:fixturePath},
+ outputs:[{path:fixturePath}],preview:{resource:fixturePath},validation:{approved:false}}],
+ resources:{[fixturePath]:{status:'new',sha256:hash(fixture),gltf_dependencies:[{uri:'../buffers/qa%20mesh.bin',path:bufferPath}]},
+ [bufferPath]:{status:'new',sha256:hash(buffer)}}};
+let tamper=false,bufferRequests=0;
+await dependencyPage.route('**/live_catalog.json',route=>route.fulfill({json:fixtureCatalog}));
+await dependencyPage.route('**/qa-fixture/**',route=>{
+ const p=decodeURIComponent(new URL(route.request().url()).pathname);
+ if(p.endsWith('/'+fixturePath))return route.fulfill({body:fixture,contentType:'model/gltf+json'});
+ if(p.endsWith('/'+bufferPath)){
+  bufferRequests++;
+  const data=Buffer.from(buffer);
+  if(tamper)data[0]^=1;
+  return route.fulfill({body:data,contentType:'application/octet-stream'});
+ }
+ return route.abort();
+});
+await dependencyPage.goto(url,{waitUntil:'networkidle'});
+await dependencyPage.locator('#assets button').filter({hasText:'qa:dependency_fixture'}).click();
+await dependencyPage.locator('#state[data-kind=ready]').waitFor({timeout:30000});
+assert.equal(await dependencyPage.locator('#viewport').getAttribute('data-sha256'),hash(fixture));
+assert.equal(bufferRequests,1,'must not refetch verified external bytes');
+tamper=true;
+await dependencyPage.locator('#assets button').filter({hasText:'qa:dependency_fixture'}).click();
+await dependencyPage.locator('#state[data-kind=error]').waitFor({timeout:30000});
+assert.match(await dependencyPage.locator('#state').textContent(),/Hash divergente/);
+assert.equal(await dependencyPage.locator('#viewport').getAttribute('data-resource'),null);
+assert.equal(bufferRequests,2);
+await dependencyPage.close();
+console.log('STUDIO_EXTERNAL_DEPENDENCY_PASS verified bytes and tamper rejection');
 assert.deepEqual(errors,[]);
 await writeFile(dir+'/report.json',JSON.stringify({revision:catalog.revision,assets:catalog.assets.length,glbLoaded:[...new Set(observed)],browser:browser.version(),errors,lighting:lightingEvidence,camera:cameraEvidence,runtimeViews:captures,visualApproval:false},null,2));
 console.log('STUDIO_BROWSER_PASS',new Set(observed).size,'GLB');
