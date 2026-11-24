@@ -1,5 +1,7 @@
 # Padrão de modelagem do Frontline Survival
 
+> **Legado em migração:** a partir de 24/11/2026, a [especificação do novo sistema 3D e Asset Studio](ASSET_STUDIO_SPEC.md) é o padrão obrigatório para toda modelagem. As técnicas abaixo podem ser reaproveitadas se satisfizerem o novo contrato e a validação visual; não constituem a solução final.
+
 Use metros e modele no espaço local da peça. No Godot, Y aponta para cima e a frente da arma segue −Z. Separe malha visual, colisão e pivôs animados. Armeiros, personagens e cenário podem combinar malhas autorais em GLB com peças dimensionadas pelo código.
 
 ## Peças reutilizáveis

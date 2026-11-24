@@ -1,5 +1,7 @@
 # Frontline Survival — Planejamento e Roadmap
 
+> **Diretriz de 24/11/2026:** a nova fundação 3D/Asset Studio é prioridade transversal antes da remodelagem geral. Consulte o [checklist mestre atualizado](docs/CHECKLIST_MESTRE.md) e a [especificação obrigatória de modelagem e Studio](docs/ASSET_STUDIO_SPEC.md). O diagnóstico histórico abaixo permanece preservado; não representa o estado atual da main.
+
 **Documento mestre do projeto** · Atualizado: 12/11/2026 · **versão de desenvolvimento:** `0.9.19` (**CI, captura real e Windows Release publicados; aprovação visual do jogador pendente**) · **Situação:** desenvolvimento incremental; Etapas 0–6 ainda não encerradas integralmente.
 
 > **Visão:** FPS 3D offline de sobrevivência por ondas, com combate satisfatório, progressão, dinheiro, compras em estações e suporte tático. Inspiração de mecânicas: Survival dos FPS militares da geração PS3, com identidade, modelos, efeitos e sons próprios. **Não** copiar mapas, arquivos ou personagens de Call of Duty.
