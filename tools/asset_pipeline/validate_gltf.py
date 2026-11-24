@@ -49,9 +49,9 @@ def parse_file(path):
     return json.loads(chunks[0][1]),next((v for k,v in chunks if k==b"BIN\0"),None)
 
 class Audit:
-    def __init__(self,root,path,category=None,strict=False,source_root=None):
+    def __init__(self,root,path,category=None,strict=False,source_root=None,contract=None):
         self.root=Path(root).resolve();self.path=path;self.category=category;self.strict=strict;self.source_root=Path(source_root or root).resolve()
-        self.errors=[];self.warnings=[];self.unknown=[];self.stats={};self.cache={}
+        self.errors=[];self.warnings=[];self.unknown=[];self.stats={};self.cache={};self.contract=contract
     def issue(self,code,detail,level="error"):
         getattr(self,{"error":"errors","warning":"warnings","unknown":"unknown"}[level]).append({"code":code,"detail":str(detail)})
     def conditional(self,code,detail):
@@ -215,9 +215,9 @@ class Audit:
             for ch in anim["channels"]:
                 index(anim["samplers"],ch["sampler"])
                 if "node" in ch["target"]:index(nodes,ch["target"]["node"])
-        instances=[];lo=[math.inf]*3;hi=[-math.inf]*3
+        instances=[];lo=[math.inf]*3;hi=[-math.inf]*3;worlds={}
         def collect(i,parent):
-            n=nodes[i];world=multiply(parent,matrix(n))
+            n=nodes[i];world=multiply(parent,matrix(n));worlds[i]=world
             if "mesh" in n:
                 m=metrics[n["mesh"]];instances.append(m)
                 for v in m["positions"]:
@@ -229,8 +229,33 @@ class Audit:
             self.stats["rest_geometry_aabb_m"]={"min":lo,"max":hi,"dimensions":[b-a for a,b in zip(lo,hi)],"scope":"undeformed vertex positions with node world transforms"}
             if max(b-a for a,b in zip(lo,hi))<=1e-9:self.conditional("ZERO_EXTENT","all dimensions zero")
         self.stats.update(nodes=len(nodes),mesh_instances=len(instances),vertices=sum(x["vertices"] for x in instances),triangles=sum(x["triangles"] for x in instances),material_slots=sum(x["slots"] for x in instances),unknown_topology=sum(x["unknown_topology"] for x in instances))
-        self.issue("PHYSICAL_DIMENSIONS_OR_FORWARD_UNVERIFIED","requires declared per-asset dimensions/orientation and Godot comparison","unknown")
-        self.issue("PIVOT_INTENT_UNVERIFIED","finite local transforms checked; semantic pivot intent needs source contract","unknown")
+        if self.contract is not None:
+            c=self.contract;require(c.get("unit")=="m" and c.get("up")=="+Y","contract must use canonical metres and Y up")
+            tolerance=c.get("tolerance_m",.001)
+            require(finite([tolerance]) and 0<tolerance<=.05,"invalid physical tolerance")
+            def compare(actual,expected,tol,code,label):
+                require(isinstance(expected,list) and len(actual)==len(expected) and finite(expected),"invalid contract "+label)
+                if any(abs(a-b)>tol for a,b in zip(actual,expected)):self.issue(code,label+": "+str(actual)+" != "+str(expected))
+            if "dimensions_m" in c:
+                compare(self.stats.get("rest_geometry_aabb_m",{}).get("dimensions",[]),c["dimensions_m"],tolerance,"DIMENSION_MISMATCH","rest AABB")
+            else:self.issue("PHYSICAL_DIMENSIONS_UNVERIFIED","no declared dimensions","unknown")
+            named={}
+            for i,n in enumerate(nodes):named.setdefault(n.get("name"),[]).append(i)
+            def named_node(name):
+                matches=named.get(name,[]);require(len(matches)==1 and matches[0] in worlds,"missing or ambiguous active node: "+name);return matches[0]
+            for name,expected in sorted(c.get("pivots_local_m",{}).items()):
+                compare(list(matrix(nodes[named_node(name)])[12:15]),expected,tolerance,"PIVOT_MISMATCH",name)
+            if not c.get("pivots_local_m"):self.issue("PIVOT_INTENT_UNVERIFIED","no declared local pivots","unknown")
+            if "forward" in c:
+                direction=c["forward"];m=worlds[named_node(direction["node"])]
+                axis=direction["local_axis"];require(len(axis)==3 and finite(axis) and abs(length(axis)-1)<1e-6,"invalid forward axis")
+                v=sub(point(m,axis),point(m,(0,0,0)));require(length(v)>1e-12,"collapsed forward axis")
+                compare([x/length(v) for x in v],direction["world_axis"],.001,"ORIENTATION_MISMATCH","declared forward")
+            else:self.issue("ORIENTATION_UNVERIFIED","no declared directional fiducial","unknown")
+            self.stats["contract_checked"]=True
+        else:
+            self.issue("PHYSICAL_DIMENSIONS_OR_FORWARD_UNVERIFIED","requires declared per-asset dimensions/orientation and Godot comparison","unknown")
+            self.issue("PIVOT_INTENT_UNVERIFIED","finite local transforms checked; semantic pivot intent needs source contract","unknown")
         if self.category in BUDGETS:
             b=BUDGETS[self.category]
             self.stats["provisional_file_budget"]={"category":self.category,"triangles_lod0":b.triangles[0],"material_slots":b.max_material_slots,"scope":"individual exported file, not assembled asset","hardware_validated":False}
@@ -275,10 +300,11 @@ def report(root,strict=False,source_root=None):
     rows=[Audit(root,p,owners.get(p),strict,source_root).run() for p in paths]
     return {"schema_version":1,"revision":catalog["revision"],"scope":"original_gltf_files","files":rows,"counts":dict(Counter(r["technical_status"] for r in rows)),"missing_catalog_references":catalog["missing_literal_references"],"dynamic_references":catalog["dynamic_references"],"visual_approval":False}
 def main():
-    p=argparse.ArgumentParser();p.add_argument("--root",default=".");p.add_argument("--output",required=True);p.add_argument("--file",action="append");p.add_argument("--strict",action="store_true");p.add_argument("--source-root");p.add_argument("--category",default="object");p.add_argument("--audit-only",action="store_true")
+    p=argparse.ArgumentParser();p.add_argument("--root",default=".");p.add_argument("--output",required=True);p.add_argument("--file",action="append");p.add_argument("--strict",action="store_true");p.add_argument("--source-root");p.add_argument("--category",default="object");p.add_argument("--audit-only",action="store_true");p.add_argument("--contract")
     a=p.parse_args()
     if a.file:
-        rows=[Audit(a.root,f,a.category,a.strict,a.source_root).run() for f in sorted(a.file)]
+        contract=json.loads(Path(a.contract).read_text()) if a.contract else None
+        rows=[Audit(a.root,f,a.category,a.strict,a.source_root,contract).run() for f in sorted(a.file)]
         result={"schema_version":1,"files":rows,"counts":dict(Counter(r["technical_status"] for r in rows)),"visual_approval":False}
     else:result=report(a.root,a.strict,a.source_root)
     Path(a.output).parent.mkdir(parents=True,exist_ok=True);Path(a.output).write_bytes(canonical(result))

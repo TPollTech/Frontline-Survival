@@ -29,7 +29,7 @@ jobs:
           python -m tools.asset_pipeline.parametric.export_fixture "$RUNNER_TEMP/asset-validation/fixture" "$GITHUB_SHA"
           python -m tools.asset_pipeline.parametric.export_fixture "$RUNNER_TEMP/asset-validation/repeat" "$GITHUB_SHA"
           diff -r "$RUNNER_TEMP/asset-validation/fixture" "$RUNNER_TEMP/asset-validation/repeat"
-          python -m tools.asset_pipeline.validate_gltf --root "$RUNNER_TEMP/asset-validation/fixture" --source-root . --category object --strict --file asset.glb --file asset.gltf --output "$RUNNER_TEMP/asset-validation/fixture-report.json"
+          python -m tools.asset_pipeline.validate_gltf --root "$RUNNER_TEMP/asset-validation/fixture" --source-root . --category object --strict --contract tools/asset_pipeline/parametric/export_fixture_contract.json --file asset.glb --file asset.gltf --output "$RUNNER_TEMP/asset-validation/fixture-report.json"
       - name: Audit every discovered original model
         run: |
           python -m tools.asset_pipeline.validate_gltf --audit-only --output "$RUNNER_TEMP/asset-validation/production-report.json"
@@ -48,6 +48,9 @@ jobs:
           timeout 180s godot --headless --path . --script res://tools/asset_pipeline/runtime/validate_imports.gd 2>&1 | tee "$RUNNER_TEMP/asset-validation/godot.log"
           grep -q IMPORT_VALIDATION_COMPLETE "$RUNNER_TEMP/asset-validation/godot.log"
           if grep -E 'SCRIPT ERROR:|Parse Error|IMPORT_VALIDATION_FAIL' "$RUNNER_TEMP/asset-validation/godot.log"; then exit 1; fi
+      - name: Compare independent static and Godot reports; enforce hard errors
+        run: |
+          python -m tools.asset_pipeline.reconcile_validation "$RUNNER_TEMP/asset-validation/production-report.json" "$RUNNER_TEMP/asset-validation/godot-imports.json" "$RUNNER_TEMP/asset-validation/reconciled.json"
       - name: Import deterministic fixture with engine attribute checks
         run: |
           set -o pipefail

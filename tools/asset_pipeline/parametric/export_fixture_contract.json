@@ -1,0 +1,35 @@
+{
+  "unit": "m",
+  "up": "+Y",
+  "dimensions_m": [
+    1,
+    2,
+    0
+  ],
+  "pivots_local_m": {
+    "anchor": [
+      0,
+      0,
+      0
+    ],
+    "bone:tip": [
+      0,
+      1,
+      0
+    ]
+  },
+  "forward": {
+    "node": "anchor",
+    "local_axis": [
+      0,
+      0,
+      -1
+    ],
+    "world_axis": [
+      0,
+      0,
+      -1
+    ]
+  },
+  "tolerance_m": 0.001
+}

@@ -1,6 +1,7 @@
 import json, struct, tempfile, unittest
 from pathlib import Path
 from tools.asset_pipeline.validate_gltf import Audit, digest, matrix, point
+from tools.asset_pipeline.reconcile_validation import reconcile
 
 class ValidationTests(unittest.TestCase):
     def setUp(self):
@@ -68,7 +69,26 @@ class ValidationTests(unittest.TestCase):
     def test_truncated_glb(self):
         self.root.joinpath("bad.glb").write_bytes(b"glTF")
         self.assertIn("INVALID_DOCUMENT",self.codes(Audit(self.root,"bad.glb").run()))
+    def test_explicit_contract(self):
+        self.doc["nodes"][0]["name"]="anchor";self.doc["nodes"][1]["name"]="panel"
+        self.audit()
+        contract={"unit":"m","up":"+Y","dimensions_m":[2,3,0],"pivots_local_m":{"anchor":[2,3,4]},
+                  "forward":{"node":"panel","local_axis":[0,0,-1],"world_axis":[0,0,-1]}}
+        def run():return Audit(self.root,"asset.gltf","object",True,contract=contract).run()
+        self.assertFalse(run()["errors"])
+        contract["dimensions_m"]=[3,3,0];contract["pivots_local_m"]["anchor"]=[0,0,0];contract["forward"]["world_axis"]=[1,0,0]
+        self.assertTrue({"DIMENSION_MISMATCH","PIVOT_MISMATCH","ORIENTATION_MISMATCH"}<=self.codes(run()))
     def test_deterministic(self):self.assertEqual(self.audit(),self.audit())
+    def test_engine_reconciliation(self):
+        x=self.audit();x["metrics"]["triangles"]=1
+        a={"revision":"r","files":[x],"missing_catalog_references":[]}
+        y={"path":x["path"],"sha256":x["sha256"],"import_code":0,"mesh_nodes":1,"triangles":1,"unknown_topology":0}
+        b={"revision":"r","files":[y]}
+        self.assertEqual(reconcile(a,b)["hard_failures"],0)
+        y["triangles"]=2
+        self.assertEqual(reconcile(a,b)["hard_failures"],1)
+        b["revision"]="wrong"
+        with self.assertRaises(ValueError):reconcile(a,b)
     def test_transform_rotation(self):
         q=2**-.5;p=point(matrix({"rotation":[0,0,q,q]}),(1,0,0))
         self.assertAlmostEqual(p[0],0);self.assertAlmostEqual(p[1],1)
