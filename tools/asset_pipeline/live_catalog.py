@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 import re
 import subprocess
+import struct
 import posixpath
 from urllib.parse import unquote, urlsplit
 from collections import Counter, defaultdict
@@ -69,6 +70,27 @@ def resolve_gltf_uri(source, uri):
     if target in (".", "..") or target.startswith("../"):
         raise ValueError("glTF URI escapes repository")
     return target
+
+def gltf_document(file):
+    """Read external dependency declarations from glTF JSON or the GLB JSON chunk."""
+    suffix=file.suffix.lower()
+    if suffix==".gltf":
+        return json.loads(file.read_text(encoding="utf-8"))
+    if suffix!=".glb":
+        return None
+    with file.open("rb") as stream:
+        header=stream.read(12)
+        if header[:4]!=b"glTF":
+            # Non-GLB files still belong to discovery; geometry validation is separate.
+            return None
+        require(len(header)==12,"truncated GLB header")
+        magic,version,total=struct.unpack("<4sII",header)
+        require(version==2 and total==file.stat().st_size,"invalid GLB header")
+        chunk=stream.read(8)
+        require(len(chunk)==8,"truncated GLB JSON chunk")
+        length,kind=struct.unpack("<I4s",chunk)
+        require(kind==b"JSON" and length%4==0 and 20+length<=total,"invalid GLB JSON chunk")
+        return json.loads(stream.read(length).decode("utf-8"))
 
 def runtime_resource_paths(sample):
     """Extract real resource paths from sampled nodes and effective materials."""
@@ -168,13 +190,14 @@ def build(root,paths=None,runtime=None,revision=None):
     # GLTF external relative buffers/images also belong to the catalog.
     gltf_dependencies = defaultdict(list)
     for p in sorted(candidates):
-        if Path(p).suffix.lower() != ".gltf": continue
+        if Path(p).suffix.lower() not in (".gltf",".glb"): continue
         f=safe(root,p)
         if not f.is_file(): continue
-        d=json.loads(f.read_text(encoding="utf-8"))
+        d=gltf_document(f)
+        if d is None: continue
         for item in d.get("buffers",[])+d.get("images",[]):
             uri=item.get("uri")
-            if not uri or uri.startswith("data:"): continue
+            if uri is None or isinstance(uri,str) and uri.startswith("data:"): continue
             try:
                 q = resolve_gltf_uri(p, uri)
                 exists = safe(root,q).is_file()
@@ -250,7 +273,10 @@ def build(root,paths=None,runtime=None,revision=None):
         observed_paths = {p for sample in runtime["samples"] for p in runtime_resource_paths(sample) if p in resources and resources[p]["status"] != "missing"}
         for p in sorted(set(known)|set(baseline["source_registry"])|observed_paths):
             fp=resources.get(p) if p in resources else source_records.get(p)
-            expected=git(root,"rev-parse",revision+":"+p).decode().strip()
+            try:
+                expected=git(root,"rev-parse",revision+":"+p).decode().strip()
+            except subprocess.CalledProcessError as exc:
+                raise ValueError("runtime source not tracked at revision: "+p) from exc
             if fp and fp.get("git_blob_sha1")==expected:
                 continue
             # Godot can regenerate sidecars during --import. Keep both hashes
