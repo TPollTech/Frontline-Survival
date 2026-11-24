@@ -10,6 +10,7 @@ import base64
 import hashlib
 import json
 import math
+import re
 import struct
 from .model import SceneSpec, require, dot
 from .shading import RenderMesh
@@ -35,6 +36,28 @@ def source_manifest(root,paths,revision):
         entries.append({"path":name,"sha256":digest(f.read_bytes())})
     require(bool(entries),"source files required")
     return {"revision":revision,"files":entries}
+
+def normalize_source_manifest(sources):
+    """Canonicalize validated source metadata without trusting input list order."""
+    require(isinstance(sources,dict) and set(sources)=={"revision","files"},"invalid source manifest")
+    revision=sources["revision"]
+    require(isinstance(revision,str) and bool(revision.strip()),"missing source revision")
+    files=sources["files"]
+    require(isinstance(files,(list,tuple)) and bool(files),"source files required")
+    seen=set()
+    entries=[]
+    for entry in files:
+        require(isinstance(entry,dict) and set(entry)=={"path","sha256"},"invalid source entry")
+        name=entry["path"]
+        require(isinstance(name,str) and bool(name) and name!=".","invalid source path")
+        p=PurePosixPath(name)
+        require(not p.is_absolute() and ".." not in p.parts and "\\" not in name and ":" not in name and str(p)==name and not any(ord(c)<32 for c in name),"unsafe source path")
+        checksum=entry["sha256"]
+        require(isinstance(checksum,str) and re.fullmatch(r"[0-9a-f]{64}",checksum) is not None,"invalid source hash")
+        require(name not in seen,"duplicate source path")
+        seen.add(name)
+        entries.append({"path":name,"sha256":checksum})
+    return {"revision":revision,"files":sorted(entries,key=lambda e:e["path"])}
 
 class Buffer:
     def __init__(self):
@@ -72,7 +95,7 @@ def matrix(t):
 
 def encode(scene,render_meshes,library,*,sources,rig=None):
     require(isinstance(scene,SceneSpec) and isinstance(library,MaterialLibrary),"invalid export inputs")
-    require(isinstance(sources,dict) and isinstance(sources.get("revision"),str) and bool(sources.get("files")),"source manifest required")
+    sources=normalize_source_manifest(sources)
     renders={r.mesh.id:r for r in render_meshes}
     require(all(isinstance(r,RenderMesh) for r in renders.values()) and len(renders)==len(render_meshes),"duplicate render mesh")
     used={n.mesh_id for n in scene.nodes if n.mesh_id}
