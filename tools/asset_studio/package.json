@@ -1,0 +1,9 @@
+{
+  "name": "frontline-asset-studio",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "three": "0.170.0",
+    "playwright": "1.51.1"
+  }
+}

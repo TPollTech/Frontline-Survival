@@ -1,0 +1,51 @@
+name: Asset Studio browser QA
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'tools/asset_studio/**'
+      - 'tools/asset_pipeline/live_catalog.py'
+      - 'assets/**'
+      - 'scenes/**'
+      - 'scripts/**'
+      - '.github/workflows/asset-studio.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  browser:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install pinned Studio dependencies
+        working-directory: tools/asset_studio
+        run: |
+          npm install --ignore-scripts
+          npx playwright install --with-deps chromium
+      - name: Verify catalog and stage actual assets
+        run: |
+          python -m unittest discover -s tests -p 'test_live_catalog.py' -v
+          python tools/asset_studio/prepare.py "$RUNNER_TEMP/studio"
+      - name: Browser GLB loading and navigation
+        run: |
+          python -m http.server 8765 --bind 127.0.0.1 --directory "$RUNNER_TEMP/studio" > "$RUNNER_TEMP/studio-server.log" 2>&1 &
+          server=$!
+          trap 'kill "$server" || true' EXIT
+          for n in $(seq 1 30); do curl -fsS http://127.0.0.1:8765/live_catalog.json >/dev/null && break; sleep 1; done
+          STUDIO_EVIDENCE="$RUNNER_TEMP/studio-evidence" node tools/asset_studio/browser_test.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Studio-QA-${{ github.sha }}
+          path: |
+            ${{ runner.temp }}/studio-evidence/
+            ${{ runner.temp }}/studio/live_catalog.json
+            ${{ runner.temp }}/studio-server.log
+          if-no-files-found: warn

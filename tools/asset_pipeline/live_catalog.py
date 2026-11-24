@@ -186,9 +186,18 @@ def build(root,paths=None,runtime=None,revision=None):
         require(runtime.get("kind")=="frontline_runtime_inventory" and runtime.get("schema_version")==1 and not runtime.get("failures"),"invalid runtime evidence")
         require(runtime.get("commit")==revision,"stale runtime capture")
         # A working tree different from HEAD cannot inherit CI capture.
-        for p in set(known)|set(baseline["source_registry"]):
+        regenerated_import_metadata=[]
+        for p in sorted(set(known)|set(baseline["source_registry"])):
             fp=resources.get(p) if p in resources else source_records.get(p)
-            require(fp and fp.get("git_blob_sha1")==git(root,"rev-parse",revision+":"+p).decode().strip(),"runtime source drift: "+p)
+            expected=git(root,"rev-parse",revision+":"+p).decode().strip()
+            if fp and fp.get("git_blob_sha1")==expected:
+                continue
+            # Godot can regenerate sidecars during --import. Keep both hashes
+            # and never waive drift for actual meshes, textures or source code.
+            if p in known and known[p]["category"]=="import_metadata" and fp and fp.get("git_blob_sha1"):
+                regenerated_import_metadata.append({"path":p,"revision_blob":expected,"current_blob":fp["git_blob_sha1"]})
+                continue
+            raise ValueError("runtime source drift: "+p)
         sample_ids=set()
         for s in runtime["samples"]:
             require(s["id"] not in sample_ids,"duplicate runtime sample")
@@ -219,7 +228,7 @@ def build(root,paths=None,runtime=None,revision=None):
             a["validation"]["runtime"]="query_executed" if q["executed"] else "not_observed_current"
             a["query_evidence"]=q
         runtime_summary={"commit":revision,"sha256":sha(canonical(runtime)),"samples":len(sample_ids),
-                         "limitations":runtime["limitations"],"approved":False}
+                         "limitations":runtime["limitations"],"regenerated_import_metadata":regenerated_import_metadata,"approved":False}
     for a in assets:
         a["outputs_current"]=[{"path":o["path"],"status":resources.get(o["path"],{}).get("status","missing")} for o in a["outputs"]]
         p=a["preview"].get("resource")

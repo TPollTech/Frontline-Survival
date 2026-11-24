@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="pt-BR">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Frontline Survival | Asset Studio</title>
+<link rel="stylesheet" href="studio.css">
+<script type="importmap">{"imports":{"three":"./vendor/three/build/three.module.js","three/addons/":"./vendor/three/examples/jsm/"}}</script>
+</head>
+<body>
+<header><div><strong>FRONTLINE <span>SURVIVAL</span></strong><small>ASSET STUDIO / INSPEÇÃO TÉCNICA</small></div><div id="revision">Carregando catálogo…</div></header>
+<main>
+<aside class="catalog"><h1>Biblioteca</h1><label for="search">Pesquisar</label><input id="search" type="search" placeholder="ID, arquivo ou categoria"><label for="category">Categoria</label><select id="category"><option value="">Todas</option></select><p id="count" class="muted"></p><nav id="assets" aria-label="Assets"></nav></aside>
+<section class="workspace"><div class="toolbar"><div><h2 id="title">Selecione um asset</h2><p id="fidelity" class="muted"></p></div><label>Arquivo <select id="variant" disabled></select></label><button id="reset" disabled>Reenquadrar</button></div><div id="viewport"><p id="state" role="status" aria-live="polite">Iniciando WebGL…</p></div><footer>Prévia técnica do arquivo original · Não representa necessariamente a composição efetiva do Godot.</footer></section>
+<aside class="details"><h2>Informações</h2><dl id="details"></dl><h3>Dependências</h3><ul id="deps"></ul><h3>Limitações</h3><ul id="gaps"></ul></aside>
+</main><script type="module" src="studio.js"></script>
+</body></html>

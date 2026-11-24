@@ -94,3 +94,7 @@ Exportador paramétrico em exporter.py: GLB e glTF autocontido, rastreabilidade 
 ## Catálogo vivo
 
 O gerador tools/asset_pipeline/live_catalog.py descobre arquivos atuais e concilia referências e amostras reais do Godot. O manifesto histórico permanece imutável; o novo JSON é gerado no CI, não editado manualmente. Ver [CATALOGO_VIVO.md](CATALOGO_VIVO.md). A composição runtime ainda não é exportada como geometria para o Studio.
+
+## Asset Studio inicial
+
+Interface independente em tools/asset_studio, Three.js local e catálogo vivo gerado na preparação. Arquivos originais copiados byte a byte, conferência SHA-256 antes de carregar GLB. Sem composição simulada. QA Chromium/WebGL separado; iluminação avançada, controles de inspeção, composições runtime e homologação permanecem tarefas próprias. Ver [ASSET_STUDIO.md](ASSET_STUDIO.md).
