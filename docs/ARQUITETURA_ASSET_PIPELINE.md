@@ -70,3 +70,7 @@ A extensão tools/asset_pipeline/parametric/advanced.py implementa perfis e tria
 ## Curvas e superfícies
 
 Biblioteca organic.py estende a IR com curvas cúbicas, patches bicúbicos, loft elíptico e topologia personalizada. Validação de fan de vértice e bordas complementa MeshSpec; normais, UV, rigging, export e homologação permanecem tarefas próprias. Ver [BIBLIOTECA_PARAMETRICA.md](BIBLIOTECA_PARAMETRICA.md).
+
+## Atributos de renderização
+
+RenderMesh preserva MeshSpec e mapeamento de vértices fonte; normais e UVs por canto são convertidos em buffers indexados com splits explícitos. Tangentes Python e backend opcional Blender MikkTSpace. A integração do RenderMesh ao exportador será realizada na tarefa de exportação; não editar manifesto de baseline. Ver [BIBLIOTECA_PARAMETRICA.md](BIBLIOTECA_PARAMETRICA.md).
