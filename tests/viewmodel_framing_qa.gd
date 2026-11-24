@@ -33,7 +33,7 @@ func _run() -> void:
     game.combat_hud_root.hide()
     game.phase = "break"
     game.break_remaining = 300.0
-    var sheet := Image.create(CELL.x * 2, CELL.y * GUNS.size(), false, Image.FORMAT_RGBA8)
+    var sheet := Image.create(CELL.x * 3, CELL.y * GUNS.size(), false, Image.FORMAT_RGBA8)
     var rendered_mode := DisplayServer.get_name() != "headless"
     for index in range(GUNS.size()):
         var id: String = GUNS[index]
@@ -79,6 +79,25 @@ func _run() -> void:
                 if not image.is_empty():
                     image.resize(CELL.x, CELL.y, Image.INTERPOLATE_BILINEAR)
                     sheet.blit_rect(image, Rect2i(Vector2i.ZERO, CELL), Vector2i(column * CELL.x, index * CELL.y))
+        # Third column: real mid-reload pose for every weapon, not a mock render.
+        player.aim = false
+        player.camera.fov = player.get_target_camera_fov(false)
+        player._update_viewmodel_projection(1.0, false, 22.0)
+        player.gun.position = player.get_viewmodel_rest_pose(false)
+        player.reloading = true
+        player.reload_elapsed = float(player.WEAPONS[id]["reload"]) * (0.70 if id == "shotgun" else 0.45)
+        player._animate_viewmodel(0.25, 0.0)
+        _expect(player.viewmodel_root.position.y < -0.02, "reload animation did not lower visual rig " + id)
+        if rendered_mode:
+            for frame in range(4):
+                await process_frame
+            var reload_image := root.get_texture().get_image()
+            _expect(not reload_image.is_empty(), "empty reload capture " + id)
+            if not reload_image.is_empty():
+                reload_image.resize(CELL.x, CELL.y, Image.INTERPOLATE_BILINEAR)
+                sheet.blit_rect(reload_image, Rect2i(Vector2i.ZERO, CELL), Vector2i(2 * CELL.x, index * CELL.y))
+        player.reloading = false
+        player.reload_elapsed = 0.0
         print("FRAMING_QA_WEAPON " + id + " rear=" + str(player.viewmodel_rear_extent))
     if rendered_mode:
         _expect(sheet.save_png("res://docs/qa/weapon_framing.png") == OK, "could not save framing sheet")

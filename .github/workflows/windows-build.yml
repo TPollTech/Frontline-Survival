@@ -177,6 +177,27 @@ jobs:
             exit 1
           fi
 
+      - name: Arsenal QA - isolated individual tests of all eight weapons
+        shell: bash
+        run: |
+          set -o pipefail
+          timeout 55s godot --headless --path . --script res://tests/arsenal_qa.gd 2>&1 | tee godot-arsenal.log
+          grep -q 'QA_ARSENAL_PASS' godot-arsenal.log
+          if grep -E 'SCRIPT ERROR:|ERROR:.*Parse Error|QA_ARSENAL_FAIL|ARSENAL_QA_ERROR:' godot-arsenal.log; then
+            exit 1
+          fi
+
+      - name: Upload individual arsenal report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Frontline-Arsenal-QA-${{ github.sha }}
+          path: |
+            docs/qa/arsenal_report.json
+            godot-arsenal.log
+          retention-days: 30
+          if-no-files-found: warn
+
       - name: FOV regression QA - real menu, persistence and camera
         shell: bash
         run: |
@@ -249,7 +270,7 @@ jobs:
           retention-days: 30
           if-no-files-found: error
 
-      - name: Rendered framing QA - all eight weapons in hip and ADS
+      - name: Rendered framing QA - all eight weapons in hip, ADS and reload
         shell: bash
         run: |
           set -o pipefail

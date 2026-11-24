@@ -1,5 +1,16 @@
 # Frontline Survival — Histórico de versões
 
+## 0.9.34 — QA individual do arsenal
+
+- Suíte Godot isolada para as oito armas: equipar, recursos WAV, disparo, dano em alvo de teste, consumo de munição, cooldown, recarga, troca e acessórios.
+- Relatório JSON e log individuais de cada arma no CI, inclusive em falha.
+- Montagem OpenGL de 24 poses (repouso, ADS, recarga de cada arma).
+- Sem alteração de atributos ou regras de combate. Homologação visual e executável Windows pendentes.
+
+[Notas da release](releases/v0.9.34.md)
+
+---
+
 ## 0.9.33 — Integridade visual das peças
 
 - Repara apoios e contatos visuais nas ópticas originais SMG/LMG, no fuzil, na escopeta e em detalhes de carenagem.
