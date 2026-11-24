@@ -1,0 +1,48 @@
+name: Parametric library QA
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/parametric-library.yml'
+      - 'tools/asset_pipeline/parametric/**'
+      - 'tests/test_parametric_library.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  foundation:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Check baseline and canonical manifest
+        run: |
+          python docs/qa/verify_asset_inventory.py
+          node tools/asset_pipeline/build_manifest.mjs
+      - name: Python foundation tests without Blender
+        run: |
+          python -m unittest discover -s tests -p 'test_parametric_library.py' -v
+      - name: Install optional Blender backend
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends blender
+          blender --version
+          dpkg-query -W blender
+      - name: Require actual Blender integration tests
+        env:
+          FRONTLINE_REQUIRE_BLENDER: '1'
+        run: |
+          set -o pipefail
+          python -m unittest discover -s tests -p 'test_parametric_library.py' -v 2>&1 | tee parametric-qa.log
+      - name: Upload QA evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Parametric-QA-${{ github.sha }}
+          path: parametric-qa.log
+          if-no-files-found: warn

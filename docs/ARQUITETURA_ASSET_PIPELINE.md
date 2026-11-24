@@ -54,3 +54,7 @@ Implementar biblioteca paramétrica Python com interface modular, backend básic
 ## Estado após inventário runtime
 
 O extrator de QA em tools/asset_pipeline/runtime/inventory_qa.gd foi implementado e validado na engine: 86 amostras e 24/24 famílias por captura/consulta. Consulte [INVENTARIO_RUNTIME.md](INVENTARIO_RUNTIME.md). O manifesto v1 permanece baseline estática; evidência de runtime separada, sem promover aprovação de modelo. Exportação fiel de geometria para Studio e catálogo vivo continuam tarefas futuras.
+
+## Fundação paramétrica executável
+
+A biblioteca em tools/asset_pipeline/parametric implementa IR de cena/malha, receitas iniciais, backend Python e adaptador Blender opcional. Ver [BIBLIOTECA_PARAMETRICA.md](BIBLIOTECA_PARAMETRICA.md). Rigging, materiais completos, colisões, LOD, exportação e Studio ficam nas tarefas próprias. Nenhuma substituição de modelos legados.
