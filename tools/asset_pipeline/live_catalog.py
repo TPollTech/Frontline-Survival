@@ -6,6 +6,8 @@ import json
 from pathlib import Path
 import re
 import subprocess
+import posixpath
+from urllib.parse import unquote, urlsplit
 from collections import Counter, defaultdict
 
 EXT={
@@ -50,6 +52,37 @@ def fingerprint(root,p):
     require(f.is_file(),"missing file: "+p)
     b=f.read_bytes()
     return {"bytes":len(b),"sha256":sha(b),"git_blob_sha1":hashlib.sha1(b"blob "+str(len(b)).encode()+b"\0"+b).hexdigest()}
+
+def resolve_gltf_uri(source, uri):
+    """Resolve a local glTF URI inside the repository, preserving its original spelling."""
+    if not isinstance(uri, str) or not uri or any(ord(c) < 32 for c in uri):
+        raise ValueError("invalid glTF URI")
+    parsed = urlsplit(uri)
+    if parsed.scheme or parsed.netloc or parsed.query or parsed.fragment:
+        raise ValueError("nonlocal glTF URI")
+    path = unquote(parsed.path, errors="strict")
+    if not path or path.startswith("/") or "\\" in path or ":" in path or any(ord(c) < 32 for c in path):
+        raise ValueError("unsafe glTF URI")
+    if "/" in path and path.count("/") != parsed.path.count("/"):
+        raise ValueError("encoded path separator")
+    target = posixpath.normpath(posixpath.join(posixpath.dirname(source), path))
+    if target in (".", "..") or target.startswith("../"):
+        raise ValueError("glTF URI escapes repository")
+    return target
+
+def runtime_resource_paths(sample):
+    """Extract real resource paths from sampled nodes and effective materials."""
+    for node in sample["nodes"]:
+        mesh = node.get("mesh") or {}
+        audio = node.get("audio") or {}
+        values = [mesh.get("path"), audio.get("path")]
+        for surf in mesh.get("surfaces", []):
+            for key, value in (surf.get("effective_material") or {}).items():
+                if key.endswith("_texture") and isinstance(value, dict):
+                    values.append(value.get("path"))
+        for value in values:
+            if isinstance(value, str) and value.startswith("res://"):
+                yield value[6:].split("::", 1)[0]
 
 def category(p):
     suffix=Path(p).suffix.lower()
@@ -117,21 +150,43 @@ def build(root,paths=None,runtime=None,revision=None):
                     sources.add(target);queue.append(target)
                 if targetfile.suffix.lower() in EXT:
                     candidates.add(target)
+    # Discover paths observed by the real engine before building resource records.
+    runtime_gaps = []
+    if runtime is not None:
+        require(runtime.get("kind")=="frontline_runtime_inventory" and runtime.get("schema_version")==1 and not runtime.get("failures"),"invalid runtime evidence")
+        require(runtime.get("commit")==revision,"stale runtime capture")
+        for sample in runtime["samples"]:
+            for p in sorted(set(runtime_resource_paths(sample))):
+                try:
+                    exists = safe(root,p).is_file()
+                except ValueError:
+                    exists = False
+                if exists:
+                    candidates.add(p)
+                else:
+                    runtime_gaps.append({"sample":sample["id"],"path":p,"reason":"not a local file"})
     # GLTF external relative buffers/images also belong to the catalog.
+    gltf_dependencies = defaultdict(list)
     for p in sorted(candidates):
-        if not p.endswith(".gltf"): continue
+        if Path(p).suffix.lower() != ".gltf": continue
         f=safe(root,p)
         if not f.is_file(): continue
         d=json.loads(f.read_text(encoding="utf-8"))
         for item in d.get("buffers",[])+d.get("images",[]):
             uri=item.get("uri")
             if not uri or uri.startswith("data:"): continue
-            from urllib.parse import unquote
-            q=str(Path(p).parent / unquote(uri))
-            try: exists=safe(root,q).is_file()
-            except ValueError: exists=False
-            if exists: candidates.add(q);refs[q].append({"source":p,"line":None})
-            else: missing.append({"source":p,"line":None,"target":uri})
+            try:
+                q = resolve_gltf_uri(p, uri)
+                exists = safe(root,q).is_file()
+            except (ValueError, UnicodeError):
+                exists = False
+            if exists:
+                candidates.add(q)
+                refs[q].append({"source":p,"line":None})
+                gltf_dependencies[p].append({"uri":uri,"path":q})
+            else:
+                missing.append({"source":p,"line":None,"target":uri})
+
     resources={}
     for p in sorted(candidates|set(known)):
         f=safe(root,p)
@@ -145,6 +200,11 @@ def build(root,paths=None,runtime=None,revision=None):
                       "status":"unchanged" if unchanged else "changed" if old else "new",
                       "references":refs[p],"provenance":old.get("provenance") if unchanged else None,
                       "observations":[]}
+    for p, deps in sorted(gltf_dependencies.items()):
+        resources[p]["gltf_dependencies"] = sorted(
+            { (d["uri"], d["path"]) for d in deps })
+        resources[p]["gltf_dependencies"] = [
+            {"uri":uri,"path":path} for uri,path in resources[p]["gltf_dependencies"]]
     source_records={}
     for p in sorted(sources|set(baseline["source_registry"])):
         f=safe(root,p)
@@ -187,7 +247,8 @@ def build(root,paths=None,runtime=None,revision=None):
         require(runtime.get("commit")==revision,"stale runtime capture")
         # A working tree different from HEAD cannot inherit CI capture.
         regenerated_import_metadata=[]
-        for p in sorted(set(known)|set(baseline["source_registry"])):
+        observed_paths = {p for sample in runtime["samples"] for p in runtime_resource_paths(sample) if p in resources and resources[p]["status"] != "missing"}
+        for p in sorted(set(known)|set(baseline["source_registry"])|observed_paths):
             fp=resources.get(p) if p in resources else source_records.get(p)
             expected=git(root,"rev-parse",revision+":"+p).decode().strip()
             if fp and fp.get("git_blob_sha1")==expected:
@@ -202,19 +263,7 @@ def build(root,paths=None,runtime=None,revision=None):
         for s in runtime["samples"]:
             require(s["id"] not in sample_ids,"duplicate runtime sample")
             sample_ids.add(s["id"])
-            observed=set()
-            for n in s["nodes"]:
-                mesh=n.get("mesh") or {}
-                audio=n.get("audio") or {}
-                for value in (mesh.get("path",""),audio.get("path","")):
-                    if value.startswith("res://"):
-                        p=value[6:].split("::",1)[0]
-                        if p in resources: observed.add(p)
-                for surf in mesh.get("surfaces",[]):
-                    for k,v in (surf.get("effective_material") or {}).items():
-                        if k.endswith("_texture") and isinstance(v,dict) and v.get("path","").startswith("res://"):
-                            p=v["path"][6:]
-                            if p in resources: observed.add(p)
+            observed={p for p in runtime_resource_paths(s) if p in resources and resources[p]["status"]!="missing"}
             for p in sorted(observed):
                 resources[p]["observations"].append(s["id"])
             ids=set(s["families"])|{id for p in observed for id in owners[p]}
@@ -240,7 +289,7 @@ def build(root,paths=None,runtime=None,revision=None):
             "assets":assets,"resources":resources,"sources":source_records,
             "missing_literal_references":missing,"dynamic_references":dynamic,
             "known_dynamic_gaps":baseline["known_dynamic_gaps"],"runtime_candidates":runtime_candidates,
-            "runtime":runtime_summary,"approved":False,
+            "runtime":runtime_summary,"runtime_resource_gaps":runtime_gaps,"approved":False,
             "counts":{"assets":len(assets),"resources":len(resources),"categories":dict(Counter(a["category"] for a in assets)),
                       "resource_status":dict(Counter(r["status"] for r in resources.values())),
                       "runtime_sampled_assets":sum(a["validation"]["runtime"] in ("sampled","query_executed") for a in assets)}}
