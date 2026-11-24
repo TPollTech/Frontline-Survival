@@ -78,7 +78,24 @@ class BlenderBackend:
                 require(out["id"]==mesh.id and bool(out["blender_version"]),"wrong Blender output")
                 if "boolean" in options:
                     require(bool(out["vertices"]) and bool(out["triangles"]),"empty boolean result")
-                result=MeshSpec(out["id"],out["vertices"],out["triangles"])
+                try:
+                    result=MeshSpec(out["id"],out["vertices"],out["triangles"])
+                except ValueError as exc:
+                    if "boolean" not in options:
+                        raise
+                    # Capture diagnostic geometry rather than losing the failing mesh
+                    # when the isolated process temporary directory is removed.
+                    bad=[]
+                    for face in out["triangles"]:
+                        a,b,c=(out["vertices"][i] for i in face)
+                        u=[b[i]-a[i] for i in range(3)]
+                        v=[c[i]-a[i] for i in range(3)]
+                        n=[u[(i+1)%3]*v[(i+2)%3]-u[(i+2)%3]*v[(i+1)%3] for i in range(3)]
+                        if sum(x*x for x in n)<=1e-24:
+                            bad.append({"indices":face,"points":[a,b,c]})
+                            if len(bad)==3:
+                                break
+                    raise ValueError(f"{exc}; CSG normalization={out.get('csg_normalization')}; degenerate={bad}") from exc
                 if mesh.closed_oriented():
                     require(result.closed_oriented() and result.signed_volume()>0,"Blender changed closed orientation")
                 return result

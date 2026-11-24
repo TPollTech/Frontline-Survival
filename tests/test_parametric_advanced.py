@@ -123,6 +123,17 @@ class AdvancedBlenderTests(unittest.TestCase):
         self.assertEqual(len(m.vertices),8)
         self.assertEqual(len(m.triangles),12)
 
+    def test_non_axis_aligned_intersection(self):
+        # Rotation about Y and overlapping height; containment in XZ is known.
+        # A smaller rotated block is fully contained horizontally in the larger.
+        inner=PythonBackend().build(Box("rotated",(0.5,2,0.5)))
+        c=math.cos(math.pi/4)
+        s=math.sin(math.pi/4)
+        t=Transform((c,0,-s,0,0,1,0,0,s,0,c,0,0,0.5,0,1))
+        m=self.backend.boolean("rotated_intersection",self.block,inner,"intersection",right_transform=t)
+        self.assertTrue(m.closed_oriented())
+        self.assertAlmostEqual(m.signed_volume(),0.375,places=5)
+
     def test_empty_intersection(self):
         # Reject a genuine empty evaluated mesh, not an arbitrary process/API failure.
         with self.assertRaisesRegex(BlenderError,"empty boolean result"):

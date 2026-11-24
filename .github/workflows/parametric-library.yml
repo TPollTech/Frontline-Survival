@@ -5,7 +5,7 @@ on:
     paths:
       - '.github/workflows/parametric-library.yml'
       - 'tools/asset_pipeline/parametric/**'
-      - 'tests/test_parametric_library.py'
+      - 'tests/test_parametric*.py'
   workflow_dispatch:
 permissions:
   contents: read
