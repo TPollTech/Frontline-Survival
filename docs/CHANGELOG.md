@@ -1,5 +1,17 @@
 # Frontline Survival — Histórico de versões
 
+## 0.9.28 — Encaixes visuais das miras das três snipers
+
+- Corrige vãos entre as malhas decorativas das miras abertas e seus suportes no gerador GLB da MRS-7, VLR-8 e Sentinela.
+- Suportes derivados dos limites das malhas e mantidos no corpo estático, sem mover junto ao ferrolho.
+- ADS e capturas QA usam a mesma altura de referência visual; FOV, lunetas, dano, cadência, compras e recarga preservados.
+- QA geométrico verifica interseção real entre peças convexas; montagem OpenGL expandida para 18 poses, incluindo Sentinela em ADS.
+- Inclui o controle de FOV restaurado no commit anterior. Aprovação visual manual no Windows pendente.
+
+[Notas da release](releases/v0.9.28.md)
+
+---
+
 ## 0.9.27 — VLR-8 bolt-action adicional (MRS-7 preservada)
 
 - Duas snipers independentes na estação de armas: a MRS-7 v0.9.26 segue como antes e a nova VLR-8 oferece ferrolho mecânico real.

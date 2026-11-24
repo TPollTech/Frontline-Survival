@@ -9,8 +9,8 @@ LAYOUT = (ROOT / "docs" / "qa" / "viewmodel_layout.md").read_text(encoding="utf-
 
 class ViewmodelSnapshotContracts(unittest.TestCase):
     def test_six_reference_poses_and_three_action_poses(self):
-        self.assertIn('["pistol", "smg", "rifle", "shotgun", "lmg", "rifle", "rifle", "shotgun", "pistol", "sniper", "sniper", "sniper", "bolt_sniper", "bolt_sniper", "bolt_sniper"]', SNAPSHOT)
-        self.assertIn("var ads: bool = idx in [5, 9, 10, 11, 12, 13]", SNAPSHOT)
+        self.assertIn('["pistol", "smg", "rifle", "shotgun", "lmg", "rifle", "rifle", "shotgun", "pistol", "sniper", "sniper", "sniper", "bolt_sniper", "bolt_sniper", "bolt_sniper", "sentinela", "sniper", "bolt_sniper"]', SNAPSHOT)
+        self.assertIn("var ads: bool = idx in [5, 9, 10, 11, 12, 13, 15]", SNAPSHOT)
         self.assertIn("if idx == 6 or idx == 7:", SNAPSHOT)
         self.assertIn("if idx == 8:", SNAPSHOT)
 
@@ -21,9 +21,9 @@ class ViewmodelSnapshotContracts(unittest.TestCase):
         self.assertIn("game.player.reload_elapsed = 0.0", SNAPSHOT)
 
     def test_composite_is_nine_cells_and_documented(self):
-        self.assertIn("CELL_W * 3, CELL_H * 5", SNAPSHOT)
-        self.assertIn("fifteen poses:", SNAPSHOT)
-        self.assertIn("1920 × 1800", LAYOUT)
+        self.assertIn("CELL_W * 3, CELL_H * 6", SNAPSHOT)
+        self.assertIn("eighteen poses:", SNAPSHOT)
+        self.assertIn("1920 × 2160", LAYOUT)
         self.assertIn("Inferior esquerdo", LAYOUT)
         self.assertIn("Inferior central", LAYOUT)
         self.assertIn("Inferior direito", LAYOUT)

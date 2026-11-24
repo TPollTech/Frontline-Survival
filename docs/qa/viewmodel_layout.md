@@ -1,6 +1,6 @@
 # Etapa 4 — evidência renderizada das armas em primeira pessoa
 
-O CI gera uma montagem OpenGL real em `viewmodel_current.png` (1920 × 1800), usando o Godot 4 Compatibility com Xvfb. Cada quadro representa uma pose estática do rig do jogo, reduzida a 640 × 360, sem HUD.
+O CI gera uma montagem OpenGL real em `viewmodel_current.png` (1920 × 2160), usando o Godot 4 Compatibility com Xvfb. Cada quadro representa uma pose estática do rig do jogo, reduzida a 640 × 360, sem HUD.
 
 | Posição | Quadro |
 | --- | --- |
@@ -19,6 +19,9 @@ O CI gera uma montagem OpenGL real em `viewmodel_current.png` (1920 × 1800), us
 | Quinta linha, esquerda | VLR-8 bolt-action com iron sight em ADS |
 | Quinta linha, centro | VLR-8 com luneta 2x em ADS |
 | Quinta linha, direita | VLR-8 com ferrolho aberto durante a extração |
+| Sexta linha, esquerda | Sentinela com iron sight em ADS |
+| Sexta linha, centro | MRS-7 sem luneta, repouso |
+| Sexta linha, direita | VLR-8 sem luneta, repouso |
 
 As cenas são capturadas em Godot com a mesma estrutura e as mesmas animações procedurais do jogador, mas **não são um vídeo** e não demonstram continuidade temporal. Precisamos ainda testar o enquadramento ao correr, as transições completas, o encaixe dos dedos e o desempenho no Windows.
 

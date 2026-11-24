@@ -140,6 +140,37 @@ class Gun:
         self.chamfer((0,-.417,-.298),(.083,.026,.155),'steel',.007,
                      angles=(-.52,0,0),name='magazine_heel')
 
+    def fixed_sight_bridge(self, parent_name, child_names, name):
+        """Connect decorative sight meshes to the fixed visual body.
+        Coordinates and extents come from the actual game meshes, not a
+        separate manually maintained set of attachment offsets.
+        """
+        def parts(label):
+            matches = [mesh for key, mesh in self.scene.geometry.items()
+                       if key.rsplit('_', 1)[0] == label]
+            if not matches:
+                raise ValueError(f'Missing sight geometry: {label}')
+            if any(not any(mesh is body for body in self.groups['body']) for mesh in matches):
+                raise ValueError(f'Sight geometry must remain in the fixed body: {label}')
+            return matches
+
+        parents = parts(parent_name)
+        if len(parents) != 1:
+            raise ValueError(f'Ambiguous visual attachment: {parent_name}')
+        parent = parents[0]
+        children = [mesh for label in child_names for mesh in parts(label)]
+        bounds = np.array([mesh.bounds for mesh in children])
+        lo = bounds[:, 0, :].min(axis=0)
+        hi = bounds[:, 1, :].max(axis=0)
+        # A small positive overlap avoids light leaking between meshes.
+        top = bounds[:, 0, 1].max() + .006
+        bottom = min(parent.bounds[1, 1] - .012, top - .020)
+        if bottom <= parent.bounds[0, 1] or top >= bounds[:, 1, 1].min():
+            raise ValueError(f'Invalid decorative sight support: {name}')
+        center = ((lo[0] + hi[0]) / 2, (bottom + top) / 2, (lo[2] + hi[2]) / 2)
+        self.chamfer(center, (hi[0] - lo[0] + .012, top - bottom,
+                              hi[2] - lo[2] + .012), 'black', .003, name=name)
+
     def save(self,name):
         # Concatena geometrias em 1 mesh colorida: 1 draw call aproximada por arma.
         merged = trimesh.util.concatenate(list(self.scene.geometry.values()))
@@ -350,6 +381,8 @@ def sniper():
         g.chamfer((side, .188, -.22), (.012, .05, .033), 'steel', .004, name='iron_rear_sight')
         g.chamfer((side, .183, -1.17), (.010, .051, .038), 'steel', .003, name='iron_front_guard')
     g.chamfer((0.0, .178, -1.17), (.010, .031, .018), 'steel', .003, name='iron_front_post')
+    g.fixed_sight_bridge('receiver_rail', ('iron_rear_sight',), 'fixed_rear_bridge')
+    g.fixed_sight_bridge('precision_barrel', ('iron_front_guard', 'iron_front_post'), 'fixed_front_bridge')
     for x in (-.11, .11):
         g.rod((x,-.10,-.71),(x*1.5,-.41,-.80),.012,'black',name='folding_bipod')
     g.save('sniper')
@@ -379,6 +412,8 @@ def bolt_sniper():
         g.chamfer((side,.183,-.13),(.011,.043,.035),'black',.003,name='iron_rear_notch')
         g.chamfer((side,.17,-1.42),(.010,.046,.029),'black',.003,name='iron_front_wing')
     g.chamfer((0.0,.183,-1.42),(.009,.026,.015),'steel',.003,name='iron_front_blade')
+    g.fixed_sight_bridge('receiver_sight_rail', ('iron_rear_notch',), 'fixed_rear_bridge')
+    g.fixed_sight_bridge('fixed_front_sight_base', ('iron_front_wing', 'iron_front_blade'), 'fixed_front_bridge')
     # All moving bolt parts belong to the action GLB for real animation.
     g.chamfer((.048,.090,.03),(.043,.043,.26),'steel',.008,name='charging_handle_bolt_body')
     g.rod((.094,.092,.08),(.178,.10,.07),.012,'steel',name='charging_handle_stem')
@@ -400,6 +435,8 @@ def sentinela():
     g.chamfer((0,.13,-.99),(.01,.08,.014),'black',.002,name='sight_post')
     for x in (-.024,.024):
         g.chamfer((x,.133,.12),(.014,.074,.025),'black',.003,name='sight_notch')
+    g.fixed_sight_bridge('receiver', ('sight_notch',), 'fixed_rear_bridge')
+    g.fixed_sight_bridge('barrel', ('sight_post',), 'fixed_front_bridge')
     g.save('sentinela')
 
 if __name__=='__main__':
