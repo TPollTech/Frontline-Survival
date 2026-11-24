@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "kind": "studio_lighting_validation",
+  "tested_commit": "770971373f355d140a9eb93c35e061e663ad6fc1",
+  "run_id": 45473901798,
+  "job_id": 138728865069,
+  "artifact_id": 14959001472,
+  "artifact_sha256": "22f58bb3016bd50ba17885bc1a73ba50e4dda8df9e41d2639a82a89a8c5a773e",
+  "conclusion": "success",
+  "glb_loaded": 32,
+  "visual_review": {
+    "images": [
+      "studio-model.png",
+      "studio-lighting-alternate.png"
+    ],
+    "dimensions": [
+      1440,
+      900
+    ],
+    "scope": "lighting interface and experimental neutral character only",
+    "observations": [
+      "grid and shadow present by default",
+      "grid and shadow absent after toggles",
+      "exposure visibly changed",
+      "floor bright and framing generous"
+    ]
+  },
+  "production_asset_approval": false,
+  "hardware_benchmark": false
+}

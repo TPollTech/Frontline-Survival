@@ -14,7 +14,10 @@ await page.locator('#state[data-kind=ready]').waitFor({timeout:30000});
 const catalog=await (await page.request.get(new URL('live_catalog.json',url.endsWith('/')?url:url+'/').href)).json();
 assert.equal(await page.locator('#assets button').count(),catalog.assets.length);
 const observed=[];
-let lightingEvidence=null;
+let lightingEvidence=null,cameraEvidence=null;
+const cameraState=()=>page.locator('#viewport').getAttribute('data-camera').then(JSON.parse);
+const assertFit=async()=>{const c=await cameraState();assert(c.damping&&c.pan&&c.zoom&&c.depthInside);assert(c.maxNdc<=0.88,'bounding box clipped: '+c.maxNdc);assert(c.near>0&&c.far>c.near);return c;};
+const distance=(a,b)=>Math.hypot(...a.map((x,i)=>x-b[i]));
 for(const a of catalog.assets){
  const paths=[...new Set([a.preview?.resource,...(a.outputs||[]).map(x=>x.path)].filter(p=>p&&/\.glb$/i.test(p)&&catalog.resources[p]?.status!=='missing'))];
  if(!paths.length)continue;
@@ -23,6 +26,7 @@ for(const a of catalog.assets){
   await page.locator('#variant').selectOption(p);
   await page.waitForFunction(p=>document.querySelector('#viewport').dataset.resource===p&&document.querySelector('#state').dataset.kind==='ready',p,{timeout:30000});
   assert.equal(await page.locator('#viewport').getAttribute('data-sha256'),catalog.resources[p].sha256);
+  await assertFit();
   observed.push(p);
  }
  if(observed.length===paths.length){
@@ -40,6 +44,32 @@ for(const a of catalog.assets){
    await page.screenshot({path:dir+'/studio-lighting-alternate.png'});
    await page.locator('#grid').check();await page.locator('#shadows').check();await page.locator('#exposure').fill('1');
    lightingEvidence=info;
+   const home=await assertFit();
+   const canvas=page.locator('#viewport canvas');
+   const r=await canvas.boundingBox(),x=r.x+r.width*.5,y=r.y+r.height*.5;
+   await page.mouse.move(x,y);await page.mouse.down();await page.mouse.move(x+95,y+35,{steps:8});await page.mouse.up();
+   await page.waitForFunction(home=>JSON.parse(document.querySelector('#viewport').dataset.camera).position.some((v,i)=>Math.abs(v-home.position[i])>home.distance*.01),home);
+   const rotated=await cameraState();assert(distance(rotated.position,home.position)>home.distance*.01);
+   await page.mouse.move(x,y);await page.mouse.down({button:'right'});await page.mouse.move(x+60,y+25,{steps:8});await page.mouse.up({button:'right'});
+   await page.waitForFunction(home=>JSON.parse(document.querySelector('#viewport').dataset.camera).target.some((v,i)=>Math.abs(v-home.target[i])>home.distance*.005),home);
+   const panned=await cameraState();assert(distance(panned.target,home.target)>home.distance*.005);
+   await page.mouse.wheel(0,-300);
+   await page.waitForFunction(d=>JSON.parse(document.querySelector('#viewport').dataset.camera).distance<d*.98,panned.distance);
+   await page.screenshot({path:dir+'/studio-camera-interaction.png'});
+   await page.locator('#reset').click();
+   await page.waitForTimeout(300);
+   const reset=await assertFit();assert(distance(reset.position,home.position)<home.distance*1e-5);assert(distance(reset.target,home.target)<home.distance*1e-5);
+   await page.locator('#zoom-in').click();assert((await cameraState()).distance<reset.distance*.9);
+   await page.locator('#zoom-out').click();assert(Math.abs((await cameraState()).distance-reset.distance)<reset.distance*1e-5);
+   await page.locator('#reset').click();
+   await page.setViewportSize({width:760,height:900});
+   await page.waitForFunction(a=>Math.abs(JSON.parse(document.querySelector('#viewport').dataset.camera).aspect-a)>.05,home.aspect);
+   const narrow=await assertFit();await page.screenshot({path:dir+'/studio-camera-narrow.png'});
+   await page.setViewportSize({width:1440,height:900});
+   await page.waitForFunction(a=>Math.abs(JSON.parse(document.querySelector('#viewport').dataset.camera).aspect-a)<.01,home.aspect);
+   await assertFit();
+   cameraEvidence={home,rotated,panned,reset,narrow};
+   console.log('STUDIO_CAMERA_PASS orbit pan wheel reset resize');
  }
 }
 assert.equal(new Set(observed).size,Object.keys(catalog.resources).filter(p=>p.endsWith('.glb')&&catalog.resources[p].status!=='missing').length);
@@ -51,9 +81,9 @@ assert(procedural);
 await page.locator('#assets button').filter({hasText:procedural.id}).first().click();
 await page.locator('#state[data-kind=unavailable]').waitFor();
 await page.screenshot({path:dir+'/studio-unavailable.png'});
-assert(lightingEvidence);
+assert(lightingEvidence);assert(cameraEvidence);assert.equal(await page.locator('#reset').isDisabled(),true);assert.equal(await page.locator('#zoom-in').isDisabled(),true);
 assert.equal(JSON.parse(await page.locator('#viewport').getAttribute('data-lighting')).floor,false);
 assert.deepEqual(errors,[]);
-await writeFile(dir+'/report.json',JSON.stringify({revision:catalog.revision,assets:catalog.assets.length,glbLoaded:[...new Set(observed)],browser:browser.version(),errors,lighting:lightingEvidence,visualApproval:false},null,2));
+await writeFile(dir+'/report.json',JSON.stringify({revision:catalog.revision,assets:catalog.assets.length,glbLoaded:[...new Set(observed)],browser:browser.version(),errors,lighting:lightingEvidence,camera:cameraEvidence,visualApproval:false},null,2));
 console.log('STUDIO_BROWSER_PASS',new Set(observed).size,'GLB');
 await browser.close();

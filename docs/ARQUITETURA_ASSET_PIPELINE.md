@@ -100,3 +100,5 @@ O gerador tools/asset_pipeline/live_catalog.py descobre arquivos atuais e concil
 Interface independente em tools/asset_studio, Three.js local e catálogo vivo gerado na preparação. Arquivos originais copiados byte a byte, conferência SHA-256 antes de carregar GLB. Sem composição simulada. QA Chromium/WebGL separado; iluminação avançada, controles de inspeção, composições runtime e homologação permanecem tarefas próprias. Ver [ASSET_STUDIO.md](ASSET_STUDIO.md).
 
 Iluminação do Studio em lighting.js: HDRI sintético local RGBE com PMREM, ACES/sRGB, MSAA, PCFSoft e piso/grade independentes. O ambiente de inspeção não modifica assets e não reproduz a iluminação exata do Godot.
+
+Navegação do Studio em camera-navigation.js: fit analítico por oito cantos AABB e aspecto, OrbitControls e reset sem inércia residual; escala e transformações do asset preservadas. QA real no navegador. Vistas ortográficas e runtime seguem etapas próprias.
