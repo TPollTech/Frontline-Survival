@@ -19,6 +19,18 @@ class LODTests(unittest.TestCase):
         self.assertEqual(a.levels[0].scene.world_bounds(),a.levels[2].scene.world_bounds())
         self.assertEqual(len(a.colliders),1)
 
+    def test_budget_report_is_static_and_collision_independent(self):
+        a=fixture()
+        report=a.budget_report()
+        self.assertEqual(report,a.budget_report())
+        self.assertFalse(report["hardware_validated"])
+        self.assertTrue(report["limits_provisional"])
+        self.assertEqual([l["metrics"]["triangles"] for l in report["levels"]],[256,128,64])
+        self.assertEqual(report["levels"][0]["remaining"]["triangles"],BUDGETS["object"].triangles[0]-256)
+        self.assertEqual(report["collision"]["metrics"],{"colliders":1,"collision_triangles":0})
+        self.assertEqual(report["collision"]["remaining"]["colliders"],BUDGETS["object"].max_colliders-1)
+
+
     def test_hysteresis(self):
         a=fixture()
         self.assertEqual([a.select(d) for d in (0,11.9,12,29.9,30,500)],[0,0,1,1,2,2])
