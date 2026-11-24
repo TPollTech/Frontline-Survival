@@ -1,9 +1,6 @@
 extends SceneTree
 ## QA only: instantiate actual game recipes, inventory their nodes, never replace meshes.
 const IDS: Array[String] = ["pistol", "smg", "rifle", "shotgun", "lmg", "sentinela", "sniper", "bolt_sniper"]
-const Loot = preload("res://scripts/loot_pickup.gd")
-const Grenade = preload("res://scripts/frag_grenade.gd")
-const Blood = preload("res://scripts/blood_impact.gd")
 var samples: Array[Dictionary] = []
 var failures: Array[String] = []
 var output_dir: String
@@ -76,7 +73,12 @@ func _mesh(node: MeshInstance3D) -> Dictionary:
                 normals = arrays[Mesh.ARRAY_NORMAL].size()
             if arrays[Mesh.ARRAY_TEX_UV] != null:
                 uvs = arrays[Mesh.ARRAY_TEX_UV].size()
-        var primitive: int = mesh.surface_get_primitive_type(i)
+        # ArrayMesh exposes topology; standard PrimitiveMesh surfaces are triangles.
+        var primitive: Variant = null
+        if mesh is ArrayMesh:
+            primitive = (mesh as ArrayMesh).surface_get_primitive_type(i)
+        elif mesh is PrimitiveMesh and not mesh is PointMesh:
+            primitive = Mesh.PRIMITIVE_TRIANGLES
         surfaces.append({"index": i, "primitive": primitive, "vertices": vertices,
             "indices": indices, "normals": normals, "uvs": uvs,
             "triangles": int((indices if indices > 0 else vertices) / 3.0) if primitive == Mesh.PRIMITIVE_TRIANGLES else null,
@@ -119,6 +121,7 @@ func _walk(node: Node, origin: Node, rows: Array[Dictionary]) -> void:
             "visible": n.visible, "visible_in_tree": n.is_visible_in_tree()})
     if node is MeshInstance3D:
         item["mesh"] = _mesh(node as MeshInstance3D)
+        _expect(item["mesh"].has("surfaces") or item["mesh"].get("missing", false), "mesh capture incomplete: " + str(node.get_path()))
     if node is CollisionShape3D:
         item["collision"] = _shape(node as CollisionShape3D)
     if node is CollisionObject3D:
@@ -200,7 +203,7 @@ func _pose(p: Variant, id: String, optic: String, muzzle: String, pose: String) 
     p.walk_anim_blend = 0.0
     p.aim = pose == "ads"
     p.reloading = pose == "reload"
-    p.reload_elapsed = float(SurvivalPlayer.WEAPONS[id]["reload"]) * 0.45 if p.reloading else 0.0
+    p.reload_elapsed = float(p.get_script().get_script_constant_map()["WEAPONS"][id]["reload"]) * 0.45 if p.reloading else 0.0
     p.camera.fov = p.get_target_camera_fov(false)
     p._update_viewmodel_projection(1.0, false, 22.0)
     p.gun.position = p.get_viewmodel_rest_pose(p.aim)
@@ -227,6 +230,12 @@ func _run() -> void:
         quit(1)
         return
     _expect(DirAccess.make_dir_recursive_absolute(output_dir) == OK, "output directory")
+    # Load dependent gameplay scripts only after the project autoloads are ready.
+    var settings := root.get_node_or_null("GameSettings")
+    if settings == null:
+        _expect(false, "GameSettings autoload unavailable")
+        quit(1)
+        return
     var game: Variant = (load("res://scenes/main.tscn") as PackedScene).instantiate()
     game.checkpoint_path = "user://qa-inventory-" + str(OS.get_process_id()) + ".save"
     root.add_child(game)
@@ -246,7 +255,7 @@ func _run() -> void:
     for id in IDS:
         for pose in ["hip", "ads", "reload"]:
             _pose(p, id, "", "", pose)
-        var optics: Array[String] = ["scope_2x", "scope_4x"] if id in ["sniper", "bolt_sniper"] else ["red_dot", "holo"]
+        var optics: Array = ["scope_2x", "scope_4x"] if id in ["sniper", "bolt_sniper"] else ["red_dot", "holo"]
         if id == "sentinela":
             optics.append("scope4")
         for optic in optics:
@@ -260,7 +269,7 @@ func _run() -> void:
     samples.pop_back() # pose repeated only for the NPC scene
     for kind in ["soldier", "runner", "heavy"]:
         for loadout in (["shotgun", "smg", "rifle", "lmg"] if kind != "heavy" else ["lmg"]):
-            var enemy := SurvivalEnemy.new()
+            var enemy: Variant = load("res://scripts/enemy.gd").new()
             enemy.configure(kind, 16, p, loadout)
             enemy.position = Vector3(0, 0.9, -6)
             game.add_child(enemy)
@@ -271,7 +280,7 @@ func _run() -> void:
             if kind == "soldier" and loadout == "rifle":
                 await _screenshot("enemy_rifle")
             enemy.free()
-    var experimental := SurvivalEnemy.new()
+    var experimental: Variant = load("res://scripts/enemy.gd").new()
     experimental.configure("soldier", 16, p, "rifle")
     experimental.preview_quaternius = true
     experimental.position = Vector3(0, 0.9, -6)
@@ -282,29 +291,29 @@ func _run() -> void:
     _expect(int(exp["counts"]["skeletons"]) > 0 and is_instance_valid(experimental.humanoid_visual), "experimental rig fallback")
     await _screenshot("enemy_experimental")
     experimental.free()
-    var ally := SurvivalAlly.new()
+    var ally: Variant = load("res://scripts/ally.gd").new()
     ally.configure(p)
     ally.position = Vector3(2, 0.9, -6)
     game.add_child(ally)
     ally.set_physics_process(false)
     _snapshot("ally", ally, ["ally:legacy"])
-    var turret := SurvivalTurret.new()
+    var turret: Variant = load("res://scripts/turret.gd").new()
     turret.position = Vector3(-2, 0, -6)
     game.add_child(turret)
     turret.set_physics_process(false)
     _snapshot("turret", turret, ["object:turret"])
     for id in IDS:
-        var pickup := Loot.new()
+        var pickup: Variant = load("res://scripts/loot_pickup.gd").new()
         pickup.configure("weapon", id)
         game.add_child(pickup)
         _snapshot("loot_weapon_" + id, pickup, ["object:loot"], {"weapon": id})
         pickup.free()
-    var ammo := Loot.new()
+    var ammo: Variant = load("res://scripts/loot_pickup.gd").new()
     ammo.configure("ammo", "rifle")
     game.add_child(ammo)
     _snapshot("loot_ammo", ammo, ["object:loot"])
     ammo.free()
-    var grenade := Grenade.new()
+    var grenade: Variant = load("res://scripts/frag_grenade.gd").new()
     grenade.configure(p, 1)
     grenade.position = Vector3(5, 1, -8)
     game.add_child(grenade)
@@ -312,7 +321,7 @@ func _run() -> void:
     _snapshot("grenade", grenade, ["object:grenade"])
     grenade._spawn_explosion_effects()
     _snapshot("grenade_effect", grenade, ["effect:grenade"])
-    var blood := Blood.new()
+    var blood: Variant = load("res://scripts/blood_impact.gd").new()
     game.add_child(blood)
     _snapshot("blood_effect", blood, ["effect:blood"])
     # Invoke the existing visual event only; no real shooting or gameplay changes.

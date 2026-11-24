@@ -21,3 +21,7 @@ Estado desta entrega: implementação publicada para execução remota, não afi
 
 - [Primeira execução 45417210856](https://github.com/TPollTech/Frontline-Survival/actions/runs/45417210856): falhou antes de iniciar job; contexto runner.temp movido para env do step em 06bdb68.
 - [Execução corrigida 45417303193](https://github.com/TPollTech/Frontline-Survival/actions/runs/45417303193): checkout, verificação estática Python, contrato Node e importação Godot concluídos com sucesso; coleta OpenGL e validação do relatório ainda em execução na última consulta. Não há artefatos visualmente inspecionados nem promoção de estado nesta entrega.
+
+## Correção após a execução 45417303193
+
+O log confirmou aprovação do inventário estático e dos 18 testes do manifesto, importação dos assets com sucesso e falha durante o coletor. As causas observadas foram compilação antecipada de scripts que dependem de GameSettings, chamada de surface_get_primitive_type em PrimitiveMesh e atribuição de Array não tipado a Array[String]. O coletor agora carrega dependências após inicialização do projeto, distingue ArrayMesh de primitivas e usa Array compatível. A correção precisa passar em nova execução; nenhuma aprovação visual é inferida. O log também apontou falta de tangentes em GLBs existentes, registrada como pendência de materiais/geometria, sem alterar assets nesta entrega.
