@@ -80,8 +80,8 @@ class SniperSightGeometryTests(unittest.TestCase):
             with self.subTest(weapon=name):
                 mesh, = parts(self.capture(name), tip)
                 self.assertAlmostEqual(mesh.bounds[1, 1], height, places=6)
-                self.assertIn(str(height), source.split('func sight_height()', 1)[1].split('\nfunc ', 1)[0])
-        self.assertIn('game.player.sight_height()', snapshot)
+                self.assertIn(str(height), source.split('func get_sight_height()', 1)[1].split('\nfunc ', 1)[0])
+        self.assertIn('game.player.get_sight_height()', snapshot)
 
 if __name__ == '__main__':
     unittest.main()
