@@ -1,0 +1,67 @@
+name: Asset technical validation
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'tools/asset_pipeline/**'
+      - 'tests/test_validate_gltf.py'
+      - 'assets/**'
+      - 'scripts/**'
+      - 'scenes/**'
+      - '.github/workflows/asset-validation.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validation:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run validator regression tests
+        run: python -m unittest discover -s tests -p 'test_validate_gltf.py' -v
+      - name: Reproduce and validate generated fixtures
+        run: |
+          mkdir -p "$RUNNER_TEMP/asset-validation"
+          python -m tools.asset_pipeline.parametric.export_fixture "$RUNNER_TEMP/asset-validation/fixture" "$GITHUB_SHA"
+          python -m tools.asset_pipeline.parametric.export_fixture "$RUNNER_TEMP/asset-validation/repeat" "$GITHUB_SHA"
+          diff -r "$RUNNER_TEMP/asset-validation/fixture" "$RUNNER_TEMP/asset-validation/repeat"
+          python -m tools.asset_pipeline.validate_gltf --root "$RUNNER_TEMP/asset-validation/fixture" --source-root . --category object --strict --file asset.glb --file asset.gltf --output "$RUNNER_TEMP/asset-validation/fixture-report.json"
+      - name: Audit every discovered original model
+        run: |
+          python -m tools.asset_pipeline.validate_gltf --audit-only --output "$RUNNER_TEMP/asset-validation/production-report.json"
+          python -m tools.asset_pipeline.validate_gltf --audit-only --output "$RUNNER_TEMP/asset-validation/production-repeat.json"
+          cmp "$RUNNER_TEMP/asset-validation/production-report.json" "$RUNNER_TEMP/asset-validation/production-repeat.json"
+      - uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.4.1
+          use-dotnet: false
+          include-templates: false
+      - name: Import all original files in Godot
+        run: |
+          set -o pipefail
+          export FRONTLINE_VALIDATION_REPORT="$RUNNER_TEMP/asset-validation/production-report.json"
+          export FRONTLINE_IMPORT_REPORT="$RUNNER_TEMP/asset-validation/godot-imports.json"
+          timeout 180s godot --headless --path . --script res://tools/asset_pipeline/runtime/validate_imports.gd 2>&1 | tee "$RUNNER_TEMP/asset-validation/godot.log"
+          grep -q IMPORT_VALIDATION_COMPLETE "$RUNNER_TEMP/asset-validation/godot.log"
+          if grep -E 'SCRIPT ERROR:|Parse Error|IMPORT_VALIDATION_FAIL' "$RUNNER_TEMP/asset-validation/godot.log"; then exit 1; fi
+      - name: Import deterministic fixture with engine attribute checks
+        run: |
+          set -o pipefail
+          folder="$RUNNER_TEMP/asset-validation/fixture"
+          printf 'config_version=5\n[application]\nconfig/name="Export QA"\n[rendering]\nrenderer/rendering_method="gl_compatibility"\n' > "$folder/project.godot"
+          cp tools/asset_pipeline/runtime/export_qa.gd "$folder/"
+          timeout 90s godot --headless --path "$folder" --script res://export_qa.gd 2>&1 | tee "$RUNNER_TEMP/asset-validation/fixture-godot.log"
+          grep -q EXPORT_GODOT_PASS "$RUNNER_TEMP/asset-validation/fixture-godot.log"
+          if grep -E 'SCRIPT ERROR:|Parse Error|EXPORT_QA_FAIL' "$RUNNER_TEMP/asset-validation/fixture-godot.log"; then exit 1; fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Asset-Validation-${{ github.sha }}
+          path: |
+            ${{ runner.temp }}/asset-validation/*.json
+            ${{ runner.temp }}/asset-validation/*.log
+          if-no-files-found: warn
