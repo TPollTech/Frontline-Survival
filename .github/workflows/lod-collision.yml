@@ -1,0 +1,45 @@
+name: Collision and LOD Godot QA
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/lod-collision.yml'
+      - 'tools/asset_pipeline/parametric/**'
+      - 'tools/asset_pipeline/runtime/lod_collision_qa.gd'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  godot:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.4.1
+          use-dotnet: false
+          include-templates: false
+      - name: Generate independent neutral fixture
+        run: |
+          mkdir -p qa-lod
+          printf 'config_version=5\n[application]\nconfig/name="LOD QA"\n[rendering]\nrenderer/rendering_method="gl_compatibility"\n' > qa-lod/project.godot
+          python -m tools.asset_pipeline.parametric.lod_fixture qa-lod/fixture.json
+          cp tools/asset_pipeline/runtime/lod_collision_qa.gd qa-lod/
+      - name: Actual Godot physics and mesh swap
+        run: |
+          set -o pipefail
+          timeout 60s godot --headless --path qa-lod --script res://lod_collision_qa.gd 2>&1 | tee qa-lod/godot.log
+          grep -q LOD_COLLISION_GODOT_PASS qa-lod/godot.log
+          if grep -E 'SCRIPT ERROR:|Parse Error|LOD_COLLISION_FAIL' qa-lod/godot.log; then exit 1; fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: LOD-Collision-QA-${{ github.sha }}
+          path: |
+            qa-lod/fixture.json
+            qa-lod/godot.log
+          if-no-files-found: warn

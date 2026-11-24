@@ -82,3 +82,7 @@ PBRMaterial, TextureData e MaterialLibrary em parametric/pbr.py definem fatores 
 ## Rig e encaixes
 
 RigSpec, SkeletonSpec, BoneSpec, SkinSpec e SocketSpec adicionados em parametric/rig.py. Pivô é transformação local, socket tem frame próprio, bind de skin no frame do anchor. Pose e inversas de bind avaliadas em Python, verificação cruzada por armature Blender. Exportação, animações, IK e migração permanecem tarefas próprias. Ver [BIBLIOTECA_PARAMETRICA.md](BIBLIOTECA_PARAMETRICA.md).
+
+## Colisões e LOD
+
+AssetLOD e ColliderSpec em parametric/lod.py estabelecem contrato independente de colisão, níveis de detalhe com hierarquia e orçamento, resampling por receita e histerese. BUDGETS provisório: medir no hardware-alvo antes de homologar; mapas são particionados. Fixture Godot isolada valida troca de ArrayMesh sem trocar colisor. Integração runtime, exportação e Studio ainda pendentes.
