@@ -19,6 +19,19 @@ def sub(a,b): return tuple(x-y for x,y in zip(a,b))
 def dot(a,b): return sum(x*y for x,y in zip(a,b))
 def cross(a,b): return (a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0])
 def length(a): return math.sqrt(dot(a,a))
+IDENTITY=(1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1)
+def multiply(a,b):
+    return tuple(sum(a[k*4+r]*b[c*4+k] for k in range(4)) for c in range(4) for r in range(4))
+def matrix(node):
+    if "matrix" in node:return tuple(node["matrix"])
+    x,y,z,w=node.get("rotation",(0,0,0,1))
+    sx,sy,sz=node.get("scale",(1,1,1))
+    tx,ty,tz=node.get("translation",(0,0,0))
+    return ((1-2*y*y-2*z*z)*sx,2*(x*y+z*w)*sx,2*(x*z-y*w)*sx,0,
+            2*(x*y-z*w)*sy,(1-2*x*x-2*z*z)*sy,2*(y*z+x*w)*sy,0,
+            2*(x*z+y*w)*sz,2*(y*z-x*w)*sz,(1-2*x*x-2*y*y)*sz,0,tx,ty,tz,1)
+def point(m,v):
+    return tuple(sum(m[c*4+r]*v[c] for c in range(3))+m[12+r] for r in range(3))
 def parse_file(path):
     raw=path.read_bytes()
     if path.suffix.lower()==".gltf":
@@ -80,13 +93,13 @@ class Audit:
     def geometry(self):
         d=self.doc;metrics=[];used_materials=set()
         for mi,mesh in enumerate(d.get("meshes",[])):
-            result={"vertices":0,"triangles":0,"slots":0,"unknown_topology":0}
+            result={"vertices":0,"triangles":0,"slots":0,"unknown_topology":0,"positions":[]}
             for pi,p in enumerate(mesh["primitives"]):
                 label=f"mesh {mi} primitive {pi}";attrs=p["attributes"]
                 try:
                     positions=self.attr(attrs,"POSITION",3,components=(5126,))
                     require(positions is not None,"POSITION missing")
-                    n=len(positions);result["vertices"]+=n;result["slots"]+=1
+                    n=len(positions);result["vertices"]+=n;result["slots"]+=1;result["positions"].extend(positions)
                     normal=self.attr(attrs,"NORMAL",3,n)
                     if normal is None:self.conditional("NORMAL_MISSING",label)
                     elif any(abs(length(v)-1)>.03 for v in normal):self.conditional("NORMAL_LENGTH",label)
@@ -202,12 +215,19 @@ class Audit:
             for ch in anim["channels"]:
                 index(anim["samplers"],ch["sampler"])
                 if "node" in ch["target"]:index(nodes,ch["target"]["node"])
-        instances=[]
-        def collect(i):
-            n=nodes[i]
-            if "mesh" in n:instances.append(metrics[n["mesh"]])
-            for c in n.get("children",[]):collect(c)
-        for r in selected.get("nodes",[]):collect(r)
+        instances=[];lo=[math.inf]*3;hi=[-math.inf]*3
+        def collect(i,parent):
+            n=nodes[i];world=multiply(parent,matrix(n))
+            if "mesh" in n:
+                m=metrics[n["mesh"]];instances.append(m)
+                for v in m["positions"]:
+                    for j,x in enumerate(point(world,v)):
+                        lo[j]=min(lo[j],x);hi[j]=max(hi[j],x)
+            for c in n.get("children",[]):collect(c,world)
+        for r in selected.get("nodes",[]):collect(r,IDENTITY)
+        if all(math.isfinite(x) for x in lo+hi):
+            self.stats["rest_geometry_aabb_m"]={"min":lo,"max":hi,"dimensions":[b-a for a,b in zip(lo,hi)],"scope":"undeformed vertex positions with node world transforms"}
+            if max(b-a for a,b in zip(lo,hi))<=1e-9:self.conditional("ZERO_EXTENT","all dimensions zero")
         self.stats.update(nodes=len(nodes),mesh_instances=len(instances),vertices=sum(x["vertices"] for x in instances),triangles=sum(x["triangles"] for x in instances),material_slots=sum(x["slots"] for x in instances),unknown_topology=sum(x["unknown_topology"] for x in instances))
         self.issue("PHYSICAL_DIMENSIONS_OR_FORWARD_UNVERIFIED","requires declared per-asset dimensions/orientation and Godot comparison","unknown")
         self.issue("PIVOT_INTENT_UNVERIFIED","finite local transforms checked; semantic pivot intent needs source contract","unknown")
@@ -245,7 +265,9 @@ class Audit:
             if d.get("extensionsRequired"):self.issue("EXTENSIONS_UNVERIFIED",d["extensionsRequired"],"unknown")
             if self.strict and any(x["code"]=="ACCESSOR_UNSUPPORTED" for x in self.unknown):self.issue("STRICT_UNSUPPORTED","unsupported accessor")
         except (OSError,ValueError,KeyError,IndexError,TypeError,AttributeError,OverflowError,RecursionError,struct.error) as e:self.issue("INVALID_DOCUMENT",str(e))
-        return {"path":self.path,"category":self.category,"sha256":digest(safe(self.root,self.path).read_bytes()),"metrics":self.stats,"errors":self.errors,"warnings":self.warnings,"unknown":self.unknown,"technical_status":"fail" if self.errors else "warning" if self.warnings else "pass_with_unknowns" if self.unknown else "pass","visual_approval":False}
+        try: checksum=digest(safe(self.root,self.path).read_bytes())
+        except (ValueError,OSError): checksum=None
+        return {"path":self.path,"category":self.category,"sha256":checksum,"metrics":self.stats,"errors":self.errors,"warnings":self.warnings,"unknown":self.unknown,"technical_status":"fail" if self.errors else "warning" if self.warnings else "pass_with_unknowns" if self.unknown else "pass","visual_approval":False}
 def report(root,strict=False,source_root=None):
     root=Path(root).resolve();catalog=build(root)
     owners={o["path"]:a["category"] for a in catalog["assets"] for o in a["outputs"]}
