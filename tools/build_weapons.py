@@ -312,7 +312,7 @@ def rifle():
     g.chamfer((0,.093,-.797),(.059,.109,.066),'black',.008,name='front_block')
     for x in (-.025,.025):
         g.chamfer((x,.150,-.803),(.009,.051,.037),'steel',.003,name='iron_sight_wing')
-        g.chamfer((x,.163,-.218),(.012,.024,.035),'steel',.003,name='iron_sight_notch')
+        g.chamfer((x,.164,-.218),(.012,.026,.035),'steel',.003,name='iron_sight_notch')
     g.chamfer((0,.163,-.803),(.009,.028,.016),'steel',.003,name='iron_sight_post')
     g.ring((0,.039,-.914),.032,.016,.070,'steel','muzzle_brake')
     g.save('rifle')
@@ -378,7 +378,7 @@ def sniper():
     g.chamfer((.078, .063, -.10), (.014, .027, .19), 'recess', .004, name='bolt_slot')
     g.chamfer((0.0, .15, -.20), (.095, .024, .08), 'black', .008, name='iron_rear_base')
     for side in (-.037, .037):
-        g.chamfer((side, .188, -.22), (.012, .05, .033), 'steel', .004, name='iron_rear_sight')
+        g.chamfer((side, .17825, -.22), (.012, .0305, .033), 'steel', .004, name='iron_rear_sight')
         g.chamfer((side, .183, -1.17), (.010, .051, .038), 'steel', .003, name='iron_front_guard')
     g.chamfer((0.0, .178, -1.17), (.010, .031, .018), 'steel', .003, name='iron_front_post')
     g.fixed_sight_bridge('receiver_rail', ('iron_rear_sight',), 'fixed_rear_bridge')
@@ -409,7 +409,7 @@ def bolt_sniper():
     g.ring((0.0, .051, -1.47), .032, .017, .065, 'steel', name='open_muzzle')
     # Rear notch and forward blade allow proper scoped and unscoped tests.
     for side in (-.032,.032):
-        g.chamfer((side,.183,-.13),(.011,.043,.035),'black',.003,name='iron_rear_notch')
+        g.chamfer((side,.17875,-.13),(.011,.0345,.035),'black',.003,name='iron_rear_notch')
         g.chamfer((side,.17,-1.42),(.010,.046,.029),'black',.003,name='iron_front_wing')
     g.chamfer((0.0,.183,-1.42),(.009,.026,.015),'steel',.003,name='iron_front_blade')
     g.fixed_sight_bridge('receiver_sight_rail', ('iron_rear_notch',), 'fixed_rear_bridge')

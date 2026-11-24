@@ -71,6 +71,17 @@ class SniperSightGeometryTests(unittest.TestCase):
                             self.assertTrue(any(child is x for x in gun.groups['body']))
                     self.assertTrue(any(bridge is x for x in gun.groups['body']))
 
+    def test_rear_visual_edges_match_front_tip(self):
+        for name, rear, front in [
+            ('sniper', 'iron_rear_sight', 'iron_front_post'),
+            ('bolt_sniper', 'iron_rear_notch', 'iron_front_blade'),
+            ('rifle', 'iron_sight_notch', 'iron_sight_post'),
+        ]:
+            gun = self.capture(name)
+            front_mesh, = parts(gun, front)
+            for rear_mesh in parts(gun, rear):
+                self.assertAlmostEqual(rear_mesh.bounds[1, 1], front_mesh.bounds[1, 1], places=6)
+
     def test_aim_height_matches_front_mesh_and_snapshot(self):
         source = (ROOT / 'scripts/player.gd').read_text(encoding='utf-8')
         snapshot = (ROOT / 'tests/viewmodel_qa_snapshot.gd').read_text(encoding='utf-8')

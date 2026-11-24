@@ -1,5 +1,17 @@
 # Frontline Survival — Histórico de versões
 
+## 0.9.32 — Alinhamento visual de miras e lunetas
+
+- Referência única para a posição em ADS e o centro visual dos acessórios.
+- Ópticas compráveis recebem espaço visual acima das miras originais; suportes cosméticos adaptados à altura do modelo.
+- Bordas das miras traseiras MRS-7, VLR-8 e fuzil igualadas às referências visuais dianteiras.
+- QA OpenGL para 25 combinações de armas e acessórios e três FOVs de cenário.
+- A mecânica de combate não muda. Inspeção estética e homologação Windows pendentes.
+
+[Notas da release](releases/v0.9.32.md)
+
+---
+
 ## 0.9.31 — FOV independente das armas
 
 - Configurações de FOV de cenário e de armas salvas separadamente (60°–100°, padrão 76°).

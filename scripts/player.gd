@@ -997,7 +997,7 @@ func _build_sniper_scope(optic: String) -> void:
     viewmodel_root.add_child(scope_root)
     var advanced: bool = optic == "scope_4x"
     var tube_length: float = (0.31 if advanced else 0.22) * viewmodel_scale
-    var y: float = 0.252 * viewmodel_scale
+    var y: float = get_sight_height() * viewmodel_scale
     var z: float = viewmodel_depth - 0.12 * viewmodel_scale
     var metal := StandardMaterial3D.new()
     metal.albedo_color = Color(0.07, 0.09, 0.105)
@@ -1062,11 +1062,7 @@ func _build_attachment_models() -> void:
         var optic_root := Node3D.new()
         optic_root.name = "Attachment_Optic_" + optic
         viewmodel_root.add_child(optic_root)
-        var heights: Dictionary = {
-            "pistol": 0.121, "smg": 0.232, "sentinela": 0.17, "rifle": 0.177,
-            "shotgun": 0.140, "lmg": 0.232
-        }
-        var y: float = float(heights.get(weapon_id, 0.18)) * viewmodel_scale
+        var y: float = get_sight_height() * viewmodel_scale
         var z: float = viewmodel_depth + (-0.11 if weapon_id == "pistol" else -0.08) * viewmodel_scale
         var metal := StandardMaterial3D.new()
         metal.albedo_color = Color(0.095, 0.116, 0.121)
@@ -1119,20 +1115,24 @@ func _build_attachment_models() -> void:
         glass.position = Vector3(0.0, y, z - 0.003)
         glass.material_override = glass_material
         optic_root.add_child(glass)
-        # Two tiny stanchions and a low mount leave the aperture unobstructed.
+        # Cosmetic support reaches the existing visual receiver instead of
+        # floating at an arbitrary offset below the optic housing.
+        var support_bottom: float = _visual_optic_base_height() * viewmodel_scale - 0.006
+        var support_top: float = y - 0.035
+        var support_height: float = maxf(0.018, support_top - support_bottom)
         for side in [-1.0, 1.0]:
             var mount := MeshInstance3D.new()
             mount.name = "Optic_Mount"
-            var support := ModelSurface.body(Vector3(0.008, 0.045, 0.029), ModelSurface.Profile.MACHINED)
+            var support := ModelSurface.body(Vector3(0.012, support_height, 0.038), ModelSurface.Profile.MACHINED)
             mount.mesh = support
-            mount.position = Vector3(side * 0.027, y - 0.061, z + 0.012)
+            mount.position = Vector3(side * 0.027, support_bottom + support_height * 0.5, z + 0.012)
             mount.material_override = metal
             optic_root.add_child(mount)
         var base := MeshInstance3D.new()
         base.name = "Optic_RailMount"
         var rail := ModelSurface.body(Vector3(0.075, 0.011, 0.052), ModelSurface.Profile.MACHINED)
         base.mesh = rail
-        base.position = Vector3(0.0, y - 0.087, z + 0.010)
+        base.position = Vector3(0.0, support_bottom + 0.005, z + 0.010)
         base.material_override = metal
         optic_root.add_child(base)
         var dot := MeshInstance3D.new()
@@ -1178,9 +1178,35 @@ func _build_attachment_models() -> void:
 func play_grenade_throw() -> void:
     grenade_throw_timer = 0.45
 
+func _visual_optic_base_height() -> float:
+    # Model-local decorative receiver surfaces at the optic's position.
+    return float({"pistol": 0.107, "smg": 0.113, "rifle": 0.125,
+        "shotgun": 0.121, "lmg": 0.138, "sentinela": 0.109}.get(weapon_id, 0.12))
+
 func get_sight_height() -> float:
-    # Decorative front sight tips in model-local coordinates. Shared with QA.
-    return float({"pistol": 0.121, "smg": 0.232, "rifle": 0.177, "shotgun": 0.140, "lmg": 0.232, "sentinela": 0.17, "sniper": 0.252 if _sniper_scope() != "" else 0.1935, "bolt_sniper": 0.252 if _sniper_scope() != "" else 0.196}.get(weapon_id, 0.20))
+    # Shared visual center for the actual attachment meshes and neutral ADS.
+    # Stock SMG/LMG housings remain part of the merged body GLB; the optional
+    # optic's opening must sit above their silhouette rather than inside it.
+    var optic: String = _sniper_scope()
+    if optic in ["scope_2x", "scope_4x"]:
+        return 0.252
+    if optic in ["red_dot", "holo", "scope4"]:
+        var clearance: float = float({"pistol": 0.1215, "smg": 0.305,
+            "rifle": 0.177, "shotgun": 0.1565, "lmg": 0.305,
+            "sentinela": 0.17}.get(weapon_id, 0.20))
+        return clearance + 0.050 / viewmodel_scale
+    # Decorative front tip, bead center or stock aperture center.
+    return float({"pistol": 0.121, "smg": 0.232, "rifle": 0.177, "shotgun": 0.140, "lmg": 0.232, "sentinela": 0.17, "sniper": 0.1935, "bolt_sniper": 0.196}.get(weapon_id, 0.20))
+
+func get_visual_sight_point() -> Vector3:
+    # A local marker in the neutral rig; actual purchased optics expose
+    # their visible emitter, so QA can check the rendered mesh transform.
+    if is_instance_valid(optic_reticle):
+        return viewmodel_root.to_local(optic_reticle.global_position)
+    var z: float = float({"pistol": -0.257, "smg": -0.07,
+        "rifle": -0.803, "shotgun": -1.01, "lmg": 0.12,
+        "sentinela": -0.99, "sniper": -1.17, "bolt_sniper": -1.42}.get(weapon_id, -0.4))
+    return Vector3(0.0, get_sight_height() * viewmodel_scale, viewmodel_depth + z * viewmodel_scale)
 
 func _mesh_rear_extent(node: Node3D, parent_transform: Transform3D) -> float:
     var local_transform: Transform3D = parent_transform * node.transform
