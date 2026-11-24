@@ -27,7 +27,7 @@ func _run() -> void:
         var arrays := mesh.mesh.surface_get_arrays(0)
         var material := mesh.mesh.surface_get_material(0) as StandardMaterial3D
         if sk.get_bone_count()!=2 or mesh.skin==null or arrays[Mesh.ARRAY_INDEX].size()!=6 or arrays[Mesh.ARRAY_TANGENT].size()!=16 or arrays[Mesh.ARRAY_TEX_UV].size()!=4 or material==null:
-            push_error("EXPORT_QA_FAIL attributes "+path)
+            push_error("EXPORT_QA_FAIL attributes "+path+" bones="+str(sk.get_bone_count())+" skin="+str(mesh.skin!=null)+" indices="+str(arrays[Mesh.ARRAY_INDEX].size())+" tangents="+str(arrays[Mesh.ARRAY_TANGENT].size())+" uv="+str(arrays[Mesh.ARRAY_TEX_UV].size())+" material="+str(material!=null))
             quit(1)
             return
         if material.albedo_texture==null or material.normal_texture==null or material.roughness_texture==null:

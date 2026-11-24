@@ -6,6 +6,12 @@ on:
       - '.github/workflows/asset-inventory.yml'
       - 'tools/asset_pipeline/runtime/**'
       - 'docs/qa/verify_runtime_inventory.py'
+      - 'tools/asset_pipeline/live_catalog.py'
+      - 'tests/test_live_catalog.py'
+      - 'assets/**'
+      - 'scripts/**'
+      - 'scenes/**'
+      - 'project.godot'
   workflow_dispatch:
 permissions:
   contents: read
@@ -44,6 +50,12 @@ jobs:
           if grep -E 'SCRIPT ERROR:|Parse Error|ASSET_RUNTIME_ERROR' "$FRONTLINE_INVENTORY_DIR/runtime.log"; then exit 1; fi
           python3 docs/qa/verify_runtime_inventory.py "$FRONTLINE_INVENTORY_DIR/runtime_inventory.json" "$FRONTLINE_INVENTORY_DIR/reconciliation.json"
           for image in map_briefing fps_rifle_ads enemy_rifle enemy_experimental; do test -s "$FRONTLINE_INVENTORY_DIR/$image.png"; done
+      - name: Discover current assets and reconcile engine observations
+        run: |
+          python3 -m unittest discover -s tests -p 'test_live_catalog.py' -v
+          python3 tools/asset_pipeline/live_catalog.py --runtime "$FRONTLINE_INVENTORY_DIR/runtime_inventory.json" --output "$FRONTLINE_INVENTORY_DIR/live_catalog.json"
+          python3 tools/asset_pipeline/live_catalog.py --runtime "$FRONTLINE_INVENTORY_DIR/runtime_inventory.json" --output "$RUNNER_TEMP/live_catalog_repeat.json"
+          cmp "$FRONTLINE_INVENTORY_DIR/live_catalog.json" "$RUNNER_TEMP/live_catalog_repeat.json"
       - name: Upload evidence including failures
         if: always()
         uses: actions/upload-artifact@v4

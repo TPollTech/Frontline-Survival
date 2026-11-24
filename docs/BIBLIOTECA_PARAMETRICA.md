@@ -119,3 +119,7 @@ exporter.py serializa SceneSpec, RenderMesh, MaterialLibrary e RigSpec em GLB bi
 ### Regressão LOD
 
 [CI 45460210492](https://github.com/TPollTech/Frontline-Survival/actions/runs/45460210492): 106/106 aprovados com Blender 3.0.1, 10,080 s, 90 Python aprovados e 16 skips esperados sem Blender. Artefato 14952043438, SHA-256 informado ccc9e7440ad8ec547eef1497ffc1ebee8728ceca0cf5294569f6af67bf8517fd. Benchmark permanece pendente.
+
+### Estado da exportação
+
+CI 45466926545: 115/115 testes com Blender real, 99 Python e 16 skips sem Blender; 16,803 s com Blender. CI 45466926460: dois bundles idênticos, importação GLB chegou à verificação de atributos e falhou; diagnóstico ampliado sem reduzir critérios. Exportação permanece parcial.

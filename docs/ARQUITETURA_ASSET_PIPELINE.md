@@ -90,3 +90,7 @@ AssetLOD e ColliderSpec em parametric/lod.py estabelecem contrato independente d
 ## Exportação
 
 Exportador paramétrico em exporter.py: GLB e glTF autocontido, rastreabilidade por export.json, preservação de atributos, PBR, rig e sockets. LOD e colisão permanecem metadados independentes, animação e integração runtime posteriores. Não editar manifesto histórico; catálogo vivo consumirá bundles validados.
+
+## Catálogo vivo
+
+O gerador tools/asset_pipeline/live_catalog.py descobre arquivos atuais e concilia referências e amostras reais do Godot. O manifesto histórico permanece imutável; o novo JSON é gerado no CI, não editado manualmente. Ver [CATALOGO_VIVO.md](CATALOGO_VIVO.md). A composição runtime ainda não é exportada como geometria para o Studio.
