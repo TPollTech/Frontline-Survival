@@ -9,6 +9,7 @@ import subprocess
 import tempfile
 from .model import MeshSpec, number, require, stable_id, Transform
 from .recipes import PythonBackend
+from .coplanar import simplify_coplanar_solid
 
 class BlenderError(RuntimeError):
     pass
@@ -98,6 +99,8 @@ class BlenderBackend:
                     raise ValueError(f"{exc}; CSG normalization={out.get('csg_normalization')}; degenerate={bad}") from exc
                 if mesh.closed_oriented():
                     require(result.closed_oriented() and result.signed_volume()>0,"Blender changed closed orientation")
+                if "boolean" in options:
+                    result=simplify_coplanar_solid(result)
                 return result
             except (ValueError,KeyError,TypeError) as exc:
                 raise BlenderError(f"invalid Blender result: {exc}") from exc

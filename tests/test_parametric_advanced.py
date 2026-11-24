@@ -5,6 +5,7 @@ import unittest
 from tools.asset_pipeline.parametric import (Box, Extrusion, Revolution, PythonBackend,
     BlenderBackend, BlenderError, MeshSpec, Transform)
 from tools.asset_pipeline.parametric.advanced import triangulate_profile, signed_area
+from tools.asset_pipeline.parametric.coplanar import simplify_coplanar_solid
 
 L_PROFILE=((0,0),(3,0),(3,1),(1,1),(1,2),(0,2))
 
@@ -80,6 +81,49 @@ class AdvancedTests(unittest.TestCase):
             with self.subTest(segments=seg),self.assertRaises(ValueError):
                 Revolution("bad",((0,0),(1,0),(1,1),(0,1)),seg)
 
+    def test_coplanar_face_centers(self):
+        box=self.backend.build(Box("box",(2,2,2)))
+        vertices=list(box.vertices)
+        faces=[]
+        for a,b,c in box.triangles:
+            center=tuple((vertices[a][i]+vertices[b][i]+vertices[c][i])/3 for i in range(3))
+            k=len(vertices)
+            vertices.append(center)
+            faces.extend(((a,b,k),(b,c,k),(c,a,k)))
+        mesh=MeshSpec("subdivided",vertices,faces)
+        reduced=simplify_coplanar_solid(mesh)
+        self.assertEqual(len(reduced.vertices),8)
+        self.assertEqual(len(reduced.triangles),12)
+        self.assertEqual(reduced.bounds(),box.bounds())
+        self.assertAlmostEqual(reduced.signed_volume(),8.)
+        self.assertTrue(reduced.closed_oriented())
+        self.assertEqual(simplify_coplanar_solid(reduced),reduced)
+
+    def test_coplanar_edge_midpoints(self):
+        box=self.backend.build(Box("box",(2,2,2)))
+        vertices=list(box.vertices)
+        edges={}
+        def midpoint(a,b):
+            key=tuple(sorted((a,b)))
+            if key not in edges:
+                edges[key]=len(vertices)
+                vertices.append(tuple((vertices[a][i]+vertices[b][i])/2 for i in range(3)))
+            return edges[key]
+        faces=[]
+        for a,b,c in box.triangles:
+            ab,bc,ca=midpoint(a,b),midpoint(b,c),midpoint(c,a)
+            faces.extend(((a,ab,ca),(ab,b,bc),(ca,bc,c),(ab,bc,ca)))
+        mesh=MeshSpec("subdivided",vertices,faces)
+        reduced=simplify_coplanar_solid(mesh)
+        self.assertEqual(len(reduced.vertices),8)
+        self.assertEqual(len(reduced.triangles),12)
+        self.assertTrue(reduced.closed_oriented())
+        self.assertAlmostEqual(reduced.signed_volume(),8.)
+
+    def test_coplanar_hole_preserved(self):
+        ring=self.backend.build(Revolution("ring",((0.5,-1),(1,-1),(1,1),(0.5,1)),16))
+        self.assertEqual(simplify_coplanar_solid(ring),ring)
+
     def test_boolean_validation(self):
         b=self.backend.build(Box("block",(1,1,1)))
         with self.assertRaises(ValueError):
@@ -120,7 +164,7 @@ class AdvancedBlenderTests(unittest.TestCase):
         self.assertTrue(m.closed_oriented())
         self.assertAlmostEqual(m.signed_volume(),1.5*1.25*1.75,places=5)
         # The overlapping region is a rectangular solid, with no internal seams.
-        self.assertEqual(len(m.vertices),8)
+        self.assertEqual(len(m.vertices),8,msg=f"vertices={m.vertices}; triangles={m.triangles}")
         self.assertEqual(len(m.triangles),12)
 
     def test_non_axis_aligned_intersection(self):
