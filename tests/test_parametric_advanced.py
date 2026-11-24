@@ -113,6 +113,16 @@ class AdvancedBlenderTests(unittest.TestCase):
                 self.assertAlmostEqual(m.signed_volume(),expected,places=5)
         self.assertAlmostEqual(self.block.signed_volume(),8.)
 
+    def test_intersection_bounds_and_topology(self):
+        m=self.backend.boolean("overlap",self.block,self.block,"intersection",
+                               right_transform=Transform.translation((0.5,0.75,0.25)))
+        self.assertEqual(m.bounds(),((-0.5,-0.25,-0.75),(1,1,1)))
+        self.assertTrue(m.closed_oriented())
+        self.assertAlmostEqual(m.signed_volume(),1.5*1.25*1.75,places=5)
+        # The overlapping region is a rectangular solid, with no internal seams.
+        self.assertEqual(len(m.vertices),8)
+        self.assertEqual(len(m.triangles),12)
+
     def test_empty_intersection(self):
         # Reject a genuine empty evaluated mesh, not an arbitrary process/API failure.
         with self.assertRaisesRegex(BlenderError,"empty boolean result"):

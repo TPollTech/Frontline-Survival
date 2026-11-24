@@ -3,6 +3,8 @@ import json
 from pathlib import Path
 import sys
 import bpy
+import bmesh
+import math
 
 def to_native(v):
     x,y,z=v
@@ -22,6 +24,30 @@ def mesh_object(name, vertices, triangles):
     bpy.context.collection.objects.link(obj)
     return obj
 
+def normalize_csg(mesh):
+    """Remove redundant coplanar partitions; keep actual solid boundaries.
+    Do not use this on plain roundtrip or bevel results.
+    """
+    bm=bmesh.new()
+    try:
+        bm.from_mesh(mesh)
+        if not bm.faces:
+            return
+        bm.normal_update()
+        # Dissolve only coplanar edges and redundant collinear vertices.
+        # No merge-by-distance: nearby independent features must survive.
+        bmesh.ops.dissolve_limit(bm,angle_limit=1e-6,
+            verts=list(bm.verts),edges=list(bm.edges),
+            use_dissolve_boundaries=False)
+        bm.normal_update()
+        if any(not f.is_valid or not math.isfinite(f.calc_area()) or f.calc_area()<=0
+               for f in bm.faces):
+            raise ValueError("invalid CSG polygon after coplanar dissolve")
+        bm.to_mesh(mesh)
+        mesh.update()
+    finally:
+        bm.free()
+
 def main():
     src,dst=map(Path,sys.argv[sys.argv.index("--")+1:])
     data=json.loads(src.read_text(encoding="utf-8"))
@@ -32,6 +58,9 @@ def main():
     if "boolean" in data:
         operation=data["boolean"]
         other=mesh_object("qa_operand",operation["vertices"],operation["triangles"])
+        # Avoid artificial triangle diagonals in planar CSG operands.
+        normalize_csg(obj.data)
+        normalize_csg(other.data)
         mod=obj.modifiers.new("exact_csg","BOOLEAN")
         # Public recipe names are not identical to bpy enum identifiers.
         mod.operation={"union":"UNION","difference":"DIFFERENCE",
@@ -49,6 +78,8 @@ def main():
     evaluated=obj.evaluated_get(bpy.context.evaluated_depsgraph_get())
     out=evaluated.to_mesh()
     try:
+        if "boolean" in data:
+            normalize_csg(out)
         out.calc_loop_triangles()
         payload={"id":data["id"],"blender_version":bpy.app.version_string,
                  "vertices":[to_canonical(v.co) for v in out.vertices],
