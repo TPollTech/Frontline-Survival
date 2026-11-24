@@ -7,7 +7,7 @@ Atualizado em 24/11/2026. Mantém as 96 tarefas anteriores e adiciona a fundaç�
 - [x] Auditar SNC Energies e SNC Adventures e arquitetura atual do Frontline Survival — Auditoria estática concluída e evidências em [AUDITORIA_ARQUITETURA_3D.md](AUDITORIA_ARQUITETURA_3D.md); não equivale a aprovação visual.
 - [x] Inventariar todos os assets, fontes, dependências e cenas existentes — Baseline existente inventariada e conciliada: 60/60 recursos, 32/32 GLBs, 24/24 famílias por amostra/consulta, 86 amostras e revisão de quatro screenshots. [Evidências e lacunas](INVENTARIO_RUNTIME.md). Não equivale a homologação dos modelos.
 - [x] Definir arquitetura modular, manifesto canônico e convenções de escala e eixos — Contrato v1 implementado e validado com baseline; [arquitetura](ARQUITETURA_ASSET_PIPELINE.md). Motor, catálogo vivo e captura runtime ainda pendentes.
-- [ ] Implementar biblioteca paramétrica Python e backend Blender quando necessário — Parcial: API, IR, backend Python e adaptador Blender implementados; testes reais no CI pendentes. [Biblioteca](BIBLIOTECA_PARAMETRICA.md).
+- [ ] Implementar biblioteca paramétrica Python e backend Blender quando necessário — Parcial: API, IR, backend Python e adaptador Blender implementados; testes Python e baseline aprovados no CI; validação Blender pendente. [Biblioteca](BIBLIOTECA_PARAMETRICA.md).
 - [ ] Implementar geometrias avançadas, extrusão, revolução, booleanas e bevels
 - [ ] Implementar curvas, superfícies orgânicas e topologia personalizada
 - [ ] Implementar normais suavizadas e ponderadas, UV mapping e tangentes

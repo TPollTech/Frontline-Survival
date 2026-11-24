@@ -33,3 +33,7 @@ FRONTLINE_REQUIRE_BLENDER=1 python -m unittest discover -s tests -p 'test_parame
 ```
 
 O workflow Parametric library QA valida baseline, manifesto, Python e Blender real (sem skip na segunda execução). Nenhum novo asset de gameplay, export ou versão do jogo; não há preview inventado. Godot e Asset Studio não são aplicáveis à homologação de modelos nesta entrega de biblioteca isolada; o Studio ainda não existe. Testes remotos pendentes de confirmação no momento do commit inicial. A regressão preexistente do arsenal não é corrigida aqui.
+
+## Evidência CI — 24/11/2026
+
+[Run 45442588521](https://github.com/TPollTech/Frontline-Survival/actions/runs/45442588521), commit `de6bbab5177999e73cba5b60455c93d7308bc7ab`. Verificação estática, manifesto e testes da fundação Python concluídos com sucesso no CI. Instalação/testes do backend Blender ainda não confirmados. Conferidos os 90 hashes da baseline (60 recursos + 30 fontes/configurações); todos preservados. Sem Studio ou mudança de modelos/partida; não publicar ZIP como homologado. Logs completos do job serão disponíveis no link do Actions quando concluído.
