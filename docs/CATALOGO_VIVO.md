@@ -9,3 +9,5 @@ Captura opcional: exige commit correspondente, sem falhas, e confere hashes dos 
 O JSON é artefato de build, consumível pelo futuro Studio; nenhum arquivo de gameplay ou asset de produção foi modificado. Oito testes unitários e workflow real de captura/descoberta aguardam execução.
 
 CI 45467773407: 8/8 unitários e captura Godot passaram; reconciliação falhou porque Godot regenerou assets/audio/weapons/lmg.wav.import. A correção diferencia metadados importados e registra hashes anterior/atual, sem aceitar drift dos arquivos de geometria, texturas ou scripts. Revalidação pendente.
+
+CI 45469213836: catálogo reconciliado e reprodução idêntica confirmados; 52 registros, 100 recursos após importação Godot (incluindo sidecars gerados), 48 registros observados por amostra/consulta, 0 referências literais ausentes, 4 dinâmicas. Artefato 14955479321. Checkout limpo para Studio: 62 recursos. A captura procedural ainda não contém buffers de malhas.

@@ -1,0 +1,88 @@
+name: Publish Asset Studio to GitHub Pages
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: frontline-pages
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/configure-pages@v5
+      - name: Install pinned dependencies
+        working-directory: tools/asset_studio
+        run: |
+          npm install --ignore-scripts --no-audit --no-fund
+          npx playwright install --with-deps chromium
+      - name: Prepare public Studio from committed assets
+        run: |
+          python -m unittest discover -s tests -p 'test_live_catalog.py' -v
+          python tools/asset_studio/prepare.py "$RUNNER_TEMP/pages/Frontline-Survival"
+          touch "$RUNNER_TEMP/pages/Frontline-Survival/.nojekyll"
+          test -s "$RUNNER_TEMP/pages/Frontline-Survival/index.html"
+          test -s "$RUNNER_TEMP/pages/Frontline-Survival/live_catalog.json"
+      - name: Test project subpath before publication
+        run: |
+          python -m http.server 8765 --bind 127.0.0.1 --directory "$RUNNER_TEMP/pages" > "$RUNNER_TEMP/pages-server.log" 2>&1 &
+          server=$!
+          trap 'kill "$server" || true' EXIT
+          for n in $(seq 1 30); do curl -fsS http://127.0.0.1:8765/Frontline-Survival/live_catalog.json >/dev/null && break; sleep 1; done
+          STUDIO_URL=http://127.0.0.1:8765/Frontline-Survival/ STUDIO_EVIDENCE="$RUNNER_TEMP/pages-evidence" node tools/asset_studio/browser_test.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Pages-QA-${{ github.sha }}
+          path: |
+            ${{ runner.temp }}/pages-evidence/
+            ${{ runner.temp }}/pages-server.log
+          if-no-files-found: warn
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: ${{ runner.temp }}/pages/Frontline-Survival
+  deploy:
+    needs: build
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+      - name: Check published HTML and catalog revision
+        env:
+          SITE_URL: ${{ steps.deployment.outputs.page_url }}
+        run: |
+          python - <<'PY'
+          import json, os, time, urllib.request
+          base=os.environ["SITE_URL"].rstrip("/")+"/"
+          for attempt in range(15):
+              try:
+                  with urllib.request.urlopen(base+"?revision="+os.environ["GITHUB_SHA"],timeout=15) as response:
+                      assert b"ASSET STUDIO" in response.read()
+                  with urllib.request.urlopen(base+"live_catalog.json?revision="+os.environ["GITHUB_SHA"],timeout=15) as response:
+                      catalog=json.load(response)
+                  assert catalog["revision"]==os.environ["GITHUB_SHA"], "published revision mismatch"
+                  print("PAGES_DEPLOY_PASS",base,catalog["revision"])
+                  break
+              except Exception as exc:
+                  print("Publication check",attempt+1,str(exc))
+                  if attempt==14: raise
+                  time.sleep(5)
+          PY

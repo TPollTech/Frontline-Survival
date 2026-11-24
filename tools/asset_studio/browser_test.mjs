@@ -11,7 +11,7 @@ page.on('pageerror',e=>errors.push(e.message));
 const response=await page.goto(url,{waitUntil:'networkidle'});
 assert.equal(response.status(),200);
 await page.locator('#state[data-kind=ready]').waitFor({timeout:30000});
-const catalog=await (await page.request.get(url+'/live_catalog.json')).json();
+const catalog=await (await page.request.get(new URL('live_catalog.json',url.endsWith('/')?url:url+'/').href)).json();
 assert.equal(await page.locator('#assets button').count(),catalog.assets.length);
 const observed=[];
 for(const a of catalog.assets){
