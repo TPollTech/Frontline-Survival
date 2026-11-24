@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "kind": "lod_collision_validation",
+  "tested_commit": "95bbffaed20be52fb6018af3136e674dd1e8dfe0",
+  "godot": {
+    "run_id": 45460210552,
+    "job_id": 138680418814,
+    "version": "4.4.1",
+    "conclusion": "success",
+    "artifact_id": 14952572078,
+    "artifact_sha256_reported": "f4df75fd1ac082d3278a7a04f4a440b4e976da89b073d73b9e9030c3340de0a6",
+    "triangles": [
+      256,
+      128,
+      64
+    ],
+    "ray_hit_z": [
+      0.5,
+      0.5,
+      0.5
+    ],
+    "same_box_shape": true
+  },
+  "parametric": {
+    "run_id": 45460210492,
+    "python_step": "success",
+    "conclusion": null,
+    "logs": null
+  },
+  "baseline_hash_matches": 90,
+  "budget_benchmark": false,
+  "visual_approval": false
+}

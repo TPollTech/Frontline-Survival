@@ -13,7 +13,7 @@ Atualizado em 24/11/2026. Mantém as 96 tarefas anteriores e adiciona a fundaç�
 - [x] Implementar normais suavizadas e ponderadas, UV mapping e tangentes — 71/71 testes com Blender real no [CI 45456153062](https://github.com/TPollTech/Frontline-Survival/actions/runs/45456153062). Sem homologação de modelos.
 - [x] Implementar materiais PBR, texturas e biblioteca de materiais — PBR validado no [CI 45459161051](https://github.com/TPollTech/Frontline-Survival/actions/runs/45459161051), 96/96 testes incluindo 18 texturas e seis materiais. Sem homologação visual.
 - [x] Implementar hierarquias, pivôs, encaixes, rigging e skeleton — 96/96 testes no [CI 45459161051](https://github.com/TPollTech/Frontline-Survival/actions/runs/45459161051), armature e skinning Blender aprovados. Sem homologação visual.
-- [ ] Implementar colisões independentes e LOD com orçamentos por categoria — Parcial: contrato de colisores, LODs, orçamentos provisórios, resampling e fixture Godot implementados; CI e benchmark pendentes. [Biblioteca](BIBLIOTECA_PARAMETRICA.md).
+- [ ] Implementar colisões independentes e LOD com orçamentos por categoria — Parcial: 3/3 LODs e colisor independente aprovados no [Godot QA 45460210552](https://github.com/TPollTech/Frontline-Survival/actions/runs/45460210552); Python aprovado, Blender em validação; benchmark dos orçamentos no hardware-alvo pendente. [Biblioteca](BIBLIOTECA_PARAMETRICA.md).
 - [ ] Implementar exportação determinística GLB/glTF 2.0 e rastreabilidade de fontes
 - [ ] Implementar descoberta automática e catálogo de todos os assets reais
 - [ ] Criar Asset Studio HTML/CSS/JS com Three.js e WebGL
