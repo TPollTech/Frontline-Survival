@@ -171,7 +171,27 @@ class Gun:
         self.chamfer(center, (hi[0] - lo[0] + .012, top - bottom,
                               hi[2] - lo[2] + .012), 'black', .003, name=name)
 
+    def validate_geometry(self):
+        """Reject invalid solid parts before exporting any grouped GLB."""
+        seen = set()
+        for name, mesh in self.scene.geometry.items():
+            if not np.isfinite(mesh.vertices).all():
+                raise ValueError(f'{name}: nonfinite vertex')
+            if not mesh.is_watertight or not mesh.is_winding_consistent or mesh.volume <= 0:
+                raise ValueError(f'{name}: invalid solid geometry')
+            if np.any(mesh.area_faces <= 1e-12):
+                raise ValueError(f'{name}: degenerate face')
+            if np.any(mesh.visual.face_colors[:, 3] != 255):
+                raise ValueError(f'{name}: unexpected alpha in solid geometry')
+            # Detect accidental duplicate solid parts independently of vertex order.
+            vertices = tuple(sorted(map(tuple, np.round(mesh.vertices, 7))))
+            signature = (len(mesh.faces), vertices)
+            if signature in seen:
+                raise ValueError(f'{name}: duplicate solid geometry')
+            seen.add(signature)
+
     def save(self,name):
+        self.validate_geometry()
         # Concatena geometrias em 1 mesh colorida: 1 draw call aproximada por arma.
         merged = trimesh.util.concatenate(list(self.scene.geometry.values()))
         scene = trimesh.Scene(merged)
@@ -238,7 +258,8 @@ def optic(g,z):
     g.ring((0,.232,z),.073,.045,.07,'black',name='holo_sight')
     # The previous fully opaque glass disk hid the aiming point. Use an
     # open aperture and a narrow real 3D post instead of a 2D crosshair.
-    g.chamfer((0,.2095,z-.048),(.008,.045,.010),'brass',.003,name='aiming_post')
+    g.chamfer((0,.2035,z-.028),(.008,.057,.018),'brass',.003,name='aiming_post')
+    g.fixed_sight_bridge('top_rail', ('optic_mount',), 'fixed_optic_bridge')
     g.chamfer((0,.27,z),(.026,.024,.06),'edge',.004,name='adjust_knob')
 
 def smg():
@@ -247,7 +268,7 @@ def smg():
     g.chamfer((0,-.16,-.13),(.09,.32,.085),'receiver',.012,angles=(-.10,0,0),name='stick_magazine')
     g.chamfer((0,-.319,-.147),(.10,.035,.09),'steel',.008,name='magazine_heel')
     g.chamfer((0,0,-.39),(.21,.15,.32),'polymer',.024,name='front_handguard')
-    for x in [-.112,.112]:
+    for x in [-.094,.094]:
         for j in range(4):
             g.chamfer((x,.035,-.305-j*.06),(.012,.021,.028),'recess',.006,name='vent')
     g.rod((-.095,.015,.25),(-.125,.0,.52),.015,'steel',name='folding_stock')
@@ -256,7 +277,7 @@ def smg():
     g.cylinder((0,.018,-.59),.023,.20,'steel',name='barrel')
     g.chamfer((.102,.062,.07),(.022,.025,.078),'steel',.005,name='charging_handle')
     g.chamfer((0,-.01,-.43),(.08,.16,.09),'polymer',.018,name='foregrip')
-    g.chamfer((0,.10,-.53),(.13,.024,.14),'steel',.006,name='sight_bridge')
+    g.chamfer((0,.081,-.53),(.13,.034,.14),'steel',.006,name='sight_bridge')
     optic(g,-.07); hardware(g,-.69); g.save('smg')
 
 def rifle():
@@ -313,7 +334,8 @@ def rifle():
     for x in (-.025,.025):
         g.chamfer((x,.150,-.803),(.009,.051,.037),'steel',.003,name='iron_sight_wing')
         g.chamfer((x,.164,-.218),(.012,.026,.035),'steel',.003,name='iron_sight_notch')
-    g.chamfer((0,.163,-.803),(.009,.028,.016),'steel',.003,name='iron_sight_post')
+    g.chamfer((0,.158,-.803),(.009,.038,.016),'steel',.003,name='iron_sight_post')
+    g.chamfer((0,.133,-.218),(.084,.044,.062),'black',.006,name='fixed_rifle_rear_base')
     g.ring((0,.039,-.914),.032,.016,.070,'steel','muzzle_brake')
     g.save('rifle')
 
@@ -328,6 +350,7 @@ def shotgun():
     g.chamfer((0,-.04,.55),(.15,.20,.65),'tan',.03,name='solid_stock')
     g.chamfer((0,-.055,.88),(.19,.24,.05),'black',.022,name='rubber_butt')
     g.chamfer((0,.14,-1.01),(.033,.033,.020),'brass',.004,name='bead_sight')
+    g.fixed_sight_bridge('upper_barrel', ('bead_sight',), 'fixed_bead_base')
     g.chamfer((0,.015,-.44),(.07,.14,.10),'tan',.016,name='vertical_grip')
     g.chamfer((.114,.01,.04),(.018,.042,.12),'recess',.004,name='shell_gate')
     g.ring((0,.065,-1.04),.041,.026,.065,'steel');g.save('shotgun')
@@ -336,7 +359,7 @@ def lmg():
     g=Gun()
     common_receiver(g,.32,-.31,'black',(.265,.23))
     g.chamfer((0,-.012,-.54),(.29,.20,.45),'receiver',.03,name='cooling_shroud')
-    for x in [-.153,.153]:
+    for x in [-.130,.130]:
         for z in np.linspace(-.36,-.72,6):
             g.chamfer((x,-.015,z),(.015,.075,.035),'recess',.006,name='heat_port')
     g.cylinder((0,.017,-.89),.042,.48,'steel',name='heavy_barrel')
@@ -349,8 +372,8 @@ def lmg():
     g.rod((-.128,.14,-.17),(-.174,.275,-.12),.013,'steel',name='carry_handle')
     g.rod((-.174,.275,-.12),(-.174,.275,.12),.013,'steel',name='carry_handle')
     g.rod((-.174,.275,.12),(-.127,.14,.16),.013,'steel',name='carry_handle')
-    g.rod((-.08,-.07,-.78),(-.20,-.43,-.83),.016,'black',name='bipod')
-    g.rod((.08,-.07,-.78),(.20,-.43,-.83),.016,'black',name='bipod')
+    g.rod((-.08,-.07,-.735),(-.20,-.43,-.83),.016,'black',name='bipod')
+    g.rod((.08,-.07,-.735),(.20,-.43,-.83),.016,'black',name='bipod')
     g.chamfer((.146,.035,.18),(.038,.035,.10),'steel',.006,name='charging_handle')
     g.chamfer((0,-.18,-.11),(.28,.18,.18),'darktan',.022,name='ammo_box')
     g.chamfer((0,.09,-.16),(.16,.05,.14),'steel',.008,name='feed_cover')

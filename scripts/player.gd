@@ -1003,11 +1003,11 @@ func _build_sniper_scope(optic: String) -> void:
     metal.albedo_color = Color(0.07, 0.09, 0.105)
     metal.metallic = 0.72
     metal.roughness = 0.38
+    var radius: float = (0.057 if advanced else 0.045) * viewmodel_scale
     for ring_index in range(4):
         var ring := MeshInstance3D.new()
         ring.name = "Scope_HollowRing"
         var torus := TorusMesh.new()
-        var radius: float = (0.057 if advanced else 0.045) * viewmodel_scale
         torus.inner_radius = radius - 0.008
         torus.outer_radius = radius
         torus.ring_segments = 18
@@ -1020,16 +1020,21 @@ func _build_sniper_scope(optic: String) -> void:
     for side in [-1.0, 1.0]:
         var rail := MeshInstance3D.new()
         rail.name = "Scope_TubeRail"
-        var rail_mesh := ModelSurface.body(Vector3(0.008 * viewmodel_scale, 0.010 * viewmodel_scale, tube_length), ModelSurface.Profile.MACHINED)
+        var rail_mesh := ModelSurface.body(Vector3(0.009, 0.010, tube_length + 0.008), ModelSurface.Profile.MACHINED)
         rail.mesh = rail_mesh
-        rail.position = Vector3(side * 0.036 * viewmodel_scale, y, z - tube_length * 0.5)
+        rail.position = Vector3(side * (radius - 0.004), y, z - tube_length * 0.5)
         rail.material_override = metal
         scope_root.add_child(rail)
+    # Support the rear two rings over the original receiver rail.
+    # Positive overlap at both ends, below the hollow optical opening.
+    var mount_bottom: float = _visual_optic_base_height() * viewmodel_scale - 0.008
+    var mount_top: float = y - radius + 0.005
+    for mount_index in range(2):
         var mount := MeshInstance3D.new()
         mount.name = "Scope_RailMount"
-        var mount_mesh := ModelSurface.body(Vector3(0.014, 0.075 * viewmodel_scale, 0.038), ModelSurface.Profile.MACHINED)
+        var mount_mesh := ModelSurface.body(Vector3(0.034, mount_top - mount_bottom, 0.038), ModelSurface.Profile.MACHINED)
         mount.mesh = mount_mesh
-        mount.position = Vector3(side * 0.022, y - 0.052 * viewmodel_scale, z - tube_length * 0.5)
+        mount.position = Vector3(0.0, (mount_top + mount_bottom) * 0.5, z - tube_length * float(mount_index) / 3.0)
         mount.material_override = metal
         scope_root.add_child(mount)
     var dot := MeshInstance3D.new()
@@ -1088,6 +1093,15 @@ func _build_attachment_models() -> void:
                 ring.position = Vector3(0.0, y, z + depth)
                 ring.material_override = metal
                 optic_root.add_child(ring)
+            var tube_start: float = -0.13 if optic == "scope4" else 0.0
+            var tube_end: float = 0.04 if optic == "scope4" else 0.031
+            for side in [-1.0, 1.0]:
+                var side_rail := MeshInstance3D.new()
+                side_rail.name = "Optic_TubeRail"
+                side_rail.mesh = ModelSurface.body(Vector3(0.009, 0.010, tube_end - tube_start + 0.008), ModelSurface.Profile.MACHINED)
+                side_rail.position = Vector3(side * 0.035, y, z + (tube_start + tube_end) * 0.5)
+                side_rail.material_override = metal
+                optic_root.add_child(side_rail)
         else:
             for edge_index in range(4):
                 var frame := MeshInstance3D.new()
@@ -1114,11 +1128,12 @@ func _build_attachment_models() -> void:
         glass.rotation.x = PI * 0.5
         glass.position = Vector3(0.0, y, z - 0.003)
         glass.material_override = glass_material
+        glass.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
         optic_root.add_child(glass)
         # Cosmetic support reaches the existing visual receiver instead of
         # floating at an arbitrary offset below the optic housing.
         var support_bottom: float = _visual_optic_base_height() * viewmodel_scale - 0.006
-        var support_top: float = y - 0.035
+        var support_top: float = y - (0.036 if optic == "holo" else 0.023)
         var support_height: float = maxf(0.018, support_top - support_bottom)
         for side in [-1.0, 1.0]:
             var mount := MeshInstance3D.new()
@@ -1181,7 +1196,8 @@ func play_grenade_throw() -> void:
 func _visual_optic_base_height() -> float:
     # Model-local decorative receiver surfaces at the optic's position.
     return float({"pistol": 0.107, "smg": 0.113, "rifle": 0.125,
-        "shotgun": 0.121, "lmg": 0.138, "sentinela": 0.109}.get(weapon_id, 0.12))
+        "shotgun": 0.121, "lmg": 0.138, "sentinela": 0.109,
+        "sniper": 0.1165, "bolt_sniper": 0.133}.get(weapon_id, 0.12))
 
 func get_sight_height() -> float:
     # Shared visual center for the actual attachment meshes and neutral ADS.

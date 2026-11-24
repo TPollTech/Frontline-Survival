@@ -1,5 +1,17 @@
 # Frontline Survival — Histórico de versões
 
+## 0.9.33 — Integridade visual das peças
+
+- Repara apoios e contatos visuais nas ópticas originais SMG/LMG, no fuzil, na escopeta e em detalhes de carenagem.
+- Conecta anéis e suportes das lunetas e das ópticas compráveis sem fechar a abertura central.
+- Valida as peças sólidas antes da exportação GLB: vértices finitos, orientação, volume, faces degeneradas, alpha e duplicatas exatas.
+- Mantém materiais sólidos opacos e lentes intencionalmente transparentes.
+- Testes geométricos de contato e QA OpenGL existentes; homologação estética e de animações no Windows pendente.
+
+[Notas da release](releases/v0.9.33.md)
+
+---
+
 ## 0.9.32 — Alinhamento visual de miras e lunetas
 
 - Referência única para a posição em ADS e o centro visual dos acessórios.

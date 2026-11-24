@@ -8,6 +8,8 @@ static func _build_surface(polymer: bool) -> StandardMaterial3D:
     var material := StandardMaterial3D.new()
     material.vertex_color_use_as_albedo = true
     material.albedo_color = Color.WHITE
+    # Original meshes are opaque; only explicitly authored optics/effects use alpha.
+    material.transparency = BaseMaterial3D.TRANSPARENCY_DISABLED
     material.albedo_texture = load(
         "res://assets/textures/weapon_polymer_albedo.png"
         if polymer else "res://assets/textures/weapon_metal_albedo.png"
