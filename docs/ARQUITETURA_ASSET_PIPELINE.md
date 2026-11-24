@@ -78,3 +78,7 @@ RenderMesh preserva MeshSpec e mapeamento de vértices fonte; normais e UVs por 
 ## Biblioteca PBR
 
 PBRMaterial, TextureData e MaterialLibrary em parametric/pbr.py definem fatores lineares, papéis de texturas sRGB/linear, ORM e normal +Y, procedência e hashes. Receitas procedurais neutras geram biblioteca independente da baseline. O futuro exportador resolve IDs da biblioteca e converte a convenção UV/normal de forma consistente. Não migrar nem aprovar assets existentes nesta etapa.
+
+## Rig e encaixes
+
+RigSpec, SkeletonSpec, BoneSpec, SkinSpec e SocketSpec adicionados em parametric/rig.py. Pivô é transformação local, socket tem frame próprio, bind de skin no frame do anchor. Pose e inversas de bind avaliadas em Python, verificação cruzada por armature Blender. Exportação, animações, IK e migração permanecem tarefas próprias. Ver [BIBLIOTECA_PARAMETRICA.md](BIBLIOTECA_PARAMETRICA.md).
