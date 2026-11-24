@@ -6,7 +6,7 @@
 - Suportes derivados dos limites das malhas e mantidos no corpo estático, sem mover junto ao ferrolho.
 - ADS e capturas QA usam a mesma altura de referência visual; FOV, lunetas, dano, cadência, compras e recarga preservados.
 - QA geométrico verifica interseção real entre peças convexas; montagem OpenGL expandida para 18 poses, incluindo Sentinela em ADS.
-- Inclui o controle de FOV restaurado no commit anterior. Aprovação visual manual no Windows pendente.
+- Controle FOV restaurado e aplicado imediatamente à câmera mesmo durante pausa; limites compartilhados, normalização de valores inválidos, persistência e QA de menu/câmera em headless e OpenGL. Aprovação visual manual no Windows pendente.
 
 [Notas da release](releases/v0.9.28.md)
 

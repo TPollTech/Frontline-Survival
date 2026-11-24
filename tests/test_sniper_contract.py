@@ -56,7 +56,8 @@ class MRS7SniperContracts(unittest.TestCase):
         for value in ("return 0.70", "return 0.48", "return 0.29"):
             self.assertIn(value, fov)
         self.assertIn("scope_sensitivity = 0.42", body(PLAYER, "_input"))
-        self.assertIn("_ads_fov_multiplier() if aim", body(PLAYER, "_physics_process"))
+        self.assertIn("_ads_fov_multiplier() if aim", body(PLAYER, "get_target_camera_fov"))
+        self.assertIn("get_target_camera_fov(", body(PLAYER, "_physics_process"))
 
     def test_quickscope_precision_and_hipfire_penalty(self):
         shot = body(PLAYER, "_sniper_shot_spread")

@@ -177,6 +177,40 @@ jobs:
             exit 1
           fi
 
+      - name: FOV regression QA - real menu, persistence and camera
+        shell: bash
+        run: |
+          set -o pipefail
+          timeout 45s godot --headless --path . --script res://tests/fov_settings_qa.gd 2>&1 | tee godot-fov.log
+          grep -q 'QA_FOV_PASS' godot-fov.log
+          if grep -E 'SCRIPT ERROR:|ERROR:.*Parse Error|QA_FOV_FAIL|FOV_QA_ERROR:' godot-fov.log; then
+            exit 1
+          fi
+
+      - name: Rendered FOV QA - actual OpenGL menu and camera views
+        shell: bash
+        run: |
+          set -o pipefail
+          timeout 55s xvfb-run -a -s '-screen 0 1280x720x24' godot --path . --rendering-driver opengl3 --script res://tests/fov_settings_qa.gd 2>&1 | tee godot-fov-render.log
+          grep -q 'QA_FOV_PASS' godot-fov-render.log
+          test -s docs/qa/fov_60.png
+          test -s docs/qa/fov_100.png
+          test -s docs/qa/fov_menu.png
+          if grep -E 'SCRIPT ERROR:|ERROR:.*Parse Error|QA_FOV_FAIL|FOV_QA_ERROR:' godot-fov-render.log; then
+            exit 1
+          fi
+
+      - name: Upload FOV comparison and settings screenshots
+        uses: actions/upload-artifact@v4
+        with:
+          name: Frontline-FOV-QA-${{ github.sha }}
+          path: |
+            docs/qa/fov_60.png
+            docs/qa/fov_100.png
+            docs/qa/fov_menu.png
+          retention-days: 30
+          if-no-files-found: error
+
       - name: Rendered humanoid QA - actual GLB skinning under Xvfb
         shell: bash
         run: |

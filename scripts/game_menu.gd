@@ -202,7 +202,7 @@ func _build_options() -> void:
             _toggle("Tela cheia", "fullscreen", GameSettings.fullscreen)
             _toggle("Sincronização vertical (VSync)", "vsync", GameSettings.vsync)
             _slider("Escala de resolução", "render_scale", GameSettings.render_scale, 0.7, 1.0, 0.05)
-            _slider("Campo de visão (FOV)", "fov", GameSettings.field_of_view, 60.0, 100.0, 1.0)
+            _slider("Campo de visão (FOV)", "fov", GameSettings.field_of_view, GameSettings.FOV_MIN, GameSettings.FOV_MAX, 1.0)
             _toggle("Exibir FPS", "fps", GameSettings.show_fps)
         "audio":
             _slider("Volume principal", "master", GameSettings.master_volume, 0, 100, 1)
@@ -231,6 +231,7 @@ func _slider(caption: String, key: String, current: float, minimum: float, maxim
     label.add_theme_font_size_override("font_size", 14)
     line.add_child(label)
     var control := HSlider.new()
+    control.name = "Setting_" + key
     control.custom_minimum_size = Vector2(195, 25)
     control.size_flags_horizontal = Control.SIZE_EXPAND_FILL
     control.min_value = minimum
@@ -239,6 +240,7 @@ func _slider(caption: String, key: String, current: float, minimum: float, maxim
     control.value = current
     line.add_child(control)
     var output := Label.new()
+    output.name = "Value_" + key
     output.custom_minimum_size = Vector2(55, 26)
     output.text = _formatted(key, current)
     output.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT

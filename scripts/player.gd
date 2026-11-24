@@ -61,6 +61,7 @@ const SHOTGUN_PUMP_GRIP_POINT := Vector3(-0.108, -0.12, -0.42)
 var scope_mask: ColorRect
 var precision_click := false
 var camera: Camera3D
+var applied_base_fov: float = 0.0
 var gun: Node3D
 var weapon_model: Node3D
 var viewmodel_root: Node3D
@@ -160,7 +161,10 @@ func _ready() -> void:
     add_child(collider)
     camera = Camera3D.new()
     camera.position = Vector3(0, 0.64, 0)
+    camera.keep_aspect = Camera3D.KEEP_HEIGHT
     camera.fov = GameSettings.field_of_view
+    applied_base_fov = GameSettings.field_of_view
+    GameSettings.changed.connect(_on_camera_settings_changed)
     camera.current = true
     add_child(camera)
     gun = Node3D.new()
@@ -263,6 +267,21 @@ func _sniper_scope() -> String:
     # a paid scope to a different sniper when switching weapons.
     var slots: Dictionary = weapon_attachments.get(weapon_id, {})
     return str(slots.get("optic", ""))
+
+func _on_camera_settings_changed() -> void:
+    # Signals are synchronous even while the player physics is paused.
+    # Unrelated audio/video settings must not disturb an in-flight ADS transition.
+    if is_equal_approx(applied_base_fov, GameSettings.field_of_view):
+        return
+    applied_base_fov = GameSettings.field_of_view
+    if is_instance_valid(camera):
+        camera.fov = get_target_camera_fov(false)
+
+func get_target_camera_fov(sprint_zoom: bool) -> float:
+    var base: float = GameSettings.field_of_view
+    if aim and weapon_id == "sentinela" and has_attachment("optic", "scope4"):
+        return rad_to_deg(2.0 * atan(tan(deg_to_rad(base * 0.5)) / 4.0))
+    return base * (_ads_fov_multiplier() if aim else (1.045 if sprint_zoom else 1.0))
 
 func _ads_fov_multiplier() -> float:
     if weapon_id not in ["sniper", "bolt_sniper"]:
@@ -406,11 +425,9 @@ func _physics_process(delta: float) -> void:
     var ground_motion: float = Vector2(velocity.x, velocity.z).length() if is_on_floor() else 0.0
     var motion_ratio: float = clampf(ground_motion / maxf(speed, 0.1), 0.0, 1.0)
     # ADS takes priority; blocked movement must not widen the sprint FOV.
-    var target_fov: float = GameSettings.field_of_view * (_ads_fov_multiplier() if aim else (1.045 if sprint_blend * motion_ratio > 0.55 else 1.0))
+    var target_fov: float = get_target_camera_fov(sprint_blend * motion_ratio > 0.55)
     var fov_speed: float = 22.0 if (aim and weapon_id in ["sniper", "bolt_sniper"]) else (14.0 if active_perk == "fast_ads" else 10.0)
     var use_scope := weapon_id == "sentinela" and aim and has_attachment("optic", "scope4")
-    if use_scope:
-        target_fov = rad_to_deg(2.0 * atan(tan(deg_to_rad(GameSettings.field_of_view * 0.5)) / 4.0))
     scope_mask.visible = use_scope and absf(gun.position.x) < 0.055
     gun.visible = not scope_mask.visible
     camera.fov = lerpf(camera.fov, target_fov, minf(1.0, delta * fov_speed))

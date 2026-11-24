@@ -4,12 +4,17 @@ extends Node
 signal changed
 
 const SETTINGS_PATH := "user://frontline_settings.cfg"
+const FOV_MIN := 60.0
+const FOV_DEFAULT := 76.0
+const FOV_MAX := 100.0
+# Allows QA to exercise real persistence without touching a player profile.
+var settings_path: String = SETTINGS_PATH
 
 var master_volume: float = 48.0
 var sfx_volume: float = 28.0
 var ui_volume: float = 42.0
 var mouse_sensitivity: float = 1.0
-var field_of_view: float = 76.0
+var field_of_view: float = FOV_DEFAULT
 var fullscreen: bool = false
 var show_fps: bool = true
 var intermission_seconds: int = 30
@@ -35,13 +40,13 @@ func _ensure_bus(name: String) -> void:
 
 func _load() -> void:
     var cfg := ConfigFile.new()
-    if cfg.load(SETTINGS_PATH) != OK:
+    if cfg.load(settings_path) != OK:
         return
     master_volume = clampf(float(cfg.get_value("audio", "master", master_volume)), 0.0, 100.0)
     sfx_volume = clampf(float(cfg.get_value("audio", "sfx", sfx_volume)), 0.0, 100.0)
     ui_volume = clampf(float(cfg.get_value("audio", "ui", ui_volume)), 0.0, 100.0)
     mouse_sensitivity = clampf(float(cfg.get_value("controls", "mouse_sensitivity", mouse_sensitivity)), 0.35, 3.0)
-    field_of_view = clampf(float(cfg.get_value("controls", "fov", field_of_view)), 60.0, 100.0)
+    field_of_view = _normalize_fov(cfg.get_value("controls", "fov", FOV_DEFAULT))
     fullscreen = bool(cfg.get_value("video", "fullscreen", fullscreen))
     show_fps = bool(cfg.get_value("video", "fps", show_fps))
     intermission_seconds = clampi(int(cfg.get_value("gameplay", "intermission_seconds", intermission_seconds)), 30, 120)
@@ -68,7 +73,7 @@ func _save() -> void:
     cfg.set_value("controls", "invert_y", invert_mouse_y)
     cfg.set_value("gameplay", "hitmarker", hitmarker_enabled)
     cfg.set_value("gameplay", "damage_direction", damage_direction_enabled)
-    var error := cfg.save(SETTINGS_PATH)
+    var error := cfg.save(settings_path)
     if error != OK:
         push_warning("Nao foi possivel gravar as configuracoes (%d)." % error)
 
@@ -93,13 +98,19 @@ func _set_bus(bus_name: String, value: float) -> void:
     AudioServer.set_bus_mute(index, value <= 0.0)
     AudioServer.set_bus_volume_db(index, linear_to_db(maxf(value / 100.0, 0.001)))
 
+func _normalize_fov(value: Variant) -> float:
+    if not (value is float or value is int):
+        return FOV_DEFAULT
+    var degrees: float = float(value)
+    return clampf(degrees, FOV_MIN, FOV_MAX) if is_finite(degrees) else FOV_DEFAULT
+
 func set_value(key: String, value: Variant) -> void:
     match key:
         "master": master_volume = clampf(float(value), 0.0, 100.0)
         "sfx": sfx_volume = clampf(float(value), 0.0, 100.0)
         "ui": ui_volume = clampf(float(value), 0.0, 100.0)
         "sensitivity": mouse_sensitivity = clampf(float(value), 0.35, 3.0)
-        "fov": field_of_view = clampf(float(value), 60.0, 100.0)
+        "fov": field_of_view = _normalize_fov(value)
         "fullscreen": fullscreen = bool(value)
         "fps": show_fps = bool(value)
         "intermission": intermission_seconds = clampi(int(value), 30, 120)
