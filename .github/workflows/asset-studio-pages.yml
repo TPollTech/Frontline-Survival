@@ -33,13 +33,31 @@ jobs:
           touch "$RUNNER_TEMP/pages/Frontline-Survival/.nojekyll"
           test -s "$RUNNER_TEMP/pages/Frontline-Survival/index.html"
           test -s "$RUNNER_TEMP/pages/Frontline-Survival/live_catalog.json"
+      - uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.4.1
+          use-dotnet: false
+          include-templates: false
+      - name: Render actual Godot scene views
+        env:
+          XDG_DATA_HOME: ${{ runner.temp }}/frontline-views-profile
+          FRONTLINE_VIEWS_DIR: ${{ runner.temp }}/godot-views
+        run: |
+          set -o pipefail
+          mkdir -p "$FRONTLINE_VIEWS_DIR"
+          timeout 120s godot --headless --editor --import --path . 2>&1 | tee "$FRONTLINE_VIEWS_DIR/import.log"
+          if grep -E 'SCRIPT ERROR:|Parse Error' "$FRONTLINE_VIEWS_DIR/import.log"; then exit 1; fi
+          timeout 120s xvfb-run -a -s '-screen 0 1280x720x24' godot --path . --rendering-driver opengl3 --script res://tools/asset_pipeline/runtime/capture_views.gd 2>&1 | tee "$FRONTLINE_VIEWS_DIR/render.log"
+          grep -q RUNTIME_VIEWS_PASS "$FRONTLINE_VIEWS_DIR/render.log"
+          if grep -E 'SCRIPT ERROR:|Parse Error|RUNTIME_VIEW_FAIL' "$FRONTLINE_VIEWS_DIR/render.log"; then exit 1; fi
+          python tools/asset_studio/attach_runtime_views.py "$RUNNER_TEMP/pages/Frontline-Survival" "$FRONTLINE_VIEWS_DIR"
       - name: Test project subpath before publication
         run: |
           python -m http.server 8765 --bind 127.0.0.1 --directory "$RUNNER_TEMP/pages" > "$RUNNER_TEMP/pages-server.log" 2>&1 &
           server=$!
           trap 'kill "$server" || true' EXIT
           for n in $(seq 1 30); do curl -fsS http://127.0.0.1:8765/Frontline-Survival/live_catalog.json >/dev/null && break; sleep 1; done
-          STUDIO_URL=http://127.0.0.1:8765/Frontline-Survival/ STUDIO_EVIDENCE="$RUNNER_TEMP/pages-evidence" node tools/asset_studio/browser_test.mjs
+          STUDIO_URL=http://127.0.0.1:8765/Frontline-Survival/ REQUIRE_RUNTIME_VIEWS=1 STUDIO_EVIDENCE="$RUNNER_TEMP/pages-evidence" node tools/asset_studio/browser_test.mjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -47,6 +65,7 @@ jobs:
           path: |
             ${{ runner.temp }}/pages-evidence/
             ${{ runner.temp }}/pages-server.log
+            ${{ runner.temp }}/godot-views/
           if-no-files-found: warn
       - uses: actions/upload-pages-artifact@v3
         with:

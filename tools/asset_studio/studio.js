@@ -29,14 +29,17 @@ async function initRenderer(){
  loop();
 }
 function dispose(root){const geos=new Set(),mats=new Set(),textures=new Set();root.traverse(o=>{if(o.geometry)geos.add(o.geometry);for(const m of [].concat(o.material||[])){mats.add(m);for(const v of Object.values(m))if(v?.isTexture)textures.add(v);}if(o.isSkinnedMesh&&o.skeleton)o.skeleton.dispose();});textures.forEach(t=>t.dispose());mats.forEach(m=>m.dispose());geos.forEach(g=>g.dispose());}
-function clear(){navigation?.clear();$('view').disabled=true;$('zoom-in').disabled=true;$('zoom-out').disabled=true;lighting?.clear();$('grid-scale').textContent='—';if(lighting)viewport.dataset.lighting=JSON.stringify(lighting.diagnostics());if(model){scene.remove(model);dispose(model);model=null;}viewport.querySelectorAll('img,audio').forEach(x=>x.remove());$('reset').disabled=true;delete viewport.dataset.resource;delete viewport.dataset.sha256;}
+function clear(){navigation?.clear();$('view').disabled=true;$('zoom-in').disabled=true;$('zoom-out').disabled=true;lighting?.clear();$('grid-scale').textContent='—';if(lighting)viewport.dataset.lighting=JSON.stringify(lighting.diagnostics());if(model){scene.remove(model);dispose(model);model=null;}viewport.querySelectorAll('img,audio').forEach(x=>x.remove());$('reset').disabled=true;delete viewport.dataset.resource;delete viewport.dataset.sha256;delete viewport.dataset.runtimeView;}
 function fit(){if(model)navigation.reset();}
 function resources(a){return [...new Set([a.preview?.resource,...(a.outputs||[]).map(x=>x.path)].filter(p=>p&&catalog.resources[p]?.status!=='missing'&&catalog.resources[p]))];}
-function renderList(){const q=$('search').value.trim().toLowerCase(),cat=$('category').value;const list=catalog.assets.filter(a=>(!cat||a.category===cat)&&(!q||[a.id,a.category,a.source?.path,...resources(a)].join(' ').toLowerCase().includes(q)));$('count').textContent=list.length+' de '+catalog.assets.length+' registros';$('assets').replaceChildren(...list.map(a=>{const b=document.createElement('button');b.type='button';b.dataset.asset=a.id;b.setAttribute('aria-current',String(a===selected));b.textContent=a.id;const sm=document.createElement('small');sm.textContent=a.category+' · '+(resources(a).length?'arquivo real':'captura pendente');b.append(sm);b.addEventListener('click',()=>select(a));return b;}));}
+function renderList(){const q=$('search').value.trim().toLowerCase(),cat=$('category').value;const list=catalog.assets.filter(a=>(!cat||a.category===cat)&&(!q||[a.id,a.category,a.source?.path,...resources(a)].join(' ').toLowerCase().includes(q)));$('count').textContent=list.length+' de '+catalog.assets.length+' registros';$('assets').replaceChildren(...list.map(a=>{const b=document.createElement('button');b.type='button';b.dataset.asset=a.id;b.setAttribute('aria-current',String(a===selected));b.textContent=a.id;const sm=document.createElement('small');sm.textContent=a.category+' · '+(a.runtime_views?.length?'captura Godot disponível':resources(a).length?'arquivo real':'captura pendente');b.append(sm);b.addEventListener('click',()=>select(a));return b;}));}
 function details(a,p){$('details').replaceChildren();row('ID',a.id);row('Categoria',a.category);row('Uso',a.usage);row('Fonte',a.source?.path);row('Arquivo',p);row('SHA-256',catalog.resources[p]?.sha256);row('Runtime',a.validation?.runtime);row('Homologação','Não homologado');row('Procedência',a.provenance);textList($('deps'),[...(a.dependencies?.resources||[]),...(a.dependencies?.assets||[]),...(a.dependencies?.sources||[])]);textList($('gaps'),[...(a.gaps||[]),'Prévia não certifica materiais ou poses efetivos do Godot.']);}
-function select(a){selected=a;$('title').textContent=a.id;renderList();const paths=resources(a);$('variant').replaceChildren(...paths.map(p=>{const o=document.createElement('option');o.value=p;o.textContent=p.split('/').pop();return o;}));$('variant').disabled=!paths.length;load(paths.includes(a.preview?.resource)?a.preview.resource:paths[0]);}
+function select(a){selected=a;$('title').textContent=a.id;renderList();const paths=resources(a);$('variant').replaceChildren(...paths.map(p=>{const o=document.createElement('option');o.value=p;o.textContent=p.split('/').pop();return o;}));$('variant').disabled=!paths.length;
+ const selector=$('runtime-view');selector.replaceChildren(new Option('Arquivo 3D / recurso',''),...(a.runtime_views||[]).map(v=>new Option(v.label,v.id)));selector.disabled=!(a.runtime_views||[]).length;selector.value='';
+ load(paths.includes(a.preview?.resource)?a.preview.resource:paths[0]);}
 async function verified(p){const res=await fetch(safePath(p),{cache:'no-store'});if(!res.ok)throw Error('HTTP '+res.status);const bytes=await res.arrayBuffer();const expected=catalog.resources[p].sha256;const actual=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',bytes)),b=>b.toString(16).padStart(2,'0')).join('');if(!expected||actual!==expected)throw Error('Hash divergente');return bytes;}
 async function load(p){
+ $('runtime-view').value='';
  const token=++request;clear();details(selected,p);$('fidelity').textContent=p?'Arquivo original · sem substituição geométrica':'Composição real ainda não exportada';
  if(!p){state('Sem prévia 3D: dados de runtime necessários.','unavailable');return;}
  $('variant').value=p;state('Verificando arquivo…','loading');
@@ -59,6 +62,28 @@ async function load(p){
  viewport.dataset.resource=p;viewport.dataset.sha256=catalog.resources[p].sha256;
  }catch(e){if(token===request){clear();state('Falha: '+e.message,'error');}}
 }
+async function loadRuntime(id){
+ if(!id){load($('variant').value||undefined);return;}
+ const view=selected?.runtime_views?.find(v=>v.id===id);if(!view)return;
+ const token=++request;clear();$('runtime-view').value=id;details(selected,undefined);
+ $('fidelity').textContent='Captura real do Godot · imagem estática, não modelo 3D';
+ state('Verificando captura…','loading');
+ try{
+  if(catalog.runtime_views?.revision!==catalog.revision||view.fidelity!=='actual_godot_frame')throw Error('Captura desatualizada');
+  const response=await fetch(safePath(view.resource),{cache:'no-store'});if(!response.ok)throw Error('HTTP '+response.status);
+  const bytes=await response.arrayBuffer(),hash=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',bytes)),b=>b.toString(16).padStart(2,'0')).join('');
+  if(hash!==view.sha256)throw Error('Hash da captura divergente');if(token!==request)return;
+  const image=new Image();image.className='runtime-capture';image.alt=view.label;
+  const url=URL.createObjectURL(new Blob([bytes],{type:'image/png'}));
+  try{image.src=url;await image.decode();}finally{URL.revokeObjectURL(url);}
+  if(token!==request)return;
+  if(image.naturalWidth!==view.width||image.naturalHeight!==view.height)throw Error('Dimensões divergentes');
+  viewport.append(image);row('Captura',view.label);row('Revisão',catalog.revision);row('SHA-256 da captura',hash);row('Câmera',view.camera.path);row('Modo',view.context.kind);
+  if(view.context.native_player_tps===false)row('Limitação','Câmera externa QA de aliado, não TPS do jogador');
+  viewport.dataset.runtimeView=id;viewport.dataset.sha256=hash;state('Captura original do Godot','ready');
+ }catch(e){if(token===request){clear();state('Falha na captura: '+e.message,'error');}}
+}
+$('runtime-view').addEventListener('change',()=>loadRuntime($('runtime-view').value));
 $('variant').addEventListener('change',()=>load($('variant').value));$('reset').addEventListener('click',fit);$('view').addEventListener('change',()=>{navigation.setView($('view').value);lighting.setBottomView($('view').value==='bottom');viewport.dataset.lighting=JSON.stringify(lighting.diagnostics());});$('zoom-in').addEventListener('click',()=>navigation.zoom(.8));$('zoom-out').addEventListener('click',()=>navigation.zoom(1.25));$('search').addEventListener('input',renderList);$('category').addEventListener('change',renderList);
 try{
  await initRenderer();const res=await fetch('./live_catalog.json',{cache:'no-store'});if(!res.ok)throw Error('Catálogo indisponível: '+res.status);catalog=await res.json();if(catalog.kind!=='frontline_live_catalog'||catalog.schema_version!==1||!Array.isArray(catalog.assets))throw Error('Catálogo incompatível');

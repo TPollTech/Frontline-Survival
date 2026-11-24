@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "kind": "studio_camera_views_validation",
+  "tested_commit": "3bcb7abcd57d0e6a5b2732f97de69a7eb7e27abd",
+  "run_id": 45475002613,
+  "job_id": 138732759873,
+  "artifact_id": 14959456264,
+  "artifact_sha256": "8c81c9cd1e507c4c2f8bb6ff2da33ab3a04d08f2f13c8c3fa3feb78eb6c8a893",
+  "conclusion": "success",
+  "glb_loaded": 32,
+  "visual_review": {
+    "images": [
+      "studio-fullscreen.png",
+      "studio-camera-interaction.png",
+      "studio-camera-narrow.png",
+      "studio-view-front.png",
+      "studio-view-back.png",
+      "studio-view-left.png",
+      "studio-view-right.png",
+      "studio-view-top.png",
+      "studio-view-bottom.png"
+    ],
+    "observations": [
+      "six distinct axis projections",
+      "bottom view unobstructed",
+      "fullscreen and narrow viewport display model",
+      "front axis -Z does not match anatomical front of experimental character"
+    ],
+    "scope": "camera controls and orientation, not asset approval"
+  },
+  "production_asset_approval": false
+}

@@ -104,3 +104,5 @@ Iluminação do Studio em lighting.js: HDRI sintético local RGBE com PMREM, ACE
 Navegação do Studio em camera-navigation.js: fit analítico por oito cantos AABB e aspecto, OrbitControls e reset sem inércia residual; escala e transformações do asset preservadas. QA real no navegador. Vistas ortográficas e runtime seguem etapas próprias.
 
 Studio: seis OrthographicCamera por eixos canônicos mundiais, perspectiva, zoom/pan e fullscreen nativo. Piso oculto na vista inferior para não ocluir o asset. Não implica câmera real do Godot.
+
+Capturas reais Godot em capture_views.gd, vinculadas à revisão por attach_runtime_views.py. Quatro imagens estáticas de inspeção, sem afirmar TPS nativo nem mapa 3D navegável; nenhuma reconstrução substituta. Ver ASSET_STUDIO.md.

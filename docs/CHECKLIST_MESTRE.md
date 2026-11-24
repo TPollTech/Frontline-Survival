@@ -18,9 +18,9 @@ Atualizado em 24/11/2026. Mantém as 96 tarefas anteriores e adiciona a fundaç�
 - [ ] Implementar descoberta automática e catálogo de todos os assets reais — Parcial: 8/8 testes, 52 registros, reconciliação runtime e reprodução aprovadas no CI 45469213836; cobertura dinâmica e exportação das composições permanecem pendentes. [Catálogo](CATALOGO_VIVO.md).
 - [ ] Criar Asset Studio HTML/CSS/JS com Three.js e WebGL — Parcial: 32/32 GLBs carregados no CI Chromium 45469214133; revisão visual manual e composição runtime pendentes; workflow Pages implementado. [Studio](ASSET_STUDIO.md).
 - [x] Implementar iluminação HDRI, sombras, antialiasing, sRGB, ACES e piso técnico — 32/32 GLBs e controles aprovados no [CI 45473901798](https://github.com/TPollTech/Frontline-Survival/actions/runs/45473901798), duas capturas reais inspecionadas. Sem homologação de modelos ou benchmark.
-- [ ] Implementar OrbitControls, damping, enquadramento por bounding box, zoom, pan e reset — Parcial: interação/reset chegaram a passar; CI 45474481782 falhou no resize, ajuste de layout e teste implementados; revalidação pendente.
-- [ ] Implementar seis vistas ortográficas, perspectiva e tela cheia — Parcial: seis câmeras ortográficas, perspectiva, zoom/pan, piso inferior e fullscreen implementados; testes e inspeção visual pendentes. [Studio](ASSET_STUDIO.md).
-- [ ] Implementar vistas reais de primeira e terceira pessoa e prévia de mapas completos
+- [x] Implementar OrbitControls, damping, enquadramento por bounding box, zoom, pan e reset — 32/32 GLBs, interação, resize e reset aprovados no CI 45475002613; capturas inspecionadas.
+- [x] Implementar seis vistas ortográficas, perspectiva e tela cheia — seis eixos, fullscreen e retorno aprovados no CI 45475002613; capturas inspecionadas.
+- [ ] Implementar vistas reais de primeira e terceira pessoa e prévia de mapas completos — Parcial: pipeline de quatro capturas reais Godot e integração Studio/Pages implementados; validação pendente. TPS nativo do jogador e mapa 3D interativo não implementados. [Studio](ASSET_STUDIO.md).
 - [ ] Implementar inspeção de materiais, texturas, UVs, wireframe, sólido e texturizado
 - [ ] Implementar visualização de normais, pivôs, colisões e LOD
 - [ ] Implementar métricas de vértices, triângulos, materiais e dimensões reais

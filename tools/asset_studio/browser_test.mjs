@@ -107,7 +107,25 @@ await page.locator('#state[data-kind=unavailable]').waitFor();
 await page.screenshot({path:dir+'/studio-unavailable.png'});
 assert(lightingEvidence);assert(cameraEvidence);assert.equal(await page.locator('#reset').isDisabled(),true);assert.equal(await page.locator('#zoom-in').isDisabled(),true);
 assert.equal(JSON.parse(await page.locator('#viewport').getAttribute('data-lighting')).floor,false);
+const captures=[];
+if(catalog.runtime_views){
+ assert.equal(catalog.runtime_views.revision,catalog.revision);
+ for(const a of catalog.assets.filter(a=>a.runtime_views?.length)){
+  await page.locator('#assets button').filter({hasText:a.id}).first().click();
+  for(const v of a.runtime_views){
+   await page.locator('#runtime-view').selectOption(v.id);
+   await page.waitForFunction(id=>document.querySelector('#viewport').dataset.runtimeView===id&&document.querySelector('#state').dataset.kind==='ready',v.id);
+   assert.equal(await page.locator('#viewport').getAttribute('data-sha256'),v.sha256);
+   assert.equal(await page.locator('#viewport img.runtime-capture').evaluate(i=>i.naturalWidth),v.width);
+   assert.equal(await page.locator('#view').isDisabled(),true);
+   await page.screenshot({path:dir+'/studio-godot-'+v.id+'.png'});
+   captures.push(v.id);
+  }
+ }
+ assert.equal(captures.length,4);
+ console.log('STUDIO_RUNTIME_VIEWS_PASS',captures.join(','));
+}else if(process.env.REQUIRE_RUNTIME_VIEWS==='1')throw Error('missing Godot captures');
 assert.deepEqual(errors,[]);
-await writeFile(dir+'/report.json',JSON.stringify({revision:catalog.revision,assets:catalog.assets.length,glbLoaded:[...new Set(observed)],browser:browser.version(),errors,lighting:lightingEvidence,camera:cameraEvidence,visualApproval:false},null,2));
+await writeFile(dir+'/report.json',JSON.stringify({revision:catalog.revision,assets:catalog.assets.length,glbLoaded:[...new Set(observed)],browser:browser.version(),errors,lighting:lightingEvidence,camera:cameraEvidence,runtimeViews:captures,visualApproval:false},null,2));
 console.log('STUDIO_BROWSER_PASS',new Set(observed).size,'GLB');
 await browser.close();
