@@ -15,4 +15,9 @@ Não é captura de todos os estados de uma partida, nem exportador geométrico p
 
 Workflow: Asset inventory runtime evidence (.github/workflows/asset-inventory.yml). No checkout, após importação do Godot, definir FRONTLINE_INVENTORY_DIR para um diretório de QA isolado; executar `godot --path . --rendering-driver opengl3 --script res://tools/asset_pipeline/runtime/inventory_qa.gd` e `python docs/qa/verify_runtime_inventory.py <diretorio>/runtime_inventory.json`. Preferir perfil de usuário temporário (XDG_DATA_HOME no Linux); nenhum teste deve operar sobre partida pessoal. O verificador rejeita amostras faltantes, nós órfãos, transformações não finitas, superfícies vazias e falha de rig. Capturas geradas não equivalem a inspeção visual.
 
-Estado desta entrega: implementação publicada para execução remota, não afirmar resultado antes de confirmar CI. Godot ausente e GitHub sem DNS no container local. A falha do arsenal do workflow principal não foi corrigida. A tarefa de inventário permanece parcial até execução e conciliação verificadas. 
+Estado desta entrega: implementação publicada para execução remota, não afirmar resultado antes de confirmar CI. Godot ausente e GitHub sem DNS no container local. A falha do arsenal do workflow principal não foi corrigida. A tarefa de inventário permanece parcial até execução e conciliação verificadas.
+
+### Evidência da execução CI iniciada nesta entrega
+
+- [Primeira execução 45417210856](https://github.com/TPollTech/Frontline-Survival/actions/runs/45417210856): falhou antes de iniciar job; contexto runner.temp movido para env do step em 06bdb68.
+- [Execução corrigida 45417303193](https://github.com/TPollTech/Frontline-Survival/actions/runs/45417303193): checkout, verificação estática Python, contrato Node e importação Godot concluídos com sucesso; coleta OpenGL e validação do relatório ainda em execução na última consulta. Não há artefatos visualmente inspecionados nem promoção de estado nesta entrega.
