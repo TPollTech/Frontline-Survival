@@ -58,6 +58,21 @@ const MAGAZINE_GRIP_POINTS := {
 # lower-left grip surface while it racks, not the gun receiver.
 const SHOTGUN_PUMP_GRIP_POINT := Vector3(-0.108, -0.12, -0.42)
 
+# x: mesh scale; y: existing local longitudinal offset. Preserve hand/part
+# transforms, and calculate the shared rest pose outside these transforms.
+const VIEWMODEL_PROFILES := {
+    "pistol": Vector2(0.95, 0.0), "smg": Vector2(0.84, -0.14),
+    "rifle": Vector2(0.60, -0.24), "shotgun": Vector2(0.70, -0.24),
+    "lmg": Vector2(0.74, -0.24), "sentinela": Vector2(0.59, -0.24),
+    "sniper": Vector2(0.73, -0.29), "bolt_sniper": Vector2(0.74, -0.27)
+}
+const HIP_REFERENCE_DISTANCE := 0.89
+const PISTOL_HIP_REFERENCE_DISTANCE := 0.74
+const ADS_REFERENCE_DISTANCE := 0.72
+const PISTOL_ADS_REFERENCE_DISTANCE := 0.60
+const HIP_REFERENCE_SLOPE := Vector2(0.36, -0.36)
+const MODEL_NEAR_MARGIN := 0.10
+
 var scope_mask: ColorRect
 var precision_click := false
 var camera: Camera3D
@@ -68,6 +83,7 @@ var viewmodel_root: Node3D
 var hand_rig: Node3D
 var viewmodel_depth: float = 0.0
 var viewmodel_scale: float = 0.95
+var viewmodel_rear_extent: float = 0.0
 var support_palm_rest: Vector3 = Vector3.ZERO
 var magazine_part: Node3D
 var action_part: Node3D
@@ -436,9 +452,7 @@ func _physics_process(delta: float) -> void:
     shot_spread_kick = move_toward(shot_spread_kick, 0.0, delta * 1.25)
     # Align the physical front/rear sight with the camera's central ray.
     # No on-screen crosshair: the actual sight must indicate point of aim.
-    var sight_height: float = get_sight_height()
-    var sight_y := -viewmodel_scale * sight_height
-    var gun_target := Vector3(0.0, sight_y, ads_depth()) if aim else hip_position()
+    var gun_target := get_viewmodel_rest_pose(aim)
     # Distinct military-style tactical sprint. Eased tuck, low muzzle and
     # stride/counter-swing keep this separate from an accelerated walk.
     # Corrida visual acompanha deslocamento real, inclusive ao encontrar obstaculos.
@@ -886,9 +900,11 @@ func _update_gun_mesh() -> void:
     support_finger_knuckles.clear()
     support_finger_tips.clear()
     support_palm_rest = Vector3.ZERO
-    # Scale/depth avoid placing long stocks behind the camera's near plane.
-    viewmodel_scale = float({"pistol": 0.95, "smg": 0.84, "rifle": 0.60, "shotgun": 0.70, "lmg": 0.74, "sentinela": 0.59, "sniper": 0.73, "bolt_sniper": 0.74}.get(weapon_id, 0.84))
-    viewmodel_depth = float({"pistol": 0.0, "smg": -0.14, "rifle": -0.24, "shotgun": -0.24, "lmg": -0.24, "sentinela": -0.24, "sniper": -0.29, "bolt_sniper": -0.27}.get(weapon_id, -0.14))
+    # Retain model proportions and hand sockets; framing is a separate shared pose.
+    var profile: Vector2 = VIEWMODEL_PROFILES[weapon_id]
+    viewmodel_scale = profile.x
+    viewmodel_depth = profile.y
+    viewmodel_rear_extent = 0.0
     viewmodel_root = Node3D.new()
     viewmodel_root.name = "Viewmodel"
     gun.add_child(viewmodel_root)
@@ -909,6 +925,7 @@ func _update_gun_mesh() -> void:
         GunMaterials.apply_colors(part)
         part.scale = Vector3.ONE * viewmodel_scale
         part.position.z = viewmodel_depth
+        viewmodel_rear_extent = maxf(viewmodel_rear_extent, _mesh_rear_extent(part, Transform3D.IDENTITY) - viewmodel_depth)
         if part_name == "mag":
             magazine_part = part
         elif part_name == "action":
@@ -1131,13 +1148,40 @@ func get_sight_height() -> float:
     # Decorative front sight tips in model-local coordinates. Shared with QA.
     return float({"pistol": 0.121, "smg": 0.232, "rifle": 0.177, "shotgun": 0.140, "lmg": 0.232, "sentinela": 0.17, "sniper": 0.252 if _sniper_scope() != "" else 0.1935, "bolt_sniper": 0.252 if _sniper_scope() != "" else 0.196}.get(weapon_id, 0.20))
 
+func _mesh_rear_extent(node: Node3D, parent_transform: Transform3D) -> float:
+    var local_transform: Transform3D = parent_transform * node.transform
+    var rear: float = -INF
+    if node is MeshInstance3D:
+        var mesh_node := node as MeshInstance3D
+        if mesh_node.mesh != null:
+            var bounds: AABB = local_transform * mesh_node.get_aabb()
+            rear = bounds.end.z
+    for child in node.get_children():
+        if child is Node3D:
+            rear = maxf(rear, _mesh_rear_extent(child as Node3D, local_transform))
+    return rear
+
+func _framing_distance(ads: bool) -> float:
+    var reference: float
+    if ads:
+        reference = PISTOL_ADS_REFERENCE_DISTANCE if weapon_id == "pistol" else ADS_REFERENCE_DISTANCE
+    else:
+        reference = PISTOL_HIP_REFERENCE_DISTANCE if weapon_id == "pistol" else HIP_REFERENCE_DISTANCE
+    # The real imported rear bounds determine a safe neutral pose.
+    # Animations and obstacle tucking remain additive; hands may naturally crop.
+    return maxf(reference, viewmodel_rear_extent + camera.near + MODEL_NEAR_MARGIN)
+
 func ads_depth() -> float:
-    return -0.17 if weapon_id == "rifle" else -0.62
+    return -_framing_distance(true) - viewmodel_depth
 
 func hip_position() -> Vector3:
-    if weapon_id == "rifle":
-        return Vector3(0.26, -0.30, -0.53)
-    return Vector3(0.34, -0.27, -0.63) if weapon_id == "pistol" else Vector3(0.30, -0.32, -0.77)
+    var distance := _framing_distance(false)
+    return Vector3(HIP_REFERENCE_SLOPE.x * distance, HIP_REFERENCE_SLOPE.y * distance, -distance - viewmodel_depth)
+
+func get_viewmodel_rest_pose(ads: bool) -> Vector3:
+    if ads:
+        return Vector3(0.0, -viewmodel_scale * get_sight_height(), ads_depth())
+    return hip_position()
 
 func _animate_viewmodel(delta: float, sprint_ease: float) -> void:
     if not is_instance_valid(viewmodel_root) or not is_instance_valid(hand_rig):

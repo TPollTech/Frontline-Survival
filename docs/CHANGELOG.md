@@ -1,5 +1,17 @@
 # Frontline Survival — Histórico de versões
 
+## 0.9.30 — Enquadramento padronizado das oito armas
+
+- Perfis centralizados preservam escala de malhas, offsets e encaixes existentes.
+- Poses neutras hip/ADS seguem referências comuns por classe, com distância de segurança calculada dos limites traseiros dos GLBs importados.
+- Remove a exceção antiga do fuzil em ADS, mantém a altura visual das miras e as animações aditivas.
+- QA OpenGL compara as oito armas em repouso e ADS; verifica posição de referência e margem da câmera.
+- FOV de cenário e viewmodel ainda compartilham câmera; separação é tarefa posterior. Aprovação visual Windows pendente.
+
+[Notas da release](releases/v0.9.30.md)
+
+---
+
 ## 0.9.29 — FOV persistente e validação de regressão
 
 - FOV vertical de 60° a 100° (76° padrão) disponível no menu inicial e de pausa, com atualização imediata da câmera do jogador.
