@@ -7,7 +7,11 @@ const dir=process.env.STUDIO_EVIDENCE||'/tmp/studio-evidence';
 await mkdir(dir,{recursive:true});
 const browser=await chromium.launch({headless:true,args:['--no-sandbox','--use-angle=swiftshader','--enable-unsafe-swiftshader']});
 const page=await browser.newPage({viewport:{width:1440,height:900}});
-const errors=[];
+const errors=[],externalRequests=[];
+const origin=new URL(url).origin;
+page.on('request',r=>{const u=new URL(r.url());if(['http:','https:'].includes(u.protocol)&&u.origin!==origin)externalRequests.push(r.url());});
+await page.route('**/*',r=>{const u=new URL(r.request().url());return ['http:','https:'].includes(u.protocol)&&u.origin!==origin?r.abort():r.continue();});
+let inspectionEvidence=null;
 page.on('pageerror',e=>errors.push(e.message));
 const response=await page.goto(url,{waitUntil:'networkidle'});
 assert.equal(response.status(),200);
@@ -45,6 +49,43 @@ for(const a of catalog.assets){
    await page.screenshot({path:dir+'/studio-lighting-alternate.png'});
    await page.locator('#grid').check();await page.locator('#shadows').check();await page.locator('#exposure').fill('1');
    lightingEvidence=info;
+   const inspectionState=()=>page.locator('#viewport').getAttribute('data-inspection').then(JSON.parse);
+   const initial=await inspectionState();
+   assert(initial.vertices>0&&initial.triangles>0&&initial.materials>0);
+   assert(initial.dimensions.some(x=>x>0));
+   assert.equal(await page.locator('#inspection').isVisible(),true);
+   for(const mode of ['solid','wireframe','textured']){
+     await page.locator('#inspection-mode').selectOption(mode);
+     const current=await inspectionState();
+     assert.equal(current.mode,mode);assert.equal(current.vertices,initial.vertices);assert.equal(current.triangles,initial.triangles);assert.equal(current.materials,initial.materials);
+     await page.screenshot({path:dir+'/studio-inspection-'+mode+'.png'});
+   }
+   assert.match(await page.locator('#material-info').textContent(),/type/);
+   await page.locator('#uv-channel').selectOption('uv1');await page.locator('#uv-channel').selectOption('uv');
+   assert.match(await page.locator('#uv-summary').textContent(),/triângulos UV|Canal ausente/);
+   await page.locator('#pivots-toggle').check();assert((await inspectionState()).helpers>0);
+   await page.locator('#normals-toggle').check();assert((await inspectionState()).helpers>0);
+   await page.screenshot({path:dir+'/studio-inspection-helpers.png'});
+   await page.locator('#pivots-toggle').uncheck();await page.locator('#normals-toggle').uncheck();
+   assert.equal((await inspectionState()).helpers,0);
+   await page.locator('#node-select').selectOption('0');
+   const beforePose=(await inspectionState()).pose;
+   await page.locator('#pose-y').fill('30');assert.equal((await inspectionState()).pose[1],30);
+   await page.locator('#pose-reset').click();assert.deepEqual((await inspectionState()).pose,beforePose);
+   if(initial.clips>0){
+     await page.locator('#clip-select').selectOption('0');
+     const max=Number(await page.locator('#clip-time').getAttribute('max'));
+     if(max>.05){await page.locator('#clip-time').fill(String(max/2));assert((await inspectionState()).clipTime>0);}
+     await page.locator('#clip-play').click();await page.waitForTimeout(200);assert.equal((await inspectionState()).playing,true);
+     await page.locator('#pose-reset').click();assert.equal((await inspectionState()).playing,false);
+   }
+   const [download]=await Promise.all([page.waitForEvent('download'),page.locator('#screenshot').click()]);
+   await download.saveAs(dir+'/studio-user-screenshot.png');
+   const png=await readFile(dir+'/studio-user-screenshot.png');
+   assert.equal(png.subarray(0,8).toString('hex'),'89504e470d0a1a0a');
+   assert(png.readUInt32BE(16)>100&&png.readUInt32BE(20)>100);
+   inspectionEvidence={initial,afterReset:await inspectionState(),pngBytes:png.length};
+   console.log('STUDIO_INSPECTION_PASS modes UV metrics pivots pose and PNG');
    const home=await assertFit();
    const canvas=page.locator('#viewport canvas');
    const r=await canvas.boundingBox(),x=r.x+r.width*.5,y=r.y+r.height*.5;
@@ -169,7 +210,7 @@ assert.equal(await dependencyPage.locator('#viewport').getAttribute('data-resour
 assert.equal(bufferRequests,2);
 await dependencyPage.close();
 console.log('STUDIO_EXTERNAL_DEPENDENCY_PASS verified bytes and tamper rejection');
-assert.deepEqual(errors,[]);
-await writeFile(dir+'/report.json',JSON.stringify({revision:catalog.revision,assets:catalog.assets.length,glbLoaded:[...new Set(observed)],browser:browser.version(),errors,lighting:lightingEvidence,camera:cameraEvidence,runtimeViews:captures,visualApproval:false},null,2));
+assert.deepEqual(errors,[]);assert.deepEqual(externalRequests,[]);assert(inspectionEvidence);console.log('STUDIO_LOCAL_ONLY_PASS no external HTTP requests');
+await writeFile(dir+'/report.json',JSON.stringify({revision:catalog.revision,assets:catalog.assets.length,glbLoaded:[...new Set(observed)],browser:browser.version(),errors,lighting:lightingEvidence,camera:cameraEvidence,runtimeViews:captures,inspection:inspectionEvidence,externalRequests,visualApproval:false},null,2));
 console.log('STUDIO_BROWSER_PASS',new Set(observed).size,'GLB');
 await browser.close();

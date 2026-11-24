@@ -27,7 +27,7 @@ export function measureModel(root){
 
 export function createInspection({scene,renderer,camera,viewport}){
  let root=null,asset=null,baseMetrics=null,meshes=[],nodes=[],mats=[],originals=new Map(),rest=new Map(),temporary=new Set(),helpers=[],mixer=null,action=null,clips=[],playing=false,span=1;
- const clock=new THREE.Clock();
+ const clock=new THREE.Clock();let reportElapsed=0;
  const panel=$('inspection'), metrics=$('inspection-metrics'), info=$('material-info'), uv=$('uv-preview'), diagnostics=$('inspection-diagnostics');
  const controls=['inspection-mode','material-select','texture-slot','uv-channel','normals-toggle','pivots-toggle','clip-select','clip-play','clip-time','node-select','pose-x','pose-y','pose-z','pose-reset'];
  const selectedMaterial=()=>mats[Number($('material-select').value)];
@@ -113,11 +113,11 @@ export function createInspection({scene,renderer,camera,viewport}){
   action=mixer.clipAction(clip);action.reset().play();action.paused=true;
   $('clip-time').max=clip.duration;$('clip-time').value=0;mixer.update(0);report();
  }
- function setPose(){if(!root)return;const n=selectedNode();if(!n)return;stop();const a=['pose-x','pose-y','pose-z'].map(id=>THREE.MathUtils.degToRad(Number($(id).value)));n.rotation.set(...a,n.rotation.order);root.updateMatrixWorld(true);syncPose();rebuildHelpers();renderer.shadowMap.needsUpdate=true;}
+ function setPose(){if(!root)return;const n=selectedNode();if(!n)return;stop();$('clip-select').value='-1';$('clip-play').disabled=true;$('clip-time').disabled=true;const a=['pose-x','pose-y','pose-z'].map(id=>THREE.MathUtils.degToRad(Number($(id).value)));n.rotation.set(...a,n.rotation.order);root.updateMatrixWorld(true);syncPose();rebuildHelpers();renderer.shadowMap.needsUpdate=true;}
  function clear(){
   stop();if(mixer&&root)mixer.uncacheRoot(root);mixer=null;
   restoreMaterials();clearHelpers();root=null;asset=null;meshes=[];nodes=[];mats=[];originals.clear();rest.clear();clips=[];
-  panel.hidden=true;controls.forEach(id=>$(id).disabled=true);$('screenshot').disabled=true;delete viewport.dataset.inspection;
+  $('screenshot-status').textContent='';panel.hidden=true;controls.forEach(id=>$(id).disabled=true);$('screenshot').disabled=true;delete viewport.dataset.inspection;
  }
  function attach(data,a){
   clear();root=data.scene;asset=a;clips=data.animations||[];root.updateMatrixWorld(true);
@@ -130,7 +130,7 @@ export function createInspection({scene,renderer,camera,viewport}){
   fill('clip-select',[['Sem animação','-1'],...clips.map((c,i)=>[(c.name||'Clip '+i)+' · '+fmt(c.duration)+' s',i])]);
   fill('node-select',nodes.map((n,i)=>[(n.name||n.type)+' ['+i+']',i]));
   $('inspection-mode').value='textured';$('normals-toggle').checked=false;$('pivots-toggle').checked=false;
-  controls.forEach(id=>$(id).disabled=false);$('clip-play').disabled=true;$('clip-time').disabled=true;$('screenshot').disabled=false;panel.hidden=false;
+  controls.forEach(id=>$(id).disabled=false);$('material-select').disabled=!mats.length;$('clip-play').disabled=true;$('clip-time').disabled=true;$('screenshot').disabled=false;panel.hidden=false;
   showMaterial();drawUV();syncPose();rebuildHelpers();
  }
  function tick(){
@@ -138,7 +138,7 @@ export function createInspection({scene,renderer,camera,viewport}){
   if(!root||!playing||!action)return;
   mixer.update(delta);$('clip-time').value=action.time;root.updateMatrixWorld(true);
   for(const h of helpers){if(h.userData.pivot){h.userData.pivot.getWorldPosition(h.position);h.userData.pivot.getWorldQuaternion(h.quaternion);}else h.update?.();}
-  renderer.shadowMap.needsUpdate=true;report();
+  renderer.shadowMap.needsUpdate=true;reportElapsed+=delta;if(reportElapsed>=.12){reportElapsed=0;report();}
  }
  $('inspection-mode').addEventListener('change',applyMode);
  $('material-select').addEventListener('change',()=>{showMaterial();applyMode();});

@@ -59,6 +59,31 @@ jobs:
           trap 'kill "$server" || true' EXIT
           for n in $(seq 1 30); do curl -fsS http://127.0.0.1:8765/live_catalog.json >/dev/null && break; sleep 1; done
           REQUIRE_RUNTIME_VIEWS=1 STUDIO_EVIDENCE="$RUNNER_TEMP/studio-evidence" node tools/asset_studio/browser_test.mjs
+      - name: Prepare offline Studio archive
+        run: |
+          python - <<'PY'
+          import os, pathlib, zipfile, hashlib
+          base=pathlib.Path(os.environ["RUNNER_TEMP"])/"studio"
+          archive=base.parent/"Frontline-Asset-Studio-offline.zip"
+          with zipfile.ZipFile(archive,"w",zipfile.ZIP_DEFLATED,compresslevel=6) as out:
+              for f in sorted(base.rglob("*")):
+                  if f.is_file():
+                      info=zipfile.ZipInfo(f.relative_to(base).as_posix(),date_time=(2020,1,1,0,0,0))
+                      info.compress_type=zipfile.ZIP_DEFLATED
+                      out.writestr(info,f.read_bytes())
+          with zipfile.ZipFile(archive) as bundle:
+              assert bundle.testzip() is None
+              assert {"index.html","studio.js","inspection.js","serve_offline.py","live_catalog.json","studio-light.hdr","vendor/three/build/three.module.js"}<=set(bundle.namelist())
+          (archive.parent/(archive.name+".sha256")).write_text(hashlib.sha256(archive.read_bytes()).hexdigest()+"  "+archive.name+"\n")
+          print("STUDIO_OFFLINE_ARCHIVE_PASS",archive.stat().st_size)
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Asset-Studio-offline-${{ github.sha }}
+          path: |
+            ${{ runner.temp }}/Frontline-Asset-Studio-offline.zip
+            ${{ runner.temp }}/Frontline-Asset-Studio-offline.zip.sha256
+          if-no-files-found: error
       - uses: actions/upload-artifact@v4
         if: always()
         with:
