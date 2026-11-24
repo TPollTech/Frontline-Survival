@@ -1,0 +1,198 @@
+{
+  "schema_version": 1,
+  "kind": "frontline_inventory_closure",
+  "game_source_commit": "50e9699f3a93de6a42493bb446b58ee6cffc9ae4",
+  "game_source_tree": "1260b9f4b8eb7029975bc7edfa704fd6522359b4",
+  "baseline_commit": "5b47000bdb82f15e6cfda6227d785e4c2e3584fd",
+  "run_id": 45440510150,
+  "job_id": 138609999399,
+  "artifact_id": 14942578969,
+  "artifact_sha256": "ec15aec946bc093a58d6c1b7a3ff17cdfcaaac8c0b4e5aba5e4259ee7551a457",
+  "runtime_json_sha256": "5fc6f2b4fb8adc3fbbc9314e1ae77626c00465f91846a1842a8d18e880ae96a2",
+  "artifact_integrity_checked": true,
+  "engine": "Godot 4.4.1 / Linux X11 OpenGL3 via Xvfb",
+  "static_comparison": {
+    "physical_resources": 60,
+    "source_registry": 30,
+    "matched_blob_hashes": 90,
+    "new_game_resources": 0,
+    "new_game_scripts_or_scenes": 0,
+    "additional_pipeline_sources": [
+      {
+        "path": "tools/asset_pipeline/build_manifest.mjs",
+        "git_blob_sha1": "82923ef7ef9e3151286150a5d7bb1503e575ad9a"
+      },
+      {
+        "path": "tools/asset_pipeline/manifest_contract.mjs",
+        "git_blob_sha1": "88160219ada4ff7de7cb225ee6b1a1e02719be61"
+      },
+      {
+        "path": "tools/asset_pipeline/runtime/inventory_qa.gd",
+        "git_blob_sha1": "b82ea76ab45bd06a305a21349bdd016af1473314"
+      }
+    ]
+  },
+  "checks": {
+    "static": "pass",
+    "manifest_tests": 18,
+    "import": "pass",
+    "collector": "pass",
+    "report": "pass",
+    "reconciliation": "pass",
+    "capture_failures": 0
+  },
+  "summary": {
+    "approved": false,
+    "audio_paths_in_nodes": [
+      "assets/audio/explosions/grenade.ogg",
+      "assets/audio/reloads/lmg.wav",
+      "assets/audio/reloads/pistol.wav",
+      "assets/audio/reloads/rifle.wav",
+      "assets/audio/reloads/shotgun.wav",
+      "assets/audio/reloads/smg.wav",
+      "assets/audio/weapons/lmg.wav",
+      "assets/audio/weapons/pistol.wav",
+      "assets/audio/weapons/rifle.wav",
+      "assets/audio/weapons/shotgun.wav",
+      "assets/audio/weapons/smg.wav"
+    ],
+    "effective_textures": [
+      "assets/textures/asphalt.png",
+      "assets/textures/depot_concrete.png",
+      "assets/textures/weapon_metal_albedo.png",
+      "assets/textures/weapon_metal_normal.png"
+    ],
+    "families_tagged_or_queries_executed": 24,
+    "glb_observed": 32,
+    "library_textures": [
+      "assets/textures/weapon_metal_albedo.png",
+      "assets/textures/weapon_metal_normal.png",
+      "assets/textures/weapon_polymer_albedo.png",
+      "assets/textures/weapon_polymer_normal.png"
+    ],
+    "limitations": [
+      "finite sampled states, not exhaustive live instances",
+      "no geometry buffers exported",
+      "no explicit LOD index arrays",
+      "query shapes are source-reviewed; results sampled through real methods",
+      "library materials loaded separately from actual mesh assignments",
+      "screenshots are not visual approval",
+      "no Asset Studio yet"
+    ],
+    "physical_resources": 60,
+    "queries": [
+      {
+        "executed": true,
+        "family": "query:spawn",
+        "result_valid": true,
+        "shape": {
+          "class": "SphereShape3D",
+          "collision_mask": 3,
+          "radius_m": 0.72
+        },
+        "shape_origin": "source_review",
+        "source": "scripts/main.gd:_spawn_enemy -> scripts/spawn_selector.gd:select_position"
+      },
+      {
+        "cover_found": false,
+        "cover_m": null,
+        "executed": true,
+        "family": "query:enemy_tactics",
+        "peek_m": null,
+        "shape": {
+          "class": "CapsuleShape3D",
+          "collision_mask": 1,
+          "height_m": 1.65,
+          "radius_m": 0.35
+        },
+        "shape_origin": "source_review",
+        "source": "scripts/enemy_tactics.gd:find_cover"
+      },
+      {
+        "executed": true,
+        "family": "query:turret",
+        "placement_m": [
+          0,
+          0,
+          -2.29999995231628
+        ],
+        "result_valid": true,
+        "shape": {
+          "class": "CylinderShape3D",
+          "collision_mask": 3,
+          "height_m": 1,
+          "radius_m": 0.46
+        },
+        "shape_origin": "source_review",
+        "source": "scripts/main.gd:_turret_position"
+      }
+    ],
+    "samples": 86,
+    "surface_records_without_tangents": 248
+  },
+  "counts": {
+    "nodes": 6353,
+    "mesh_nodes": 2996,
+    "colliders": 100,
+    "skeletons": 1,
+    "across_samples_not_unique": true
+  },
+  "screenshots": [
+    {
+      "file": "map_briefing.png",
+      "sha256": "5dba97c34062fb0adf5c7d1f01d8d21de5ac68f1dcdae7330d08671026f1acea",
+      "observation": "Mapa real parcialmente encoberto pelo menu.",
+      "width": 1280,
+      "height": 720,
+      "inspected": true,
+      "artistic_approval": false
+    },
+    {
+      "file": "fps_rifle_ads.png",
+      "sha256": "b7906c85c2c62aa53e062597e19b806cea1c657261a5c301c6156c05537d5a8d",
+      "observation": "Red dot visível; mão e arma simplificadas.",
+      "width": 1280,
+      "height": 720,
+      "inspected": true,
+      "artistic_approval": false
+    },
+    {
+      "file": "enemy_rifle.png",
+      "sha256": "6e299fdc698fa0f913ed3a06d66c9c9faa7fa2333e6c5a9aabdea766f95e0e38",
+      "observation": "Soldado legado de costas com volumes segmentados.",
+      "width": 1280,
+      "height": 720,
+      "inspected": true,
+      "artistic_approval": false
+    },
+    {
+      "file": "enemy_experimental.png",
+      "sha256": "424a7a5c690f3de20b4cb534b1cf09e562169edae0ffc80b9cb85a06af2f1f7e",
+      "observation": "Humanoide experimental em T-pose no snapshot.",
+      "width": 1280,
+      "height": 720,
+      "inspected": true,
+      "artistic_approval": false
+    }
+  ],
+  "windows": {
+    "run_id": 45440510474,
+    "conclusion": "failure",
+    "failed_steps": [
+      "Arsenal QA - isolated individual tests of all eight weapons"
+    ]
+  },
+  "inventory_status": "complete_for_existing_baseline",
+  "model_approval": false,
+  "studio_approval": false,
+  "scope": "all tracked gameplay resources, source/dependency inventory and all identified runtime families; finite representative states, not every possible instance or pose",
+  "open_followups": [
+    "upstream editable sources/licenses unresolved where explicitly recorded in historical inventory",
+    "effective polymer assignment not seen in sampled meshes",
+    "tangent warnings and missing tangent records",
+    "geometry buffers and explicit LOD export",
+    "exhaustive poses, gameplay and performance validation",
+    "Asset Studio implementation and parity",
+    "arsenal regression and Windows export"
+  ]
+}

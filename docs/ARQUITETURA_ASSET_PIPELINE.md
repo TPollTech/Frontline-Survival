@@ -50,3 +50,7 @@ Primeiro comando verifica serialização exata e roda testes do contrato. Segund
 ## Próxima tarefa
 
 Implementar biblioteca paramétrica Python com interface modular, backend básico e extensão Blender, sem alterar assets atuais; testar a API e seus contratos. Em paralelo, inventário runtime ainda precisa de extrator e verificação real, e a regressão do CI do arsenal permanece aberta.
+
+## Estado após inventário runtime
+
+O extrator de QA em tools/asset_pipeline/runtime/inventory_qa.gd foi implementado e validado na engine: 86 amostras e 24/24 famílias por captura/consulta. Consulte [INVENTARIO_RUNTIME.md](INVENTARIO_RUNTIME.md). O manifesto v1 permanece baseline estática; evidência de runtime separada, sem promover aprovação de modelo. Exportação fiel de geometria para Studio e catálogo vivo continuam tarefas futuras.

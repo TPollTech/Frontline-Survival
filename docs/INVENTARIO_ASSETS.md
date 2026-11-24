@@ -86,3 +86,7 @@ O [CI anterior](https://github.com/TPollTech/Frontline-Survival/actions/runs/454
 ## Complemento runtime
 
 Veja [INVENTARIO_RUNTIME.md](INVENTARIO_RUNTIME.md) para o novo extrator de cenas e workflow isolado. A baseline histórica permanece imutável; não equivale a catálogo vivo.
+
+## Estado final da baseline
+
+Inventário da versão existente concluído: 60/60 recursos físicos, 30/30 fontes/configurações da baseline sem divergências na main, 32/32 GLBs observados, 86 amostras e cobertura de 24/24 famílias por captura/consulta. [Relatório e limites](INVENTARIO_RUNTIME.md), [evidência final](qa/runtime_inventory_final_evidence.json). As lacunas de proveniência, atribuição de materiais, LOD, exportação e homologação seguem registradas nas tarefas subsequentes; não representam recursos omitidos do inventário. Não confundir inventário concluído com catálogo vivo ou modelos aprovados.

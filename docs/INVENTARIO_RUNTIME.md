@@ -40,3 +40,25 @@ O log confirmou aprovação do inventário estático e dos 18 testes do manifest
 ## Complemento de cobertura — implementação
 
 A segunda rodada acrescenta carregamento verificável de todos os recursos físicos da baseline, inspeção das duas superfícies reais da biblioteca de materiais (separada de atribuição efetiva em malhas), contagem de tangentes, streams de áudio nos nós, execução das consultas de spawn, cobertura e posicionamento de torreta por funções reais, traçador inimigo e marcador/impacto aéreo real. A reconciliação exige 32/32 GLBs, todos os 60 recursos e as 24 famílias por tags de amostras ou consultas efetivamente chamadas. As formas de consulta são descritas a partir da fonte; resultados são capturados da engine. Não equivale a todas as combinações nem a aprovação artística. Os novos testes aguardam execução; a evidência aprovada anterior continua válida para o commit 1726a0d. Não houve alteração no gameplay, assets ou manifesto estático.
+
+## Fechamento do inventário da versão existente — 24/11/2026
+
+[Execução 45440510150](https://github.com/TPollTech/Frontline-Survival/actions/runs/45440510150), commit `50e9699f3a93de6a42493bb446b58ee6cffc9ae4`: **aprovada**, incluindo inventário estático, 18 testes do manifesto, importação, coleta e reconciliação automática. [Artefato 14942578969](https://github.com/TPollTech/Frontline-Survival/actions/runs/45440510150/artifacts/14942578969) baixado; SHA-256 conferido, JSON sem falhas, quatro PNG 1280×720 inspecionados. Resumo persistente e rastreável: [qa/runtime_inventory_final_evidence.json](qa/runtime_inventory_final_evidence.json).
+
+| Critério do inventário existente | Evidência |
+|---|---|
+| Recursos físicos | 60/60 (49 carregados pela engine e 11 metadados conferidos) |
+| Fontes e configuração históricas | 30/30 hashes iguais à baseline na árvore atual; três novos scripts do pipeline listados separadamente |
+| GLB efetivamente observados | 32/32 |
+| Famílias runtime | 24/24 associadas a amostras ou consultas realmente executadas |
+| Áudios em nós | 11/11 |
+| Texturas | 6/6 carregadas; 4/6 materiais efetivos das malhas; 2 polímero carregadas pela biblioteca mas não atribuídas nas amostras |
+| Amostras | 86; 6.353 registros de nós, 2.996 malhas, 100 colisores, 1 skeleton; totais entre amostras |
+| Efeitos adicionais | Traçador, marcador e impacto aéreo capturados |
+| Consultas | Spawn e posicionamento de torreta retornaram resultado válido; consulta tática executou e não encontrou cobertura nessa amostra. Não afirmar validação completa da IA. |
+
+A revisão das novas imagens confirma mapa e mira reais, mãos e soldado legado simplificados, e humanoide experimental em T-pose na captura. 248 registros de superfícies sem tangentes, incluindo repetições; não são 248 defeitos distintos. A cobertura do inventário **não é aprovação de qualidade dos modelos**.
+
+**Critério de encerramento:** esta tarefa enumera e rastreia o conteúdo existente, as fontes, dependências e famílias de geração. A baseline estática foi confrontada com a main sem divergências e a cobertura das famílias identificadas foi conferida na engine. É suficiente para iniciar a migração incremental, sem exigir a execução de todas as combinações infinitas de estados dinâmicos. Fontes originais de terceiros ou licenças ainda desconhecidas permanecem explicitamente desconhecidas; não foram certificadas. Dados de geometria completos, índices LOD, cobertura de todas as poses, verificação de atribuição polimérica, validação de IA e Studio ficam nas tarefas específicas posteriores. Preservar todos os registros e não promover approved no manifesto.
+
+O [CI Windows 45440510474](https://github.com/TPollTech/Frontline-Survival/actions/runs/45440510474) continua com conclusão failure (Arsenal QA - isolated individual tests of all eight weapons). Nenhum novo executável aprovado e nenhum asset ou gameplay alterado. A tarefa de inventário da baseline fica concluída; homologação visual e catálogo vivo continuam pendentes.
