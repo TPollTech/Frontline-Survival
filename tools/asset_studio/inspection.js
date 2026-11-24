@@ -50,10 +50,10 @@ export function createInspection({scene,renderer,camera,viewport}){
  }
  function showMaterial(){
   const m=selectedMaterial();
-  if(!m){info.textContent='Nenhum material.';fill('texture-slot',[]);return;}
+  if(!m){info.textContent='Nenhum material.';fill('texture-slot',[]);$('texture-slot').disabled=true;return;}
   const available=slots.filter(k=>m[k]?.isTexture);
   const previous=$('texture-slot').value;
-  fill('texture-slot',available.map(k=>[k,k]));
+  fill('texture-slot',available.map(k=>[k,k]));$('texture-slot').disabled=!available.length;
   if(available.includes(previous))$('texture-slot').value=previous;
   info.textContent=JSON.stringify({name:m.name||'(sem nome)',type:m.type,color:m.color?.getHexString()??null,metalness:m.metalness??null,roughness:m.roughness??null,opacity:m.opacity,transparent:m.transparent,textures:Object.fromEntries(available.map(k=>[k,describeTexture(m[k])]))},null,2);
  }

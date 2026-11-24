@@ -173,14 +173,18 @@ if(catalog.runtime_views){
 // Browser-only neutral test fixture: never written into the production catalog or package.
 const dependencyPage=await browser.newPage({viewport:{width:1280,height:800}});
 const fixturePath='qa-fixture/models/panel.gltf',bufferPath='qa-fixture/buffers/qa mesh.bin';
-const buffer=Buffer.alloc(44);
+const buffer=Buffer.alloc(100);
 [-1,0,0,1,0,0,0,1,0].forEach((v,i)=>buffer.writeFloatLE(v,i*4));
 [0,1,2].forEach((v,i)=>buffer.writeUInt16LE(v,36+i*2));
-const fixture=Buffer.from(JSON.stringify({asset:{version:'2.0'},scene:0,scenes:[{nodes:[0]}],nodes:[{mesh:0}],
- meshes:[{primitives:[{attributes:{POSITION:0},indices:1}]}],
- buffers:[{uri:'../buffers/qa%20mesh.bin',byteLength:44}],
- bufferViews:[{buffer:0,byteOffset:0,byteLength:36,target:34962},{buffer:0,byteOffset:36,byteLength:6,target:34963}],
- accessors:[{bufferView:0,componentType:5126,count:3,type:'VEC3',min:[-1,0,0],max:[1,1,0]},{bufferView:1,componentType:5123,count:3,type:'SCALAR'}]}));
+[0,0,1,0,.5,1].forEach((v,i)=>buffer.writeFloatLE(v,44+i*4));
+[0,1,0,0,0,1,0,0].forEach((v,i)=>buffer.writeFloatLE(v,68+i*4));
+const fixture=Buffer.from(JSON.stringify({asset:{version:'2.0'},scene:0,scenes:[{nodes:[0]}],nodes:[{name:'animated_panel',mesh:0}],
+ meshes:[{primitives:[{attributes:{POSITION:0,TEXCOORD_0:2},indices:1,material:0}]}],
+ materials:[{name:'qa_material',pbrMetallicRoughness:{baseColorFactor:[.2,.6,.8,1],metallicFactor:0,roughnessFactor:.7}}],
+ buffers:[{uri:'../buffers/qa%20mesh.bin',byteLength:100}],
+ bufferViews:[{buffer:0,byteOffset:0,byteLength:36,target:34962},{buffer:0,byteOffset:36,byteLength:6,target:34963},{buffer:0,byteOffset:44,byteLength:24,target:34962},{buffer:0,byteOffset:68,byteLength:8},{buffer:0,byteOffset:76,byteLength:24}],
+ accessors:[{bufferView:0,componentType:5126,count:3,type:'VEC3',min:[-1,0,0],max:[1,1,0]},{bufferView:1,componentType:5123,count:3,type:'SCALAR'},{bufferView:2,componentType:5126,count:3,type:'VEC2'},{bufferView:3,componentType:5126,count:2,type:'SCALAR',min:[0],max:[1]},{bufferView:4,componentType:5126,count:2,type:'VEC3'}],
+ animations:[{name:'qa_move',samplers:[{input:3,output:4,interpolation:'LINEAR'}],channels:[{sampler:0,target:{node:0,path:'translation'}}]}]}));
 const hash=b=>createHash('sha256').update(b).digest('hex');
 const fixtureCatalog={kind:catalog.kind,schema_version:catalog.schema_version,revision:catalog.revision,
  assets:[{id:'qa:dependency_fixture',category:'model',usage:'test_only',source:{path:fixturePath},
@@ -205,6 +209,18 @@ await dependencyPage.locator('#assets button').filter({hasText:'qa:dependency_fi
 await dependencyPage.locator('#state[data-kind=ready]').waitFor({timeout:30000});
 assert.equal(await dependencyPage.locator('#viewport').getAttribute('data-sha256'),hash(fixture));
 assert.equal(bufferRequests,1,'must not refetch verified external bytes');
+const fixtureState=()=>dependencyPage.locator('#viewport').getAttribute('data-inspection').then(JSON.parse);
+const fixtureMetrics=await fixtureState();
+assert.equal(fixtureMetrics.vertices,3);assert.equal(fixtureMetrics.triangles,1);assert.equal(fixtureMetrics.materials,1);assert.equal(fixtureMetrics.uvMeshes,1);assert.equal(fixtureMetrics.clips,1);
+assert.deepEqual(fixtureMetrics.dimensions,[2,1,0]);assert.match(await dependencyPage.locator('#uv-summary').textContent(),/1 \/ 1 triângulos UV/);
+await dependencyPage.locator('#clip-select').selectOption('0');
+await dependencyPage.locator('#clip-time').fill('0.5');
+const mid=await fixtureState();assert.equal(mid.clipTime,.5);assert.equal(mid.min[0],-.5);
+await dependencyPage.locator('#clip-play').click();
+await dependencyPage.waitForFunction(()=>JSON.parse(document.querySelector('#viewport').dataset.inspection).clipTime>.5);
+await dependencyPage.locator('#pose-reset').click();
+assert.deepEqual((await fixtureState()).min,fixtureMetrics.min);
+console.log('STUDIO_ANIMATION_METRICS_PASS known fixture counts and interpolated transform');
 tamper=true;
 await dependencyPage.locator('#assets button').filter({hasText:'qa:dependency_fixture'}).click();
 await dependencyPage.locator('#state[data-kind=error]').waitFor({timeout:30000});

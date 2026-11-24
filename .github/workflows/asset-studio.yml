@@ -77,6 +77,16 @@ jobs:
           (archive.parent/(archive.name+".sha256")).write_text(hashlib.sha256(archive.read_bytes()).hexdigest()+"  "+archive.name+"\n")
           print("STUDIO_OFFLINE_ARCHIVE_PASS",archive.stat().st_size)
           PY
+      - name: Smoke test the extracted offline archive
+        run: |
+          set -e
+          mkdir "$RUNNER_TEMP/offline-check"
+          python -m zipfile -e "$RUNNER_TEMP/Frontline-Asset-Studio-offline.zip" "$RUNNER_TEMP/offline-check"
+          python "$RUNNER_TEMP/offline-check/serve_offline.py" --port 8766 > "$RUNNER_TEMP/offline-server.log" 2>&1 &
+          server=$!
+          trap 'kill "$server" || true' EXIT
+          for n in $(seq 1 30); do curl -fsS http://127.0.0.1:8766/live_catalog.json >/dev/null && break; sleep 1; done
+          STUDIO_URL=http://127.0.0.1:8766 node tools/asset_studio/offline_test.mjs
       - uses: actions/upload-artifact@v4
         with:
           name: Asset-Studio-offline-${{ github.sha }}
