@@ -24,8 +24,13 @@
   "parametric": {
     "run_id": 45460210492,
     "python_step": "success",
-    "conclusion": null,
-    "logs": null
+    "conclusion": "success",
+    "logs": null,
+    "total": 106,
+    "passed": 106,
+    "blender": "3.0.1",
+    "artifact_id": 14952043438,
+    "artifact_sha256_reported": "ccc9e7440ad8ec547eef1497ffc1ebee8728ceca0cf5294569f6af67bf8517fd"
   },
   "baseline_hash_matches": 90,
   "budget_benchmark": false,

@@ -1,0 +1,44 @@
+name: GLTF export Godot QA
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'tools/asset_pipeline/parametric/**'
+      - 'tools/asset_pipeline/runtime/export_qa.gd'
+      - '.github/workflows/gltf-export.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  godot:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.4.1
+          use-dotnet: false
+          include-templates: false
+      - name: Generate two identical bundles
+        run: |
+          python -m tools.asset_pipeline.parametric.export_fixture qa-export "$GITHUB_SHA"
+          python -m tools.asset_pipeline.parametric.export_fixture qa-repeat "$GITHUB_SHA"
+          diff -r qa-export qa-repeat
+          printf 'config_version=5\n[application]\nconfig/name="Export QA"\n[rendering]\nrenderer/rendering_method="gl_compatibility"\n' > qa-export/project.godot
+          cp tools/asset_pipeline/runtime/export_qa.gd qa-export/
+      - name: Import GLB and glTF in actual Godot
+        run: |
+          set -o pipefail
+          timeout 90s godot --headless --path qa-export --script res://export_qa.gd 2>&1 | tee qa-export/godot.log
+          grep -q EXPORT_GODOT_PASS qa-export/godot.log
+          if grep -E 'SCRIPT ERROR:|Parse Error|EXPORT_QA_FAIL' qa-export/godot.log; then exit 1; fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: GLTF-Export-QA-${{ github.sha }}
+          path: qa-export/
+          if-no-files-found: warn

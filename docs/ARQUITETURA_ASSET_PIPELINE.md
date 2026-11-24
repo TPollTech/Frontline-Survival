@@ -86,3 +86,7 @@ RigSpec, SkeletonSpec, BoneSpec, SkinSpec e SocketSpec adicionados em parametric
 ## Colisões e LOD
 
 AssetLOD e ColliderSpec em parametric/lod.py estabelecem contrato independente de colisão, níveis de detalhe com hierarquia e orçamento, resampling por receita e histerese. BUDGETS provisório: medir no hardware-alvo antes de homologar; mapas são particionados. Fixture Godot isolada valida troca de ArrayMesh sem trocar colisor. Integração runtime, exportação e Studio ainda pendentes.
+
+## Exportação
+
+Exportador paramétrico em exporter.py: GLB e glTF autocontido, rastreabilidade por export.json, preservação de atributos, PBR, rig e sockets. LOD e colisão permanecem metadados independentes, animação e integração runtime posteriores. Não editar manifesto histórico; catálogo vivo consumirá bundles validados.
