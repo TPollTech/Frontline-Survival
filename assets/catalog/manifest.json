@@ -1,0 +1,3946 @@
+{
+  "assets": [
+    {
+      "animations": null,
+      "bounds_m": null,
+      "budget": null,
+      "category": "character",
+      "collision": null,
+      "coordinates": {
+        "forward": null,
+        "unit": "m",
+        "up": "+Y"
+      },
+      "dependencies": {
+        "assets": [
+          "geometry:model_surface",
+          "material:weapon_overrides"
+        ],
+        "resources": [
+          "assets/models/bolt_sniper.glb",
+          "assets/models/lmg.glb",
+          "assets/models/pistol.glb",
+          "assets/models/rifle.glb",
+          "assets/models/sentinela.glb",
+          "assets/models/shotgun.glb",
+          "assets/models/smg.glb",
+          "assets/models/sniper.glb"
+        ],
+        "sources": []
+      },
+      "description": "Corpo, equipamento, arma, articulações e colisão.",
+      "dimensions_m": null,
+      "gaps": [
+        "no live engine capture",
+        "effective transforms/materials/geometry not measured"
+      ],
+      "hierarchy": null,
+      "id": "ally:legacy",
+      "lods": null,
+      "materials": null,
+      "outputs": [],
+      "pivots": null,
+      "preview": {
+        "fidelity": "pending_capture",
+        "mode": "runtime_capture",
+        "resource": null
+      },
+      "provenance": "project code; explicit license file not found",
+      "source": {
+        "editable": true,
+        "functions": [
+          "_ready",
+          "_joint",
+          "_piece",
+          "_box",
+          "_capsule"
+        ],
+        "git_blob_sha1": "7b23c806ae08fbf1dfe929b0e62e96032cd2f279",
+        "kind": "godot_recipe",
+        "path": "scripts/ally.gd"
+      },
+      "usage": "active",
+      "validation": {
+        "approved": false,
+        "evidence": [],
+        "godot_visual": "pending",
+        "runtime": "pending",
+        "static": "inventory_only",
+        "studio_visual": "pending"
+      }
+    },
+    {
+      "animations": null,
+      "bounds_m": null,
+      "budget": null,
+      "category": "audio",
+      "collision": null,
+      "coordinates": {
+        "forward": null,
+        "unit": "not_spatial",
+        "up": null
+      },
+      "dependencies": {
+        "assets": [],
+        "resources": [],
+        "sources": []
+      },
+      "dimensions_m": null,
+      "gaps": [
+        "original source package not locally inspected"
+      ],
+      "hierarchy": null,
+      "id": "audio:audio/explosions/grenade",
+      "lods": null,
+      "materials": null,
+      "outputs": [
+        {
+          "path": "assets/audio/explosions/grenade.ogg",
+          "role": "resource"
+        }
+      ],
+      "pivots": null,
+      "preview": {
+        "fidelity": "original_file",
+        "mode": "resource_inspection",
+        "resource": "assets/audio/explosions/grenade.ogg"
+      },
+      "provenance": "CC0 per docs/ASSET_EXPLOSION_CC0.md",
+      "source": {
+        "editable": false,
+        "functions": [],
+        "git_blob_sha1": "019e53664abf859fc5529f95d0db23fa3ac1e42d",
+        "kind": "imported_binary",
+        "path": "assets/audio/explosions/grenade.ogg"
+      },
+      "usage": "legacy_referenced",
+      "validation": {
+        "approved": false,
+        "evidence": [],
+        "godot_visual": "not_applicable",
+        "runtime": "pending",
+        "static": "inventory_only",
+        "studio_visual": "not_applicable"
+      }
+    },
+    {
+      "animations": null,
+      "bounds_m": null,
+      "budget": null,
+      "category": "audio",
+      "collision": null,
+      "coordinates": {
+        "forward": null,
+        "unit": "not_spatial",
+        "up": null
+      },
+      "dependencies": {
+        "assets": [],
+        "resources": [],
+        "sources": []
+      },
+      "dimensions_m": null,
+      "gaps": [
+        "editable master/provenance not verified"
+      ],
+      "hierarchy": null,
+      "id": "audio:audio/reloads/lmg",
+      "lods": null,
+      "materials": null,
+      "outputs": [
+        {
+          "path": "assets/audio/reloads/lmg.wav",
+          "role": "resource"
+        }
+      ],
+      "pivots": null,
+      "preview": {
+        "fidelity": "original_file",
+        "mode": "resource_inspection",
+        "resource": "assets/audio/reloads/lmg.wav"
+      },
+      "provenance": "recording provenance/license to verify",
+      "source": {
+        "editable": false,
+        "functions": [],
+        "git_blob_sha1": "c606addcd35fa5106acd65e727cc2e0ee0ccdfa4",
+        "kind": "imported_binary",
+        "path": "assets/audio/reloads/lmg.wav"
+      },
+      "usage": "legacy_referenced",
+      "validation": {
+        "approved": false,
+        "evidence": [],
+        "godot_visual": "not_applicable",
+        "runtime": "pending",
+        "static": "inventory_only",
+        "studio_visual": "not_applicable"
+      }
+    },
+    {
+      "animations": null,
+      "bounds_m": null,
+      "budget": null,
+      "category": "audio",
+      "collision": null,
+      "coordinates": {
+        "forward": null,
+        "unit": "not_spatial",
+        "up": null
+      },
+      "dependencies": {
+        "assets": [],
+        "resources": [],
+        "sources": []
+      },
+      "dimensions_m": null,
+      "gaps": [
+        "editable master/provenance not verified"
+      ],
+      "hierarchy": null,
+      "id": "audio:audio/reloads/pistol",
+      "lods": null,
+      "materials": null,
+      "outputs": [
+        {
+          "path": "assets/audio/reloads/pistol.wav",
+          "role": "resource"
+        }
+      ],
+      "pivots": null,
+      "preview": {
+        "fidelity": "original_file",
+        "mode": "resource_inspection",
+        "resource": "assets/audio/reloads/pistol.wav"
+      },
+      "provenance": "recording provenance/license to verify",
+      "source": {
+        "editable": false,
+        "functions": [],
+        "git_blob_sha1": "ff132f31adb171db93c794891a387725dc7797bb",
+        "kind": "imported_binary",
+        "path": "assets/audio/reloads/pistol.wav"
+      },
+      "usage": "legacy_referenced",
+      "validation": {
+        "approved": false,
+        "evidence": [],
+        "godot_visual": "not_applicable",
+        "runtime": "pending",
+        "static": "inventory_only",
+        "studio_visual": "not_applicable"
+      }
+    },
+    {
+      "animations": null,
+      "bounds_m": null,
+      "budget": null,
+      "category": "audio",
+      "collision": null,
+      "coordinates": {
+        "forward": null,
+        "unit": "not_spatial",
+        "up": null
+      },
+      "dependencies": {
+        "assets": [],
+        "resources": [],
+        "sources": []
+      },
+      "dimensions_m": null,
+      "gaps": [
+        "editable master/provenance not verified"
+      ],
+      "hierarchy": null,
+      "id": "audio:audio/reloads/rifle",
+      "lods": null,
+      "materials": null,
+      "outputs": [
+        {
+          "path": "assets/audio/reloads/rifle.wav",
+          "role": "resource"
+        }
+      ],
+      "pivots": null,
+      "preview": {
+        "fidelity": "original_file",
+        "mode": "resource_inspection",
+        "resource": "assets/audio/reloads/rifle.wav"
+      },
+      "provenance": "recording provenance/license to verify",
+      "source": {
+        "editable": false,
+        "functions": [],
+        "git_blob_sha1": "e48adef89e22d5749ddffd59bdf0e93f6d96425e",
+        "kind": "imported_binary",
+        "path": "assets/audio/reloads/rifle.wav"
+      },
+      "usage": "legacy_referenced",
+      "validation": {
+        "approved": false,
+        "evidence": [],
+        "godot_visual": "not_applicable",
+        "runtime": "pending",
+        "static": "inventory_only",
+        "studio_visual": "not_applicable"
+      }
+    },
+    {
+      "animations": null,
+      "bounds_m": null,
+      "budget": null,
+      "category": "audio",
+      "collision": null,
+      "coordinates": {
+        "forward": null,
+        "unit": "not_spatial",
+        "up": null
+      },
+      "dependencies": {
+        "assets": [],
+        "resources": [],
+        "sources": []
+      },
+      "dimensions_m": null,
+      "gaps": [
+        "editable master/provenance not verified"
+      ],
+      "hierarchy": null,
+      "id": "audio:audio/reloads/shotgun",
+      "lods": null,
+      "materials": null,
+      "outputs": [
+        {
+          "path": "assets/audio/reloads/shotgun.wav",
+          "role": "resource"
+        }
+      ],
+      "pivots": null,
+      "preview": {
+        "fidelity": "original_file",
+        "mode": "resource_inspection",
+        "resource": "assets/audio/reloads/shotgun.wav"
+      },
+      "provenance": "recording provenance/license to verify",
+      "source": {
+        "editable": false,
+        "functions": [],
+        "git_blob_sha1": "b3cbdd4a1890083d45e75f24ddf1f15d2b55eb8f",
+        "kind": "imported_binary",
+        "path": "assets/audio/reloads/shotgun.wav"
+      },
+      "usage": "legacy_referenced",
+      "validation": {
+        "approved": false,
+        "evidence": [],
+        "godot_visual": "not_applicable",
+        "runtime": "pending",
+        "static": "inventory_only",
+        "studio_visual": "not_applicable"
+      }
+    },
+    {
+      "animations": null,
+      "bounds_m": null,
+      "budget": null,
+      "category": "audio",
+      "collision": null,
+      "coordinates": {
+        "forward": null,
+        "unit": "not_spatial",
+        "up": null
+      },
+      "dependencies": {
+        "assets": [],
+        "resources": [],
+        "sources": []
+      },
+      "dimensions_m": null,
+      "gaps": [
+        "editable master/provenance not verified"
+      ],
+      "hierarchy": null,
+      "id": "audio:audio/reloads/smg",
+      "lods": null,
+      "materials": null,
+      "outputs": [
+        {
+          "path": "assets/audio/reloads/smg.wav",
+          "role": "resource"
+        }
+      ],
+      "pivots": null,
+      "preview": {
+        "fidelity": "original_file",
+        "mode": "resource_inspection",
+        "resource": "assets/audio/reloads/smg.wav"
+      },
+      "provenance": "recording provenance/license to verify",
+      "source": {
+        "editable": false,
+        "functions": [],
+        "git_blob_sha1": "c4d9c5eed2018d328a5ed6bda93021c86f050445",
+        "kind": "imported_binary",
+        "path": "assets/audio/reloads/smg.wav"
+      },
+      "usage": "legacy_referenced",
+      "validation": {
+        "approved": false,
+        "evidence": [],
+        "godot_visual": "not_applicable",
+        "runtime": "pending",
+        "static": "inventory_only",
+        "studio_visual": "not_applicable"
+      }
+    },
+    {
+      "animations": null,
+      "bounds_m": null,
+      "budget": null,
+      "category": "audio",
+      "collision": null,
+      "coordinates": {
+        "forward": null,
+        "unit": "not_spatial",
+        "up": null
+      },
+      "dependencies": {
+        "assets": [],
+        "resources": [],
+        "sources": []
+      },
+      "dimensions_m": null,
+      "gaps": [
+        "editable master/provenance not verified"
+      ],
+      "hierarchy": null,
+      "id": "audio:audio/weapons/lmg",
+      "lods": null,
+      "materials": null,
+      "outputs": [
+        {
+          "path": "assets/audio/weapons/lmg.wav",
+          "role": "resource"
+        }
+      ],
+      "pivots": null,
+      "preview": {
+        "fidelity": "original_file",
+        "mode": "resource_inspection",
+        "resource": "assets/audio/weapons/lmg.wav"
+      },
+      "provenance": "recording provenance/license to verify",
+      "source": {
+        "editable": false,
+        "functions": [],
+        "git_blob_sha1": "330fc2e4c258154f02b265f6b0e59ffa9b3d6c14",
+        "kind": "imported_binary",
+        "path": "assets/audio/weapons/lmg.wav"
+      },
+      "usage": "legacy_referenced",
+      "validation": {
+        "approved": false,
+        "evidence": [],
+        "godot_visual": "not_applicable",
+        "runtime": "pending",
+        "static": "inventory_only",
+        "studio_visual": "not_applicable"
+      }
+    },
+    {
+      "animations": null,
+      "bounds_m": null,
+      "budget": null,
+      "category": "audio",
+      "collision": null,
+      "coordinates": {
+        "forward": null,
+        "unit": "not_spatial",
+        "up": null
+      },
+      "dependencies": {
+        "assets": [],
+        "resources": [],
+        "sources": []
+      },
+      "dimensions_m": null,
+      "gaps": [
+        "editable master/provenance not verified"
+      ],
+      "hierarchy": null,
+      "id": "audio:audio/weapons/pistol",
+      "lods": null,
+      "materials": null,
+      "outputs": [
+        {
+          "path": "assets/audio/weapons/pistol.wav",
+          "role": "resource"
+        }
+      ],
+      "pivots": null,
+      "preview": {
+        "fidelity": "original_file",
+        "mode": "resource_inspection",
+        "resource": "assets/audio/weapons/pistol.wav"
+      },
+      "provenance": "recording provenance/license to verify",
+      "source": {
+        "editable": false,
+        "functions": [],
+        "git_blob_sha1": "e78e7b9251bd8bfe95011c08675deaa9a5b83ffd",
+        "kind": "imported_binary",
+        "path": "assets/audio/weapons/pistol.wav"
+      },
+      "usage": "legacy_referenced",
+      "validation": {
+        "approved": false,
+        "evidence": [],
+        "godot_visual": "not_applicable",
+        "runtime": "pending",
+        "static": "inventory_only",
+        "studio_visual": "not_applicable"
+      }
+    },
+    {
+      "animations": null,
+      "bounds_m": null,
+      "budget": null,
+      "category": "audio",
+      "collision": null,
+      "coordinates": {
+        "forward": null,
+        "unit": "not_spatial",
+        "up": null
+      },
+      "dependencies": {
+        "assets": [],
+        "resources": [],
+        "sources": []
+      },
+      "dimensions_m": null,
+      "gaps": [
+        "editable master/provenance not verified"
+      ],
+      "hierarchy": null,
+      "id": "audio:audio/weapons/rifle",
+      "lods": null,
+      "materials": null,
+      "outputs": [
+        {
+          "path": "assets/audio/weapons/rifle.wav",
+          "role": "resource"
+        }
+      ],
+      "pivots": null,
+      "preview": {
+        "fidelity": "original_file",
+        "mode": "resource_inspection",
+        "resource": "assets/audio/weapons/rifle.wav"
+      },
+      "provenance": "recording provenance/license to verify",
+      "source": {
+        "editable": false,
+        "functions": [],
+        "git_blob_sha1": "21f525dfa2d06bbe549222d93a0cd4f60cd96df4",
+        "kind": "imported_binary",
+        "path": "assets/audio/weapons/rifle.wav"
+      },
+      "usage": "legacy_referenced",
+      "validation": {
+        "approved": false,
+        "evidence": [],
+        "godot_visual": "not_applicable",
+        "runtime": "pending",
+        "static": "inventory_only",
+        "studio_visual": "not_applicable"
+      }
+    },
+    {
+      "animations": null,
+      "bounds_m": null,
+      "budget": null,
+      "category": "audio",
+      "collision": null,
+      "coordinates": {
+        "forward": null,
+        "unit": "not_spatial",
+        "up": null
+      },
+      "dependencies": {
+        "assets": [],
+        "resources": [],
+        "sources": []
+      },
+      "dimensions_m": null,
+      "gaps": [
+        "editable master/provenance not verified"
+      ],
+      "hierarchy": null,
+      "id": "audio:audio/weapons/shotgun",
+      "lods": null,
+      "materials": null,
+      "outputs": [
+        {
+          "path": "assets/audio/weapons/shotgun.wav",
+          "role": "resource"
+        }
+      ],
+      "pivots": null,
+      "preview": {
+        "fidelity": "original_file",
+        "mode": "resource_inspection",
+        "resource": "assets/audio/weapons/shotgun.wav"
+      },
+      "provenance": "recording provenance/license to verify",
+      "source": {
+        "editable": false,
+        "functions": [],
+        "git_blob_sha1": "2d20058ef430b3b3866f997ea59d264bb5ac1950",
+        "kind": "imported_binary",
+        "path": "assets/audio/weapons/shotgun.wav"
+      },
+      "usage": "legacy_referenced",
+      "validation": {
+        "approved": false,
+        "evidence": [],
+        "godot_visual": "not_applicable",
+        "runtime": "pending",
+        "static": "inventory_only",
+        "studio_visual": "not_applicable"
+      }
+    },
+    {
+      "animations": null,
+      "bounds_m": null,
+      "budget": null,
+      "category": "audio",
+      "collision": null,
+      "coordinates": {
+        "forward": null,
+        "unit": "not_spatial",
+        "up": null
+      },
+      "dependencies": {
+        "assets": [],
+        "resources": [],
+        "sources": []
+      },
+      "dimensions_m": null,
+      "gaps": [
+        "editable master/provenance not verified"
+      ],
+      "hierarchy": null,
+      "id": "audio:audio/weapons/smg",
+      "lods": null,
+      "materials": null,
+      "outputs": [
+        {
+          "path": "assets/audio/weapons/smg.wav",
+          "role": "resource"
+        }
+      ],
+      "pivots": null,
+      "preview": {
+        "fidelity": "original_file",
+        "mode": "resource_inspection",
+        "resource": "assets/audio/weapons/smg.wav"
+      },
+      "provenance": "recording provenance/license to verify",
+      "source": {
+        "editable": false,
+        "functions": [],
+        "git_blob_sha1": "c7dc9f1d63ac8c80b3130e9d5b2a2c6719afd4b6",
+        "kind": "imported_binary",
+        "path": "assets/audio/weapons/smg.wav"
+      },
+      "usage": "legacy_referenced",
+      "validation": {
+        "approved": false,
+        "evidence": [],
+        "godot_visual": "not_applicable",
+        "runtime": "pending",
+        "static": "inventory_only",
+        "studio_visual": "not_applicable"
+      }
+    },
+    {
+      "animations": null,
+      "bounds_m": null,
+      "budget": null,
+      "category": "camera",
+      "collision": null,
+      "coordinates": {
+        "forward": null,
+        "unit": "m",
+        "up": "+Y"
+      },
+      "dependencies": {
+        "assets": [],
+        "resources": [],
+        "sources": []
+      },
+      "description": "Câmera de apresentação do menu inicial; distinta da câmera do jogador.",
+      "dimensions_m": null,
+      "gaps": [
+        "no live engine capture",
+        "effective transforms/materials/geometry not measured"
+      ],
+      "hierarchy": null,
+      "id": "camera:briefing",
+      "lods": null,
+      "materials": null,
+      "outputs": [],
+      "pivots": null,
+      "preview": {
+        "fidelity": "pending_capture",
+        "mode": "runtime_capture",
+        "resource": null
+      },
+      "provenance": "project code; explicit license file not found",
+      "source": {
+        "editable": true,
+        "functions": [
+          "_ready"
+        ],
+        "git_blob_sha1": "216afee210a3b972683ca722cbd882169a827021",
+        "kind": "godot_recipe",
+        "path": "scripts/main.gd"
+      },
+      "usage": "active",
+      "validation": {
+        "approved": false,
+        "evidence": [],
+        "godot_visual": "pending",
+        "runtime": "pending",
+        "static": "inventory_only",
+        "studio_visual": "pending"
+      }
+    },
+    {
+      "animations": null,
+      "bounds_m": null,
+      "budget": null,
+      "category": "character",
+      "collision": null,
+      "coordinates": {
+        "forward": null,
+        "unit": "m",
+        "up": "+Y"
+      },
+      "dependencies": {
+        "assets": [
+          "character:quaternius_equipment"
+        ],
+        "resources": [],
+        "sources": [
+          "scripts/quaternius_soldier_visual.gd"
+        ]
+      },
+      "dimensions_m": null,
+      "gaps": [
+        "upstream editable source not in repository",
+        "runtime verification pending"
+      ],
+      "hierarchy": null,
+      "id": "character:quaternius_base_male",
+      "lods": null,
+      "materials": null,
+      "outputs": [
+        {
+          "path": "assets/characters/quaternius_base_male.glb",
+          "role": "imported"
+        }
+      ],
+      "pivots": null,
+      "preview": {
+        "composition_asset": "character:quaternius_equipment",
+        "fidelity": "raw_glb_only_until_runtime_capture",
+        "mode": "glb_and_runtime_composition",
+        "resource": "assets/characters/quaternius_base_male.glb"
+      },
+      "provenance": "CC0 per docs/ASSET_QUATERNIUS_CC0.md",
+      "source": {
+        "editable": false,
+        "functions": [],
+        "git_blob_sha1": "b3fd79533fdb9fcedd077744f7e120920eb6cc97",
+        "kind": "imported_binary",
+        "path": "assets/characters/quaternius_base_male.glb"
+      },
+      "usage": "experimental_disabled",
+      "validation": {
+        "approved": false,
+        "evidence": [],
+        "godot_visual": "pending",
+        "runtime": "pending",
+        "static": "inventory_only",
+        "studio_visual": "pending"
+      }
+    },
+    {
+      "animations": null,
+      "bounds_m": null,
+      "budget": null,
+      "category": "character",
+      "collision": null,
+      "coordinates": {
+        "forward": null,
+        "unit": "m",
+        "up": "+Y"
+      },
+      "dependencies": {
+        "assets": [],
+        "resources": [
+          "assets/characters/quaternius_base_male.glb"
+        ],
+        "sources": []
+      },
+      "description": "Rig importado com peças e materiais adicionais.",
+      "dimensions_m": null,
+      "gaps": [
+        "no live engine capture",
+        "effective transforms/materials/geometry not measured"
+      ],
+      "hierarchy": null,
+      "id": "character:quaternius_equipment",
+      "lods": null,
+      "materials": null,
+      "outputs": [],
+      "pivots": null,
+      "preview": {
+        "fidelity": "pending_capture",
+        "mode": "runtime_capture",
+        "resource": null
+      },
+      "provenance": "project code; explicit license file not found",
+      "source": {
+        "editable": true,
+        "functions": [
+          "_paint_character_meshes",
+          "_create_tactical_equipment",
+          "_equip_capsule",
+          "_equip_box"
+        ],
+        "git_blob_sha1": "d29e0bd16d18e3b51936866fe91ba8fd142d9eab",
+        "kind": "godot_recipe",
+        "path": "scripts/quaternius_soldier_visual.gd"
+      },
+      "usage": "experimental_disabled",
+      "validation": {
+        "approved": false,
+        "evidence": [],
+        "godot_visual": "pending",
+        "runtime": "pending",
+        "static": "inventory_only",
+        "studio_visual": "pending"
+      }
+    },
+    {
+      "animations": null,
+      "bounds_m": null,
+      "budget": null,
+      "category": "effect",
+      "collision": null,
+      "coordinates": {
+        "forward": null,
+        "unit": "m",
+        "up": "+Y"
+      },
+      "dependencies": {
+        "assets": [],
+        "resources": [],
+        "sources": []
+      },
+      "description": "Gotas transitórias.",
+      "dimensions_m": null,
+      "gaps": [
+        "no live engine capture",
+        "effective transforms/materials/geometry not measured"
+      ],
+      "hierarchy": null,
+      "id": "effect:blood",
+      "lods": null,
+      "materials": null,
+      "outputs": [],
+      "pivots": null,
+      "preview": {
+        "fidelity": "pending_capture",
+        "mode": "runtime_capture",
+        "resource": null
+      },
+      "provenance": "project code; explicit license file not found",
+      "source": {
+        "editable": true,
+        "functions": [
+          "_ready"
+        ],
+        "git_blob_sha1": "20c79842b97849cc7ef652aad58292e7890bbe73",
+        "kind": "godot_recipe",
+        "path": "scripts/blood_impact.gd"
+      },
+      "usage": "active",
+      "validation": {
+        "approved": false,
+        "evidence": [],
+        "godot_visual": "pending",
+        "runtime": "pending",
+        "static": "inventory_only",
+        "studio_visual": "pending"
+      }
+    },
+    {
+      "animations": null,
+      "bounds_m": null,
+      "budget": null,
+      "category": "effect",
+      "collision": null,
+      "coordinates": {
+        "forward": null,
+        "unit": "m",
+        "up": "+Y"
+      },
+      "dependencies": {
+        "assets": [],
+        "resources": [],
+        "sources": []
+      },
+      "description": "Marcador e efeito de apoio, traçadores, cápsulas, impactos.",
+      "dimensions_m": null,
+      "gaps": [
+        "no live engine capture",
+        "effective transforms/materials/geometry not measured"
+      ],
+      "hierarchy": null,
+      "id": "effect:combat",
+      "lods": null,
+      "materials": null,
+      "outputs": [],
+      "pivots": null,
+      "preview": {
+        "fidelity": "pending_capture",
+        "mode": "runtime_capture",
+        "resource": null
+      },
+      "provenance": "project code; explicit license file not found",
+      "source": {
+        "editable": true,
+        "functions": [
+          "_call_airstrike",
+          "_airstrike_impact",
+          "_on_shot_fired"
+        ],
+        "git_blob_sha1": "216afee210a3b972683ca722cbd882169a827021",
+        "kind": "godot_recipe",
+        "path": "scripts/main.gd"
+      },
+      "usage": "active",
+      "validation": {
+        "approved": false,
+        "evidence": [],
+        "godot_visual": "pending",
+        "runtime": "pending",
+        "static": "inventory_only",
+        "studio_visual": "pending"
+      }
+    },
+    {
+      "animations": null,
+      "bounds_m": null,
+      "budget": null,
+      "category": "effect",
+      "collision": null,
+      "coordinates": {
+        "forward": null,
+        "unit": "m",
+        "up": "+Y"
+      },
+      "dependencies": {
+        "assets": [],
+        "resources": [],
+        "sources": []
+      },
+      "description": "Efeito transitório.",
+      "dimensions_m": null,
+      "gaps": [
+        "no live engine capture",
+        "effective transforms/materials/geometry not measured"
+      ],
+      "hierarchy": null,
+      "id": "effect:enemy_tracer",
+      "lods": null,
+      "materials": null,
+      "outputs": [],
+      "pivots": null,
+      "preview": {
+        "fidelity": "pending_capture",
+        "mode": "runtime_capture",
+        "resource": null
+      },
+      "provenance": "project code; explicit license file not found",
+      "source": {
+        "editable": true,
+        "functions": [
+          "_brief_enemy_tracer"
+        ],
+        "git_blob_sha1": "5d467fee7b8ccdcfd6742caa8c99e4b33169c907",
+        "kind": "godot_recipe",
+        "path": "scripts/enemy.gd"
+      },
+      "usage": "active",
+      "validation": {
+        "approved": false,
+        "evidence": [],
+        "godot_visual": "pending",
+        "runtime": "pending",
+        "static": "inventory_only",
+        "studio_visual": "pending"
+      }
+    },
+    {
+      "animations": null,
+      "bounds_m": null,
+      "budget": null,
+      "category": "effect",
+      "collision": null,
+      "coordinates": {
+        "forward": null,
+        "unit": "m",
+        "up": "+Y"
+      },
+      "dependencies": {
+        "assets": [],
+        "resources": [],
+        "sources": []
+      },
+      "description": "Flash, anel e efeitos transitórios.",
+      "dimensions_m": null,
+      "gaps": [
+        "no live engine capture",
+        "effective transforms/materials/geometry not measured"
+      ],
+      "hierarchy": null,
+      "id": "effect:grenade",
+      "lods": null,
+      "materials": null,
+      "outputs": [],
+      "pivots": null,
+      "preview": {
+        "fidelity": "pending_capture",
+        "mode": "runtime_capture",
+        "resource": null
+      },
+      "provenance": "project code; explicit license file not found",
+      "source": {
+        "editable": true,
+        "functions": [
+          "_effect_sphere",
+          "_spawn_explosion_effects"
+        ],
+        "git_blob_sha1": "4426d1eb4bf2826c90e9c52c0b6f128f83055658",
+        "kind": "godot_recipe",
+        "path": "scripts/frag_grenade.gd"
+      },
+      "usage": "active",
+      "validation": {
+        "approved": false,
+        "evidence": [],
+        "godot_visual": "pending",
+        "runtime": "pending",
+        "static": "inventory_only",
+        "studio_visual": "pending"
+      }
+    },
+    {
+      "animations": null,
+      "bounds_m": null,
+      "budget": null,
+      "category": "effect",
+      "collision": null,
+      "coordinates": {
+        "forward": null,
+        "unit": "m",
+        "up": "+Y"
+      },
+      "dependencies": {
+        "assets": [],
+        "resources": [],
+        "sources": []
+      },
+      "description": "Clarão de disparo; malha criada em código.",
+      "dimensions_m": null,
+      "gaps": [
+        "no live engine capture",
+        "effective transforms/materials/geometry not measured"
+      ],
+      "hierarchy": null,
+      "id": "effect:muzzle",
+      "lods": null,
+      "materials": null,
+      "outputs": [],
+      "pivots": null,
+      "preview": {
+        "fidelity": "pending_capture",
+        "mode": "runtime_capture",
+        "resource": null
+      },
+      "provenance": "project code; explicit license file not found",
+      "source": {
+        "editable": true,
+        "functions": [
+          "_ready",
+          "_build_muzzle_flash"
+        ],
+        "git_blob_sha1": "5e92e5db95bba95e23e1c8de11b70bae3640d163",
+        "kind": "godot_recipe",
+        "path": "scripts/player.gd"
+      },
+      "usage": "active",
+      "validation": {
+        "approved": false,
+        "evidence": [],
+        "godot_visual": "pending",
+        "runtime": "pending",
+        "static": "inventory_only",
+        "studio_visual": "pending"
+      }
+    },
+    {
+      "animations": null,
+      "bounds_m": null,
+      "budget": null,
+      "category": "shader",
+      "collision": null,
+      "coordinates": {
+        "forward": null,
+        "unit": "m",
+        "up": "+Y"
+      },
+      "dependencies": {
+        "assets": [],
+        "resources": [],
+        "sources": []
+      },
+      "description": "Shader canvas_item; não é malha GLB.",
+      "dimensions_m": null,
+      "gaps": [
+        "no live engine capture",
+        "effective transforms/materials/geometry not measured"
+      ],
+      "hierarchy": null,
+      "id": "effect:scope_overlay",
+      "lods": null,
+      "materials": null,
+      "outputs": [],
+      "pivots": null,
+      "preview": {
+        "fidelity": "pending_capture",
+        "mode": "engine_evidence",
+        "resource": null
+      },
+      "provenance": "project code; explicit license file not found",
+      "source": {
+        "editable": true,
+        "functions": [],
+        "git_blob_sha1": "8e56f1c6af03f823881d48a23c42d20f54ac4032",
+        "kind": "godot_recipe",
+        "path": "scripts/scope.gdshader"
+      },
+      "usage": "active",
+      "validation": {
+        "approved": false,
+        "evidence": [],
+        "godot_visual": "pending",
+        "runtime": "pending",
+        "static": "inventory_only",
+        "studio_visual": "pending"
+      }
+    },
+    {
+      "animations": null,
+      "bounds_m": null,
+      "budget": null,
+      "category": "character",
+      "collision": null,
+      "coordinates": {
+        "forward": null,
+        "unit": "m",
+        "up": "+Y"
+      },
+      "dependencies": {
+        "assets": [
+          "geometry:model_surface",
+          "material:weapon_overrides"
+        ],
+        "resources": [
+          "assets/models/bolt_sniper.glb",
+          "assets/models/lmg.glb",
+          "assets/models/pistol.glb",
+          "assets/models/rifle.glb",
+          "assets/models/sentinela.glb",
+          "assets/models/shotgun.glb",
+          "assets/models/smg.glb",
+          "assets/models/sniper.glb"
+        ],
+        "sources": []
+      },
+      "description": "Corpo, equipamento, arma GLB, juntas e colisão; variantes por configuração.",
+      "dimensions_m": null,
+      "gaps": [
+        "no live engine capture",
+        "effective transforms/materials/geometry not measured"
+      ],
+      "hierarchy": null,
+      "id": "enemy:legacy",
+      "lods": null,
+      "materials": null,
+      "outputs": [],
+      "pivots": null,
+      "preview": {
+        "fidelity": "pending_capture",
+        "mode": "runtime_capture",
+        "resource": null
+      },
+      "provenance": "project code; explicit license file not found",
+      "source": {
+        "editable": true,
+        "functions": [
+          "_ready",
+          "_joint",
+          "_part",
+          "_box",
+          "_capsule"
+        ],
+        "git_blob_sha1": "5d467fee7b8ccdcfd6742caa8c99e4b33169c907",
+        "kind": "godot_recipe",
+        "path": "scripts/enemy.gd"
+      },
+      "usage": "active",
+      "validation": {
+        "approved": false,
+        "evidence": [],
+        "godot_visual": "pending",
+        "runtime": "pending",
+        "static": "inventory_only",
+        "studio_visual": "pending"
+      }
+    },
+    {
+      "animations": null,
+      "bounds_m": null,
+      "budget": null,
+      "category": "environment",
+      "collision": null,
+      "coordinates": {
+        "forward": null,
+        "unit": "m",
+        "up": "+Y"
+      },
+      "dependencies": {
+        "assets": [],
+        "resources": [],
+        "sources": []
+      },
+      "description": "Céu, luz, ambiente e névoa; configuração Godot.",
+      "dimensions_m": null,
+      "gaps": [
+        "no live engine capture",
+        "effective transforms/materials/geometry not measured"
+      ],
+      "hierarchy": null,
+      "id": "environment:lighting",
+      "lods": null,
+      "materials": null,
+      "outputs": [],
+      "pivots": null,
+      "preview": {
+        "fidelity": "pending_capture",
+        "mode": "runtime_capture",
+        "resource": null
+      },
+      "provenance": "project code; explicit license file not found",
+      "source": {
+        "editable": true,
+        "functions": [
+          "_create_world"
+        ],
+        "git_blob_sha1": "216afee210a3b972683ca722cbd882169a827021",
+        "kind": "godot_recipe",
+        "path": "scripts/main.gd"
+      },
+      "usage": "active",
+      "validation": {
+        "approved": false,
+        "evidence": [],
+        "godot_visual": "pending",
+        "runtime": "pending",
+        "static": "inventory_only",
+        "studio_visual": "pending"
+      }
+    },
+    {
+      "animations": null,
+      "bounds_m": null,
+      "budget": null,
+      "category": "geometry_library",
+      "collision": null,
+      "coordinates": {
+        "forward": null,
+        "unit": "m",
+        "up": "+Y"
+      },
+      "dependencies": {
+        "assets": [],
+        "resources": [],
+        "sources": []
+      },
+      "description": "Receita compartilhada, cache, UV, normais e LOD; instâncias em vários scripts.",
+      "dimensions_m": null,
+      "gaps": [
+        "no live engine capture",
+        "effective transforms/materials/geometry not measured"
+      ],
+      "hierarchy": null,
+      "id": "geometry:model_surface",
+      "lods": null,
+      "materials": null,
+      "outputs": [],
+      "pivots": null,
+      "preview": {
+        "fidelity": "pending_capture",
+        "mode": "library_inspection",
+        "resource": null
+      },
+      "provenance": "project code; explicit license file not found",
+      "source": {
+        "editable": true,
+        "functions": [
+          "body",
+          "_grid"
+        ],
+        "git_blob_sha1": "4f7695359ee900797ee511403105c73db44a720d",
+        "kind": "godot_recipe",
+        "path": "scripts/model_surface.gd"
+      },
+      "usage": "active",
+      "validation": {
+        "approved": false,
+        "evidence": [],
+        "godot_visual": "pending",
+        "runtime": "pending",
+        "static": "inventory_only",
+        "studio_visual": "pending"
+      }
+    },
+    {
+      "animations": null,
+      "bounds_m": null,
+      "budget": null,
+      "category": "map",
+      "collision": null,
+      "coordinates": {
+        "forward": null,
+        "unit": "m",
+        "up": "+Y"
+      },
+      "dependencies": {
+        "assets": [
+          "environment:lighting",
+          "geometry:model_surface"
+        ],
+        "resources": [
+          "assets/textures/asphalt.png",
+          "assets/textures/depot_concrete.png"
+        ],
+        "sources": [
+          "scenes/main.tscn",
+          "scripts/model_surface.gd"
+        ]
+      },
+      "description": "Piso, paredes, containers, sacos, tambores, pintura, decoração e três estações; composição e colisões runtime.",
+      "dimensions_m": null,
+      "gaps": [
+        "no live engine capture",
+        "effective transforms/materials/geometry not measured"
+      ],
+      "hierarchy": null,
+      "id": "map:campo_de_testes",
+      "lods": null,
+      "materials": null,
+      "outputs": [],
+      "pivots": null,
+      "preview": {
+        "fidelity": "pending_capture",
+        "mode": "runtime_capture",
+        "resource": null
+      },
+      "provenance": "project code; explicit license file not found",
+      "source": {
+        "editable": true,
+        "functions": [
+          "_create_world",
+          "_add_box",
+          "_add_container",
+          "_add_sandbags",
+          "_add_barrel",
+          "_add_cylinder",
+          "_add_depot_decor",
+          "_add_shop"
+        ],
+        "git_blob_sha1": "216afee210a3b972683ca722cbd882169a827021",
+        "kind": "godot_recipe",
+        "path": "scripts/main.gd"
+      },
+      "usage": "active",
+      "validation": {
+        "approved": false,
+        "evidence": [],
+        "godot_visual": "pending",
+        "runtime": "pending",
+        "static": "inventory_only",
+        "studio_visual": "pending"
+      }
+    },
+    {
+      "animations": null,
+      "bounds_m": null,
+      "budget": null,
+      "category": "material",
+      "collision": null,
+      "coordinates": {
+        "forward": null,
+        "unit": "m",
+        "up": "+Y"
+      },
+      "dependencies": {
+        "assets": [],
+        "resources": [
+          "assets/textures/weapon_metal_albedo.png",
+          "assets/textures/weapon_metal_normal.png",
+          "assets/textures/weapon_polymer_albedo.png",
+          "assets/textures/weapon_polymer_normal.png"
+        ],
+        "sources": []
+      },
+      "description": "Texturas e material efetivo do jogo; seleção por nome.",
+      "dimensions_m": null,
+      "gaps": [
+        "no live engine capture",
+        "effective transforms/materials/geometry not measured"
+      ],
+      "hierarchy": null,
+      "id": "material:weapon_overrides",
+      "lods": null,
+      "materials": null,
+      "outputs": [],
+      "pivots": null,
+      "preview": {
+        "fidelity": "pending_capture",
+        "mode": "library_inspection",
+        "resource": null
+      },
+      "provenance": "project code; explicit license file not found",
+      "source": {
+        "editable": true,
+        "functions": [
+          "_build_surface",
+          "_paint_recursive"
+        ],
+        "git_blob_sha1": "47ad7823f3d7e2dbd4e727bf041ba369db6b211e",
+        "kind": "godot_recipe",
+        "path": "scripts/weapon_materials.gd"
+      },
+      "usage": "active",
+      "validation": {
+        "approved": false,
+        "evidence": [],
+        "godot_visual": "pending",
+        "runtime": "pending",
+        "static": "inventory_only",
+        "studio_visual": "pending"
+      }
+    },
+    {
+      "animations": null,
+      "bounds_m": null,
+      "budget": null,
+      "category": "object",
+      "collision": null,
+      "coordinates": {
+        "forward": null,
+        "unit": "m",
+        "up": "+Y"
+      },
+      "dependencies": {
+        "assets": [],
+        "resources": [],
+        "sources": []
+      },
+      "description": "Corpo visual e colisão física.",
+      "dimensions_m": null,
+      "gaps": [
+        "no live engine capture",
+        "effective transforms/materials/geometry not measured"
+      ],
+      "hierarchy": null,
+      "id": "object:grenade",
+      "lods": null,
+      "materials": null,
+      "outputs": [],
+      "pivots": null,
+      "preview": {
+        "fidelity": "pending_capture",
+        "mode": "runtime_capture",
+        "resource": null
+      },
+      "provenance": "project code; explicit license file not found",
+      "source": {
+        "editable": true,
+        "functions": [
+          "_ready",
+          "_make_body"
+        ],
+        "git_blob_sha1": "4426d1eb4bf2826c90e9c52c0b6f128f83055658",
+        "kind": "godot_recipe",
+        "path": "scripts/frag_grenade.gd"
+      },
+      "usage": "active",
+      "validation": {
+        "approved": false,
+        "evidence": [],
+        "godot_visual": "pending",
+        "runtime": "pending",
+        "static": "inventory_only",
+        "studio_visual": "pending"
+      }
+    },
+    {
+      "animations": null,
+      "bounds_m": null,
+      "budget": null,
+      "category": "object",
+      "collision": null,
+      "coordinates": {
+        "forward": null,
+        "unit": "m",
+        "up": "+Y"
+      },
+      "dependencies": {
+        "assets": [
+          "geometry:model_surface",
+          "material:weapon_overrides"
+        ],
+        "resources": [
+          "assets/models/bolt_sniper.glb",
+          "assets/models/lmg.glb",
+          "assets/models/pistol.glb",
+          "assets/models/rifle.glb",
+          "assets/models/sentinela.glb",
+          "assets/models/shotgun.glb",
+          "assets/models/smg.glb",
+          "assets/models/sniper.glb"
+        ],
+        "sources": []
+      },
+      "description": "Arma ou caixa de munição criada por código.",
+      "dimensions_m": null,
+      "gaps": [
+        "no live engine capture",
+        "effective transforms/materials/geometry not measured"
+      ],
+      "hierarchy": null,
+      "id": "object:loot",
+      "lods": null,
+      "materials": null,
+      "outputs": [],
+      "pivots": null,
+      "preview": {
+        "fidelity": "pending_capture",
+        "mode": "runtime_capture",
+        "resource": null
+      },
+      "provenance": "project code; explicit license file not found",
+      "source": {
+        "editable": true,
+        "functions": [
+          "_ready"
+        ],
+        "git_blob_sha1": "0427ea74ee0d7939331eef3c408d74c74c016cc5",
+        "kind": "godot_recipe",
+        "path": "scripts/loot_pickup.gd"
+      },
+      "usage": "active",
+      "validation": {
+        "approved": false,
+        "evidence": [],
+        "godot_visual": "pending",
+        "runtime": "pending",
+        "static": "inventory_only",
+        "studio_visual": "pending"
+      }
+    },
+    {
+      "animations": null,
+      "bounds_m": null,
+      "budget": null,
+      "category": "object",
+      "collision": null,
+      "coordinates": {
+        "forward": null,
+        "unit": "m",
+        "up": "+Y"
+      },
+      "dependencies": {
+        "assets": [],
+        "resources": [],
+        "sources": []
+      },
+      "description": "Base e componentes ModelSurface.",
+      "dimensions_m": null,
+      "gaps": [
+        "no live engine capture",
+        "effective transforms/materials/geometry not measured"
+      ],
+      "hierarchy": null,
+      "id": "object:turret",
+      "lods": null,
+      "materials": null,
+      "outputs": [],
+      "pivots": null,
+      "preview": {
+        "fidelity": "pending_capture",
+        "mode": "runtime_capture",
+        "resource": null
+      },
+      "provenance": "project code; explicit license file not found",
+      "source": {
+        "editable": true,
+        "functions": [
+          "_ready"
+        ],
+        "git_blob_sha1": "c0b1c0c05c5a3bb49dfb95fb69b9d919d7a58a52",
+        "kind": "godot_recipe",
+        "path": "scripts/turret.gd"
+      },
+      "usage": "active",
+      "validation": {
+        "approved": false,
+        "evidence": [],
+        "godot_visual": "pending",
+        "runtime": "pending",
+        "static": "inventory_only",
+        "studio_visual": "pending"
+      }
+    },
+    {
+      "animations": null,
+      "bounds_m": null,
+      "budget": null,
+      "category": "collision",
+      "collision": null,
+      "coordinates": {
+        "forward": null,
+        "unit": "m",
+        "up": "+Y"
+      },
+      "dependencies": {
+        "assets": [],
+        "resources": [],
+        "sources": []
+      },
+      "description": "Capsula e consulta de postura; não equivalem à malha visual.",
+      "dimensions_m": null,
+      "gaps": [
+        "no live engine capture",
+        "effective transforms/materials/geometry not measured"
+      ],
+      "hierarchy": null,
+      "id": "player:collision",
+      "lods": null,
+      "materials": null,
+      "outputs": [],
+      "pivots": null,
+      "preview": {
+        "fidelity": "pending_capture",
+        "mode": "runtime_debug",
+        "resource": null
+      },
+      "provenance": "project code; explicit license file not found",
+      "source": {
+        "editable": true,
+        "functions": [
+          "_ready",
+          "_can_expand_to_height"
+        ],
+        "git_blob_sha1": "5e92e5db95bba95e23e1c8de11b70bae3640d163",
+        "kind": "godot_recipe",
+        "path": "scripts/player.gd"
+      },
+      "usage": "active",
+      "validation": {
+        "approved": false,
+        "evidence": [],
+        "godot_visual": "pending",
+        "runtime": "pending",
+        "static": "inventory_only",
+        "studio_visual": "pending"
+      }
+    },
+    {
+      "animations": null,
+      "bounds_m": null,
+      "budget": null,
+      "category": "physics_query",
+      "collision": null,
+      "coordinates": {
+        "forward": null,
+        "unit": "m",
+        "up": "+Y"
+      },
+      "dependencies": {
+        "assets": [],
+        "resources": [],
+        "sources": []
+      },
+      "description": "Forma de consulta tática; não renderizável.",
+      "dimensions_m": null,
+      "gaps": [
+        "no live engine capture",
+        "effective transforms/materials/geometry not measured"
+      ],
+      "hierarchy": null,
+      "id": "query:enemy_tactics",
+      "lods": null,
+      "materials": null,
+      "outputs": [],
+      "pivots": null,
+      "preview": {
+        "fidelity": "pending_capture",
+        "mode": "runtime_debug",
+        "resource": null
+      },
+      "provenance": "project code; explicit license file not found",
+      "source": {
+        "editable": true,
+        "functions": [],
+        "git_blob_sha1": "8b3b3bb383a2dc0bae3913a32abda117daef2e64",
+        "kind": "godot_recipe",
+        "path": "scripts/enemy_tactics.gd"
+      },
+      "usage": "active",
+      "validation": {
+        "approved": false,
+        "evidence": [],
+        "godot_visual": "pending",
+        "runtime": "pending",
+        "static": "inventory_only",
+        "studio_visual": "pending"
+      }
+    },
+    {
+      "animations": null,
+      "bounds_m": null,
+      "budget": null,
+      "category": "physics_query",
+      "collision": null,
+      "coordinates": {
+        "forward": null,
+        "unit": "m",
+        "up": "+Y"
+      },
+      "dependencies": {
+        "assets": [],
+        "resources": [],
+        "sources": []
+      },
+      "description": "Forma de consulta de spawn; não renderizável.",
+      "dimensions_m": null,
+      "gaps": [
+        "no live engine capture",
+        "effective transforms/materials/geometry not measured"
+      ],
+      "hierarchy": null,
+      "id": "query:spawn",
+      "lods": null,
+      "materials": null,
+      "outputs": [],
+      "pivots": null,
+      "preview": {
+        "fidelity": "pending_capture",
+        "mode": "runtime_debug",
+        "resource": null
+      },
+      "provenance": "project code; explicit license file not found",
+      "source": {
+        "editable": true,
+        "functions": [],
+        "git_blob_sha1": "55e2bb3e466a8e00aad9e2727cf989e40bb0edf6",
+        "kind": "godot_recipe",
+        "path": "scripts/spawn_selector.gd"
+      },
+      "usage": "active",
+      "validation": {
+        "approved": false,
+        "evidence": [],
+        "godot_visual": "pending",
+        "runtime": "pending",
+        "static": "inventory_only",
+        "studio_visual": "pending"
+      }
+    },
+    {
+      "animations": null,
+      "bounds_m": null,
+      "budget": null,
+      "category": "physics_query",
+      "collision": null,
+      "coordinates": {
+        "forward": null,
+        "unit": "m",
+        "up": "+Y"
+      },
+      "dependencies": {
+        "assets": [],
+        "resources": [],
+        "sources": []
+      },
+      "description": "Consulta de colocação; não renderizável.",
+      "dimensions_m": null,
+      "gaps": [
+        "no live engine capture",
+        "effective transforms/materials/geometry not measured"
+      ],
+      "hierarchy": null,
+      "id": "query:turret",
+      "lods": null,
+      "materials": null,
+      "outputs": [],
+      "pivots": null,
+      "preview": {
+        "fidelity": "pending_capture",
+        "mode": "runtime_debug",
+        "resource": null
+      },
+      "provenance": "project code; explicit license file not found",
+      "source": {
+        "editable": true,
+        "functions": [
+          "_turret_position"
+        ],
+        "git_blob_sha1": "216afee210a3b972683ca722cbd882169a827021",
+        "kind": "godot_recipe",
+        "path": "scripts/main.gd"
+      },
+      "usage": "active",
+      "validation": {
+        "approved": false,
+        "evidence": [],
+        "godot_visual": "pending",
+        "runtime": "pending",
+        "static": "inventory_only",
+        "studio_visual": "pending"
+      }
+    },
+    {
+      "animations": null,
+      "bounds_m": null,
+      "budget": null,
+      "category": "texture",
+      "collision": null,
+      "coordinates": {
+        "forward": null,
+        "unit": "not_spatial",
+        "up": null
+      },
+      "dependencies": {
+        "assets": [],
+        "resources": [],
+        "sources": []
+      },
+      "dimensions_m": null,
+      "gaps": [
+        "editable generation source not identified"
+      ],
+      "hierarchy": null,
+      "id": "texture:textures/asphalt",
+      "lods": null,
+      "materials": null,
+      "outputs": [
+        {
+          "path": "assets/textures/asphalt.png",
+          "role": "resource"
+        }
+      ],
+      "pivots": null,
+      "preview": {
+        "fidelity": "original_file",
+        "mode": "resource_inspection",
+        "resource": "assets/textures/asphalt.png"
+      },
+      "provenance": "provenance/license to verify",
+      "source": {
+        "editable": false,
+        "functions": [],
+        "git_blob_sha1": "ff9e9925795ef253013bbdb305ba33902ad07ef3",
+        "kind": "imported_binary",
+        "path": "assets/textures/asphalt.png"
+      },
+      "usage": "legacy_referenced",
+      "validation": {
+        "approved": false,
+        "evidence": [],
+        "godot_visual": "not_applicable",
+        "runtime": "pending",
+        "static": "inventory_only",
+        "studio_visual": "not_applicable"
+      }
+    },
+    {
+      "animations": null,
+      "bounds_m": null,
+      "budget": null,
+      "category": "texture",
+      "collision": null,
+      "coordinates": {
+        "forward": null,
+        "unit": "not_spatial",
+        "up": null
+      },
+      "dependencies": {
+        "assets": [],
+        "resources": [],
+        "sources": []
+      },
+      "dimensions_m": null,
+      "gaps": [
+        "editable generation source not identified"
+      ],
+      "hierarchy": null,
+      "id": "texture:textures/depot_concrete",
+      "lods": null,
+      "materials": null,
+      "outputs": [
+        {
+          "path": "assets/textures/depot_concrete.png",
+          "role": "resource"
+        }
+      ],
+      "pivots": null,
+      "preview": {
+        "fidelity": "original_file",
+        "mode": "resource_inspection",
+        "resource": "assets/textures/depot_concrete.png"
+      },
+      "provenance": "provenance/license to verify",
+      "source": {
+        "editable": false,
+        "functions": [],
+        "git_blob_sha1": "cf8778d5cc78d4b8ce00af970975f43df59a898f",
+        "kind": "imported_binary",
+        "path": "assets/textures/depot_concrete.png"
+      },
+      "usage": "legacy_referenced",
+      "validation": {
+        "approved": false,
+        "evidence": [],
+        "godot_visual": "not_applicable",
+        "runtime": "pending",
+        "static": "inventory_only",
+        "studio_visual": "not_applicable"
+      }
+    },
+    {
+      "animations": null,
+      "bounds_m": null,
+      "budget": null,
+      "category": "texture",
+      "collision": null,
+      "coordinates": {
+        "forward": null,
+        "unit": "not_spatial",
+        "up": null
+      },
+      "dependencies": {
+        "assets": [],
+        "resources": [],
+        "sources": []
+      },
+      "dimensions_m": null,
+      "gaps": [
+        "effective Godot triplanar/material mapping not captured"
+      ],
+      "hierarchy": null,
+      "id": "texture:textures/weapon_metal_albedo",
+      "lods": null,
+      "materials": null,
+      "outputs": [
+        {
+          "path": "assets/textures/weapon_metal_albedo.png",
+          "role": "resource"
+        }
+      ],
+      "pivots": null,
+      "preview": {
+        "fidelity": "original_file",
+        "mode": "resource_inspection",
+        "resource": "assets/textures/weapon_metal_albedo.png"
+      },
+      "provenance": "original project generator; explicit license file not found",
+      "source": {
+        "editable": true,
+        "functions": [],
+        "git_blob_sha1": "ab4d1f4b93e58b36adc627e83f8360d43a92030e",
+        "kind": "python_recipe",
+        "path": "tools/generate_foley_textures.py"
+      },
+      "usage": "legacy_referenced",
+      "validation": {
+        "approved": false,
+        "evidence": [],
+        "godot_visual": "not_applicable",
+        "runtime": "pending",
+        "static": "inventory_only",
+        "studio_visual": "not_applicable"
+      }
+    },
+    {
+      "animations": null,
+      "bounds_m": null,
+      "budget": null,
+      "category": "texture",
+      "collision": null,
+      "coordinates": {
+        "forward": null,
+        "unit": "not_spatial",
+        "up": null
+      },
+      "dependencies": {
+        "assets": [],
+        "resources": [],
+        "sources": []
+      },
+      "dimensions_m": null,
+      "gaps": [
+        "effective Godot triplanar/material mapping not captured"
+      ],
+      "hierarchy": null,
+      "id": "texture:textures/weapon_metal_normal",
+      "lods": null,
+      "materials": null,
+      "outputs": [
+        {
+          "path": "assets/textures/weapon_metal_normal.png",
+          "role": "resource"
+        }
+      ],
+      "pivots": null,
+      "preview": {
+        "fidelity": "original_file",
+        "mode": "resource_inspection",
+        "resource": "assets/textures/weapon_metal_normal.png"
+      },
+      "provenance": "original project generator; explicit license file not found",
+      "source": {
+        "editable": true,
+        "functions": [],
+        "git_blob_sha1": "ab4d1f4b93e58b36adc627e83f8360d43a92030e",
+        "kind": "python_recipe",
+        "path": "tools/generate_foley_textures.py"
+      },
+      "usage": "legacy_referenced",
+      "validation": {
+        "approved": false,
+        "evidence": [],
+        "godot_visual": "not_applicable",
+        "runtime": "pending",
+        "static": "inventory_only",
+        "studio_visual": "not_applicable"
+      }
+    },
+    {
+      "animations": null,
+      "bounds_m": null,
+      "budget": null,
+      "category": "texture",
+      "collision": null,
+      "coordinates": {
+        "forward": null,
+        "unit": "not_spatial",
+        "up": null
+      },
+      "dependencies": {
+        "assets": [],
+        "resources": [],
+        "sources": []
+      },
+      "dimensions_m": null,
+      "gaps": [
+        "effective Godot triplanar/material mapping not captured"
+      ],
+      "hierarchy": null,
+      "id": "texture:textures/weapon_polymer_albedo",
+      "lods": null,
+      "materials": null,
+      "outputs": [
+        {
+          "path": "assets/textures/weapon_polymer_albedo.png",
+          "role": "resource"
+        }
+      ],
+      "pivots": null,
+      "preview": {
+        "fidelity": "original_file",
+        "mode": "resource_inspection",
+        "resource": "assets/textures/weapon_polymer_albedo.png"
+      },
+      "provenance": "original project generator; explicit license file not found",
+      "source": {
+        "editable": true,
+        "functions": [],
+        "git_blob_sha1": "ab4d1f4b93e58b36adc627e83f8360d43a92030e",
+        "kind": "python_recipe",
+        "path": "tools/generate_foley_textures.py"
+      },
+      "usage": "legacy_referenced",
+      "validation": {
+        "approved": false,
+        "evidence": [],
+        "godot_visual": "not_applicable",
+        "runtime": "pending",
+        "static": "inventory_only",
+        "studio_visual": "not_applicable"
+      }
+    },
+    {
+      "animations": null,
+      "bounds_m": null,
+      "budget": null,
+      "category": "texture",
+      "collision": null,
+      "coordinates": {
+        "forward": null,
+        "unit": "not_spatial",
+        "up": null
+      },
+      "dependencies": {
+        "assets": [],
+        "resources": [],
+        "sources": []
+      },
+      "dimensions_m": null,
+      "gaps": [
+        "effective Godot triplanar/material mapping not captured"
+      ],
+      "hierarchy": null,
+      "id": "texture:textures/weapon_polymer_normal",
+      "lods": null,
+      "materials": null,
+      "outputs": [
+        {
+          "path": "assets/textures/weapon_polymer_normal.png",
+          "role": "resource"
+        }
+      ],
+      "pivots": null,
+      "preview": {
+        "fidelity": "original_file",
+        "mode": "resource_inspection",
+        "resource": "assets/textures/weapon_polymer_normal.png"
+      },
+      "provenance": "original project generator; explicit license file not found",
+      "source": {
+        "editable": true,
+        "functions": [],
+        "git_blob_sha1": "ab4d1f4b93e58b36adc627e83f8360d43a92030e",
+        "kind": "python_recipe",
+        "path": "tools/generate_foley_textures.py"
+      },
+      "usage": "legacy_referenced",
+      "validation": {
+        "approved": false,
+        "evidence": [],
+        "godot_visual": "not_applicable",
+        "runtime": "pending",
+        "static": "inventory_only",
+        "studio_visual": "not_applicable"
+      }
+    },
+    {
+      "animations": null,
+      "bounds_m": null,
+      "budget": null,
+      "category": "first_person",
+      "collision": null,
+      "coordinates": {
+        "forward": null,
+        "unit": "m",
+        "up": "+Y"
+      },
+      "dependencies": {
+        "assets": [
+          "weapon:bolt_sniper",
+          "weapon:lmg",
+          "weapon:pistol",
+          "weapon:rifle",
+          "weapon:sentinela",
+          "weapon:shotgun",
+          "weapon:smg",
+          "weapon:sniper",
+          "viewmodel:hands",
+          "viewmodel:attachments",
+          "effect:muzzle",
+          "effect:scope_overlay",
+          "material:weapon_overrides"
+        ],
+        "resources": [],
+        "sources": [
+          "scripts/weapon_pose.gd",
+          "scripts/weapon_materials.gd",
+          "scripts/model_surface.gd"
+        ]
+      },
+      "description": "GLBs separados, projeção, mãos e recursos construídos por código; helpers não necessariamente chamados.",
+      "dimensions_m": null,
+      "gaps": [
+        "no live engine capture",
+        "effective transforms/materials/geometry not measured"
+      ],
+      "hierarchy": null,
+      "id": "viewmodel:assembly",
+      "lods": null,
+      "materials": null,
+      "outputs": [],
+      "pivots": null,
+      "preview": {
+        "fidelity": "pending_capture",
+        "mode": "runtime_capture",
+        "resource": null
+      },
+      "provenance": "project code; explicit license file not found",
+      "source": {
+        "editable": true,
+        "functions": [
+          "_ready",
+          "_update_gun_mesh",
+          "_piece",
+          "_gun_box",
+          "_gun_tube"
+        ],
+        "git_blob_sha1": "5e92e5db95bba95e23e1c8de11b70bae3640d163",
+        "kind": "godot_recipe",
+        "path": "scripts/player.gd"
+      },
+      "usage": "active_with_legacy_helpers",
+      "validation": {
+        "approved": false,
+        "evidence": [],
+        "godot_visual": "pending",
+        "runtime": "pending",
+        "static": "inventory_only",
+        "studio_visual": "pending"
+      }
+    },
+    {
+      "animations": null,
+      "bounds_m": null,
+      "budget": null,
+      "category": "accessory",
+      "collision": null,
+      "coordinates": {
+        "forward": null,
+        "unit": "m",
+        "up": "+Y"
+      },
+      "dependencies": {
+        "assets": [],
+        "resources": [],
+        "sources": []
+      },
+      "description": "Ópticas e acessórios definidos no código; materiais e hierarquia runtime.",
+      "dimensions_m": null,
+      "gaps": [
+        "no live engine capture",
+        "effective transforms/materials/geometry not measured"
+      ],
+      "hierarchy": null,
+      "id": "viewmodel:attachments",
+      "lods": null,
+      "materials": null,
+      "outputs": [],
+      "pivots": null,
+      "preview": {
+        "fidelity": "pending_capture",
+        "mode": "runtime_capture",
+        "resource": null
+      },
+      "provenance": "project code; explicit license file not found",
+      "source": {
+        "editable": true,
+        "functions": [
+          "_build_attachment_models",
+          "_build_sniper_scope"
+        ],
+        "git_blob_sha1": "5e92e5db95bba95e23e1c8de11b70bae3640d163",
+        "kind": "godot_recipe",
+        "path": "scripts/player.gd"
+      },
+      "usage": "active",
+      "validation": {
+        "approved": false,
+        "evidence": [],
+        "godot_visual": "pending",
+        "runtime": "pending",
+        "static": "inventory_only",
+        "studio_visual": "pending"
+      }
+    },
+    {
+      "animations": null,
+      "bounds_m": null,
+      "budget": null,
+      "category": "character",
+      "collision": null,
+      "coordinates": {
+        "forward": null,
+        "unit": "m",
+        "up": "+Y"
+      },
+      "dependencies": {
+        "assets": [],
+        "resources": [],
+        "sources": []
+      },
+      "description": "Mãos, dedos, braços, luvas e juntas; poses procedurais.",
+      "dimensions_m": null,
+      "gaps": [
+        "no live engine capture",
+        "effective transforms/materials/geometry not measured"
+      ],
+      "hierarchy": null,
+      "id": "viewmodel:hands",
+      "lods": null,
+      "materials": null,
+      "outputs": [],
+      "pivots": null,
+      "preview": {
+        "fidelity": "pending_capture",
+        "mode": "runtime_capture",
+        "resource": null
+      },
+      "provenance": "project code; explicit license file not found",
+      "source": {
+        "editable": true,
+        "functions": [
+          "_arm_piece",
+          "_arm_link",
+          "_arm_capsule_link",
+          "_add_first_person_arm"
+        ],
+        "git_blob_sha1": "5e92e5db95bba95e23e1c8de11b70bae3640d163",
+        "kind": "godot_recipe",
+        "path": "scripts/player.gd"
+      },
+      "usage": "active",
+      "validation": {
+        "approved": false,
+        "evidence": [],
+        "godot_visual": "pending",
+        "runtime": "pending",
+        "static": "inventory_only",
+        "studio_visual": "pending"
+      }
+    },
+    {
+      "animations": null,
+      "bounds_m": null,
+      "budget": null,
+      "category": "weapon",
+      "collision": null,
+      "coordinates": {
+        "forward": "-Z",
+        "unit": "m",
+        "up": "+Y"
+      },
+      "dependencies": {
+        "assets": [
+          "material:weapon_overrides",
+          "viewmodel:hands",
+          "viewmodel:attachments"
+        ],
+        "resources": [
+          "assets/textures/weapon_metal_albedo.png",
+          "assets/textures/weapon_metal_normal.png",
+          "assets/textures/weapon_polymer_albedo.png",
+          "assets/textures/weapon_polymer_normal.png"
+        ],
+        "sources": [
+          "scripts/player.gd",
+          "scripts/enemy.gd",
+          "scripts/ally.gd",
+          "scripts/weapon_materials.gd"
+        ]
+      },
+      "dimensions_m": null,
+      "gaps": [
+        "GLB binary geometry and effective material/pose not inspected in engine",
+        "dimensions, pivots, hierarchy, animation and LOD not measured"
+      ],
+      "hierarchy": null,
+      "id": "weapon:bolt_sniper",
+      "lods": null,
+      "materials": {
+        "effective_source": "scripts/weapon_materials.gd",
+        "mode": "godot_override_pending_capture",
+        "texture_paths": [
+          "assets/textures/weapon_metal_albedo.png",
+          "assets/textures/weapon_metal_normal.png",
+          "assets/textures/weapon_polymer_albedo.png",
+          "assets/textures/weapon_polymer_normal.png"
+        ]
+      },
+      "outputs": [
+        {
+          "path": "assets/models/bolt_sniper.glb",
+          "role": "merged"
+        },
+        {
+          "path": "assets/models/bolt_sniper_action.glb",
+          "role": "action"
+        },
+        {
+          "path": "assets/models/bolt_sniper_body.glb",
+          "role": "body"
+        },
+        {
+          "path": "assets/models/bolt_sniper_mag.glb",
+          "role": "mag"
+        }
+      ],
+      "pivots": null,
+      "preview": {
+        "composition_asset": "viewmodel:assembly",
+        "fidelity": "raw_glb_only_until_runtime_capture",
+        "mode": "glb_and_runtime_composition",
+        "resource": "assets/models/bolt_sniper.glb"
+      },
+      "provenance": "original project generator; explicit license file not found",
+      "source": {
+        "editable": true,
+        "functions": [
+          "bolt_sniper"
+        ],
+        "git_blob_sha1": "0eeb80436b4675115abed0b3b88183978950de12",
+        "kind": "python_recipe",
+        "path": "tools/build_weapons.py"
+      },
+      "usage": "legacy_active",
+      "validation": {
+        "approved": false,
+        "evidence": [],
+        "godot_visual": "pending",
+        "runtime": "pending",
+        "static": "inventory_only",
+        "studio_visual": "pending"
+      }
+    },
+    {
+      "animations": null,
+      "bounds_m": null,
+      "budget": null,
+      "category": "weapon",
+      "collision": null,
+      "coordinates": {
+        "forward": "-Z",
+        "unit": "m",
+        "up": "+Y"
+      },
+      "dependencies": {
+        "assets": [
+          "material:weapon_overrides",
+          "viewmodel:hands",
+          "viewmodel:attachments"
+        ],
+        "resources": [
+          "assets/textures/weapon_metal_albedo.png",
+          "assets/textures/weapon_metal_normal.png",
+          "assets/textures/weapon_polymer_albedo.png",
+          "assets/textures/weapon_polymer_normal.png"
+        ],
+        "sources": [
+          "scripts/player.gd",
+          "scripts/enemy.gd",
+          "scripts/ally.gd",
+          "scripts/weapon_materials.gd"
+        ]
+      },
+      "dimensions_m": null,
+      "gaps": [
+        "GLB binary geometry and effective material/pose not inspected in engine",
+        "dimensions, pivots, hierarchy, animation and LOD not measured"
+      ],
+      "hierarchy": null,
+      "id": "weapon:lmg",
+      "lods": null,
+      "materials": {
+        "effective_source": "scripts/weapon_materials.gd",
+        "mode": "godot_override_pending_capture",
+        "texture_paths": [
+          "assets/textures/weapon_metal_albedo.png",
+          "assets/textures/weapon_metal_normal.png",
+          "assets/textures/weapon_polymer_albedo.png",
+          "assets/textures/weapon_polymer_normal.png"
+        ]
+      },
+      "outputs": [
+        {
+          "path": "assets/models/lmg.glb",
+          "role": "merged"
+        },
+        {
+          "path": "assets/models/lmg_action.glb",
+          "role": "action"
+        },
+        {
+          "path": "assets/models/lmg_body.glb",
+          "role": "body"
+        },
+        {
+          "path": "assets/models/lmg_mag.glb",
+          "role": "mag"
+        }
+      ],
+      "pivots": null,
+      "preview": {
+        "composition_asset": "viewmodel:assembly",
+        "fidelity": "raw_glb_only_until_runtime_capture",
+        "mode": "glb_and_runtime_composition",
+        "resource": "assets/models/lmg.glb"
+      },
+      "provenance": "original project generator; explicit license file not found",
+      "source": {
+        "editable": true,
+        "functions": [
+          "lmg"
+        ],
+        "git_blob_sha1": "0eeb80436b4675115abed0b3b88183978950de12",
+        "kind": "python_recipe",
+        "path": "tools/build_weapons.py"
+      },
+      "usage": "legacy_active",
+      "validation": {
+        "approved": false,
+        "evidence": [],
+        "godot_visual": "pending",
+        "runtime": "pending",
+        "static": "inventory_only",
+        "studio_visual": "pending"
+      }
+    },
+    {
+      "animations": null,
+      "bounds_m": null,
+      "budget": null,
+      "category": "weapon",
+      "collision": null,
+      "coordinates": {
+        "forward": "-Z",
+        "unit": "m",
+        "up": "+Y"
+      },
+      "dependencies": {
+        "assets": [
+          "material:weapon_overrides",
+          "viewmodel:hands",
+          "viewmodel:attachments"
+        ],
+        "resources": [
+          "assets/textures/weapon_metal_albedo.png",
+          "assets/textures/weapon_metal_normal.png",
+          "assets/textures/weapon_polymer_albedo.png",
+          "assets/textures/weapon_polymer_normal.png"
+        ],
+        "sources": [
+          "scripts/player.gd",
+          "scripts/enemy.gd",
+          "scripts/ally.gd",
+          "scripts/weapon_materials.gd"
+        ]
+      },
+      "dimensions_m": null,
+      "gaps": [
+        "GLB binary geometry and effective material/pose not inspected in engine",
+        "dimensions, pivots, hierarchy, animation and LOD not measured"
+      ],
+      "hierarchy": null,
+      "id": "weapon:pistol",
+      "lods": null,
+      "materials": {
+        "effective_source": "scripts/weapon_materials.gd",
+        "mode": "godot_override_pending_capture",
+        "texture_paths": [
+          "assets/textures/weapon_metal_albedo.png",
+          "assets/textures/weapon_metal_normal.png",
+          "assets/textures/weapon_polymer_albedo.png",
+          "assets/textures/weapon_polymer_normal.png"
+        ]
+      },
+      "outputs": [
+        {
+          "path": "assets/models/pistol.glb",
+          "role": "merged"
+        },
+        {
+          "path": "assets/models/pistol_action.glb",
+          "role": "action"
+        },
+        {
+          "path": "assets/models/pistol_body.glb",
+          "role": "body"
+        },
+        {
+          "path": "assets/models/pistol_mag.glb",
+          "role": "mag"
+        }
+      ],
+      "pivots": null,
+      "preview": {
+        "composition_asset": "viewmodel:assembly",
+        "fidelity": "raw_glb_only_until_runtime_capture",
+        "mode": "glb_and_runtime_composition",
+        "resource": "assets/models/pistol.glb"
+      },
+      "provenance": "original project generator; explicit license file not found",
+      "source": {
+        "editable": true,
+        "functions": [
+          "pistol"
+        ],
+        "git_blob_sha1": "0eeb80436b4675115abed0b3b88183978950de12",
+        "kind": "python_recipe",
+        "path": "tools/build_weapons.py"
+      },
+      "usage": "legacy_active",
+      "validation": {
+        "approved": false,
+        "evidence": [],
+        "godot_visual": "pending",
+        "runtime": "pending",
+        "static": "inventory_only",
+        "studio_visual": "pending"
+      }
+    },
+    {
+      "animations": null,
+      "bounds_m": null,
+      "budget": null,
+      "category": "weapon",
+      "collision": null,
+      "coordinates": {
+        "forward": "-Z",
+        "unit": "m",
+        "up": "+Y"
+      },
+      "dependencies": {
+        "assets": [
+          "material:weapon_overrides",
+          "viewmodel:hands",
+          "viewmodel:attachments"
+        ],
+        "resources": [
+          "assets/textures/weapon_metal_albedo.png",
+          "assets/textures/weapon_metal_normal.png",
+          "assets/textures/weapon_polymer_albedo.png",
+          "assets/textures/weapon_polymer_normal.png"
+        ],
+        "sources": [
+          "scripts/player.gd",
+          "scripts/enemy.gd",
+          "scripts/ally.gd",
+          "scripts/weapon_materials.gd"
+        ]
+      },
+      "dimensions_m": null,
+      "gaps": [
+        "GLB binary geometry and effective material/pose not inspected in engine",
+        "dimensions, pivots, hierarchy, animation and LOD not measured"
+      ],
+      "hierarchy": null,
+      "id": "weapon:rifle",
+      "lods": null,
+      "materials": {
+        "effective_source": "scripts/weapon_materials.gd",
+        "mode": "godot_override_pending_capture",
+        "texture_paths": [
+          "assets/textures/weapon_metal_albedo.png",
+          "assets/textures/weapon_metal_normal.png",
+          "assets/textures/weapon_polymer_albedo.png",
+          "assets/textures/weapon_polymer_normal.png"
+        ]
+      },
+      "outputs": [
+        {
+          "path": "assets/models/rifle.glb",
+          "role": "merged"
+        },
+        {
+          "path": "assets/models/rifle_action.glb",
+          "role": "action"
+        },
+        {
+          "path": "assets/models/rifle_body.glb",
+          "role": "body"
+        },
+        {
+          "path": "assets/models/rifle_mag.glb",
+          "role": "mag"
+        }
+      ],
+      "pivots": null,
+      "preview": {
+        "composition_asset": "viewmodel:assembly",
+        "fidelity": "raw_glb_only_until_runtime_capture",
+        "mode": "glb_and_runtime_composition",
+        "resource": "assets/models/rifle.glb"
+      },
+      "provenance": "original project generator; explicit license file not found",
+      "source": {
+        "editable": true,
+        "functions": [
+          "rifle"
+        ],
+        "git_blob_sha1": "0eeb80436b4675115abed0b3b88183978950de12",
+        "kind": "python_recipe",
+        "path": "tools/build_weapons.py"
+      },
+      "usage": "legacy_active",
+      "validation": {
+        "approved": false,
+        "evidence": [],
+        "godot_visual": "pending",
+        "runtime": "pending",
+        "static": "inventory_only",
+        "studio_visual": "pending"
+      }
+    },
+    {
+      "animations": null,
+      "bounds_m": null,
+      "budget": null,
+      "category": "weapon",
+      "collision": null,
+      "coordinates": {
+        "forward": "-Z",
+        "unit": "m",
+        "up": "+Y"
+      },
+      "dependencies": {
+        "assets": [
+          "material:weapon_overrides",
+          "viewmodel:hands",
+          "viewmodel:attachments"
+        ],
+        "resources": [
+          "assets/textures/weapon_metal_albedo.png",
+          "assets/textures/weapon_metal_normal.png",
+          "assets/textures/weapon_polymer_albedo.png",
+          "assets/textures/weapon_polymer_normal.png"
+        ],
+        "sources": [
+          "scripts/player.gd",
+          "scripts/enemy.gd",
+          "scripts/ally.gd",
+          "scripts/weapon_materials.gd"
+        ]
+      },
+      "dimensions_m": null,
+      "gaps": [
+        "GLB binary geometry and effective material/pose not inspected in engine",
+        "dimensions, pivots, hierarchy, animation and LOD not measured"
+      ],
+      "hierarchy": null,
+      "id": "weapon:sentinela",
+      "lods": null,
+      "materials": {
+        "effective_source": "scripts/weapon_materials.gd",
+        "mode": "godot_override_pending_capture",
+        "texture_paths": [
+          "assets/textures/weapon_metal_albedo.png",
+          "assets/textures/weapon_metal_normal.png",
+          "assets/textures/weapon_polymer_albedo.png",
+          "assets/textures/weapon_polymer_normal.png"
+        ]
+      },
+      "outputs": [
+        {
+          "path": "assets/models/sentinela.glb",
+          "role": "merged"
+        },
+        {
+          "path": "assets/models/sentinela_action.glb",
+          "role": "action"
+        },
+        {
+          "path": "assets/models/sentinela_body.glb",
+          "role": "body"
+        },
+        {
+          "path": "assets/models/sentinela_mag.glb",
+          "role": "mag"
+        }
+      ],
+      "pivots": null,
+      "preview": {
+        "composition_asset": "viewmodel:assembly",
+        "fidelity": "raw_glb_only_until_runtime_capture",
+        "mode": "glb_and_runtime_composition",
+        "resource": "assets/models/sentinela.glb"
+      },
+      "provenance": "original project generator; explicit license file not found",
+      "source": {
+        "editable": true,
+        "functions": [
+          "sentinela"
+        ],
+        "git_blob_sha1": "0eeb80436b4675115abed0b3b88183978950de12",
+        "kind": "python_recipe",
+        "path": "tools/build_weapons.py"
+      },
+      "usage": "legacy_active",
+      "validation": {
+        "approved": false,
+        "evidence": [],
+        "godot_visual": "pending",
+        "runtime": "pending",
+        "static": "inventory_only",
+        "studio_visual": "pending"
+      }
+    },
+    {
+      "animations": null,
+      "bounds_m": null,
+      "budget": null,
+      "category": "weapon",
+      "collision": null,
+      "coordinates": {
+        "forward": "-Z",
+        "unit": "m",
+        "up": "+Y"
+      },
+      "dependencies": {
+        "assets": [
+          "material:weapon_overrides",
+          "viewmodel:hands",
+          "viewmodel:attachments"
+        ],
+        "resources": [
+          "assets/textures/weapon_metal_albedo.png",
+          "assets/textures/weapon_metal_normal.png",
+          "assets/textures/weapon_polymer_albedo.png",
+          "assets/textures/weapon_polymer_normal.png"
+        ],
+        "sources": [
+          "scripts/player.gd",
+          "scripts/enemy.gd",
+          "scripts/ally.gd",
+          "scripts/weapon_materials.gd"
+        ]
+      },
+      "dimensions_m": null,
+      "gaps": [
+        "GLB binary geometry and effective material/pose not inspected in engine",
+        "dimensions, pivots, hierarchy, animation and LOD not measured"
+      ],
+      "hierarchy": null,
+      "id": "weapon:shotgun",
+      "lods": null,
+      "materials": {
+        "effective_source": "scripts/weapon_materials.gd",
+        "mode": "godot_override_pending_capture",
+        "texture_paths": [
+          "assets/textures/weapon_metal_albedo.png",
+          "assets/textures/weapon_metal_normal.png",
+          "assets/textures/weapon_polymer_albedo.png",
+          "assets/textures/weapon_polymer_normal.png"
+        ]
+      },
+      "outputs": [
+        {
+          "path": "assets/models/shotgun.glb",
+          "role": "merged"
+        },
+        {
+          "path": "assets/models/shotgun_action.glb",
+          "role": "action"
+        },
+        {
+          "path": "assets/models/shotgun_body.glb",
+          "role": "body"
+        }
+      ],
+      "pivots": null,
+      "preview": {
+        "composition_asset": "viewmodel:assembly",
+        "fidelity": "raw_glb_only_until_runtime_capture",
+        "mode": "glb_and_runtime_composition",
+        "resource": "assets/models/shotgun.glb"
+      },
+      "provenance": "original project generator; explicit license file not found",
+      "source": {
+        "editable": true,
+        "functions": [
+          "shotgun"
+        ],
+        "git_blob_sha1": "0eeb80436b4675115abed0b3b88183978950de12",
+        "kind": "python_recipe",
+        "path": "tools/build_weapons.py"
+      },
+      "usage": "legacy_active",
+      "validation": {
+        "approved": false,
+        "evidence": [],
+        "godot_visual": "pending",
+        "runtime": "pending",
+        "static": "inventory_only",
+        "studio_visual": "pending"
+      }
+    },
+    {
+      "animations": null,
+      "bounds_m": null,
+      "budget": null,
+      "category": "weapon",
+      "collision": null,
+      "coordinates": {
+        "forward": "-Z",
+        "unit": "m",
+        "up": "+Y"
+      },
+      "dependencies": {
+        "assets": [
+          "material:weapon_overrides",
+          "viewmodel:hands",
+          "viewmodel:attachments"
+        ],
+        "resources": [
+          "assets/textures/weapon_metal_albedo.png",
+          "assets/textures/weapon_metal_normal.png",
+          "assets/textures/weapon_polymer_albedo.png",
+          "assets/textures/weapon_polymer_normal.png"
+        ],
+        "sources": [
+          "scripts/player.gd",
+          "scripts/enemy.gd",
+          "scripts/ally.gd",
+          "scripts/weapon_materials.gd"
+        ]
+      },
+      "dimensions_m": null,
+      "gaps": [
+        "GLB binary geometry and effective material/pose not inspected in engine",
+        "dimensions, pivots, hierarchy, animation and LOD not measured"
+      ],
+      "hierarchy": null,
+      "id": "weapon:smg",
+      "lods": null,
+      "materials": {
+        "effective_source": "scripts/weapon_materials.gd",
+        "mode": "godot_override_pending_capture",
+        "texture_paths": [
+          "assets/textures/weapon_metal_albedo.png",
+          "assets/textures/weapon_metal_normal.png",
+          "assets/textures/weapon_polymer_albedo.png",
+          "assets/textures/weapon_polymer_normal.png"
+        ]
+      },
+      "outputs": [
+        {
+          "path": "assets/models/smg.glb",
+          "role": "merged"
+        },
+        {
+          "path": "assets/models/smg_action.glb",
+          "role": "action"
+        },
+        {
+          "path": "assets/models/smg_body.glb",
+          "role": "body"
+        },
+        {
+          "path": "assets/models/smg_mag.glb",
+          "role": "mag"
+        }
+      ],
+      "pivots": null,
+      "preview": {
+        "composition_asset": "viewmodel:assembly",
+        "fidelity": "raw_glb_only_until_runtime_capture",
+        "mode": "glb_and_runtime_composition",
+        "resource": "assets/models/smg.glb"
+      },
+      "provenance": "original project generator; explicit license file not found",
+      "source": {
+        "editable": true,
+        "functions": [
+          "smg"
+        ],
+        "git_blob_sha1": "0eeb80436b4675115abed0b3b88183978950de12",
+        "kind": "python_recipe",
+        "path": "tools/build_weapons.py"
+      },
+      "usage": "legacy_active",
+      "validation": {
+        "approved": false,
+        "evidence": [],
+        "godot_visual": "pending",
+        "runtime": "pending",
+        "static": "inventory_only",
+        "studio_visual": "pending"
+      }
+    },
+    {
+      "animations": null,
+      "bounds_m": null,
+      "budget": null,
+      "category": "weapon",
+      "collision": null,
+      "coordinates": {
+        "forward": "-Z",
+        "unit": "m",
+        "up": "+Y"
+      },
+      "dependencies": {
+        "assets": [
+          "material:weapon_overrides",
+          "viewmodel:hands",
+          "viewmodel:attachments"
+        ],
+        "resources": [
+          "assets/textures/weapon_metal_albedo.png",
+          "assets/textures/weapon_metal_normal.png",
+          "assets/textures/weapon_polymer_albedo.png",
+          "assets/textures/weapon_polymer_normal.png"
+        ],
+        "sources": [
+          "scripts/player.gd",
+          "scripts/enemy.gd",
+          "scripts/ally.gd",
+          "scripts/weapon_materials.gd"
+        ]
+      },
+      "dimensions_m": null,
+      "gaps": [
+        "GLB binary geometry and effective material/pose not inspected in engine",
+        "dimensions, pivots, hierarchy, animation and LOD not measured"
+      ],
+      "hierarchy": null,
+      "id": "weapon:sniper",
+      "lods": null,
+      "materials": {
+        "effective_source": "scripts/weapon_materials.gd",
+        "mode": "godot_override_pending_capture",
+        "texture_paths": [
+          "assets/textures/weapon_metal_albedo.png",
+          "assets/textures/weapon_metal_normal.png",
+          "assets/textures/weapon_polymer_albedo.png",
+          "assets/textures/weapon_polymer_normal.png"
+        ]
+      },
+      "outputs": [
+        {
+          "path": "assets/models/sniper.glb",
+          "role": "merged"
+        },
+        {
+          "path": "assets/models/sniper_action.glb",
+          "role": "action"
+        },
+        {
+          "path": "assets/models/sniper_body.glb",
+          "role": "body"
+        },
+        {
+          "path": "assets/models/sniper_mag.glb",
+          "role": "mag"
+        }
+      ],
+      "pivots": null,
+      "preview": {
+        "composition_asset": "viewmodel:assembly",
+        "fidelity": "raw_glb_only_until_runtime_capture",
+        "mode": "glb_and_runtime_composition",
+        "resource": "assets/models/sniper.glb"
+      },
+      "provenance": "original project generator; explicit license file not found",
+      "source": {
+        "editable": true,
+        "functions": [
+          "sniper"
+        ],
+        "git_blob_sha1": "0eeb80436b4675115abed0b3b88183978950de12",
+        "kind": "python_recipe",
+        "path": "tools/build_weapons.py"
+      },
+      "usage": "legacy_active",
+      "validation": {
+        "approved": false,
+        "evidence": [],
+        "godot_visual": "pending",
+        "runtime": "pending",
+        "static": "inventory_only",
+        "studio_visual": "pending"
+      }
+    }
+  ],
+  "baseline_commit": "5b47000bdb82f15e6cfda6227d785e4c2e3584fd",
+  "baseline_tree": "20a000ba1c77e7b99001e98dc16b197daab175e6",
+  "coordinate_system": {
+    "angle": "rad",
+    "blender_authoring": {
+      "conversion": "[x,z,-y]",
+      "forward": "+Y",
+      "up": "+Z"
+    },
+    "camera_forward": "-Z",
+    "gltf": "preserve imported basis; category front explicit; no blanket rotation",
+    "handedness": "right",
+    "matrix_composition": "parent_world * local",
+    "matrix_layout": "column_major",
+    "quaternion_order": "xyzw",
+    "right": "+X",
+    "unit": "m",
+    "up": "+Y"
+  },
+  "coverage": "static_baseline_only",
+  "dependencies": {
+    "ci": {
+      "baseline_result": "failure at arsenal QA; subsequent render/export skipped",
+      "latest_baseline_run": 45412943170,
+      "rendering": "OpenGL3 via Xvfb on Linux; export templates Windows; git, GitHub Actions",
+      "workflows": [
+        ".github/workflows/windows-build.yml",
+        ".github/workflows/windows-survival-qa.yml"
+      ]
+    },
+    "external_provenance": [
+      {
+        "asset": "assets/characters/quaternius_base_male.glb",
+        "document": "docs/ASSET_QUATERNIUS_CC0.md",
+        "license": "CC0 stated in project documentation"
+      },
+      {
+        "asset": "assets/audio/explosions/grenade.ogg",
+        "document": "docs/ASSET_EXPLOSION_CC0.md",
+        "license": "CC0 stated in project documentation",
+        "verified_blob": "019e53664abf859fc5529f95d0db23fa3ac1e42d"
+      }
+    ],
+    "future_not_installed": [
+      "Blender Python backend",
+      "Three.js and GLTFLoader",
+      "Asset Studio"
+    ],
+    "generation": {
+      "lockfile": "not present; dependency ranges are not full reproducibility",
+      "packages": [
+        "numpy>=2.0,<2.5",
+        "trimesh==4.11.1",
+        "scipy>=1.11,<1.18",
+        "pillow>=10,<13"
+      ],
+      "python": "3.11",
+      "tools": [
+        "tools/build_weapons.py",
+        "tools/generate_foley_textures.py",
+        "tools/verify_project.py"
+      ]
+    },
+    "runtime": {
+      "autoload": "scripts/game_settings.gd",
+      "baseline_release_workflow_engine": "4.4.1",
+      "engine": "Godot 4.x Compatibility",
+      "entry_scene": "scenes/main.tscn",
+      "external_runtime_downloads": "none identified for 3D assets; game uses bundled resources",
+      "resolution": "1280x720",
+      "windows_15_wave_workflow_engine": "4.6.3"
+    }
+  },
+  "kind": "frontline_asset_manifest",
+  "known_dynamic_gaps": [
+    {
+      "absent": [
+        "assets/models/shotgun_mag.glb"
+      ],
+      "note": "shotgun_mag ausente por design; ResourceLoader.exists controla as variantes.",
+      "pattern": "assets/models/%s_%s.glb",
+      "source": "scripts/player.gd"
+    },
+    {
+      "absent": [
+        "assets/audio/reloads/bolt_sniper.wav",
+        "assets/audio/reloads/sentinela.wav",
+        "assets/audio/reloads/sniper.wav"
+      ],
+      "note": "Enemy reload uses ResourceLoader.exists before load; candidates include all eight IDs conservatively, not actual NPC loadout reachability. Player WeaponAudio maps precision weapons to shared rifle recordings. Missing candidates are not proven runtime errors.",
+      "pattern": "assets/audio/reloads/%s.wav",
+      "source": "scripts/enemy.gd"
+    }
+  ],
+  "migration": {
+    "baseline_is_not_live_catalog": true,
+    "mode": "additive",
+    "runtime_capture": "pending",
+    "visual_approval": "none"
+  },
+  "resources": {
+    "assets/audio/explosions/grenade.ogg": {
+      "bytes": 28274,
+      "category": "audio",
+      "consumers": [
+        "scripts/frag_grenade.gd:55",
+        "scripts/frag_grenade.gd:56"
+      ],
+      "git_blob_sha1": "019e53664abf859fc5529f95d0db23fa3ac1e42d",
+      "provenance": "CC0 per docs/ASSET_EXPLOSION_CC0.md",
+      "source_hint": "docs/ASSET_EXPLOSION_CC0.md",
+      "usage": "referenced"
+    },
+    "assets/audio/reloads/lmg.wav": {
+      "bytes": 161008,
+      "category": "audio",
+      "consumers": [
+        "scripts/weapon_audio.gd:20",
+        "scripts/enemy.gd:270"
+      ],
+      "git_blob_sha1": "c606addcd35fa5106acd65e727cc2e0ee0ccdfa4",
+      "provenance": "recording provenance/license to verify",
+      "source_hint": "assets/audio/reloads/lmg.wav",
+      "usage": "referenced"
+    },
+    "assets/audio/reloads/lmg.wav.import": {
+      "bytes": 319,
+      "category": "import_metadata",
+      "consumers": [],
+      "git_blob_sha1": "d11ef9c496d86ef9e872f7d791a3ad93f083902c",
+      "provenance": "not_separate_asset",
+      "source_hint": "assets/audio/reloads/lmg.wav",
+      "usage": "tracked_import_metadata"
+    },
+    "assets/audio/reloads/pistol.wav": {
+      "bytes": 55168,
+      "category": "audio",
+      "consumers": [
+        "scripts/weapon_audio.gd:16",
+        "scripts/enemy.gd:270"
+      ],
+      "git_blob_sha1": "ff132f31adb171db93c794891a387725dc7797bb",
+      "provenance": "recording provenance/license to verify",
+      "source_hint": "assets/audio/reloads/pistol.wav",
+      "usage": "referenced"
+    },
+    "assets/audio/reloads/pistol.wav.import": {
+      "bytes": 328,
+      "category": "import_metadata",
+      "consumers": [],
+      "git_blob_sha1": "317d3022ef24ad7244f3732bb72605db9da89a0a",
+      "provenance": "not_separate_asset",
+      "source_hint": "assets/audio/reloads/pistol.wav",
+      "usage": "tracked_import_metadata"
+    },
+    "assets/audio/reloads/rifle.wav": {
+      "bytes": 86040,
+      "category": "audio",
+      "consumers": [
+        "scripts/weapon_audio.gd:15",
+        "scripts/weapon_audio.gd:18",
+        "scripts/weapon_audio.gd:21",
+        "scripts/weapon_audio.gd:22",
+        "scripts/enemy.gd:270"
+      ],
+      "git_blob_sha1": "e48adef89e22d5749ddffd59bdf0e93f6d96425e",
+      "provenance": "recording provenance/license to verify",
+      "source_hint": "assets/audio/reloads/rifle.wav",
+      "usage": "referenced"
+    },
+    "assets/audio/reloads/rifle.wav.import": {
+      "bytes": 325,
+      "category": "import_metadata",
+      "consumers": [],
+      "git_blob_sha1": "2d1daca1b47c3e0623f66530f1dc4d5a0ff3a272",
+      "provenance": "not_separate_asset",
+      "source_hint": "assets/audio/reloads/rifle.wav",
+      "usage": "tracked_import_metadata"
+    },
+    "assets/audio/reloads/shotgun.wav": {
+      "bytes": 94860,
+      "category": "audio",
+      "consumers": [
+        "scripts/weapon_audio.gd:19",
+        "scripts/enemy.gd:270"
+      ],
+      "git_blob_sha1": "b3cbdd4a1890083d45e75f24ddf1f15d2b55eb8f",
+      "provenance": "recording provenance/license to verify",
+      "source_hint": "assets/audio/reloads/shotgun.wav",
+      "usage": "referenced"
+    },
+    "assets/audio/reloads/shotgun.wav.import": {
+      "bytes": 331,
+      "category": "import_metadata",
+      "consumers": [],
+      "git_blob_sha1": "e1c5eb3a0660274774808bb72c993fbcd1781aa0",
+      "provenance": "not_separate_asset",
+      "source_hint": "assets/audio/reloads/shotgun.wav",
+      "usage": "tracked_import_metadata"
+    },
+    "assets/audio/reloads/smg.wav": {
+      "bytes": 75014,
+      "category": "audio",
+      "consumers": [
+        "scripts/weapon_audio.gd:17",
+        "scripts/enemy.gd:270"
+      ],
+      "git_blob_sha1": "c4d9c5eed2018d328a5ed6bda93021c86f050445",
+      "provenance": "recording provenance/license to verify",
+      "source_hint": "assets/audio/reloads/smg.wav",
+      "usage": "referenced"
+    },
+    "assets/audio/reloads/smg.wav.import": {
+      "bytes": 319,
+      "category": "import_metadata",
+      "consumers": [],
+      "git_blob_sha1": "50359147cf0dee8c937d09707c962112fa84cce3",
+      "provenance": "not_separate_asset",
+      "source_hint": "assets/audio/reloads/smg.wav",
+      "usage": "tracked_import_metadata"
+    },
+    "assets/audio/weapons/lmg.wav": {
+      "bytes": 68574,
+      "category": "audio",
+      "consumers": [
+        "scripts/weapon_audio.gd:9"
+      ],
+      "git_blob_sha1": "330fc2e4c258154f02b265f6b0e59ffa9b3d6c14",
+      "provenance": "recording provenance/license to verify",
+      "source_hint": "assets/audio/weapons/lmg.wav",
+      "usage": "referenced"
+    },
+    "assets/audio/weapons/lmg.wav.import": {
+      "bytes": 318,
+      "category": "import_metadata",
+      "consumers": [],
+      "git_blob_sha1": "f9326c0fc952210a33a35007cfcbaa99e2b27c7e",
+      "provenance": "not_separate_asset",
+      "source_hint": "assets/audio/weapons/lmg.wav",
+      "usage": "tracked_import_metadata"
+    },
+    "assets/audio/weapons/pistol.wav": {
+      "bytes": 64334,
+      "category": "audio",
+      "consumers": [
+        "scripts/weapon_audio.gd:5"
+      ],
+      "git_blob_sha1": "e78e7b9251bd8bfe95011c08675deaa9a5b83ffd",
+      "provenance": "recording provenance/license to verify",
+      "source_hint": "assets/audio/weapons/pistol.wav",
+      "usage": "referenced"
+    },
+    "assets/audio/weapons/pistol.wav.import": {
+      "bytes": 327,
+      "category": "import_metadata",
+      "consumers": [],
+      "git_blob_sha1": "347f9da9328757701f9225f76c196cba13c68630",
+      "provenance": "not_separate_asset",
+      "source_hint": "assets/audio/weapons/pistol.wav",
+      "usage": "tracked_import_metadata"
+    },
+    "assets/audio/weapons/rifle.wav": {
+      "bytes": 68574,
+      "category": "audio",
+      "consumers": [
+        "scripts/weapon_audio.gd:4",
+        "scripts/weapon_audio.gd:7",
+        "scripts/weapon_audio.gd:10",
+        "scripts/weapon_audio.gd:11"
+      ],
+      "git_blob_sha1": "21f525dfa2d06bbe549222d93a0cd4f60cd96df4",
+      "provenance": "recording provenance/license to verify",
+      "source_hint": "assets/audio/weapons/rifle.wav",
+      "usage": "referenced"
+    },
+    "assets/audio/weapons/rifle.wav.import": {
+      "bytes": 325,
+      "category": "import_metadata",
+      "consumers": [],
+      "git_blob_sha1": "d726f8ac0595e66050b4908d36d11233d862c9a6",
+      "provenance": "not_separate_asset",
+      "source_hint": "assets/audio/weapons/rifle.wav",
+      "usage": "tracked_import_metadata"
+    },
+    "assets/audio/weapons/shotgun.wav": {
+      "bytes": 68574,
+      "category": "audio",
+      "consumers": [
+        "scripts/weapon_audio.gd:8"
+      ],
+      "git_blob_sha1": "2d20058ef430b3b3866f997ea59d264bb5ac1950",
+      "provenance": "recording provenance/license to verify",
+      "source_hint": "assets/audio/weapons/shotgun.wav",
+      "usage": "referenced"
+    },
+    "assets/audio/weapons/shotgun.wav.import": {
+      "bytes": 331,
+      "category": "import_metadata",
+      "consumers": [],
+      "git_blob_sha1": "647fe251397aa57a3d31aadf148add2c5098179b",
+      "provenance": "not_separate_asset",
+      "source_hint": "assets/audio/weapons/shotgun.wav",
+      "usage": "tracked_import_metadata"
+    },
+    "assets/audio/weapons/smg.wav": {
+      "bytes": 29198,
+      "category": "audio",
+      "consumers": [
+        "scripts/weapon_audio.gd:6"
+      ],
+      "git_blob_sha1": "c7dc9f1d63ac8c80b3130e9d5b2a2c6719afd4b6",
+      "provenance": "recording provenance/license to verify",
+      "source_hint": "assets/audio/weapons/smg.wav",
+      "usage": "referenced"
+    },
+    "assets/audio/weapons/smg.wav.import": {
+      "bytes": 319,
+      "category": "import_metadata",
+      "consumers": [],
+      "git_blob_sha1": "0a4ae61b0ce3ce8cf25b755b21a06acfd2df15fa",
+      "provenance": "not_separate_asset",
+      "source_hint": "assets/audio/weapons/smg.wav",
+      "usage": "tracked_import_metadata"
+    },
+    "assets/characters/quaternius_base_male.glb": {
+      "bytes": 741320,
+      "category": "character_mesh",
+      "consumers": [
+        "scripts/quaternius_soldier_visual.gd:6"
+      ],
+      "git_blob_sha1": "b3fd79533fdb9fcedd077744f7e120920eb6cc97",
+      "provenance": "CC0 per docs/ASSET_QUATERNIUS_CC0.md",
+      "source_hint": "assets/characters/quaternius_base_male.glb",
+      "usage": "experimental_disabled"
+    },
+    "assets/models/bolt_sniper.glb": {
+      "bytes": 38048,
+      "category": "weapon_mesh",
+      "consumers": [
+        "scripts/enemy.gd:246",
+        "scripts/loot_pickup.gd:21"
+      ],
+      "git_blob_sha1": "2f23568758866f60caa0c854be246eec2c324e88",
+      "provenance": "original project generator; explicit license file not found",
+      "source_hint": "tools/build_weapons.py",
+      "usage": "referenced"
+    },
+    "assets/models/bolt_sniper_action.glb": {
+      "bytes": 3960,
+      "category": "weapon_mesh",
+      "consumers": [
+        "scripts/player.gd:948"
+      ],
+      "git_blob_sha1": "4560ce6c97b63c65052728237f22c63fcf73ff63",
+      "provenance": "original project generator; explicit license file not found",
+      "source_hint": "tools/build_weapons.py",
+      "usage": "referenced"
+    },
+    "assets/models/bolt_sniper_body.glb": {
+      "bytes": 32604,
+      "category": "weapon_mesh",
+      "consumers": [
+        "scripts/player.gd:948"
+      ],
+      "git_blob_sha1": "9533d5ffdf879e69bad86d0c1581656e214baa1e",
+      "provenance": "original project generator; explicit license file not found",
+      "source_hint": "tools/build_weapons.py",
+      "usage": "referenced"
+    },
+    "assets/models/bolt_sniper_mag.glb": {
+      "bytes": 3452,
+      "category": "weapon_mesh",
+      "consumers": [
+        "scripts/player.gd:948"
+      ],
+      "git_blob_sha1": "33b5e8d3bbc5f028f9273becbb09152033a36ed5",
+      "provenance": "original project generator; explicit license file not found",
+      "source_hint": "tools/build_weapons.py",
+      "usage": "referenced"
+    },
+    "assets/models/lmg.glb": {
+      "bytes": 60548,
+      "category": "weapon_mesh",
+      "consumers": [
+        "scripts/enemy.gd:246",
+        "scripts/loot_pickup.gd:21"
+      ],
+      "git_blob_sha1": "59b755a277319eacb9585b285acb80905ecd9bc9",
+      "provenance": "original project generator; explicit license file not found",
+      "source_hint": "tools/build_weapons.py",
+      "usage": "referenced"
+    },
+    "assets/models/lmg_action.glb": {
+      "bytes": 2216,
+      "category": "weapon_mesh",
+      "consumers": [
+        "scripts/player.gd:948"
+      ],
+      "git_blob_sha1": "e653ac7eaecde298abfb992525b51eda8e0f06f7",
+      "provenance": "original project generator; explicit license file not found",
+      "source_hint": "tools/build_weapons.py",
+      "usage": "referenced"
+    },
+    "assets/models/lmg_body.glb": {
+      "bytes": 56052,
+      "category": "weapon_mesh",
+      "consumers": [
+        "scripts/player.gd:948"
+      ],
+      "git_blob_sha1": "03f70c208a7e63ebb14836fddb3f9cdc748f4e04",
+      "provenance": "original project generator; explicit license file not found",
+      "source_hint": "tools/build_weapons.py",
+      "usage": "referenced"
+    },
+    "assets/models/lmg_mag.glb": {
+      "bytes": 4248,
+      "category": "weapon_mesh",
+      "consumers": [
+        "scripts/player.gd:948"
+      ],
+      "git_blob_sha1": "7a03189cffbf82468c37244fd3bcf46231ba153f",
+      "provenance": "original project generator; explicit license file not found",
+      "source_hint": "tools/build_weapons.py",
+      "usage": "referenced"
+    },
+    "assets/models/pistol.glb": {
+      "bytes": 58712,
+      "category": "weapon_mesh",
+      "consumers": [
+        "scripts/enemy.gd:246",
+        "scripts/loot_pickup.gd:21"
+      ],
+      "git_blob_sha1": "c2a563e5d7b2133512a325039e4b582cbf957c47",
+      "provenance": "original project generator; explicit license file not found",
+      "source_hint": "tools/build_weapons.py",
+      "usage": "referenced"
+    },
+    "assets/models/pistol_action.glb": {
+      "bytes": 30068,
+      "category": "weapon_mesh",
+      "consumers": [
+        "scripts/player.gd:948"
+      ],
+      "git_blob_sha1": "ce95c2e28ccbcc0d02b8091a9bb38a0ba9ac8203",
+      "provenance": "original project generator; explicit license file not found",
+      "source_hint": "tools/build_weapons.py",
+      "usage": "referenced"
+    },
+    "assets/models/pistol_body.glb": {
+      "bytes": 27172,
+      "category": "weapon_mesh",
+      "consumers": [
+        "scripts/player.gd:948"
+      ],
+      "git_blob_sha1": "b08c276d65e33016422d41507b0091ea02b1dee0",
+      "provenance": "original project generator; explicit license file not found",
+      "source_hint": "tools/build_weapons.py",
+      "usage": "referenced"
+    },
+    "assets/models/pistol_mag.glb": {
+      "bytes": 3448,
+      "category": "weapon_mesh",
+      "consumers": [
+        "scripts/player.gd:948"
+      ],
+      "git_blob_sha1": "a74bac5dc046f02f09e31054b4896fbaa629796b",
+      "provenance": "original project generator; explicit license file not found",
+      "source_hint": "tools/build_weapons.py",
+      "usage": "referenced"
+    },
+    "assets/models/rifle.glb": {
+      "bytes": 94716,
+      "category": "weapon_mesh",
+      "consumers": [
+        "scripts/ally.gd:131",
+        "scripts/enemy.gd:246",
+        "scripts/loot_pickup.gd:21"
+      ],
+      "git_blob_sha1": "ae9c934f9e71d2e7a3912d30b55a88439b5cdb17",
+      "provenance": "original project generator; explicit license file not found",
+      "source_hint": "tools/build_weapons.py",
+      "usage": "referenced"
+    },
+    "assets/models/rifle_action.glb": {
+      "bytes": 2216,
+      "category": "weapon_mesh",
+      "consumers": [
+        "scripts/player.gd:948"
+      ],
+      "git_blob_sha1": "53071428056833783958d6743890d11bced24af7",
+      "provenance": "original project generator; explicit license file not found",
+      "source_hint": "tools/build_weapons.py",
+      "usage": "referenced"
+    },
+    "assets/models/rifle_body.glb": {
+      "bytes": 52460,
+      "category": "weapon_mesh",
+      "consumers": [
+        "scripts/player.gd:948"
+      ],
+      "git_blob_sha1": "cdf394ef347f6d8cbe16abf2650309e91af81f1d",
+      "provenance": "original project generator; explicit license file not found",
+      "source_hint": "tools/build_weapons.py",
+      "usage": "referenced"
+    },
+    "assets/models/rifle_mag.glb": {
+      "bytes": 42020,
+      "category": "weapon_mesh",
+      "consumers": [
+        "scripts/player.gd:948"
+      ],
+      "git_blob_sha1": "4953d3490d796e3dbbd968b44c7249e205e080fe",
+      "provenance": "original project generator; explicit license file not found",
+      "source_hint": "tools/build_weapons.py",
+      "usage": "referenced"
+    },
+    "assets/models/sentinela.glb": {
+      "bytes": 19296,
+      "category": "weapon_mesh",
+      "consumers": [
+        "scripts/enemy.gd:246",
+        "scripts/loot_pickup.gd:21"
+      ],
+      "git_blob_sha1": "bca77f8355a1f9aa6e341c2bf7bf0b02829b1854",
+      "provenance": "original project generator; explicit license file not found",
+      "source_hint": "tools/build_weapons.py",
+      "usage": "referenced"
+    },
+    "assets/models/sentinela_action.glb": {
+      "bytes": 1812,
+      "category": "weapon_mesh",
+      "consumers": [
+        "scripts/player.gd:948"
+      ],
+      "git_blob_sha1": "538a8a72077b4380551cfa48039fb2bbf16ae4bf",
+      "provenance": "original project generator; explicit license file not found",
+      "source_hint": "tools/build_weapons.py",
+      "usage": "referenced"
+    },
+    "assets/models/sentinela_body.glb": {
+      "bytes": 17308,
+      "category": "weapon_mesh",
+      "consumers": [
+        "scripts/player.gd:948"
+      ],
+      "git_blob_sha1": "223fbf02c693e1650158e3b8ee622f9db237f1c4",
+      "provenance": "original project generator; explicit license file not found",
+      "source_hint": "tools/build_weapons.py",
+      "usage": "referenced"
+    },
+    "assets/models/sentinela_mag.glb": {
+      "bytes": 2216,
+      "category": "weapon_mesh",
+      "consumers": [
+        "scripts/player.gd:948"
+      ],
+      "git_blob_sha1": "1a0d82e81fd28cd2ef92f5619c54cdd3a21194d1",
+      "provenance": "original project generator; explicit license file not found",
+      "source_hint": "tools/build_weapons.py",
+      "usage": "referenced"
+    },
+    "assets/models/shotgun.glb": {
+      "bytes": 42932,
+      "category": "weapon_mesh",
+      "consumers": [
+        "scripts/enemy.gd:246",
+        "scripts/loot_pickup.gd:21"
+      ],
+      "git_blob_sha1": "411c75ece18e2946cd194679dce8ec77975086f4",
+      "provenance": "original project generator; explicit license file not found",
+      "source_hint": "tools/build_weapons.py",
+      "usage": "referenced"
+    },
+    "assets/models/shotgun_action.glb": {
+      "bytes": 13312,
+      "category": "weapon_mesh",
+      "consumers": [
+        "scripts/player.gd:948"
+      ],
+      "git_blob_sha1": "4c70cf443b2bfb14f60345c5571585eb94484a98",
+      "provenance": "original project generator; explicit license file not found",
+      "source_hint": "tools/build_weapons.py",
+      "usage": "referenced"
+    },
+    "assets/models/shotgun_body.glb": {
+      "bytes": 30608,
+      "category": "weapon_mesh",
+      "consumers": [
+        "scripts/player.gd:948"
+      ],
+      "git_blob_sha1": "f2468dd86cf571286d721b2f042286a16fbb1005",
+      "provenance": "original project generator; explicit license file not found",
+      "source_hint": "tools/build_weapons.py",
+      "usage": "referenced"
+    },
+    "assets/models/smg.glb": {
+      "bytes": 51332,
+      "category": "weapon_mesh",
+      "consumers": [
+        "scripts/enemy.gd:246",
+        "scripts/loot_pickup.gd:21"
+      ],
+      "git_blob_sha1": "b2a8369ebff2d40074536ac046753618aee1472d",
+      "provenance": "original project generator; explicit license file not found",
+      "source_hint": "tools/build_weapons.py",
+      "usage": "referenced"
+    },
+    "assets/models/smg_action.glb": {
+      "bytes": 2216,
+      "category": "weapon_mesh",
+      "consumers": [
+        "scripts/player.gd:948"
+      ],
+      "git_blob_sha1": "2035f03f15f0ab98fc6036b71dc6677e097ee0a3",
+      "provenance": "original project generator; explicit license file not found",
+      "source_hint": "tools/build_weapons.py",
+      "usage": "referenced"
+    },
+    "assets/models/smg_body.glb": {
+      "bytes": 47636,
+      "category": "weapon_mesh",
+      "consumers": [
+        "scripts/player.gd:948"
+      ],
+      "git_blob_sha1": "38c44767e9add17af1d7ff256a12296c1c456047",
+      "provenance": "original project generator; explicit license file not found",
+      "source_hint": "tools/build_weapons.py",
+      "usage": "referenced"
+    },
+    "assets/models/smg_mag.glb": {
+      "bytes": 3452,
+      "category": "weapon_mesh",
+      "consumers": [
+        "scripts/player.gd:948"
+      ],
+      "git_blob_sha1": "da4a768183b9c12e4fba2c45ba234c8c518831fc",
+      "provenance": "original project generator; explicit license file not found",
+      "source_hint": "tools/build_weapons.py",
+      "usage": "referenced"
+    },
+    "assets/models/sniper.glb": {
+      "bytes": 46516,
+      "category": "weapon_mesh",
+      "consumers": [
+        "scripts/enemy.gd:246",
+        "scripts/loot_pickup.gd:21"
+      ],
+      "git_blob_sha1": "d86b2cf8e998386c508cf75d232060471d23db1e",
+      "provenance": "original project generator; explicit license file not found",
+      "source_hint": "tools/build_weapons.py",
+      "usage": "referenced"
+    },
+    "assets/models/sniper_action.glb": {
+      "bytes": 2216,
+      "category": "weapon_mesh",
+      "consumers": [
+        "scripts/player.gd:948"
+      ],
+      "git_blob_sha1": "5a190fbb1d6734748d546b8f0f1c8008673dfd98",
+      "provenance": "original project generator; explicit license file not found",
+      "source_hint": "tools/build_weapons.py",
+      "usage": "referenced"
+    },
+    "assets/models/sniper_body.glb": {
+      "bytes": 42820,
+      "category": "weapon_mesh",
+      "consumers": [
+        "scripts/player.gd:948"
+      ],
+      "git_blob_sha1": "c8ce42dc4e3d231b2676a28d11bc58c8b4495a1b",
+      "provenance": "original project generator; explicit license file not found",
+      "source_hint": "tools/build_weapons.py",
+      "usage": "referenced"
+    },
+    "assets/models/sniper_mag.glb": {
+      "bytes": 3448,
+      "category": "weapon_mesh",
+      "consumers": [
+        "scripts/player.gd:948"
+      ],
+      "git_blob_sha1": "d813adf8ece4bac2e8bf085252ded4b0c2918684",
+      "provenance": "original project generator; explicit license file not found",
+      "source_hint": "tools/build_weapons.py",
+      "usage": "referenced"
+    },
+    "assets/textures/asphalt.png": {
+      "bytes": 629991,
+      "category": "texture",
+      "consumers": [
+        "scripts/main.gd:425"
+      ],
+      "git_blob_sha1": "ff9e9925795ef253013bbdb305ba33902ad07ef3",
+      "provenance": "provenance/license to verify",
+      "source_hint": "assets/textures/asphalt.png",
+      "usage": "referenced_source_provenance_pending"
+    },
+    "assets/textures/asphalt.png.import": {
+      "bytes": 940,
+      "category": "import_metadata",
+      "consumers": [],
+      "git_blob_sha1": "a1f6eae0f7c8e853a2c18d07244502102d05b043",
+      "provenance": "not_separate_asset",
+      "source_hint": "assets/textures/asphalt.png",
+      "usage": "tracked_import_metadata"
+    },
+    "assets/textures/depot_concrete.png": {
+      "bytes": 150866,
+      "category": "texture",
+      "consumers": [
+        "scripts/main.gd:550"
+      ],
+      "git_blob_sha1": "cf8778d5cc78d4b8ce00af970975f43df59a898f",
+      "provenance": "provenance/license to verify",
+      "source_hint": "assets/textures/depot_concrete.png",
+      "usage": "referenced_source_provenance_pending"
+    },
+    "assets/textures/weapon_metal_albedo.png": {
+      "bytes": 59455,
+      "category": "texture",
+      "consumers": [
+        "scripts/weapon_materials.gd:15"
+      ],
+      "git_blob_sha1": "618c3478858674e68b80739b749e8bc0df3f81b1",
+      "provenance": "original project generator; explicit license file not found",
+      "source_hint": "tools/generate_foley_textures.py",
+      "usage": "referenced"
+    },
+    "assets/textures/weapon_metal_normal.png": {
+      "bytes": 91586,
+      "category": "texture",
+      "consumers": [
+        "scripts/weapon_materials.gd:20"
+      ],
+      "git_blob_sha1": "e88ca2e0f5e096bab21b4b009df62dcedcd09f1c",
+      "provenance": "original project generator; explicit license file not found",
+      "source_hint": "tools/generate_foley_textures.py",
+      "usage": "referenced"
+    },
+    "assets/textures/weapon_polymer_albedo.png": {
+      "bytes": 60640,
+      "category": "texture",
+      "consumers": [
+        "scripts/weapon_materials.gd:14"
+      ],
+      "git_blob_sha1": "57b86ed71667e5a5b569f6a372ddad7077278187",
+      "provenance": "original project generator; explicit license file not found",
+      "source_hint": "tools/generate_foley_textures.py",
+      "usage": "referenced"
+    },
+    "assets/textures/weapon_polymer_normal.png": {
+      "bytes": 101064,
+      "category": "texture",
+      "consumers": [
+        "scripts/weapon_materials.gd:19"
+      ],
+      "git_blob_sha1": "5cbdb8f3583a9847375bc6134ab5043e4a9f14e8",
+      "provenance": "original project generator; explicit license file not found",
+      "source_hint": "tools/generate_foley_textures.py",
+      "usage": "referenced"
+    }
+  },
+  "schema_version": 1,
+  "source_registry": {
+    ".github/workflows/windows-build.yml": {
+      "git_blob_sha1": "8a4283f1ec901abf25b5260815a6e461e2ee07eb"
+    },
+    ".github/workflows/windows-survival-qa.yml": {
+      "git_blob_sha1": "ae1bbac8b5005241333b81398b5403fb2ddc141a"
+    },
+    "export_presets.cfg": {
+      "git_blob_sha1": "46b8b7af261c83d12dedb6186b8c344b799294e2"
+    },
+    "project.godot": {
+      "git_blob_sha1": "7a7091acf052ff6720d5348106db39798ae7ecf4"
+    },
+    "scenes/main.tscn": {
+      "git_blob_sha1": "a5acfcabfa732af0d60af94b8048f690a0c73d8d"
+    },
+    "scripts/ally.gd": {
+      "git_blob_sha1": "7b23c806ae08fbf1dfe929b0e62e96032cd2f279"
+    },
+    "scripts/blood_impact.gd": {
+      "git_blob_sha1": "20c79842b97849cc7ef652aad58292e7890bbe73"
+    },
+    "scripts/enemy.gd": {
+      "git_blob_sha1": "5d467fee7b8ccdcfd6742caa8c99e4b33169c907"
+    },
+    "scripts/enemy_tactics.gd": {
+      "git_blob_sha1": "8b3b3bb383a2dc0bae3913a32abda117daef2e64"
+    },
+    "scripts/frag_grenade.gd": {
+      "git_blob_sha1": "4426d1eb4bf2826c90e9c52c0b6f128f83055658"
+    },
+    "scripts/game_menu.gd": {
+      "git_blob_sha1": "79e517d2937ee93f6887c218099e91ac3c1cc289"
+    },
+    "scripts/game_settings.gd": {
+      "git_blob_sha1": "d5d04ecb51851fb3a6383b1d21b4847cfc327c93"
+    },
+    "scripts/hit_marker.gd": {
+      "git_blob_sha1": "57a4bc011e6c95e5766f9128fddf7c4f387626f3"
+    },
+    "scripts/loot_pickup.gd": {
+      "git_blob_sha1": "0427ea74ee0d7939331eef3c408d74c74c016cc5"
+    },
+    "scripts/main.gd": {
+      "git_blob_sha1": "216afee210a3b972683ca722cbd882169a827021"
+    },
+    "scripts/model_surface.gd": {
+      "git_blob_sha1": "4f7695359ee900797ee511403105c73db44a720d"
+    },
+    "scripts/obstacle_steering.gd": {
+      "git_blob_sha1": "926a7237e722b7fa7e1c47e7e97b06a53b33815b"
+    },
+    "scripts/player.gd": {
+      "git_blob_sha1": "5e92e5db95bba95e23e1c8de11b70bae3640d163"
+    },
+    "scripts/quaternius_soldier_visual.gd": {
+      "git_blob_sha1": "d29e0bd16d18e3b51936866fe91ba8fd142d9eab"
+    },
+    "scripts/scope.gdshader": {
+      "git_blob_sha1": "8e56f1c6af03f823881d48a23c42d20f54ac4032"
+    },
+    "scripts/spawn_selector.gd": {
+      "git_blob_sha1": "55e2bb3e466a8e00aad9e2727cf989e40bb0edf6"
+    },
+    "scripts/survival_round_stats.gd": {
+      "git_blob_sha1": "10c1938bce13f61ac29fecd125fc6f981adc3dbe"
+    },
+    "scripts/turret.gd": {
+      "git_blob_sha1": "c0b1c0c05c5a3bb49dfb95fb69b9d919d7a58a52"
+    },
+    "scripts/wave_rules.gd": {
+      "git_blob_sha1": "7daa1e553c5a50bbbad18a1fc2e63285b5f5352a"
+    },
+    "scripts/weapon_audio.gd": {
+      "git_blob_sha1": "666bfd0f0fefa1d1247771f575939462d3d29d52"
+    },
+    "scripts/weapon_materials.gd": {
+      "git_blob_sha1": "47ad7823f3d7e2dbd4e727bf041ba369db6b211e"
+    },
+    "scripts/weapon_pose.gd": {
+      "git_blob_sha1": "bc6110abe8259a08199be3c781a517cab66cc2b8"
+    },
+    "tools/build_weapons.py": {
+      "git_blob_sha1": "0eeb80436b4675115abed0b3b88183978950de12"
+    },
+    "tools/generate_foley_textures.py": {
+      "git_blob_sha1": "ab4d1f4b93e58b36adc627e83f8360d43a92030e"
+    },
+    "tools/verify_project.py": {
+      "git_blob_sha1": "1fc2becd548ddcebd6bd6ba9850c32badbcb7d91"
+    }
+  }
+}
