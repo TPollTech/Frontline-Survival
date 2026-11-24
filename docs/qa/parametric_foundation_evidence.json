@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "kind": "parametric_foundation_validation",
+  "tested_commit": "de6bbab5177999e73cba5b60455c93d7308bc7ab",
+  "run_id": 45442588521,
+  "job_id": 138617500806,
+  "artifact_id": 14945545304,
+  "artifact_sha256": "7c403e141f62cf2d668d2e95b35a24b4b7912708dcf0858555d9fce6fa0116c8",
+  "conclusion": "success",
+  "environment": {
+    "os": "Ubuntu 22.04",
+    "python": "3.11",
+    "blender": "3.0.1",
+    "blender_package": "3.0.1+dfsg-7"
+  },
+  "tests": {
+    "without_blender": {
+      "total": 22,
+      "passed": 20,
+      "skipped": 2,
+      "failed": 0
+    },
+    "with_blender": {
+      "total": 22,
+      "passed": 22,
+      "skipped": 0,
+      "failed": 0,
+      "seconds": 2.046
+    },
+    "manifest": 18,
+    "baseline_hash_matches": 90
+  },
+  "integration": [
+    "test_asymmetric_roundtrip",
+    "test_actual_blender_bevel"
+  ],
+  "windows": {
+    "run_id": 45442587247,
+    "conclusion": "failure",
+    "failed_steps": [
+      "Arsenal QA - isolated individual tests of all eight weapons"
+    ]
+  },
+  "status": "complete_for_foundation",
+  "production_assets_modified": false,
+  "model_approval": false,
+  "studio_approval": false,
+  "limitations": [
+    "Blender version from distribution package, not locked",
+    "no cross-version Blender determinism guarantee",
+    "basic geometry only; full advanced geometry, UV, normals, PBR, rigging, collision, LOD, GLB export and Studio remain separate tasks",
+    "no visual inspection of a new production asset; none changed"
+  ]
+}

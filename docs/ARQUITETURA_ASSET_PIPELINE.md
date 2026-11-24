@@ -58,3 +58,7 @@ O extrator de QA em tools/asset_pipeline/runtime/inventory_qa.gd foi implementad
 ## Fundação paramétrica executável
 
 A biblioteca em tools/asset_pipeline/parametric implementa IR de cena/malha, receitas iniciais, backend Python e adaptador Blender opcional. Ver [BIBLIOTECA_PARAMETRICA.md](BIBLIOTECA_PARAMETRICA.md). Rigging, materiais completos, colisões, LOD, exportação e Studio ficam nas tarefas próprias. Nenhuma substituição de modelos legados.
+
+## Validação da fundação paramétrica
+
+API Python e backend Blender real aprovados em 22/22 testes no CI 45442588521 (Blender 3.0.1). Ver [BIBLIOTECA_PARAMETRICA.md](BIBLIOTECA_PARAMETRICA.md) e [evidências](qa/parametric_foundation_evidence.json). Próxima tarefa estrutural: geometrias avançadas, extrusão, revolução, booleanas e bevels. Nenhuma migração de modelo aprovada.
