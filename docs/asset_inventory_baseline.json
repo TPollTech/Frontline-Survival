@@ -1,0 +1,5111 @@
+{
+  "schema": "frontline-static-inventory-v1",
+  "baseline_commit": "5b47000bdb82f15e6cfda6227d785e4c2e3584fd",
+  "baseline_tree": "20a000ba1c77e7b99001e98dc16b197daab175e6",
+  "scope": "tracked files + statically identifiable runtime families; exact live instances and rendered validation pending",
+  "counts": {
+    "files": 60,
+    "glb": 32,
+    "textures": 6,
+    "audio": 11,
+    "import_metadata": 11,
+    "source_scripts": 22,
+    "scene_files": 1,
+    "runtime_families": 24,
+    "constructor_sites": 290,
+    "literal_references": 57,
+    "unresolved_literal": 0,
+    "unclassified_constructor_sites": 0
+  },
+  "files": [
+    {
+      "id": "file:assets/audio/explosions/grenade.ogg",
+      "path": "assets/audio/explosions/grenade.ogg",
+      "bytes": 28274,
+      "git_blob_sha1": "019e53664abf859fc5529f95d0db23fa3ac1e42d",
+      "consumers": [
+        "scripts/frag_grenade.gd:55",
+        "scripts/frag_grenade.gd:56"
+      ],
+      "validation": "static_only",
+      "category": "audio",
+      "source": "docs/ASSET_EXPLOSION_CC0.md",
+      "status": "referenced",
+      "license": "CC0 per docs/ASSET_EXPLOSION_CC0.md",
+      "gaps": [
+        "original source package not locally inspected"
+      ]
+    },
+    {
+      "id": "file:assets/audio/reloads/lmg.wav",
+      "path": "assets/audio/reloads/lmg.wav",
+      "bytes": 161008,
+      "git_blob_sha1": "c606addcd35fa5106acd65e727cc2e0ee0ccdfa4",
+      "consumers": [
+        "scripts/weapon_audio.gd:20",
+        "scripts/enemy.gd:270"
+      ],
+      "validation": "static_only",
+      "category": "audio",
+      "source": "assets/audio/reloads/lmg.wav",
+      "status": "referenced",
+      "license": "recording provenance/license to verify",
+      "gaps": [
+        "editable master/provenance not verified"
+      ]
+    },
+    {
+      "id": "file:assets/audio/reloads/lmg.wav.import",
+      "path": "assets/audio/reloads/lmg.wav.import",
+      "bytes": 319,
+      "git_blob_sha1": "d11ef9c496d86ef9e872f7d791a3ad93f083902c",
+      "consumers": [],
+      "validation": "static_only",
+      "category": "import_metadata",
+      "source": "assets/audio/reloads/lmg.wav",
+      "status": "tracked_import_metadata",
+      "license": "not_separate_asset"
+    },
+    {
+      "id": "file:assets/audio/reloads/pistol.wav",
+      "path": "assets/audio/reloads/pistol.wav",
+      "bytes": 55168,
+      "git_blob_sha1": "ff132f31adb171db93c794891a387725dc7797bb",
+      "consumers": [
+        "scripts/weapon_audio.gd:16",
+        "scripts/enemy.gd:270"
+      ],
+      "validation": "static_only",
+      "category": "audio",
+      "source": "assets/audio/reloads/pistol.wav",
+      "status": "referenced",
+      "license": "recording provenance/license to verify",
+      "gaps": [
+        "editable master/provenance not verified"
+      ]
+    },
+    {
+      "id": "file:assets/audio/reloads/pistol.wav.import",
+      "path": "assets/audio/reloads/pistol.wav.import",
+      "bytes": 328,
+      "git_blob_sha1": "317d3022ef24ad7244f3732bb72605db9da89a0a",
+      "consumers": [],
+      "validation": "static_only",
+      "category": "import_metadata",
+      "source": "assets/audio/reloads/pistol.wav",
+      "status": "tracked_import_metadata",
+      "license": "not_separate_asset"
+    },
+    {
+      "id": "file:assets/audio/reloads/rifle.wav",
+      "path": "assets/audio/reloads/rifle.wav",
+      "bytes": 86040,
+      "git_blob_sha1": "e48adef89e22d5749ddffd59bdf0e93f6d96425e",
+      "consumers": [
+        "scripts/weapon_audio.gd:15",
+        "scripts/weapon_audio.gd:18",
+        "scripts/weapon_audio.gd:21",
+        "scripts/weapon_audio.gd:22",
+        "scripts/enemy.gd:270"
+      ],
+      "validation": "static_only",
+      "category": "audio",
+      "source": "assets/audio/reloads/rifle.wav",
+      "status": "referenced",
+      "license": "recording provenance/license to verify",
+      "gaps": [
+        "editable master/provenance not verified"
+      ]
+    },
+    {
+      "id": "file:assets/audio/reloads/rifle.wav.import",
+      "path": "assets/audio/reloads/rifle.wav.import",
+      "bytes": 325,
+      "git_blob_sha1": "2d1daca1b47c3e0623f66530f1dc4d5a0ff3a272",
+      "consumers": [],
+      "validation": "static_only",
+      "category": "import_metadata",
+      "source": "assets/audio/reloads/rifle.wav",
+      "status": "tracked_import_metadata",
+      "license": "not_separate_asset"
+    },
+    {
+      "id": "file:assets/audio/reloads/shotgun.wav",
+      "path": "assets/audio/reloads/shotgun.wav",
+      "bytes": 94860,
+      "git_blob_sha1": "b3cbdd4a1890083d45e75f24ddf1f15d2b55eb8f",
+      "consumers": [
+        "scripts/weapon_audio.gd:19",
+        "scripts/enemy.gd:270"
+      ],
+      "validation": "static_only",
+      "category": "audio",
+      "source": "assets/audio/reloads/shotgun.wav",
+      "status": "referenced",
+      "license": "recording provenance/license to verify",
+      "gaps": [
+        "editable master/provenance not verified"
+      ]
+    },
+    {
+      "id": "file:assets/audio/reloads/shotgun.wav.import",
+      "path": "assets/audio/reloads/shotgun.wav.import",
+      "bytes": 331,
+      "git_blob_sha1": "e1c5eb3a0660274774808bb72c993fbcd1781aa0",
+      "consumers": [],
+      "validation": "static_only",
+      "category": "import_metadata",
+      "source": "assets/audio/reloads/shotgun.wav",
+      "status": "tracked_import_metadata",
+      "license": "not_separate_asset"
+    },
+    {
+      "id": "file:assets/audio/reloads/smg.wav",
+      "path": "assets/audio/reloads/smg.wav",
+      "bytes": 75014,
+      "git_blob_sha1": "c4d9c5eed2018d328a5ed6bda93021c86f050445",
+      "consumers": [
+        "scripts/weapon_audio.gd:17",
+        "scripts/enemy.gd:270"
+      ],
+      "validation": "static_only",
+      "category": "audio",
+      "source": "assets/audio/reloads/smg.wav",
+      "status": "referenced",
+      "license": "recording provenance/license to verify",
+      "gaps": [
+        "editable master/provenance not verified"
+      ]
+    },
+    {
+      "id": "file:assets/audio/reloads/smg.wav.import",
+      "path": "assets/audio/reloads/smg.wav.import",
+      "bytes": 319,
+      "git_blob_sha1": "50359147cf0dee8c937d09707c962112fa84cce3",
+      "consumers": [],
+      "validation": "static_only",
+      "category": "import_metadata",
+      "source": "assets/audio/reloads/smg.wav",
+      "status": "tracked_import_metadata",
+      "license": "not_separate_asset"
+    },
+    {
+      "id": "file:assets/audio/weapons/lmg.wav",
+      "path": "assets/audio/weapons/lmg.wav",
+      "bytes": 68574,
+      "git_blob_sha1": "330fc2e4c258154f02b265f6b0e59ffa9b3d6c14",
+      "consumers": [
+        "scripts/weapon_audio.gd:9"
+      ],
+      "validation": "static_only",
+      "category": "audio",
+      "source": "assets/audio/weapons/lmg.wav",
+      "status": "referenced",
+      "license": "recording provenance/license to verify",
+      "gaps": [
+        "editable master/provenance not verified"
+      ]
+    },
+    {
+      "id": "file:assets/audio/weapons/lmg.wav.import",
+      "path": "assets/audio/weapons/lmg.wav.import",
+      "bytes": 318,
+      "git_blob_sha1": "f9326c0fc952210a33a35007cfcbaa99e2b27c7e",
+      "consumers": [],
+      "validation": "static_only",
+      "category": "import_metadata",
+      "source": "assets/audio/weapons/lmg.wav",
+      "status": "tracked_import_metadata",
+      "license": "not_separate_asset"
+    },
+    {
+      "id": "file:assets/audio/weapons/pistol.wav",
+      "path": "assets/audio/weapons/pistol.wav",
+      "bytes": 64334,
+      "git_blob_sha1": "e78e7b9251bd8bfe95011c08675deaa9a5b83ffd",
+      "consumers": [
+        "scripts/weapon_audio.gd:5"
+      ],
+      "validation": "static_only",
+      "category": "audio",
+      "source": "assets/audio/weapons/pistol.wav",
+      "status": "referenced",
+      "license": "recording provenance/license to verify",
+      "gaps": [
+        "editable master/provenance not verified"
+      ]
+    },
+    {
+      "id": "file:assets/audio/weapons/pistol.wav.import",
+      "path": "assets/audio/weapons/pistol.wav.import",
+      "bytes": 327,
+      "git_blob_sha1": "347f9da9328757701f9225f76c196cba13c68630",
+      "consumers": [],
+      "validation": "static_only",
+      "category": "import_metadata",
+      "source": "assets/audio/weapons/pistol.wav",
+      "status": "tracked_import_metadata",
+      "license": "not_separate_asset"
+    },
+    {
+      "id": "file:assets/audio/weapons/rifle.wav",
+      "path": "assets/audio/weapons/rifle.wav",
+      "bytes": 68574,
+      "git_blob_sha1": "21f525dfa2d06bbe549222d93a0cd4f60cd96df4",
+      "consumers": [
+        "scripts/weapon_audio.gd:4",
+        "scripts/weapon_audio.gd:7",
+        "scripts/weapon_audio.gd:10",
+        "scripts/weapon_audio.gd:11"
+      ],
+      "validation": "static_only",
+      "category": "audio",
+      "source": "assets/audio/weapons/rifle.wav",
+      "status": "referenced",
+      "license": "recording provenance/license to verify",
+      "gaps": [
+        "editable master/provenance not verified"
+      ]
+    },
+    {
+      "id": "file:assets/audio/weapons/rifle.wav.import",
+      "path": "assets/audio/weapons/rifle.wav.import",
+      "bytes": 325,
+      "git_blob_sha1": "d726f8ac0595e66050b4908d36d11233d862c9a6",
+      "consumers": [],
+      "validation": "static_only",
+      "category": "import_metadata",
+      "source": "assets/audio/weapons/rifle.wav",
+      "status": "tracked_import_metadata",
+      "license": "not_separate_asset"
+    },
+    {
+      "id": "file:assets/audio/weapons/shotgun.wav",
+      "path": "assets/audio/weapons/shotgun.wav",
+      "bytes": 68574,
+      "git_blob_sha1": "2d20058ef430b3b3866f997ea59d264bb5ac1950",
+      "consumers": [
+        "scripts/weapon_audio.gd:8"
+      ],
+      "validation": "static_only",
+      "category": "audio",
+      "source": "assets/audio/weapons/shotgun.wav",
+      "status": "referenced",
+      "license": "recording provenance/license to verify",
+      "gaps": [
+        "editable master/provenance not verified"
+      ]
+    },
+    {
+      "id": "file:assets/audio/weapons/shotgun.wav.import",
+      "path": "assets/audio/weapons/shotgun.wav.import",
+      "bytes": 331,
+      "git_blob_sha1": "647fe251397aa57a3d31aadf148add2c5098179b",
+      "consumers": [],
+      "validation": "static_only",
+      "category": "import_metadata",
+      "source": "assets/audio/weapons/shotgun.wav",
+      "status": "tracked_import_metadata",
+      "license": "not_separate_asset"
+    },
+    {
+      "id": "file:assets/audio/weapons/smg.wav",
+      "path": "assets/audio/weapons/smg.wav",
+      "bytes": 29198,
+      "git_blob_sha1": "c7dc9f1d63ac8c80b3130e9d5b2a2c6719afd4b6",
+      "consumers": [
+        "scripts/weapon_audio.gd:6"
+      ],
+      "validation": "static_only",
+      "category": "audio",
+      "source": "assets/audio/weapons/smg.wav",
+      "status": "referenced",
+      "license": "recording provenance/license to verify",
+      "gaps": [
+        "editable master/provenance not verified"
+      ]
+    },
+    {
+      "id": "file:assets/audio/weapons/smg.wav.import",
+      "path": "assets/audio/weapons/smg.wav.import",
+      "bytes": 319,
+      "git_blob_sha1": "0a4ae61b0ce3ce8cf25b755b21a06acfd2df15fa",
+      "consumers": [],
+      "validation": "static_only",
+      "category": "import_metadata",
+      "source": "assets/audio/weapons/smg.wav",
+      "status": "tracked_import_metadata",
+      "license": "not_separate_asset"
+    },
+    {
+      "id": "file:assets/characters/quaternius_base_male.glb",
+      "path": "assets/characters/quaternius_base_male.glb",
+      "bytes": 741320,
+      "git_blob_sha1": "b3fd79533fdb9fcedd077744f7e120920eb6cc97",
+      "consumers": [
+        "scripts/quaternius_soldier_visual.gd:6"
+      ],
+      "validation": "static_only",
+      "category": "character_mesh",
+      "source": "assets/characters/quaternius_base_male.glb",
+      "editable_upstream": "not tracked",
+      "status": "experimental_disabled",
+      "materials": {
+        "effective_source": "scripts/quaternius_soldier_visual.gd"
+      },
+      "hierarchy": "imported skeleton per provenance document; not inspected now",
+      "animation": "procedural",
+      "collision": "existing character controller",
+      "license": "CC0 per docs/ASSET_QUATERNIUS_CC0.md",
+      "gaps": [
+        "upstream editable source not in repository",
+        "runtime verification pending"
+      ]
+    },
+    {
+      "id": "file:assets/models/bolt_sniper.glb",
+      "path": "assets/models/bolt_sniper.glb",
+      "bytes": 38048,
+      "git_blob_sha1": "2f23568758866f60caa0c854be246eec2c324e88",
+      "consumers": [
+        "scripts/enemy.gd:246",
+        "scripts/loot_pickup.gd:21"
+      ],
+      "validation": "static_only",
+      "category": "weapon_mesh",
+      "asset_id": "weapon:bolt_sniper",
+      "variant": "merged",
+      "source": "tools/build_weapons.py",
+      "source_function": "bolt_sniper",
+      "materials": {
+        "effective_source": "scripts/weapon_materials.gd",
+        "textures": [
+          "assets/textures/weapon_metal_albedo.png",
+          "assets/textures/weapon_metal_normal.png",
+          "assets/textures/weapon_polymer_albedo.png",
+          "assets/textures/weapon_polymer_normal.png"
+        ]
+      },
+      "hierarchy": "merged or separated body/mag/action per file; runtime assembly in player.gd",
+      "animation": "procedural in player.gd/enemy.gd/ally.gd",
+      "collision": "gameplay character/raycast; no verified per-mesh collider",
+      "status": "referenced",
+      "license": "original project generator; explicit license file not found",
+      "gaps": [
+        "GLB binary geometry and effective material/pose not inspected in engine"
+      ]
+    },
+    {
+      "id": "file:assets/models/bolt_sniper_action.glb",
+      "path": "assets/models/bolt_sniper_action.glb",
+      "bytes": 3960,
+      "git_blob_sha1": "4560ce6c97b63c65052728237f22c63fcf73ff63",
+      "consumers": [
+        "scripts/player.gd:948"
+      ],
+      "validation": "static_only",
+      "category": "weapon_mesh",
+      "asset_id": "weapon:bolt_sniper",
+      "variant": "action",
+      "source": "tools/build_weapons.py",
+      "source_function": "bolt_sniper",
+      "materials": {
+        "effective_source": "scripts/weapon_materials.gd",
+        "textures": [
+          "assets/textures/weapon_metal_albedo.png",
+          "assets/textures/weapon_metal_normal.png",
+          "assets/textures/weapon_polymer_albedo.png",
+          "assets/textures/weapon_polymer_normal.png"
+        ]
+      },
+      "hierarchy": "merged or separated body/mag/action per file; runtime assembly in player.gd",
+      "animation": "procedural in player.gd/enemy.gd/ally.gd",
+      "collision": "gameplay character/raycast; no verified per-mesh collider",
+      "status": "referenced",
+      "license": "original project generator; explicit license file not found",
+      "gaps": [
+        "GLB binary geometry and effective material/pose not inspected in engine"
+      ]
+    },
+    {
+      "id": "file:assets/models/bolt_sniper_body.glb",
+      "path": "assets/models/bolt_sniper_body.glb",
+      "bytes": 32604,
+      "git_blob_sha1": "9533d5ffdf879e69bad86d0c1581656e214baa1e",
+      "consumers": [
+        "scripts/player.gd:948"
+      ],
+      "validation": "static_only",
+      "category": "weapon_mesh",
+      "asset_id": "weapon:bolt_sniper",
+      "variant": "body",
+      "source": "tools/build_weapons.py",
+      "source_function": "bolt_sniper",
+      "materials": {
+        "effective_source": "scripts/weapon_materials.gd",
+        "textures": [
+          "assets/textures/weapon_metal_albedo.png",
+          "assets/textures/weapon_metal_normal.png",
+          "assets/textures/weapon_polymer_albedo.png",
+          "assets/textures/weapon_polymer_normal.png"
+        ]
+      },
+      "hierarchy": "merged or separated body/mag/action per file; runtime assembly in player.gd",
+      "animation": "procedural in player.gd/enemy.gd/ally.gd",
+      "collision": "gameplay character/raycast; no verified per-mesh collider",
+      "status": "referenced",
+      "license": "original project generator; explicit license file not found",
+      "gaps": [
+        "GLB binary geometry and effective material/pose not inspected in engine"
+      ]
+    },
+    {
+      "id": "file:assets/models/bolt_sniper_mag.glb",
+      "path": "assets/models/bolt_sniper_mag.glb",
+      "bytes": 3452,
+      "git_blob_sha1": "33b5e8d3bbc5f028f9273becbb09152033a36ed5",
+      "consumers": [
+        "scripts/player.gd:948"
+      ],
+      "validation": "static_only",
+      "category": "weapon_mesh",
+      "asset_id": "weapon:bolt_sniper",
+      "variant": "mag",
+      "source": "tools/build_weapons.py",
+      "source_function": "bolt_sniper",
+      "materials": {
+        "effective_source": "scripts/weapon_materials.gd",
+        "textures": [
+          "assets/textures/weapon_metal_albedo.png",
+          "assets/textures/weapon_metal_normal.png",
+          "assets/textures/weapon_polymer_albedo.png",
+          "assets/textures/weapon_polymer_normal.png"
+        ]
+      },
+      "hierarchy": "merged or separated body/mag/action per file; runtime assembly in player.gd",
+      "animation": "procedural in player.gd/enemy.gd/ally.gd",
+      "collision": "gameplay character/raycast; no verified per-mesh collider",
+      "status": "referenced",
+      "license": "original project generator; explicit license file not found",
+      "gaps": [
+        "GLB binary geometry and effective material/pose not inspected in engine"
+      ]
+    },
+    {
+      "id": "file:assets/models/lmg.glb",
+      "path": "assets/models/lmg.glb",
+      "bytes": 60548,
+      "git_blob_sha1": "59b755a277319eacb9585b285acb80905ecd9bc9",
+      "consumers": [
+        "scripts/enemy.gd:246",
+        "scripts/loot_pickup.gd:21"
+      ],
+      "validation": "static_only",
+      "category": "weapon_mesh",
+      "asset_id": "weapon:lmg",
+      "variant": "merged",
+      "source": "tools/build_weapons.py",
+      "source_function": "lmg",
+      "materials": {
+        "effective_source": "scripts/weapon_materials.gd",
+        "textures": [
+          "assets/textures/weapon_metal_albedo.png",
+          "assets/textures/weapon_metal_normal.png",
+          "assets/textures/weapon_polymer_albedo.png",
+          "assets/textures/weapon_polymer_normal.png"
+        ]
+      },
+      "hierarchy": "merged or separated body/mag/action per file; runtime assembly in player.gd",
+      "animation": "procedural in player.gd/enemy.gd/ally.gd",
+      "collision": "gameplay character/raycast; no verified per-mesh collider",
+      "status": "referenced",
+      "license": "original project generator; explicit license file not found",
+      "gaps": [
+        "GLB binary geometry and effective material/pose not inspected in engine"
+      ]
+    },
+    {
+      "id": "file:assets/models/lmg_action.glb",
+      "path": "assets/models/lmg_action.glb",
+      "bytes": 2216,
+      "git_blob_sha1": "e653ac7eaecde298abfb992525b51eda8e0f06f7",
+      "consumers": [
+        "scripts/player.gd:948"
+      ],
+      "validation": "static_only",
+      "category": "weapon_mesh",
+      "asset_id": "weapon:lmg",
+      "variant": "action",
+      "source": "tools/build_weapons.py",
+      "source_function": "lmg",
+      "materials": {
+        "effective_source": "scripts/weapon_materials.gd",
+        "textures": [
+          "assets/textures/weapon_metal_albedo.png",
+          "assets/textures/weapon_metal_normal.png",
+          "assets/textures/weapon_polymer_albedo.png",
+          "assets/textures/weapon_polymer_normal.png"
+        ]
+      },
+      "hierarchy": "merged or separated body/mag/action per file; runtime assembly in player.gd",
+      "animation": "procedural in player.gd/enemy.gd/ally.gd",
+      "collision": "gameplay character/raycast; no verified per-mesh collider",
+      "status": "referenced",
+      "license": "original project generator; explicit license file not found",
+      "gaps": [
+        "GLB binary geometry and effective material/pose not inspected in engine"
+      ]
+    },
+    {
+      "id": "file:assets/models/lmg_body.glb",
+      "path": "assets/models/lmg_body.glb",
+      "bytes": 56052,
+      "git_blob_sha1": "03f70c208a7e63ebb14836fddb3f9cdc748f4e04",
+      "consumers": [
+        "scripts/player.gd:948"
+      ],
+      "validation": "static_only",
+      "category": "weapon_mesh",
+      "asset_id": "weapon:lmg",
+      "variant": "body",
+      "source": "tools/build_weapons.py",
+      "source_function": "lmg",
+      "materials": {
+        "effective_source": "scripts/weapon_materials.gd",
+        "textures": [
+          "assets/textures/weapon_metal_albedo.png",
+          "assets/textures/weapon_metal_normal.png",
+          "assets/textures/weapon_polymer_albedo.png",
+          "assets/textures/weapon_polymer_normal.png"
+        ]
+      },
+      "hierarchy": "merged or separated body/mag/action per file; runtime assembly in player.gd",
+      "animation": "procedural in player.gd/enemy.gd/ally.gd",
+      "collision": "gameplay character/raycast; no verified per-mesh collider",
+      "status": "referenced",
+      "license": "original project generator; explicit license file not found",
+      "gaps": [
+        "GLB binary geometry and effective material/pose not inspected in engine"
+      ]
+    },
+    {
+      "id": "file:assets/models/lmg_mag.glb",
+      "path": "assets/models/lmg_mag.glb",
+      "bytes": 4248,
+      "git_blob_sha1": "7a03189cffbf82468c37244fd3bcf46231ba153f",
+      "consumers": [
+        "scripts/player.gd:948"
+      ],
+      "validation": "static_only",
+      "category": "weapon_mesh",
+      "asset_id": "weapon:lmg",
+      "variant": "mag",
+      "source": "tools/build_weapons.py",
+      "source_function": "lmg",
+      "materials": {
+        "effective_source": "scripts/weapon_materials.gd",
+        "textures": [
+          "assets/textures/weapon_metal_albedo.png",
+          "assets/textures/weapon_metal_normal.png",
+          "assets/textures/weapon_polymer_albedo.png",
+          "assets/textures/weapon_polymer_normal.png"
+        ]
+      },
+      "hierarchy": "merged or separated body/mag/action per file; runtime assembly in player.gd",
+      "animation": "procedural in player.gd/enemy.gd/ally.gd",
+      "collision": "gameplay character/raycast; no verified per-mesh collider",
+      "status": "referenced",
+      "license": "original project generator; explicit license file not found",
+      "gaps": [
+        "GLB binary geometry and effective material/pose not inspected in engine"
+      ]
+    },
+    {
+      "id": "file:assets/models/pistol.glb",
+      "path": "assets/models/pistol.glb",
+      "bytes": 58712,
+      "git_blob_sha1": "c2a563e5d7b2133512a325039e4b582cbf957c47",
+      "consumers": [
+        "scripts/enemy.gd:246",
+        "scripts/loot_pickup.gd:21"
+      ],
+      "validation": "static_only",
+      "category": "weapon_mesh",
+      "asset_id": "weapon:pistol",
+      "variant": "merged",
+      "source": "tools/build_weapons.py",
+      "source_function": "pistol",
+      "materials": {
+        "effective_source": "scripts/weapon_materials.gd",
+        "textures": [
+          "assets/textures/weapon_metal_albedo.png",
+          "assets/textures/weapon_metal_normal.png",
+          "assets/textures/weapon_polymer_albedo.png",
+          "assets/textures/weapon_polymer_normal.png"
+        ]
+      },
+      "hierarchy": "merged or separated body/mag/action per file; runtime assembly in player.gd",
+      "animation": "procedural in player.gd/enemy.gd/ally.gd",
+      "collision": "gameplay character/raycast; no verified per-mesh collider",
+      "status": "referenced",
+      "license": "original project generator; explicit license file not found",
+      "gaps": [
+        "GLB binary geometry and effective material/pose not inspected in engine"
+      ]
+    },
+    {
+      "id": "file:assets/models/pistol_action.glb",
+      "path": "assets/models/pistol_action.glb",
+      "bytes": 30068,
+      "git_blob_sha1": "ce95c2e28ccbcc0d02b8091a9bb38a0ba9ac8203",
+      "consumers": [
+        "scripts/player.gd:948"
+      ],
+      "validation": "static_only",
+      "category": "weapon_mesh",
+      "asset_id": "weapon:pistol",
+      "variant": "action",
+      "source": "tools/build_weapons.py",
+      "source_function": "pistol",
+      "materials": {
+        "effective_source": "scripts/weapon_materials.gd",
+        "textures": [
+          "assets/textures/weapon_metal_albedo.png",
+          "assets/textures/weapon_metal_normal.png",
+          "assets/textures/weapon_polymer_albedo.png",
+          "assets/textures/weapon_polymer_normal.png"
+        ]
+      },
+      "hierarchy": "merged or separated body/mag/action per file; runtime assembly in player.gd",
+      "animation": "procedural in player.gd/enemy.gd/ally.gd",
+      "collision": "gameplay character/raycast; no verified per-mesh collider",
+      "status": "referenced",
+      "license": "original project generator; explicit license file not found",
+      "gaps": [
+        "GLB binary geometry and effective material/pose not inspected in engine"
+      ]
+    },
+    {
+      "id": "file:assets/models/pistol_body.glb",
+      "path": "assets/models/pistol_body.glb",
+      "bytes": 27172,
+      "git_blob_sha1": "b08c276d65e33016422d41507b0091ea02b1dee0",
+      "consumers": [
+        "scripts/player.gd:948"
+      ],
+      "validation": "static_only",
+      "category": "weapon_mesh",
+      "asset_id": "weapon:pistol",
+      "variant": "body",
+      "source": "tools/build_weapons.py",
+      "source_function": "pistol",
+      "materials": {
+        "effective_source": "scripts/weapon_materials.gd",
+        "textures": [
+          "assets/textures/weapon_metal_albedo.png",
+          "assets/textures/weapon_metal_normal.png",
+          "assets/textures/weapon_polymer_albedo.png",
+          "assets/textures/weapon_polymer_normal.png"
+        ]
+      },
+      "hierarchy": "merged or separated body/mag/action per file; runtime assembly in player.gd",
+      "animation": "procedural in player.gd/enemy.gd/ally.gd",
+      "collision": "gameplay character/raycast; no verified per-mesh collider",
+      "status": "referenced",
+      "license": "original project generator; explicit license file not found",
+      "gaps": [
+        "GLB binary geometry and effective material/pose not inspected in engine"
+      ]
+    },
+    {
+      "id": "file:assets/models/pistol_mag.glb",
+      "path": "assets/models/pistol_mag.glb",
+      "bytes": 3448,
+      "git_blob_sha1": "a74bac5dc046f02f09e31054b4896fbaa629796b",
+      "consumers": [
+        "scripts/player.gd:948"
+      ],
+      "validation": "static_only",
+      "category": "weapon_mesh",
+      "asset_id": "weapon:pistol",
+      "variant": "mag",
+      "source": "tools/build_weapons.py",
+      "source_function": "pistol",
+      "materials": {
+        "effective_source": "scripts/weapon_materials.gd",
+        "textures": [
+          "assets/textures/weapon_metal_albedo.png",
+          "assets/textures/weapon_metal_normal.png",
+          "assets/textures/weapon_polymer_albedo.png",
+          "assets/textures/weapon_polymer_normal.png"
+        ]
+      },
+      "hierarchy": "merged or separated body/mag/action per file; runtime assembly in player.gd",
+      "animation": "procedural in player.gd/enemy.gd/ally.gd",
+      "collision": "gameplay character/raycast; no verified per-mesh collider",
+      "status": "referenced",
+      "license": "original project generator; explicit license file not found",
+      "gaps": [
+        "GLB binary geometry and effective material/pose not inspected in engine"
+      ]
+    },
+    {
+      "id": "file:assets/models/rifle.glb",
+      "path": "assets/models/rifle.glb",
+      "bytes": 94716,
+      "git_blob_sha1": "ae9c934f9e71d2e7a3912d30b55a88439b5cdb17",
+      "consumers": [
+        "scripts/ally.gd:131",
+        "scripts/enemy.gd:246",
+        "scripts/loot_pickup.gd:21"
+      ],
+      "validation": "static_only",
+      "category": "weapon_mesh",
+      "asset_id": "weapon:rifle",
+      "variant": "merged",
+      "source": "tools/build_weapons.py",
+      "source_function": "rifle",
+      "materials": {
+        "effective_source": "scripts/weapon_materials.gd",
+        "textures": [
+          "assets/textures/weapon_metal_albedo.png",
+          "assets/textures/weapon_metal_normal.png",
+          "assets/textures/weapon_polymer_albedo.png",
+          "assets/textures/weapon_polymer_normal.png"
+        ]
+      },
+      "hierarchy": "merged or separated body/mag/action per file; runtime assembly in player.gd",
+      "animation": "procedural in player.gd/enemy.gd/ally.gd",
+      "collision": "gameplay character/raycast; no verified per-mesh collider",
+      "status": "referenced",
+      "license": "original project generator; explicit license file not found",
+      "gaps": [
+        "GLB binary geometry and effective material/pose not inspected in engine"
+      ]
+    },
+    {
+      "id": "file:assets/models/rifle_action.glb",
+      "path": "assets/models/rifle_action.glb",
+      "bytes": 2216,
+      "git_blob_sha1": "53071428056833783958d6743890d11bced24af7",
+      "consumers": [
+        "scripts/player.gd:948"
+      ],
+      "validation": "static_only",
+      "category": "weapon_mesh",
+      "asset_id": "weapon:rifle",
+      "variant": "action",
+      "source": "tools/build_weapons.py",
+      "source_function": "rifle",
+      "materials": {
+        "effective_source": "scripts/weapon_materials.gd",
+        "textures": [
+          "assets/textures/weapon_metal_albedo.png",
+          "assets/textures/weapon_metal_normal.png",
+          "assets/textures/weapon_polymer_albedo.png",
+          "assets/textures/weapon_polymer_normal.png"
+        ]
+      },
+      "hierarchy": "merged or separated body/mag/action per file; runtime assembly in player.gd",
+      "animation": "procedural in player.gd/enemy.gd/ally.gd",
+      "collision": "gameplay character/raycast; no verified per-mesh collider",
+      "status": "referenced",
+      "license": "original project generator; explicit license file not found",
+      "gaps": [
+        "GLB binary geometry and effective material/pose not inspected in engine"
+      ]
+    },
+    {
+      "id": "file:assets/models/rifle_body.glb",
+      "path": "assets/models/rifle_body.glb",
+      "bytes": 52460,
+      "git_blob_sha1": "cdf394ef347f6d8cbe16abf2650309e91af81f1d",
+      "consumers": [
+        "scripts/player.gd:948"
+      ],
+      "validation": "static_only",
+      "category": "weapon_mesh",
+      "asset_id": "weapon:rifle",
+      "variant": "body",
+      "source": "tools/build_weapons.py",
+      "source_function": "rifle",
+      "materials": {
+        "effective_source": "scripts/weapon_materials.gd",
+        "textures": [
+          "assets/textures/weapon_metal_albedo.png",
+          "assets/textures/weapon_metal_normal.png",
+          "assets/textures/weapon_polymer_albedo.png",
+          "assets/textures/weapon_polymer_normal.png"
+        ]
+      },
+      "hierarchy": "merged or separated body/mag/action per file; runtime assembly in player.gd",
+      "animation": "procedural in player.gd/enemy.gd/ally.gd",
+      "collision": "gameplay character/raycast; no verified per-mesh collider",
+      "status": "referenced",
+      "license": "original project generator; explicit license file not found",
+      "gaps": [
+        "GLB binary geometry and effective material/pose not inspected in engine"
+      ]
+    },
+    {
+      "id": "file:assets/models/rifle_mag.glb",
+      "path": "assets/models/rifle_mag.glb",
+      "bytes": 42020,
+      "git_blob_sha1": "4953d3490d796e3dbbd968b44c7249e205e080fe",
+      "consumers": [
+        "scripts/player.gd:948"
+      ],
+      "validation": "static_only",
+      "category": "weapon_mesh",
+      "asset_id": "weapon:rifle",
+      "variant": "mag",
+      "source": "tools/build_weapons.py",
+      "source_function": "rifle",
+      "materials": {
+        "effective_source": "scripts/weapon_materials.gd",
+        "textures": [
+          "assets/textures/weapon_metal_albedo.png",
+          "assets/textures/weapon_metal_normal.png",
+          "assets/textures/weapon_polymer_albedo.png",
+          "assets/textures/weapon_polymer_normal.png"
+        ]
+      },
+      "hierarchy": "merged or separated body/mag/action per file; runtime assembly in player.gd",
+      "animation": "procedural in player.gd/enemy.gd/ally.gd",
+      "collision": "gameplay character/raycast; no verified per-mesh collider",
+      "status": "referenced",
+      "license": "original project generator; explicit license file not found",
+      "gaps": [
+        "GLB binary geometry and effective material/pose not inspected in engine"
+      ]
+    },
+    {
+      "id": "file:assets/models/sentinela.glb",
+      "path": "assets/models/sentinela.glb",
+      "bytes": 19296,
+      "git_blob_sha1": "bca77f8355a1f9aa6e341c2bf7bf0b02829b1854",
+      "consumers": [
+        "scripts/enemy.gd:246",
+        "scripts/loot_pickup.gd:21"
+      ],
+      "validation": "static_only",
+      "category": "weapon_mesh",
+      "asset_id": "weapon:sentinela",
+      "variant": "merged",
+      "source": "tools/build_weapons.py",
+      "source_function": "sentinela",
+      "materials": {
+        "effective_source": "scripts/weapon_materials.gd",
+        "textures": [
+          "assets/textures/weapon_metal_albedo.png",
+          "assets/textures/weapon_metal_normal.png",
+          "assets/textures/weapon_polymer_albedo.png",
+          "assets/textures/weapon_polymer_normal.png"
+        ]
+      },
+      "hierarchy": "merged or separated body/mag/action per file; runtime assembly in player.gd",
+      "animation": "procedural in player.gd/enemy.gd/ally.gd",
+      "collision": "gameplay character/raycast; no verified per-mesh collider",
+      "status": "referenced",
+      "license": "original project generator; explicit license file not found",
+      "gaps": [
+        "GLB binary geometry and effective material/pose not inspected in engine"
+      ]
+    },
+    {
+      "id": "file:assets/models/sentinela_action.glb",
+      "path": "assets/models/sentinela_action.glb",
+      "bytes": 1812,
+      "git_blob_sha1": "538a8a72077b4380551cfa48039fb2bbf16ae4bf",
+      "consumers": [
+        "scripts/player.gd:948"
+      ],
+      "validation": "static_only",
+      "category": "weapon_mesh",
+      "asset_id": "weapon:sentinela",
+      "variant": "action",
+      "source": "tools/build_weapons.py",
+      "source_function": "sentinela",
+      "materials": {
+        "effective_source": "scripts/weapon_materials.gd",
+        "textures": [
+          "assets/textures/weapon_metal_albedo.png",
+          "assets/textures/weapon_metal_normal.png",
+          "assets/textures/weapon_polymer_albedo.png",
+          "assets/textures/weapon_polymer_normal.png"
+        ]
+      },
+      "hierarchy": "merged or separated body/mag/action per file; runtime assembly in player.gd",
+      "animation": "procedural in player.gd/enemy.gd/ally.gd",
+      "collision": "gameplay character/raycast; no verified per-mesh collider",
+      "status": "referenced",
+      "license": "original project generator; explicit license file not found",
+      "gaps": [
+        "GLB binary geometry and effective material/pose not inspected in engine"
+      ]
+    },
+    {
+      "id": "file:assets/models/sentinela_body.glb",
+      "path": "assets/models/sentinela_body.glb",
+      "bytes": 17308,
+      "git_blob_sha1": "223fbf02c693e1650158e3b8ee622f9db237f1c4",
+      "consumers": [
+        "scripts/player.gd:948"
+      ],
+      "validation": "static_only",
+      "category": "weapon_mesh",
+      "asset_id": "weapon:sentinela",
+      "variant": "body",
+      "source": "tools/build_weapons.py",
+      "source_function": "sentinela",
+      "materials": {
+        "effective_source": "scripts/weapon_materials.gd",
+        "textures": [
+          "assets/textures/weapon_metal_albedo.png",
+          "assets/textures/weapon_metal_normal.png",
+          "assets/textures/weapon_polymer_albedo.png",
+          "assets/textures/weapon_polymer_normal.png"
+        ]
+      },
+      "hierarchy": "merged or separated body/mag/action per file; runtime assembly in player.gd",
+      "animation": "procedural in player.gd/enemy.gd/ally.gd",
+      "collision": "gameplay character/raycast; no verified per-mesh collider",
+      "status": "referenced",
+      "license": "original project generator; explicit license file not found",
+      "gaps": [
+        "GLB binary geometry and effective material/pose not inspected in engine"
+      ]
+    },
+    {
+      "id": "file:assets/models/sentinela_mag.glb",
+      "path": "assets/models/sentinela_mag.glb",
+      "bytes": 2216,
+      "git_blob_sha1": "1a0d82e81fd28cd2ef92f5619c54cdd3a21194d1",
+      "consumers": [
+        "scripts/player.gd:948"
+      ],
+      "validation": "static_only",
+      "category": "weapon_mesh",
+      "asset_id": "weapon:sentinela",
+      "variant": "mag",
+      "source": "tools/build_weapons.py",
+      "source_function": "sentinela",
+      "materials": {
+        "effective_source": "scripts/weapon_materials.gd",
+        "textures": [
+          "assets/textures/weapon_metal_albedo.png",
+          "assets/textures/weapon_metal_normal.png",
+          "assets/textures/weapon_polymer_albedo.png",
+          "assets/textures/weapon_polymer_normal.png"
+        ]
+      },
+      "hierarchy": "merged or separated body/mag/action per file; runtime assembly in player.gd",
+      "animation": "procedural in player.gd/enemy.gd/ally.gd",
+      "collision": "gameplay character/raycast; no verified per-mesh collider",
+      "status": "referenced",
+      "license": "original project generator; explicit license file not found",
+      "gaps": [
+        "GLB binary geometry and effective material/pose not inspected in engine"
+      ]
+    },
+    {
+      "id": "file:assets/models/shotgun.glb",
+      "path": "assets/models/shotgun.glb",
+      "bytes": 42932,
+      "git_blob_sha1": "411c75ece18e2946cd194679dce8ec77975086f4",
+      "consumers": [
+        "scripts/enemy.gd:246",
+        "scripts/loot_pickup.gd:21"
+      ],
+      "validation": "static_only",
+      "category": "weapon_mesh",
+      "asset_id": "weapon:shotgun",
+      "variant": "merged",
+      "source": "tools/build_weapons.py",
+      "source_function": "shotgun",
+      "materials": {
+        "effective_source": "scripts/weapon_materials.gd",
+        "textures": [
+          "assets/textures/weapon_metal_albedo.png",
+          "assets/textures/weapon_metal_normal.png",
+          "assets/textures/weapon_polymer_albedo.png",
+          "assets/textures/weapon_polymer_normal.png"
+        ]
+      },
+      "hierarchy": "merged or separated body/mag/action per file; runtime assembly in player.gd",
+      "animation": "procedural in player.gd/enemy.gd/ally.gd",
+      "collision": "gameplay character/raycast; no verified per-mesh collider",
+      "status": "referenced",
+      "license": "original project generator; explicit license file not found",
+      "gaps": [
+        "GLB binary geometry and effective material/pose not inspected in engine"
+      ]
+    },
+    {
+      "id": "file:assets/models/shotgun_action.glb",
+      "path": "assets/models/shotgun_action.glb",
+      "bytes": 13312,
+      "git_blob_sha1": "4c70cf443b2bfb14f60345c5571585eb94484a98",
+      "consumers": [
+        "scripts/player.gd:948"
+      ],
+      "validation": "static_only",
+      "category": "weapon_mesh",
+      "asset_id": "weapon:shotgun",
+      "variant": "action",
+      "source": "tools/build_weapons.py",
+      "source_function": "shotgun",
+      "materials": {
+        "effective_source": "scripts/weapon_materials.gd",
+        "textures": [
+          "assets/textures/weapon_metal_albedo.png",
+          "assets/textures/weapon_metal_normal.png",
+          "assets/textures/weapon_polymer_albedo.png",
+          "assets/textures/weapon_polymer_normal.png"
+        ]
+      },
+      "hierarchy": "merged or separated body/mag/action per file; runtime assembly in player.gd",
+      "animation": "procedural in player.gd/enemy.gd/ally.gd",
+      "collision": "gameplay character/raycast; no verified per-mesh collider",
+      "status": "referenced",
+      "license": "original project generator; explicit license file not found",
+      "gaps": [
+        "GLB binary geometry and effective material/pose not inspected in engine"
+      ]
+    },
+    {
+      "id": "file:assets/models/shotgun_body.glb",
+      "path": "assets/models/shotgun_body.glb",
+      "bytes": 30608,
+      "git_blob_sha1": "f2468dd86cf571286d721b2f042286a16fbb1005",
+      "consumers": [
+        "scripts/player.gd:948"
+      ],
+      "validation": "static_only",
+      "category": "weapon_mesh",
+      "asset_id": "weapon:shotgun",
+      "variant": "body",
+      "source": "tools/build_weapons.py",
+      "source_function": "shotgun",
+      "materials": {
+        "effective_source": "scripts/weapon_materials.gd",
+        "textures": [
+          "assets/textures/weapon_metal_albedo.png",
+          "assets/textures/weapon_metal_normal.png",
+          "assets/textures/weapon_polymer_albedo.png",
+          "assets/textures/weapon_polymer_normal.png"
+        ]
+      },
+      "hierarchy": "merged or separated body/mag/action per file; runtime assembly in player.gd",
+      "animation": "procedural in player.gd/enemy.gd/ally.gd",
+      "collision": "gameplay character/raycast; no verified per-mesh collider",
+      "status": "referenced",
+      "license": "original project generator; explicit license file not found",
+      "gaps": [
+        "GLB binary geometry and effective material/pose not inspected in engine"
+      ]
+    },
+    {
+      "id": "file:assets/models/smg.glb",
+      "path": "assets/models/smg.glb",
+      "bytes": 51332,
+      "git_blob_sha1": "b2a8369ebff2d40074536ac046753618aee1472d",
+      "consumers": [
+        "scripts/enemy.gd:246",
+        "scripts/loot_pickup.gd:21"
+      ],
+      "validation": "static_only",
+      "category": "weapon_mesh",
+      "asset_id": "weapon:smg",
+      "variant": "merged",
+      "source": "tools/build_weapons.py",
+      "source_function": "smg",
+      "materials": {
+        "effective_source": "scripts/weapon_materials.gd",
+        "textures": [
+          "assets/textures/weapon_metal_albedo.png",
+          "assets/textures/weapon_metal_normal.png",
+          "assets/textures/weapon_polymer_albedo.png",
+          "assets/textures/weapon_polymer_normal.png"
+        ]
+      },
+      "hierarchy": "merged or separated body/mag/action per file; runtime assembly in player.gd",
+      "animation": "procedural in player.gd/enemy.gd/ally.gd",
+      "collision": "gameplay character/raycast; no verified per-mesh collider",
+      "status": "referenced",
+      "license": "original project generator; explicit license file not found",
+      "gaps": [
+        "GLB binary geometry and effective material/pose not inspected in engine"
+      ]
+    },
+    {
+      "id": "file:assets/models/smg_action.glb",
+      "path": "assets/models/smg_action.glb",
+      "bytes": 2216,
+      "git_blob_sha1": "2035f03f15f0ab98fc6036b71dc6677e097ee0a3",
+      "consumers": [
+        "scripts/player.gd:948"
+      ],
+      "validation": "static_only",
+      "category": "weapon_mesh",
+      "asset_id": "weapon:smg",
+      "variant": "action",
+      "source": "tools/build_weapons.py",
+      "source_function": "smg",
+      "materials": {
+        "effective_source": "scripts/weapon_materials.gd",
+        "textures": [
+          "assets/textures/weapon_metal_albedo.png",
+          "assets/textures/weapon_metal_normal.png",
+          "assets/textures/weapon_polymer_albedo.png",
+          "assets/textures/weapon_polymer_normal.png"
+        ]
+      },
+      "hierarchy": "merged or separated body/mag/action per file; runtime assembly in player.gd",
+      "animation": "procedural in player.gd/enemy.gd/ally.gd",
+      "collision": "gameplay character/raycast; no verified per-mesh collider",
+      "status": "referenced",
+      "license": "original project generator; explicit license file not found",
+      "gaps": [
+        "GLB binary geometry and effective material/pose not inspected in engine"
+      ]
+    },
+    {
+      "id": "file:assets/models/smg_body.glb",
+      "path": "assets/models/smg_body.glb",
+      "bytes": 47636,
+      "git_blob_sha1": "38c44767e9add17af1d7ff256a12296c1c456047",
+      "consumers": [
+        "scripts/player.gd:948"
+      ],
+      "validation": "static_only",
+      "category": "weapon_mesh",
+      "asset_id": "weapon:smg",
+      "variant": "body",
+      "source": "tools/build_weapons.py",
+      "source_function": "smg",
+      "materials": {
+        "effective_source": "scripts/weapon_materials.gd",
+        "textures": [
+          "assets/textures/weapon_metal_albedo.png",
+          "assets/textures/weapon_metal_normal.png",
+          "assets/textures/weapon_polymer_albedo.png",
+          "assets/textures/weapon_polymer_normal.png"
+        ]
+      },
+      "hierarchy": "merged or separated body/mag/action per file; runtime assembly in player.gd",
+      "animation": "procedural in player.gd/enemy.gd/ally.gd",
+      "collision": "gameplay character/raycast; no verified per-mesh collider",
+      "status": "referenced",
+      "license": "original project generator; explicit license file not found",
+      "gaps": [
+        "GLB binary geometry and effective material/pose not inspected in engine"
+      ]
+    },
+    {
+      "id": "file:assets/models/smg_mag.glb",
+      "path": "assets/models/smg_mag.glb",
+      "bytes": 3452,
+      "git_blob_sha1": "da4a768183b9c12e4fba2c45ba234c8c518831fc",
+      "consumers": [
+        "scripts/player.gd:948"
+      ],
+      "validation": "static_only",
+      "category": "weapon_mesh",
+      "asset_id": "weapon:smg",
+      "variant": "mag",
+      "source": "tools/build_weapons.py",
+      "source_function": "smg",
+      "materials": {
+        "effective_source": "scripts/weapon_materials.gd",
+        "textures": [
+          "assets/textures/weapon_metal_albedo.png",
+          "assets/textures/weapon_metal_normal.png",
+          "assets/textures/weapon_polymer_albedo.png",
+          "assets/textures/weapon_polymer_normal.png"
+        ]
+      },
+      "hierarchy": "merged or separated body/mag/action per file; runtime assembly in player.gd",
+      "animation": "procedural in player.gd/enemy.gd/ally.gd",
+      "collision": "gameplay character/raycast; no verified per-mesh collider",
+      "status": "referenced",
+      "license": "original project generator; explicit license file not found",
+      "gaps": [
+        "GLB binary geometry and effective material/pose not inspected in engine"
+      ]
+    },
+    {
+      "id": "file:assets/models/sniper.glb",
+      "path": "assets/models/sniper.glb",
+      "bytes": 46516,
+      "git_blob_sha1": "d86b2cf8e998386c508cf75d232060471d23db1e",
+      "consumers": [
+        "scripts/enemy.gd:246",
+        "scripts/loot_pickup.gd:21"
+      ],
+      "validation": "static_only",
+      "category": "weapon_mesh",
+      "asset_id": "weapon:sniper",
+      "variant": "merged",
+      "source": "tools/build_weapons.py",
+      "source_function": "sniper",
+      "materials": {
+        "effective_source": "scripts/weapon_materials.gd",
+        "textures": [
+          "assets/textures/weapon_metal_albedo.png",
+          "assets/textures/weapon_metal_normal.png",
+          "assets/textures/weapon_polymer_albedo.png",
+          "assets/textures/weapon_polymer_normal.png"
+        ]
+      },
+      "hierarchy": "merged or separated body/mag/action per file; runtime assembly in player.gd",
+      "animation": "procedural in player.gd/enemy.gd/ally.gd",
+      "collision": "gameplay character/raycast; no verified per-mesh collider",
+      "status": "referenced",
+      "license": "original project generator; explicit license file not found",
+      "gaps": [
+        "GLB binary geometry and effective material/pose not inspected in engine"
+      ]
+    },
+    {
+      "id": "file:assets/models/sniper_action.glb",
+      "path": "assets/models/sniper_action.glb",
+      "bytes": 2216,
+      "git_blob_sha1": "5a190fbb1d6734748d546b8f0f1c8008673dfd98",
+      "consumers": [
+        "scripts/player.gd:948"
+      ],
+      "validation": "static_only",
+      "category": "weapon_mesh",
+      "asset_id": "weapon:sniper",
+      "variant": "action",
+      "source": "tools/build_weapons.py",
+      "source_function": "sniper",
+      "materials": {
+        "effective_source": "scripts/weapon_materials.gd",
+        "textures": [
+          "assets/textures/weapon_metal_albedo.png",
+          "assets/textures/weapon_metal_normal.png",
+          "assets/textures/weapon_polymer_albedo.png",
+          "assets/textures/weapon_polymer_normal.png"
+        ]
+      },
+      "hierarchy": "merged or separated body/mag/action per file; runtime assembly in player.gd",
+      "animation": "procedural in player.gd/enemy.gd/ally.gd",
+      "collision": "gameplay character/raycast; no verified per-mesh collider",
+      "status": "referenced",
+      "license": "original project generator; explicit license file not found",
+      "gaps": [
+        "GLB binary geometry and effective material/pose not inspected in engine"
+      ]
+    },
+    {
+      "id": "file:assets/models/sniper_body.glb",
+      "path": "assets/models/sniper_body.glb",
+      "bytes": 42820,
+      "git_blob_sha1": "c8ce42dc4e3d231b2676a28d11bc58c8b4495a1b",
+      "consumers": [
+        "scripts/player.gd:948"
+      ],
+      "validation": "static_only",
+      "category": "weapon_mesh",
+      "asset_id": "weapon:sniper",
+      "variant": "body",
+      "source": "tools/build_weapons.py",
+      "source_function": "sniper",
+      "materials": {
+        "effective_source": "scripts/weapon_materials.gd",
+        "textures": [
+          "assets/textures/weapon_metal_albedo.png",
+          "assets/textures/weapon_metal_normal.png",
+          "assets/textures/weapon_polymer_albedo.png",
+          "assets/textures/weapon_polymer_normal.png"
+        ]
+      },
+      "hierarchy": "merged or separated body/mag/action per file; runtime assembly in player.gd",
+      "animation": "procedural in player.gd/enemy.gd/ally.gd",
+      "collision": "gameplay character/raycast; no verified per-mesh collider",
+      "status": "referenced",
+      "license": "original project generator; explicit license file not found",
+      "gaps": [
+        "GLB binary geometry and effective material/pose not inspected in engine"
+      ]
+    },
+    {
+      "id": "file:assets/models/sniper_mag.glb",
+      "path": "assets/models/sniper_mag.glb",
+      "bytes": 3448,
+      "git_blob_sha1": "d813adf8ece4bac2e8bf085252ded4b0c2918684",
+      "consumers": [
+        "scripts/player.gd:948"
+      ],
+      "validation": "static_only",
+      "category": "weapon_mesh",
+      "asset_id": "weapon:sniper",
+      "variant": "mag",
+      "source": "tools/build_weapons.py",
+      "source_function": "sniper",
+      "materials": {
+        "effective_source": "scripts/weapon_materials.gd",
+        "textures": [
+          "assets/textures/weapon_metal_albedo.png",
+          "assets/textures/weapon_metal_normal.png",
+          "assets/textures/weapon_polymer_albedo.png",
+          "assets/textures/weapon_polymer_normal.png"
+        ]
+      },
+      "hierarchy": "merged or separated body/mag/action per file; runtime assembly in player.gd",
+      "animation": "procedural in player.gd/enemy.gd/ally.gd",
+      "collision": "gameplay character/raycast; no verified per-mesh collider",
+      "status": "referenced",
+      "license": "original project generator; explicit license file not found",
+      "gaps": [
+        "GLB binary geometry and effective material/pose not inspected in engine"
+      ]
+    },
+    {
+      "id": "file:assets/textures/asphalt.png",
+      "path": "assets/textures/asphalt.png",
+      "bytes": 629991,
+      "git_blob_sha1": "ff9e9925795ef253013bbdb305ba33902ad07ef3",
+      "consumers": [
+        "scripts/main.gd:425"
+      ],
+      "validation": "static_only",
+      "category": "texture",
+      "source": "assets/textures/asphalt.png",
+      "status": "referenced_source_provenance_pending",
+      "license": "provenance/license to verify",
+      "gaps": [
+        "editable generation source not identified"
+      ]
+    },
+    {
+      "id": "file:assets/textures/asphalt.png.import",
+      "path": "assets/textures/asphalt.png.import",
+      "bytes": 940,
+      "git_blob_sha1": "a1f6eae0f7c8e853a2c18d07244502102d05b043",
+      "consumers": [],
+      "validation": "static_only",
+      "category": "import_metadata",
+      "source": "assets/textures/asphalt.png",
+      "status": "tracked_import_metadata",
+      "license": "not_separate_asset"
+    },
+    {
+      "id": "file:assets/textures/depot_concrete.png",
+      "path": "assets/textures/depot_concrete.png",
+      "bytes": 150866,
+      "git_blob_sha1": "cf8778d5cc78d4b8ce00af970975f43df59a898f",
+      "consumers": [
+        "scripts/main.gd:550"
+      ],
+      "validation": "static_only",
+      "category": "texture",
+      "source": "assets/textures/depot_concrete.png",
+      "status": "referenced_source_provenance_pending",
+      "license": "provenance/license to verify",
+      "gaps": [
+        "editable generation source not identified"
+      ]
+    },
+    {
+      "id": "file:assets/textures/weapon_metal_albedo.png",
+      "path": "assets/textures/weapon_metal_albedo.png",
+      "bytes": 59455,
+      "git_blob_sha1": "618c3478858674e68b80739b749e8bc0df3f81b1",
+      "consumers": [
+        "scripts/weapon_materials.gd:15"
+      ],
+      "validation": "static_only",
+      "category": "texture",
+      "source": "tools/generate_foley_textures.py",
+      "status": "referenced",
+      "license": "original project generator; explicit license file not found",
+      "gaps": [
+        "effective Godot triplanar/material mapping not captured"
+      ]
+    },
+    {
+      "id": "file:assets/textures/weapon_metal_normal.png",
+      "path": "assets/textures/weapon_metal_normal.png",
+      "bytes": 91586,
+      "git_blob_sha1": "e88ca2e0f5e096bab21b4b009df62dcedcd09f1c",
+      "consumers": [
+        "scripts/weapon_materials.gd:20"
+      ],
+      "validation": "static_only",
+      "category": "texture",
+      "source": "tools/generate_foley_textures.py",
+      "status": "referenced",
+      "license": "original project generator; explicit license file not found",
+      "gaps": [
+        "effective Godot triplanar/material mapping not captured"
+      ]
+    },
+    {
+      "id": "file:assets/textures/weapon_polymer_albedo.png",
+      "path": "assets/textures/weapon_polymer_albedo.png",
+      "bytes": 60640,
+      "git_blob_sha1": "57b86ed71667e5a5b569f6a372ddad7077278187",
+      "consumers": [
+        "scripts/weapon_materials.gd:14"
+      ],
+      "validation": "static_only",
+      "category": "texture",
+      "source": "tools/generate_foley_textures.py",
+      "status": "referenced",
+      "license": "original project generator; explicit license file not found",
+      "gaps": [
+        "effective Godot triplanar/material mapping not captured"
+      ]
+    },
+    {
+      "id": "file:assets/textures/weapon_polymer_normal.png",
+      "path": "assets/textures/weapon_polymer_normal.png",
+      "bytes": 101064,
+      "git_blob_sha1": "5cbdb8f3583a9847375bc6134ab5043e4a9f14e8",
+      "consumers": [
+        "scripts/weapon_materials.gd:19"
+      ],
+      "validation": "static_only",
+      "category": "texture",
+      "source": "tools/generate_foley_textures.py",
+      "status": "referenced",
+      "license": "original project generator; explicit license file not found",
+      "gaps": [
+        "effective Godot triplanar/material mapping not captured"
+      ]
+    }
+  ],
+  "source_scripts": [
+    {
+      "path": "scripts/ally.gd",
+      "git_blob_sha1": "7b23c806ae08fbf1dfe929b0e62e96032cd2f279",
+      "bytes": 10912,
+      "role": "scanned_for_runtime_sites"
+    },
+    {
+      "path": "scripts/blood_impact.gd",
+      "git_blob_sha1": "20c79842b97849cc7ef652aad58292e7890bbe73",
+      "bytes": 1644,
+      "role": "scanned_for_runtime_sites"
+    },
+    {
+      "path": "scripts/enemy.gd",
+      "git_blob_sha1": "5d467fee7b8ccdcfd6742caa8c99e4b33169c907",
+      "bytes": 30428,
+      "role": "scanned_for_runtime_sites"
+    },
+    {
+      "path": "scripts/enemy_tactics.gd",
+      "git_blob_sha1": "8b3b3bb383a2dc0bae3913a32abda117daef2e64",
+      "bytes": 3807,
+      "role": "scanned_for_runtime_sites"
+    },
+    {
+      "path": "scripts/frag_grenade.gd",
+      "git_blob_sha1": "4426d1eb4bf2826c90e9c52c0b6f128f83055658",
+      "bytes": 8588,
+      "role": "scanned_for_runtime_sites"
+    },
+    {
+      "path": "scripts/game_menu.gd",
+      "git_blob_sha1": "79e517d2937ee93f6887c218099e91ac3c1cc289",
+      "bytes": 15363,
+      "role": "reviewed_support_script"
+    },
+    {
+      "path": "scripts/game_settings.gd",
+      "git_blob_sha1": "d5d04ecb51851fb3a6383b1d21b4847cfc327c93",
+      "bytes": 5985,
+      "role": "reviewed_support_script"
+    },
+    {
+      "path": "scripts/hit_marker.gd",
+      "git_blob_sha1": "57a4bc011e6c95e5766f9128fddf7c4f387626f3",
+      "bytes": 1052,
+      "role": "reviewed_support_script"
+    },
+    {
+      "path": "scripts/loot_pickup.gd",
+      "git_blob_sha1": "0427ea74ee0d7939331eef3c408d74c74c016cc5",
+      "bytes": 2204,
+      "role": "scanned_for_runtime_sites"
+    },
+    {
+      "path": "scripts/main.gd",
+      "git_blob_sha1": "216afee210a3b972683ca722cbd882169a827021",
+      "bytes": 75767,
+      "role": "scanned_for_runtime_sites"
+    },
+    {
+      "path": "scripts/model_surface.gd",
+      "git_blob_sha1": "4f7695359ee900797ee511403105c73db44a720d",
+      "bytes": 2430,
+      "role": "scanned_for_runtime_sites"
+    },
+    {
+      "path": "scripts/obstacle_steering.gd",
+      "git_blob_sha1": "926a7237e722b7fa7e1c47e7e97b06a53b33815b",
+      "bytes": 1482,
+      "role": "reviewed_support_script"
+    },
+    {
+      "path": "scripts/player.gd",
+      "git_blob_sha1": "5e92e5db95bba95e23e1c8de11b70bae3640d163",
+      "bytes": 75463,
+      "role": "scanned_for_runtime_sites"
+    },
+    {
+      "path": "scripts/quaternius_soldier_visual.gd",
+      "git_blob_sha1": "d29e0bd16d18e3b51936866fe91ba8fd142d9eab",
+      "bytes": 9869,
+      "role": "scanned_for_runtime_sites"
+    },
+    {
+      "path": "scripts/scope.gdshader",
+      "git_blob_sha1": "8e56f1c6af03f823881d48a23c42d20f54ac4032",
+      "bytes": 352,
+      "role": "shader_reviewed"
+    },
+    {
+      "path": "scripts/spawn_selector.gd",
+      "git_blob_sha1": "55e2bb3e466a8e00aad9e2727cf989e40bb0edf6",
+      "bytes": 2378,
+      "role": "scanned_for_runtime_sites"
+    },
+    {
+      "path": "scripts/survival_round_stats.gd",
+      "git_blob_sha1": "10c1938bce13f61ac29fecd125fc6f981adc3dbe",
+      "bytes": 5027,
+      "role": "reviewed_support_script"
+    },
+    {
+      "path": "scripts/turret.gd",
+      "git_blob_sha1": "c0b1c0c05c5a3bb49dfb95fb69b9d919d7a58a52",
+      "bytes": 2294,
+      "role": "scanned_for_runtime_sites"
+    },
+    {
+      "path": "scripts/wave_rules.gd",
+      "git_blob_sha1": "7daa1e553c5a50bbbad18a1fc2e63285b5f5352a",
+      "bytes": 1472,
+      "role": "reviewed_support_script"
+    },
+    {
+      "path": "scripts/weapon_audio.gd",
+      "git_blob_sha1": "666bfd0f0fefa1d1247771f575939462d3d29d52",
+      "bytes": 1803,
+      "role": "scanned_for_runtime_sites"
+    },
+    {
+      "path": "scripts/weapon_materials.gd",
+      "git_blob_sha1": "47ad7823f3d7e2dbd4e727bf041ba369db6b211e",
+      "bytes": 2138,
+      "role": "scanned_for_runtime_sites"
+    },
+    {
+      "path": "scripts/weapon_pose.gd",
+      "git_blob_sha1": "bc6110abe8259a08199be3c781a517cab66cc2b8",
+      "bytes": 2129,
+      "role": "reviewed_support_script"
+    }
+  ],
+  "scenes": [
+    {
+      "path": "scenes/main.tscn",
+      "git_blob_sha1": "a5acfcabfa732af0d60af94b8048f690a0c73d8d",
+      "source": "scripts/main.gd",
+      "role": "entry scene",
+      "runtime_family": "map:campo_de_testes"
+    }
+  ],
+  "tooling": [
+    {
+      "path": ".github/workflows/windows-build.yml",
+      "git_blob_sha1": "8a4283f1ec901abf25b5260815a6e461e2ee07eb",
+      "bytes": 19322
+    },
+    {
+      "path": ".github/workflows/windows-survival-qa.yml",
+      "git_blob_sha1": "ae1bbac8b5005241333b81398b5403fb2ddc141a",
+      "bytes": 2589
+    },
+    {
+      "path": "export_presets.cfg",
+      "git_blob_sha1": "46b8b7af261c83d12dedb6186b8c344b799294e2",
+      "bytes": 1056
+    },
+    {
+      "path": "project.godot",
+      "git_blob_sha1": "7a7091acf052ff6720d5348106db39798ae7ecf4",
+      "bytes": 756
+    },
+    {
+      "path": "tools/build_weapons.py",
+      "git_blob_sha1": "0eeb80436b4675115abed0b3b88183978950de12",
+      "bytes": 27124
+    },
+    {
+      "path": "tools/generate_foley_textures.py",
+      "git_blob_sha1": "ab4d1f4b93e58b36adc627e83f8360d43a92030e",
+      "bytes": 1616
+    },
+    {
+      "path": "tools/verify_project.py",
+      "git_blob_sha1": "1fc2becd548ddcebd6bd6ba9850c32badbcb7d91",
+      "bytes": 13401
+    }
+  ],
+  "runtime_families": [
+    {
+      "id": "map:campo_de_testes",
+      "category": "map",
+      "source": "scripts/main.gd",
+      "functions": [
+        "_create_world",
+        "_add_box",
+        "_add_container",
+        "_add_sandbags",
+        "_add_barrel",
+        "_add_cylinder",
+        "_add_depot_decor",
+        "_add_shop"
+      ],
+      "status": "active",
+      "description": "Piso, paredes, containers, sacos, tambores, pintura, decoração e três estações; composição e colisões runtime.",
+      "site_lines": [
+        398,
+        399,
+        401,
+        402,
+        415,
+        421,
+        428,
+        429,
+        430,
+        431,
+        433,
+        434,
+        435,
+        436,
+        437,
+        438,
+        439,
+        440,
+        441,
+        443,
+        444,
+        445,
+        448,
+        452,
+        456,
+        465,
+        467,
+        470,
+        471,
+        474,
+        477,
+        486,
+        487,
+        490,
+        495,
+        499,
+        500,
+        501,
+        502,
+        508,
+        509,
+        512,
+        513,
+        514,
+        516,
+        518,
+        519,
+        522,
+        523,
+        524,
+        525,
+        536,
+        541,
+        544,
+        545,
+        547,
+        548,
+        558,
+        559,
+        567,
+        568,
+        569
+      ],
+      "export": null,
+      "material_and_transform": "defined in source; effective runtime capture pending",
+      "collision_and_lod": "inspect engine when applicable",
+      "license": "project code; explicit license file not found",
+      "validation": "static_source_only",
+      "runtime_capture": "pending"
+    },
+    {
+      "id": "environment:lighting",
+      "category": "environment",
+      "source": "scripts/main.gd",
+      "functions": [
+        "_create_world"
+      ],
+      "status": "active",
+      "description": "Céu, luz, ambiente e névoa; configuração Godot.",
+      "site_lines": [
+        398,
+        399,
+        401,
+        402,
+        415,
+        421,
+        428,
+        429,
+        430,
+        431,
+        433,
+        434,
+        435,
+        436,
+        437,
+        438,
+        439,
+        440,
+        441,
+        443,
+        444,
+        445
+      ],
+      "export": null,
+      "material_and_transform": "defined in source; effective runtime capture pending",
+      "collision_and_lod": "inspect engine when applicable",
+      "license": "project code; explicit license file not found",
+      "validation": "static_source_only",
+      "runtime_capture": "pending"
+    },
+    {
+      "id": "viewmodel:assembly",
+      "category": "first_person",
+      "source": "scripts/player.gd",
+      "functions": [
+        "_ready",
+        "_update_gun_mesh",
+        "_piece",
+        "_gun_box",
+        "_gun_tube"
+      ],
+      "status": "active_with_legacy_helpers",
+      "description": "GLBs separados, projeção, mãos e recursos construídos por código; helpers não necessariamente chamados.",
+      "site_lines": [
+        173,
+        174,
+        181,
+        193,
+        199,
+        207,
+        213,
+        215,
+        854,
+        858,
+        867,
+        869,
+        872,
+        876,
+        942,
+        969,
+        976,
+        977,
+        985
+      ],
+      "export": null,
+      "material_and_transform": "defined in source; effective runtime capture pending",
+      "collision_and_lod": "inspect engine when applicable",
+      "license": "project code; explicit license file not found",
+      "validation": "static_source_only",
+      "runtime_capture": "pending"
+    },
+    {
+      "id": "viewmodel:hands",
+      "category": "character",
+      "source": "scripts/player.gd",
+      "functions": [
+        "_arm_piece",
+        "_arm_link",
+        "_arm_capsule_link",
+        "_add_first_person_arm"
+      ],
+      "status": "active",
+      "description": "Mãos, dedos, braços, luvas e juntas; poses procedurais.",
+      "site_lines": [
+        1401,
+        1408,
+        1421,
+        1445,
+        1453,
+        1456,
+        1473,
+        1478,
+        1479,
+        1484,
+        1485,
+        1490,
+        1497,
+        1500,
+        1504,
+        1509,
+        1521,
+        1526,
+        1527,
+        1532,
+        1544,
+        1549,
+        1550,
+        1555
+      ],
+      "export": null,
+      "material_and_transform": "defined in source; effective runtime capture pending",
+      "collision_and_lod": "inspect engine when applicable",
+      "license": "project code; explicit license file not found",
+      "validation": "static_source_only",
+      "runtime_capture": "pending"
+    },
+    {
+      "id": "viewmodel:attachments",
+      "category": "accessory",
+      "source": "scripts/player.gd",
+      "functions": [
+        "_build_attachment_models",
+        "_build_sniper_scope"
+      ],
+      "status": "active",
+      "description": "Ópticas e acessórios definidos no código; materiais e hierarquia runtime.",
+      "site_lines": [
+        995,
+        1002,
+        1008,
+        1010,
+        1021,
+        1023,
+        1033,
+        1035,
+        1040,
+        1042,
+        1047,
+        1067,
+        1072,
+        1076,
+        1084,
+        1086,
+        1099,
+        1101,
+        1107,
+        1109,
+        1120,
+        1122,
+        1139,
+        1141,
+        1146,
+        1148,
+        1153,
+        1155,
+        1162,
+        1174,
+        1176,
+        1184
+      ],
+      "export": null,
+      "material_and_transform": "defined in source; effective runtime capture pending",
+      "collision_and_lod": "inspect engine when applicable",
+      "license": "project code; explicit license file not found",
+      "validation": "static_source_only",
+      "runtime_capture": "pending"
+    },
+    {
+      "id": "player:collision",
+      "category": "collision",
+      "source": "scripts/player.gd",
+      "functions": [
+        "_ready",
+        "_can_expand_to_height"
+      ],
+      "status": "active",
+      "description": "Capsula e consulta de postura; não equivalem à malha visual.",
+      "site_lines": [
+        173,
+        174,
+        181,
+        193,
+        199,
+        207,
+        213,
+        215,
+        250
+      ],
+      "export": null,
+      "material_and_transform": "defined in source; effective runtime capture pending",
+      "collision_and_lod": "inspect engine when applicable",
+      "license": "project code; explicit license file not found",
+      "validation": "static_source_only",
+      "runtime_capture": "pending"
+    },
+    {
+      "id": "enemy:legacy",
+      "category": "character",
+      "source": "scripts/enemy.gd",
+      "functions": [
+        "_ready",
+        "_joint",
+        "_part",
+        "_box",
+        "_capsule"
+      ],
+      "status": "active",
+      "description": "Corpo, equipamento, arma GLB, juntas e colisão; variantes por configuração.",
+      "site_lines": [
+        124,
+        131,
+        136,
+        145,
+        146,
+        149,
+        154,
+        160,
+        161,
+        192,
+        193,
+        194,
+        196,
+        198,
+        200,
+        201,
+        204,
+        206,
+        208,
+        209,
+        210,
+        211,
+        212,
+        213,
+        215,
+        216,
+        219,
+        220,
+        221,
+        222,
+        223,
+        224,
+        231,
+        232,
+        233,
+        235,
+        236,
+        237,
+        245,
+        259,
+        264
+      ],
+      "export": null,
+      "material_and_transform": "defined in source; effective runtime capture pending",
+      "collision_and_lod": "inspect engine when applicable",
+      "license": "project code; explicit license file not found",
+      "validation": "static_source_only",
+      "runtime_capture": "pending"
+    },
+    {
+      "id": "ally:legacy",
+      "category": "character",
+      "source": "scripts/ally.gd",
+      "functions": [
+        "_ready",
+        "_joint",
+        "_piece",
+        "_box",
+        "_capsule"
+      ],
+      "status": "active",
+      "description": "Corpo, equipamento, arma, articulações e colisão.",
+      "site_lines": [
+        41,
+        48,
+        52,
+        60,
+        61,
+        64,
+        69,
+        75,
+        76,
+        85,
+        86,
+        87,
+        89,
+        91,
+        93,
+        96,
+        97,
+        98,
+        99,
+        100,
+        101,
+        104,
+        105,
+        106,
+        107,
+        108,
+        109,
+        116,
+        117,
+        118,
+        120,
+        121,
+        122,
+        123,
+        130,
+        139,
+        143
+      ],
+      "export": null,
+      "material_and_transform": "defined in source; effective runtime capture pending",
+      "collision_and_lod": "inspect engine when applicable",
+      "license": "project code; explicit license file not found",
+      "validation": "static_source_only",
+      "runtime_capture": "pending"
+    },
+    {
+      "id": "character:quaternius_equipment",
+      "category": "character",
+      "source": "scripts/quaternius_soldier_visual.gd",
+      "functions": [
+        "_paint_character_meshes",
+        "_create_tactical_equipment",
+        "_equip_capsule",
+        "_equip_box"
+      ],
+      "status": "experimental_disabled",
+      "description": "Rig importado com peças e materiais adicionais.",
+      "site_lines": [
+        83,
+        128,
+        130,
+        132,
+        134,
+        136,
+        138,
+        143,
+        148,
+        153,
+        160,
+        162,
+        166
+      ],
+      "export": null,
+      "material_and_transform": "defined in source; effective runtime capture pending",
+      "collision_and_lod": "inspect engine when applicable",
+      "license": "project code; explicit license file not found",
+      "validation": "static_source_only",
+      "runtime_capture": "pending"
+    },
+    {
+      "id": "object:loot",
+      "category": "object",
+      "source": "scripts/loot_pickup.gd",
+      "functions": [
+        "_ready"
+      ],
+      "status": "active",
+      "description": "Arma ou caixa de munição criada por código.",
+      "site_lines": [
+        30,
+        31,
+        34,
+        39,
+        40,
+        43
+      ],
+      "export": null,
+      "material_and_transform": "defined in source; effective runtime capture pending",
+      "collision_and_lod": "inspect engine when applicable",
+      "license": "project code; explicit license file not found",
+      "validation": "static_source_only",
+      "runtime_capture": "pending"
+    },
+    {
+      "id": "object:turret",
+      "category": "object",
+      "source": "scripts/turret.gd",
+      "functions": [
+        "_ready"
+      ],
+      "status": "active",
+      "description": "Base e componentes ModelSurface.",
+      "site_lines": [
+        11,
+        12,
+        19,
+        22,
+        23,
+        28
+      ],
+      "export": null,
+      "material_and_transform": "defined in source; effective runtime capture pending",
+      "collision_and_lod": "inspect engine when applicable",
+      "license": "project code; explicit license file not found",
+      "validation": "static_source_only",
+      "runtime_capture": "pending"
+    },
+    {
+      "id": "object:grenade",
+      "category": "object",
+      "source": "scripts/frag_grenade.gd",
+      "functions": [
+        "_ready",
+        "_make_body"
+      ],
+      "status": "active",
+      "description": "Corpo visual e colisão física.",
+      "site_lines": [
+        37,
+        39,
+        43,
+        60,
+        64,
+        68,
+        70,
+        78,
+        80,
+        87,
+        89
+      ],
+      "export": null,
+      "material_and_transform": "defined in source; effective runtime capture pending",
+      "collision_and_lod": "inspect engine when applicable",
+      "license": "project code; explicit license file not found",
+      "validation": "static_source_only",
+      "runtime_capture": "pending"
+    },
+    {
+      "id": "effect:grenade",
+      "category": "effect",
+      "source": "scripts/frag_grenade.gd",
+      "functions": [
+        "_effect_sphere",
+        "_spawn_explosion_effects"
+      ],
+      "status": "active",
+      "description": "Flash, anel e efeitos transitórios.",
+      "site_lines": [
+        155,
+        160,
+        163,
+        175,
+        180,
+        185,
+        188,
+        198,
+        207,
+        218
+      ],
+      "export": null,
+      "material_and_transform": "defined in source; effective runtime capture pending",
+      "collision_and_lod": "inspect engine when applicable",
+      "license": "project code; explicit license file not found",
+      "validation": "static_source_only",
+      "runtime_capture": "pending"
+    },
+    {
+      "id": "effect:combat",
+      "category": "effect",
+      "source": "scripts/main.gd",
+      "functions": [
+        "_call_airstrike",
+        "_airstrike_impact",
+        "_on_shot_fired"
+      ],
+      "status": "active",
+      "description": "Marcador e efeito de apoio, traçadores, cápsulas, impactos.",
+      "site_lines": [
+        1071,
+        1072,
+        1077,
+        1103,
+        1104,
+        1108,
+        1212,
+        1213,
+        1220,
+        1231,
+        1232,
+        1238,
+        1250,
+        1251,
+        1256
+      ],
+      "export": null,
+      "material_and_transform": "defined in source; effective runtime capture pending",
+      "collision_and_lod": "inspect engine when applicable",
+      "license": "project code; explicit license file not found",
+      "validation": "static_source_only",
+      "runtime_capture": "pending"
+    },
+    {
+      "id": "effect:enemy_tracer",
+      "category": "effect",
+      "source": "scripts/enemy.gd",
+      "functions": [
+        "_brief_enemy_tracer"
+      ],
+      "status": "active",
+      "description": "Efeito transitório.",
+      "site_lines": [
+        567,
+        568,
+        575
+      ],
+      "export": null,
+      "material_and_transform": "defined in source; effective runtime capture pending",
+      "collision_and_lod": "inspect engine when applicable",
+      "license": "project code; explicit license file not found",
+      "validation": "static_source_only",
+      "runtime_capture": "pending"
+    },
+    {
+      "id": "effect:blood",
+      "category": "effect",
+      "source": "scripts/blood_impact.gd",
+      "functions": [
+        "_ready"
+      ],
+      "status": "active",
+      "description": "Gotas transitórias.",
+      "site_lines": [
+        9,
+        14,
+        20
+      ],
+      "export": null,
+      "material_and_transform": "defined in source; effective runtime capture pending",
+      "collision_and_lod": "inspect engine when applicable",
+      "license": "project code; explicit license file not found",
+      "validation": "static_source_only",
+      "runtime_capture": "pending"
+    },
+    {
+      "id": "effect:muzzle",
+      "category": "effect",
+      "source": "scripts/player.gd",
+      "functions": [
+        "_ready",
+        "_build_muzzle_flash"
+      ],
+      "status": "active",
+      "description": "Clarão de disparo; malha criada em código.",
+      "site_lines": [
+        173,
+        174,
+        181,
+        193,
+        199,
+        207,
+        213,
+        215,
+        880
+      ],
+      "export": null,
+      "material_and_transform": "defined in source; effective runtime capture pending",
+      "collision_and_lod": "inspect engine when applicable",
+      "license": "project code; explicit license file not found",
+      "validation": "static_source_only",
+      "runtime_capture": "pending"
+    },
+    {
+      "id": "effect:scope_overlay",
+      "category": "shader",
+      "source": "scripts/scope.gdshader",
+      "functions": [],
+      "status": "active",
+      "description": "Shader canvas_item; não é malha GLB.",
+      "site_lines": [],
+      "export": null,
+      "material_and_transform": "defined in source; effective runtime capture pending",
+      "collision_and_lod": "inspect engine when applicable",
+      "license": "project code; explicit license file not found",
+      "validation": "static_source_only",
+      "runtime_capture": "pending"
+    },
+    {
+      "id": "geometry:model_surface",
+      "category": "geometry_library",
+      "source": "scripts/model_surface.gd",
+      "functions": [
+        "body",
+        "_grid"
+      ],
+      "status": "active",
+      "description": "Receita compartilhada, cache, UV, normais e LOD; instâncias em vários scripts.",
+      "site_lines": [
+        40
+      ],
+      "export": null,
+      "material_and_transform": "defined in source; effective runtime capture pending",
+      "collision_and_lod": "inspect engine when applicable",
+      "license": "project code; explicit license file not found",
+      "validation": "static_source_only",
+      "runtime_capture": "pending"
+    },
+    {
+      "id": "material:weapon_overrides",
+      "category": "material",
+      "source": "scripts/weapon_materials.gd",
+      "functions": [
+        "_build_surface",
+        "_paint_recursive"
+      ],
+      "status": "active",
+      "description": "Texturas e material efetivo do jogo; seleção por nome.",
+      "site_lines": [
+        8
+      ],
+      "export": null,
+      "material_and_transform": "defined in source; effective runtime capture pending",
+      "collision_and_lod": "inspect engine when applicable",
+      "license": "project code; explicit license file not found",
+      "validation": "static_source_only",
+      "runtime_capture": "pending"
+    },
+    {
+      "id": "query:spawn",
+      "category": "physics_query",
+      "source": "scripts/spawn_selector.gd",
+      "functions": [],
+      "status": "active",
+      "description": "Forma de consulta de spawn; não renderizável.",
+      "site_lines": [
+        18
+      ],
+      "export": null,
+      "material_and_transform": "defined in source; effective runtime capture pending",
+      "collision_and_lod": "inspect engine when applicable",
+      "license": "project code; explicit license file not found",
+      "validation": "static_source_only",
+      "runtime_capture": "pending"
+    },
+    {
+      "id": "query:enemy_tactics",
+      "category": "physics_query",
+      "source": "scripts/enemy_tactics.gd",
+      "functions": [],
+      "status": "active",
+      "description": "Forma de consulta tática; não renderizável.",
+      "site_lines": [
+        14
+      ],
+      "export": null,
+      "material_and_transform": "defined in source; effective runtime capture pending",
+      "collision_and_lod": "inspect engine when applicable",
+      "license": "project code; explicit license file not found",
+      "validation": "static_source_only",
+      "runtime_capture": "pending"
+    },
+    {
+      "id": "query:turret",
+      "category": "physics_query",
+      "source": "scripts/main.gd",
+      "functions": [
+        "_turret_position"
+      ],
+      "status": "active",
+      "description": "Consulta de colocação; não renderizável.",
+      "site_lines": [
+        1011
+      ],
+      "export": null,
+      "material_and_transform": "defined in source; effective runtime capture pending",
+      "collision_and_lod": "inspect engine when applicable",
+      "license": "project code; explicit license file not found",
+      "validation": "static_source_only",
+      "runtime_capture": "pending"
+    },
+    {
+      "id": "camera:briefing",
+      "category": "camera",
+      "source": "scripts/main.gd",
+      "functions": [
+        "_ready"
+      ],
+      "status": "active",
+      "description": "Câmera de apresentação do menu inicial; distinta da câmera do jogador.",
+      "site_lines": [
+        271
+      ],
+      "export": null,
+      "material_and_transform": "defined in source; effective runtime capture pending",
+      "collision_and_lod": "not applicable",
+      "license": "project code; explicit license file not found",
+      "validation": "static_source_only",
+      "runtime_capture": "pending"
+    }
+  ],
+  "constructor_sites": [
+    {
+      "source": "scripts/main.gd",
+      "function": "_ready",
+      "line": 271,
+      "expression": "briefing_camera = Camera3D.new()"
+    },
+    {
+      "source": "scripts/main.gd",
+      "function": "_create_world",
+      "line": 398,
+      "expression": "var world_env := WorldEnvironment.new()"
+    },
+    {
+      "source": "scripts/main.gd",
+      "function": "_create_world",
+      "line": 399,
+      "expression": "var environment := Environment.new()"
+    },
+    {
+      "source": "scripts/main.gd",
+      "function": "_create_world",
+      "line": 401,
+      "expression": "var sky := Sky.new()"
+    },
+    {
+      "source": "scripts/main.gd",
+      "function": "_create_world",
+      "line": 402,
+      "expression": "var sky_mat := ProceduralSkyMaterial.new()"
+    },
+    {
+      "source": "scripts/main.gd",
+      "function": "_create_world",
+      "line": 415,
+      "expression": "var sun := DirectionalLight3D.new()"
+    },
+    {
+      "source": "scripts/main.gd",
+      "function": "_create_world",
+      "line": 421,
+      "expression": "var ground := _add_box(Vector3(0, -0.5, 0), Vector3(52, 1, 52), Color(0.83, 0.87, 0.83))"
+    },
+    {
+      "source": "scripts/main.gd",
+      "function": "_create_world",
+      "line": 428,
+      "expression": "_add_box(Vector3(0, 2.2, -26), Vector3(52, 4.4, 1), Color(0.33, 0.37, 0.41))"
+    },
+    {
+      "source": "scripts/main.gd",
+      "function": "_create_world",
+      "line": 429,
+      "expression": "_add_box(Vector3(0, 2.2, 26), Vector3(52, 4.4, 1), Color(0.34, 0.37, 0.40))"
+    },
+    {
+      "source": "scripts/main.gd",
+      "function": "_create_world",
+      "line": 430,
+      "expression": "_add_box(Vector3(-26, 2.2, 0), Vector3(1, 4.4, 52), Color(0.35, 0.39, 0.41))"
+    },
+    {
+      "source": "scripts/main.gd",
+      "function": "_create_world",
+      "line": 431,
+      "expression": "_add_box(Vector3(26, 2.2, 0), Vector3(1, 4.4, 52), Color(0.34, 0.37, 0.39))"
+    },
+    {
+      "source": "scripts/main.gd",
+      "function": "_create_world",
+      "line": 433,
+      "expression": "_add_container(Vector3(-9, 1.20, -6), Vector3(5.2, 2.4, 2.0), Color(0.33, 0.40, 0.33))"
+    },
+    {
+      "source": "scripts/main.gd",
+      "function": "_create_world",
+      "line": 434,
+      "expression": "_add_container(Vector3(9, 1.00, 6), Vector3(5.5, 2.0, 2.0), Color(0.47, 0.34, 0.24))"
+    },
+    {
+      "source": "scripts/main.gd",
+      "function": "_create_world",
+      "line": 435,
+      "expression": "_add_container(Vector3(-9, 1.10, 8), Vector3(2.2, 2.2, 4.3), Color(0.26, 0.39, 0.42))"
+    },
+    {
+      "source": "scripts/main.gd",
+      "function": "_create_world",
+      "line": 436,
+      "expression": "_add_container(Vector3(10, 0.80, -9), Vector3(2.5, 1.6, 4.0), Color(0.32, 0.36, 0.33))"
+    },
+    {
+      "source": "scripts/main.gd",
+      "function": "_create_world",
+      "line": 437,
+      "expression": "_add_sandbags(Vector3(-2, 0.0, -13), 4, 2)"
+    },
+    {
+      "source": "scripts/main.gd",
+      "function": "_create_world",
+      "line": 438,
+      "expression": "_add_sandbags(Vector3(2, 0.0, 13), 4, 2)"
+    },
+    {
+      "source": "scripts/main.gd",
+      "function": "_create_world",
+      "line": 439,
+      "expression": "_add_sandbags(Vector3(-15, 0.0, 1), 3, 2)"
+    },
+    {
+      "source": "scripts/main.gd",
+      "function": "_create_world",
+      "line": 440,
+      "expression": "_add_sandbags(Vector3(16, 0.0, -1), 3, 2)"
+    },
+    {
+      "source": "scripts/main.gd",
+      "function": "_create_world",
+      "line": 441,
+      "expression": "_add_depot_decor()"
+    },
+    {
+      "source": "scripts/main.gd",
+      "function": "_create_world",
+      "line": 443,
+      "expression": "_add_shop(\"weapons\", \"ARMAS\", Vector3(-19, 0, -19), Color(0.83, 0.30, 0.22))"
+    },
+    {
+      "source": "scripts/main.gd",
+      "function": "_create_world",
+      "line": 444,
+      "expression": "_add_shop(\"gear\", \"EQUIPAMENTOS\", Vector3(19, 0, -19), Color(0.24, 0.67, 0.36))"
+    },
+    {
+      "source": "scripts/main.gd",
+      "function": "_create_world",
+      "line": 445,
+      "expression": "_add_shop(\"support\", \"SUPORTE\", Vector3(0, 0, 21), Color(0.22, 0.62, 0.84))"
+    },
+    {
+      "source": "scripts/main.gd",
+      "function": "_add_cylinder",
+      "line": 448,
+      "expression": "var mesh := CylinderMesh.new()"
+    },
+    {
+      "source": "scripts/main.gd",
+      "function": "_add_cylinder",
+      "line": 452,
+      "expression": "var part := MeshInstance3D.new()"
+    },
+    {
+      "source": "scripts/main.gd",
+      "function": "_add_cylinder",
+      "line": 456,
+      "expression": "var mat := StandardMaterial3D.new()"
+    },
+    {
+      "source": "scripts/main.gd",
+      "function": "_add_container",
+      "line": 465,
+      "expression": "_add_box(at, dimensions, color)"
+    },
+    {
+      "source": "scripts/main.gd",
+      "function": "_add_container",
+      "line": 467,
+      "expression": "_add_box(at + Vector3(0, dimensions.y * 0.5 + 0.015, 0), Vector3(dimensions.x + 0.08, 0.05, dimensions.z + 0.08), dark, false)"
+    },
+    {
+      "source": "scripts/main.gd",
+      "function": "_add_container",
+      "line": 470,
+      "expression": "_add_box(Vector3(x, at.y, at.z + dimensions.z * 0.5 + 0.025), Vector3(0.038, dimensions.y - 0.12, 0.045), dark, false)"
+    },
+    {
+      "source": "scripts/main.gd",
+      "function": "_add_container",
+      "line": 471,
+      "expression": "_add_box(Vector3(x, at.y, at.z - dimensions.z * 0.5 - 0.025), Vector3(0.038, dimensions.y - 0.12, 0.045), dark, false)"
+    },
+    {
+      "source": "scripts/main.gd",
+      "function": "_add_container",
+      "line": 474,
+      "expression": "_add_box(Vector3(at.x + dimensions.x * 0.5 + 0.026, at.y, z), Vector3(0.045, dimensions.y - 0.12, 0.038), dark, false)"
+    },
+    {
+      "source": "scripts/main.gd",
+      "function": "_add_container",
+      "line": 477,
+      "expression": "_add_box(Vector3(at.x + sx * (dimensions.x * 0.5), at.y, at.z), Vector3(0.08, dimensions.y + 0.05, 0.10), dark, false)"
+    },
+    {
+      "source": "scripts/main.gd",
+      "function": "_add_sandbags",
+      "line": 486,
+      "expression": "var item := MeshInstance3D.new()"
+    },
+    {
+      "source": "scripts/main.gd",
+      "function": "_add_sandbags",
+      "line": 487,
+      "expression": "item.mesh = ModelSurface.body(Vector3(0.90, 0.39, 0.46), ModelSurface.Profile.PADDED)"
+    },
+    {
+      "source": "scripts/main.gd",
+      "function": "_add_sandbags",
+      "line": 490,
+      "expression": "var mat := StandardMaterial3D.new()"
+    },
+    {
+      "source": "scripts/main.gd",
+      "function": "_add_sandbags",
+      "line": 495,
+      "expression": "var hidden_blocker := _add_box(center + Vector3(0, float(levels) * 0.17, 0), Vector3(float(count) * 0.86, float(levels) * 0.34, 0.39), Color(0.50, 0.47, 0.34), true)"
+    },
+    {
+      "source": "scripts/main.gd",
+      "function": "_add_barrel",
+      "line": 499,
+      "expression": "_add_cylinder(center + Vector3(0, 0.53, 0), 0.34, 1.05, color)"
+    },
+    {
+      "source": "scripts/main.gd",
+      "function": "_add_barrel",
+      "line": 500,
+      "expression": "_add_cylinder(center + Vector3(0, 0.83, 0), 0.35, 0.055, color.lightened(0.16))"
+    },
+    {
+      "source": "scripts/main.gd",
+      "function": "_add_barrel",
+      "line": 501,
+      "expression": "_add_cylinder(center + Vector3(0, 0.20, 0), 0.35, 0.055, color.lightened(0.13))"
+    },
+    {
+      "source": "scripts/main.gd",
+      "function": "_add_barrel",
+      "line": 502,
+      "expression": "_add_cylinder(center + Vector3(0, 1.07, 0), 0.34, 0.03, Color(0.13, 0.18, 0.19))"
+    },
+    {
+      "source": "scripts/main.gd",
+      "function": "_add_depot_decor",
+      "line": 508,
+      "expression": "_add_box(Vector3(-13 + float(i) * 3.5, 0.02, -16.7), Vector3(1.5, 0.025, 0.11), paint, false)"
+    },
+    {
+      "source": "scripts/main.gd",
+      "function": "_add_depot_decor",
+      "line": 509,
+      "expression": "_add_box(Vector3(0, 0.015, -2.2), Vector3(0.10, 0.022, 29.0), Color(0.64, 0.64, 0.53), false)"
+    },
+    {
+      "source": "scripts/main.gd",
+      "function": "_add_depot_decor",
+      "line": 512,
+      "expression": "_add_box(Vector3(x, 2.3, -25.4), Vector3(7.5, 3.7, 0.18), Color(0.21, 0.26, 0.30), false)"
+    },
+    {
+      "source": "scripts/main.gd",
+      "function": "_add_depot_decor",
+      "line": 513,
+      "expression": "_add_box(Vector3(x, 4.3, -25.0), Vector3(8.0, 0.12, 1.6), Color(0.13, 0.16, 0.18), false)"
+    },
+    {
+      "source": "scripts/main.gd",
+      "function": "_add_depot_decor",
+      "line": 514,
+      "expression": "_add_box(Vector3(x, 3.7, -25.25), Vector3(6.4, 0.14, 0.20), Color(0.57, 0.51, 0.31), false)"
+    },
+    {
+      "source": "scripts/main.gd",
+      "function": "_add_depot_decor",
+      "line": 516,
+      "expression": "_add_box(Vector3(x - 2.7 + float(j) * 1.35, 2.2, -25.29), Vector3(0.045, 3.0, 0.04), Color(0.33, 0.40, 0.43), false)"
+    },
+    {
+      "source": "scripts/main.gd",
+      "function": "_add_depot_decor",
+      "line": 518,
+      "expression": "_add_barrel(where, Color(0.31, 0.44, 0.46))"
+    },
+    {
+      "source": "scripts/main.gd",
+      "function": "_add_depot_decor",
+      "line": 519,
+      "expression": "_add_barrel(where + Vector3(0.83, 0, 0.25), Color(0.43, 0.34, 0.25))"
+    },
+    {
+      "source": "scripts/main.gd",
+      "function": "_add_depot_decor",
+      "line": 522,
+      "expression": "_add_cylinder(Vector3(x, 2.3, z), 0.09, 4.6, Color(0.25, 0.28, 0.28))"
+    },
+    {
+      "source": "scripts/main.gd",
+      "function": "_add_depot_decor",
+      "line": 523,
+      "expression": "_add_box(Vector3(x, 4.6, z), Vector3(0.8, 0.27, 0.55), Color(0.18, 0.21, 0.21), false)"
+    },
+    {
+      "source": "scripts/main.gd",
+      "function": "_add_depot_decor",
+      "line": 524,
+      "expression": "_add_box(Vector3(x, 4.5, z - 0.24), Vector3(0.58, 0.13, 0.08), Color(0.88, 0.78, 0.44), false)"
+    },
+    {
+      "source": "scripts/main.gd",
+      "function": "_add_depot_decor",
+      "line": 525,
+      "expression": "var badge := Label3D.new()"
+    },
+    {
+      "source": "scripts/main.gd",
+      "function": "_add_box",
+      "line": 536,
+      "expression": "var static_body := StaticBody3D.new()"
+    },
+    {
+      "source": "scripts/main.gd",
+      "function": "_add_box",
+      "line": 541,
+      "expression": "root = Node3D.new()"
+    },
+    {
+      "source": "scripts/main.gd",
+      "function": "_add_box",
+      "line": 544,
+      "expression": "var model := MeshInstance3D.new()"
+    },
+    {
+      "source": "scripts/main.gd",
+      "function": "_add_box",
+      "line": 545,
+      "expression": "var cube := BoxMesh.new()"
+    },
+    {
+      "source": "scripts/main.gd",
+      "function": "_add_box",
+      "line": 547,
+      "expression": "model.mesh = cube if solid or dimensions[dimensions.min_axis_index()] < 0.035 else ModelSurface.body(dimensions, ModelSurface.Profile.MACHINED)"
+    },
+    {
+      "source": "scripts/main.gd",
+      "function": "_add_box",
+      "line": 548,
+      "expression": "var mat := StandardMaterial3D.new()"
+    },
+    {
+      "source": "scripts/main.gd",
+      "function": "_add_box",
+      "line": 558,
+      "expression": "var shape := CollisionShape3D.new()"
+    },
+    {
+      "source": "scripts/main.gd",
+      "function": "_add_box",
+      "line": 559,
+      "expression": "var box_shape := BoxShape3D.new()"
+    },
+    {
+      "source": "scripts/main.gd",
+      "function": "_add_shop",
+      "line": 567,
+      "expression": "_add_box(at + Vector3(0, 0.35, 0), Vector3(2.6, 0.7, 1.8), color, false)"
+    },
+    {
+      "source": "scripts/main.gd",
+      "function": "_add_shop",
+      "line": 568,
+      "expression": "_add_box(at + Vector3(0, 1.05, 0), Vector3(2.1, 0.7, 1.0), Color(0.12, 0.16, 0.18), false)"
+    },
+    {
+      "source": "scripts/main.gd",
+      "function": "_add_shop",
+      "line": 569,
+      "expression": "var label := Label3D.new()"
+    },
+    {
+      "source": "scripts/main.gd",
+      "function": "_turret_position",
+      "line": 1011,
+      "expression": "var shape := CylinderShape3D.new()"
+    },
+    {
+      "source": "scripts/main.gd",
+      "function": "_call_airstrike",
+      "line": 1071,
+      "expression": "var marker := MeshInstance3D.new()"
+    },
+    {
+      "source": "scripts/main.gd",
+      "function": "_call_airstrike",
+      "line": 1072,
+      "expression": "var marker_mesh := CylinderMesh.new()"
+    },
+    {
+      "source": "scripts/main.gd",
+      "function": "_call_airstrike",
+      "line": 1077,
+      "expression": "var marker_mat := StandardMaterial3D.new()"
+    },
+    {
+      "source": "scripts/main.gd",
+      "function": "_airstrike_impact",
+      "line": 1103,
+      "expression": "var blast := MeshInstance3D.new()"
+    },
+    {
+      "source": "scripts/main.gd",
+      "function": "_airstrike_impact",
+      "line": 1104,
+      "expression": "var sphere := SphereMesh.new()"
+    },
+    {
+      "source": "scripts/main.gd",
+      "function": "_airstrike_impact",
+      "line": 1108,
+      "expression": "var mat := StandardMaterial3D.new()"
+    },
+    {
+      "source": "scripts/main.gd",
+      "function": "_on_shot_fired",
+      "line": 1212,
+      "expression": "var tracer := MeshInstance3D.new()"
+    },
+    {
+      "source": "scripts/main.gd",
+      "function": "_on_shot_fired",
+      "line": 1213,
+      "expression": "var streak := CylinderMesh.new()"
+    },
+    {
+      "source": "scripts/main.gd",
+      "function": "_on_shot_fired",
+      "line": 1220,
+      "expression": "var mat := StandardMaterial3D.new()"
+    },
+    {
+      "source": "scripts/main.gd",
+      "function": "_on_shot_fired",
+      "line": 1231,
+      "expression": "var casing := MeshInstance3D.new()"
+    },
+    {
+      "source": "scripts/main.gd",
+      "function": "_on_shot_fired",
+      "line": 1232,
+      "expression": "var shell_mesh := CylinderMesh.new()"
+    },
+    {
+      "source": "scripts/main.gd",
+      "function": "_on_shot_fired",
+      "line": 1238,
+      "expression": "var shell_mat := StandardMaterial3D.new()"
+    },
+    {
+      "source": "scripts/main.gd",
+      "function": "_on_shot_fired",
+      "line": 1250,
+      "expression": "var impact := MeshInstance3D.new()"
+    },
+    {
+      "source": "scripts/main.gd",
+      "function": "_on_shot_fired",
+      "line": 1251,
+      "expression": "var mesh := SphereMesh.new()"
+    },
+    {
+      "source": "scripts/main.gd",
+      "function": "_on_shot_fired",
+      "line": 1256,
+      "expression": "var impact_mat := StandardMaterial3D.new()"
+    },
+    {
+      "source": "scripts/player.gd",
+      "function": "_ready",
+      "line": 173,
+      "expression": "var collider := CollisionShape3D.new()"
+    },
+    {
+      "source": "scripts/player.gd",
+      "function": "_ready",
+      "line": 174,
+      "expression": "var capsule := CapsuleShape3D.new()"
+    },
+    {
+      "source": "scripts/player.gd",
+      "function": "_ready",
+      "line": 181,
+      "expression": "camera = Camera3D.new()"
+    },
+    {
+      "source": "scripts/player.gd",
+      "function": "_ready",
+      "line": 193,
+      "expression": "viewmodel_projection = Node3D.new()"
+    },
+    {
+      "source": "scripts/player.gd",
+      "function": "_ready",
+      "line": 199,
+      "expression": "gun = Node3D.new()"
+    },
+    {
+      "source": "scripts/player.gd",
+      "function": "_ready",
+      "line": 207,
+      "expression": "var lens := ShaderMaterial.new()"
+    },
+    {
+      "source": "scripts/player.gd",
+      "function": "_ready",
+      "line": 213,
+      "expression": "muzzle_flash = MeshInstance3D.new()"
+    },
+    {
+      "source": "scripts/player.gd",
+      "function": "_ready",
+      "line": 215,
+      "expression": "var flash_mat := StandardMaterial3D.new()"
+    },
+    {
+      "source": "scripts/player.gd",
+      "function": "_can_expand_to_height",
+      "line": 250,
+      "expression": "var probe := CapsuleShape3D.new()"
+    },
+    {
+      "source": "scripts/player.gd",
+      "function": "_piece",
+      "line": 854,
+      "expression": "var part := MeshInstance3D.new()"
+    },
+    {
+      "source": "scripts/player.gd",
+      "function": "_piece",
+      "line": 858,
+      "expression": "var material := StandardMaterial3D.new()"
+    },
+    {
+      "source": "scripts/player.gd",
+      "function": "_gun_box",
+      "line": 867,
+      "expression": "var shape := BoxMesh.new()"
+    },
+    {
+      "source": "scripts/player.gd",
+      "function": "_gun_box",
+      "line": 869,
+      "expression": "_piece(shape, at, color, angle)"
+    },
+    {
+      "source": "scripts/player.gd",
+      "function": "_gun_tube",
+      "line": 872,
+      "expression": "var tube := CylinderMesh.new()"
+    },
+    {
+      "source": "scripts/player.gd",
+      "function": "_gun_tube",
+      "line": 876,
+      "expression": "_piece(tube, at, color, angle)"
+    },
+    {
+      "source": "scripts/player.gd",
+      "function": "_build_muzzle_flash",
+      "line": 880,
+      "expression": "var st := SurfaceTool.new()"
+    },
+    {
+      "source": "scripts/player.gd",
+      "function": "_update_gun_mesh",
+      "line": 942,
+      "expression": "viewmodel_root = Node3D.new()"
+    },
+    {
+      "source": "scripts/player.gd",
+      "function": "_update_gun_mesh",
+      "line": 969,
+      "expression": "hand_rig = Node3D.new()"
+    },
+    {
+      "source": "scripts/player.gd",
+      "function": "_update_gun_mesh",
+      "line": 976,
+      "expression": "_add_first_person_arm(Vector3(0.24, -0.44, grip_z + 0.24), Vector3(0.070, -0.18, grip_z), true)"
+    },
+    {
+      "source": "scripts/player.gd",
+      "function": "_update_gun_mesh",
+      "line": 977,
+      "expression": "left_hand_rig = Node3D.new()"
+    },
+    {
+      "source": "scripts/player.gd",
+      "function": "_update_gun_mesh",
+      "line": 985,
+      "expression": "_add_first_person_arm(Vector3(-0.25, -0.40, support_z + 0.23), support_palm_rest - Vector3(0, 0.045, -0.06), false)"
+    },
+    {
+      "source": "scripts/player.gd",
+      "function": "_build_sniper_scope",
+      "line": 995,
+      "expression": "var scope_root := Node3D.new()"
+    },
+    {
+      "source": "scripts/player.gd",
+      "function": "_build_sniper_scope",
+      "line": 1002,
+      "expression": "var metal := StandardMaterial3D.new()"
+    },
+    {
+      "source": "scripts/player.gd",
+      "function": "_build_sniper_scope",
+      "line": 1008,
+      "expression": "var ring := MeshInstance3D.new()"
+    },
+    {
+      "source": "scripts/player.gd",
+      "function": "_build_sniper_scope",
+      "line": 1010,
+      "expression": "var torus := TorusMesh.new()"
+    },
+    {
+      "source": "scripts/player.gd",
+      "function": "_build_sniper_scope",
+      "line": 1021,
+      "expression": "var rail := MeshInstance3D.new()"
+    },
+    {
+      "source": "scripts/player.gd",
+      "function": "_build_sniper_scope",
+      "line": 1023,
+      "expression": "var rail_mesh := ModelSurface.body(Vector3(0.009, 0.010, tube_length + 0.008), ModelSurface.Profile.MACHINED)"
+    },
+    {
+      "source": "scripts/player.gd",
+      "function": "_build_sniper_scope",
+      "line": 1033,
+      "expression": "var mount := MeshInstance3D.new()"
+    },
+    {
+      "source": "scripts/player.gd",
+      "function": "_build_sniper_scope",
+      "line": 1035,
+      "expression": "var mount_mesh := ModelSurface.body(Vector3(0.034, mount_top - mount_bottom, 0.038), ModelSurface.Profile.MACHINED)"
+    },
+    {
+      "source": "scripts/player.gd",
+      "function": "_build_sniper_scope",
+      "line": 1040,
+      "expression": "var dot := MeshInstance3D.new()"
+    },
+    {
+      "source": "scripts/player.gd",
+      "function": "_build_sniper_scope",
+      "line": 1042,
+      "expression": "var point := SphereMesh.new()"
+    },
+    {
+      "source": "scripts/player.gd",
+      "function": "_build_sniper_scope",
+      "line": 1047,
+      "expression": "var emitter := StandardMaterial3D.new()"
+    },
+    {
+      "source": "scripts/player.gd",
+      "function": "_build_attachment_models",
+      "line": 1067,
+      "expression": "var optic_root := Node3D.new()"
+    },
+    {
+      "source": "scripts/player.gd",
+      "function": "_build_attachment_models",
+      "line": 1072,
+      "expression": "var metal := StandardMaterial3D.new()"
+    },
+    {
+      "source": "scripts/player.gd",
+      "function": "_build_attachment_models",
+      "line": 1076,
+      "expression": "var glass_material := StandardMaterial3D.new()"
+    },
+    {
+      "source": "scripts/player.gd",
+      "function": "_build_attachment_models",
+      "line": 1084,
+      "expression": "var ring := MeshInstance3D.new()"
+    },
+    {
+      "source": "scripts/player.gd",
+      "function": "_build_attachment_models",
+      "line": 1086,
+      "expression": "var torus := TorusMesh.new()"
+    },
+    {
+      "source": "scripts/player.gd",
+      "function": "_build_attachment_models",
+      "line": 1099,
+      "expression": "var side_rail := MeshInstance3D.new()"
+    },
+    {
+      "source": "scripts/player.gd",
+      "function": "_build_attachment_models",
+      "line": 1101,
+      "expression": "side_rail.mesh = ModelSurface.body(Vector3(0.009, 0.010, tube_end - tube_start + 0.008), ModelSurface.Profile.MACHINED)"
+    },
+    {
+      "source": "scripts/player.gd",
+      "function": "_build_attachment_models",
+      "line": 1107,
+      "expression": "var frame := MeshInstance3D.new()"
+    },
+    {
+      "source": "scripts/player.gd",
+      "function": "_build_attachment_models",
+      "line": 1109,
+      "expression": "var rim := ModelSurface.body(Vector3(0.086, 0.009, 0.018) if edge_index < 2 else Vector3(0.009, 0.083, 0.018), ModelSurface.Profile.MACHINED)"
+    },
+    {
+      "source": "scripts/player.gd",
+      "function": "_build_attachment_models",
+      "line": 1120,
+      "expression": "var glass := MeshInstance3D.new()"
+    },
+    {
+      "source": "scripts/player.gd",
+      "function": "_build_attachment_models",
+      "line": 1122,
+      "expression": "var pane := CylinderMesh.new()"
+    },
+    {
+      "source": "scripts/player.gd",
+      "function": "_build_attachment_models",
+      "line": 1139,
+      "expression": "var mount := MeshInstance3D.new()"
+    },
+    {
+      "source": "scripts/player.gd",
+      "function": "_build_attachment_models",
+      "line": 1141,
+      "expression": "var support := ModelSurface.body(Vector3(0.012, support_height, 0.038), ModelSurface.Profile.MACHINED)"
+    },
+    {
+      "source": "scripts/player.gd",
+      "function": "_build_attachment_models",
+      "line": 1146,
+      "expression": "var base := MeshInstance3D.new()"
+    },
+    {
+      "source": "scripts/player.gd",
+      "function": "_build_attachment_models",
+      "line": 1148,
+      "expression": "var rail := ModelSurface.body(Vector3(0.075, 0.011, 0.052), ModelSurface.Profile.MACHINED)"
+    },
+    {
+      "source": "scripts/player.gd",
+      "function": "_build_attachment_models",
+      "line": 1153,
+      "expression": "var dot := MeshInstance3D.new()"
+    },
+    {
+      "source": "scripts/player.gd",
+      "function": "_build_attachment_models",
+      "line": 1155,
+      "expression": "var point := SphereMesh.new()"
+    },
+    {
+      "source": "scripts/player.gd",
+      "function": "_build_attachment_models",
+      "line": 1162,
+      "expression": "var emitter := StandardMaterial3D.new()"
+    },
+    {
+      "source": "scripts/player.gd",
+      "function": "_build_attachment_models",
+      "line": 1174,
+      "expression": "var tube := MeshInstance3D.new()"
+    },
+    {
+      "source": "scripts/player.gd",
+      "function": "_build_attachment_models",
+      "line": 1176,
+      "expression": "var cylinder := CylinderMesh.new()"
+    },
+    {
+      "source": "scripts/player.gd",
+      "function": "_build_attachment_models",
+      "line": 1184,
+      "expression": "var barrel_mat := StandardMaterial3D.new()"
+    },
+    {
+      "source": "scripts/player.gd",
+      "function": "_arm_piece",
+      "line": 1401,
+      "expression": "var part := MeshInstance3D.new()"
+    },
+    {
+      "source": "scripts/player.gd",
+      "function": "_arm_piece",
+      "line": 1408,
+      "expression": "var created := StandardMaterial3D.new()"
+    },
+    {
+      "source": "scripts/player.gd",
+      "function": "_arm_link",
+      "line": 1421,
+      "expression": "var surface := SurfaceTool.new()"
+    },
+    {
+      "source": "scripts/player.gd",
+      "function": "_arm_link",
+      "line": 1445,
+      "expression": "var part := _arm_piece(surface.commit(), (start + finish) * 0.5, tint)"
+    },
+    {
+      "source": "scripts/player.gd",
+      "function": "_arm_capsule_link",
+      "line": 1453,
+      "expression": "var capsule := CapsuleMesh.new()"
+    },
+    {
+      "source": "scripts/player.gd",
+      "function": "_arm_capsule_link",
+      "line": 1456,
+      "expression": "var part := _arm_piece(capsule, (start + finish) * 0.5, tint)"
+    },
+    {
+      "source": "scripts/player.gd",
+      "function": "_add_first_person_arm",
+      "line": 1473,
+      "expression": "var shoulder_joint := Node3D.new()"
+    },
+    {
+      "source": "scripts/player.gd",
+      "function": "_add_first_person_arm",
+      "line": 1478,
+      "expression": "_arm_link(Vector3.ZERO, elbow - shoulder, 0.068, 0.075, uniform)"
+    },
+    {
+      "source": "scripts/player.gd",
+      "function": "_add_first_person_arm",
+      "line": 1479,
+      "expression": "var elbow_joint := Node3D.new()"
+    },
+    {
+      "source": "scripts/player.gd",
+      "function": "_add_first_person_arm",
+      "line": 1484,
+      "expression": "_arm_link(Vector3.ZERO, wrist - elbow, 0.052, 0.063, uniform)"
+    },
+    {
+      "source": "scripts/player.gd",
+      "function": "_add_first_person_arm",
+      "line": 1485,
+      "expression": "var wrist_joint := Node3D.new()"
+    },
+    {
+      "source": "scripts/player.gd",
+      "function": "_add_first_person_arm",
+      "line": 1490,
+      "expression": "_arm_link(Vector3(0, -0.045, 0.025), Vector3(0, 0.043, -0.032), 0.054, 0.062, cuff)"
+    },
+    {
+      "source": "scripts/player.gd",
+      "function": "_add_first_person_arm",
+      "line": 1497,
+      "expression": "var palm := CapsuleMesh.new()"
+    },
+    {
+      "source": "scripts/player.gd",
+      "function": "_add_first_person_arm",
+      "line": 1500,
+      "expression": "var palm_part := _arm_piece(palm, palm_location, glove, Vector3(PI * 0.5, 0, 0))"
+    },
+    {
+      "source": "scripts/player.gd",
+      "function": "_add_first_person_arm",
+      "line": 1504,
+      "expression": "var guard := SphereMesh.new()"
+    },
+    {
+      "source": "scripts/player.gd",
+      "function": "_add_first_person_arm",
+      "line": 1509,
+      "expression": "var back := _arm_piece(guard, palm_location + Vector3(0, 0.024, -0.012), Color(0.19, 0.20, 0.19))"
+    },
+    {
+      "source": "scripts/player.gd",
+      "function": "_add_first_person_arm",
+      "line": 1521,
+      "expression": "var knuckle_joint := Node3D.new()"
+    },
+    {
+      "source": "scripts/player.gd",
+      "function": "_add_first_person_arm",
+      "line": 1526,
+      "expression": "_arm_capsule_link(Vector3.ZERO, middle - knuckle, 0.014, glove, \"Finger%dProximal\" % finger)"
+    },
+    {
+      "source": "scripts/player.gd",
+      "function": "_add_first_person_arm",
+      "line": 1527,
+      "expression": "var tip_joint := Node3D.new()"
+    },
+    {
+      "source": "scripts/player.gd",
+      "function": "_add_first_person_arm",
+      "line": 1532,
+      "expression": "_arm_capsule_link(Vector3.ZERO, fingertip - middle, 0.012, glove, \"Finger%dDistal\" % finger)"
+    },
+    {
+      "source": "scripts/player.gd",
+      "function": "_add_first_person_arm",
+      "line": 1544,
+      "expression": "var thumb_joint := Node3D.new()"
+    },
+    {
+      "source": "scripts/player.gd",
+      "function": "_add_first_person_arm",
+      "line": 1549,
+      "expression": "_arm_capsule_link(Vector3.ZERO, thumb_bend - thumb_root, 0.022, glove, \"ThumbProximal\")"
+    },
+    {
+      "source": "scripts/player.gd",
+      "function": "_add_first_person_arm",
+      "line": 1550,
+      "expression": "var thumb_tip_joint := Node3D.new()"
+    },
+    {
+      "source": "scripts/player.gd",
+      "function": "_add_first_person_arm",
+      "line": 1555,
+      "expression": "_arm_capsule_link(Vector3.ZERO, thumb_tip - thumb_bend, 0.017, glove, \"ThumbDistal\")"
+    },
+    {
+      "source": "scripts/enemy.gd",
+      "function": "_joint",
+      "line": 124,
+      "expression": "var joint := Node3D.new()"
+    },
+    {
+      "source": "scripts/enemy.gd",
+      "function": "_part",
+      "line": 131,
+      "expression": "var piece := MeshInstance3D.new()"
+    },
+    {
+      "source": "scripts/enemy.gd",
+      "function": "_part",
+      "line": 136,
+      "expression": "var material := StandardMaterial3D.new()"
+    },
+    {
+      "source": "scripts/enemy.gd",
+      "function": "_box",
+      "line": 145,
+      "expression": "var shape := ModelSurface.body(size, ModelSurface.Profile.PADDED)"
+    },
+    {
+      "source": "scripts/enemy.gd",
+      "function": "_box",
+      "line": 146,
+      "expression": "return _part(parent, shape, location, tint, name_hint)"
+    },
+    {
+      "source": "scripts/enemy.gd",
+      "function": "_capsule",
+      "line": 149,
+      "expression": "var shape := CapsuleMesh.new()"
+    },
+    {
+      "source": "scripts/enemy.gd",
+      "function": "_capsule",
+      "line": 154,
+      "expression": "return _part(parent, shape, location, tint, name_hint)"
+    },
+    {
+      "source": "scripts/enemy.gd",
+      "function": "_ready",
+      "line": 160,
+      "expression": "var collider := CollisionShape3D.new()"
+    },
+    {
+      "source": "scripts/enemy.gd",
+      "function": "_ready",
+      "line": 161,
+      "expression": "var capsule := CapsuleShape3D.new()"
+    },
+    {
+      "source": "scripts/enemy.gd",
+      "function": "_ready",
+      "line": 192,
+      "expression": "visual_root = _joint(self, Vector3.ZERO, \"VisualRig\")"
+    },
+    {
+      "source": "scripts/enemy.gd",
+      "function": "_ready",
+      "line": 193,
+      "expression": "torso_pivot = _joint(visual_root, Vector3(0, -0.10, 0), \"Spine\")"
+    },
+    {
+      "source": "scripts/enemy.gd",
+      "function": "_ready",
+      "line": 194,
+      "expression": "torso_mesh = _capsule(torso_pivot, Vector3(0, 0.18, 0), 0.30 * heavy_scale, 0.83, uniform, \"TacticalJacket\")"
+    },
+    {
+      "source": "scripts/enemy.gd",
+      "function": "_ready",
+      "line": 196,
+      "expression": "var front_vest := _capsule(torso_pivot, Vector3(0, 0.24, -0.22), 0.31 * heavy_scale, 0.64, armor_color, \"FrontArmorPlate\")"
+    },
+    {
+      "source": "scripts/enemy.gd",
+      "function": "_ready",
+      "line": 198,
+      "expression": "var back_vest := _capsule(torso_pivot, Vector3(0, 0.23, 0.22), 0.29, 0.61, armor_color, \"BackArmorPlate\")"
+    },
+    {
+      "source": "scripts/enemy.gd",
+      "function": "_ready",
+      "line": 200,
+      "expression": "_box(torso_pivot, Vector3(0, -0.20, 0), Vector3(0.49, 0.16, 0.30), dark, \"UtilityBelt\")"
+    },
+    {
+      "source": "scripts/enemy.gd",
+      "function": "_ready",
+      "line": 201,
+      "expression": "var pack_mesh := _capsule(torso_pivot, Vector3(0, 0.10, 0.32), 0.21, 0.44, armor_color, \"Pack\")"
+    },
+    {
+      "source": "scripts/enemy.gd",
+      "function": "_ready",
+      "line": 204,
+      "expression": "_box(torso_pivot, Vector3(x, 0.12, -0.345), Vector3(0.105, 0.19, 0.09), armor_color.darkened(0.20), \"MagazinePouch\")"
+    },
+    {
+      "source": "scripts/enemy.gd",
+      "function": "_ready",
+      "line": 206,
+      "expression": "_box(torso_pivot, Vector3(side * 0.27, -0.17, -0.10), Vector3(0.14, 0.22, 0.16), dark, \"SidePouch\")"
+    },
+    {
+      "source": "scripts/enemy.gd",
+      "function": "_ready",
+      "line": 208,
+      "expression": "head_pivot = _joint(torso_pivot, Vector3(0, 0.64, 0), \"NeckHead\")"
+    },
+    {
+      "source": "scripts/enemy.gd",
+      "function": "_ready",
+      "line": 209,
+      "expression": "_capsule(head_pivot, Vector3(0, 0.02, 0), 0.19, 0.36, skin, \"Face\")"
+    },
+    {
+      "source": "scripts/enemy.gd",
+      "function": "_ready",
+      "line": 210,
+      "expression": "_capsule(head_pivot, Vector3(0, 0.15, 0.01), 0.225, 0.28, armor_color, \"Helmet\")"
+    },
+    {
+      "source": "scripts/enemy.gd",
+      "function": "_ready",
+      "line": 211,
+      "expression": "_box(head_pivot, Vector3(0, 0.035, -0.178), Vector3(0.31, 0.098, 0.07), dark, \"EyesVisor\")"
+    },
+    {
+      "source": "scripts/enemy.gd",
+      "function": "_ready",
+      "line": 212,
+      "expression": "_box(head_pivot, Vector3(0, -0.09, -0.14), Vector3(0.29, 0.11, 0.12), uniform.darkened(0.25), \"FaceCover\")"
+    },
+    {
+      "source": "scripts/enemy.gd",
+      "function": "_ready",
+      "line": 213,
+      "expression": "_box(head_pivot, Vector3(0, 0.18, -0.20), Vector3(0.25, 0.065, 0.075), dark, \"HelmetRim\")"
+    },
+    {
+      "source": "scripts/enemy.gd",
+      "function": "_ready",
+      "line": 215,
+      "expression": "_box(torso_pivot, Vector3(0, 0.23, -0.355), Vector3(0.61, 0.41, 0.08), armor_color.lightened(0.10), \"ExtraPlate\")"
+    },
+    {
+      "source": "scripts/enemy.gd",
+      "function": "_ready",
+      "line": 216,
+      "expression": "_box(head_pivot, Vector3(0, 0.00, -0.235), Vector3(0.39, 0.24, 0.08), dark, \"BallisticMask\")"
+    },
+    {
+      "source": "scripts/enemy.gd",
+      "function": "_ready",
+      "line": 219,
+      "expression": "var hip := _joint(visual_root, Vector3(side * 0.19, -0.34, 0), \"LeftHip\" if side < 0.0 else \"RightHip\")"
+    },
+    {
+      "source": "scripts/enemy.gd",
+      "function": "_ready",
+      "line": 220,
+      "expression": "_capsule(hip, Vector3(0, -0.16, 0), 0.15, 0.38, uniform, \"Thigh\")"
+    },
+    {
+      "source": "scripts/enemy.gd",
+      "function": "_ready",
+      "line": 221,
+      "expression": "var knee := _joint(hip, Vector3(0, -0.33, 0), \"Knee\")"
+    },
+    {
+      "source": "scripts/enemy.gd",
+      "function": "_ready",
+      "line": 222,
+      "expression": "_capsule(knee, Vector3(0, -0.16, 0), 0.125, 0.38, uniform, \"Shin\")"
+    },
+    {
+      "source": "scripts/enemy.gd",
+      "function": "_ready",
+      "line": 223,
+      "expression": "_box(knee, Vector3(0, -0.06, -0.13), Vector3(0.20, 0.18, 0.10), armor_color, \"KneePad\")"
+    },
+    {
+      "source": "scripts/enemy.gd",
+      "function": "_ready",
+      "line": 224,
+      "expression": "_box(knee, Vector3(0, -0.35, -0.095), Vector3(0.23, 0.16, 0.32), boots, \"CombatBoot\")"
+    },
+    {
+      "source": "scripts/enemy.gd",
+      "function": "_ready",
+      "line": 231,
+      "expression": "var shoulder := _joint(torso_pivot, Vector3(side * 0.36, 0.39, -0.04), \"LeftShoulder\" if side < 0.0 else \"RightShoulder\")"
+    },
+    {
+      "source": "scripts/enemy.gd",
+      "function": "_ready",
+      "line": 232,
+      "expression": "_capsule(shoulder, Vector3(0, -0.14, 0), 0.125, 0.39, uniform, \"UpperArm\")"
+    },
+    {
+      "source": "scripts/enemy.gd",
+      "function": "_ready",
+      "line": 233,
+      "expression": "var guard := _capsule(shoulder, Vector3(0, -0.035, -0.03), 0.15, 0.22, armor_color, \"ShoulderGuard\")"
+    },
+    {
+      "source": "scripts/enemy.gd",
+      "function": "_ready",
+      "line": 235,
+      "expression": "var elbow := _joint(shoulder, Vector3(0, -0.33, -0.01), \"Elbow\")"
+    },
+    {
+      "source": "scripts/enemy.gd",
+      "function": "_ready",
+      "line": 236,
+      "expression": "_capsule(elbow, Vector3(0, -0.15, 0), 0.10, 0.36, uniform, \"Forearm\")"
+    },
+    {
+      "source": "scripts/enemy.gd",
+      "function": "_ready",
+      "line": 237,
+      "expression": "_box(elbow, Vector3(0, -0.30, -0.025), Vector3(0.16, 0.14, 0.16), dark, \"Glove\")"
+    },
+    {
+      "source": "scripts/enemy.gd",
+      "function": "_ready",
+      "line": 245,
+      "expression": "weapon_pivot = _joint(torso_pivot, Vector3(0, 0.31, -0.35), \"HeldWeapon\")"
+    },
+    {
+      "source": "scripts/enemy.gd",
+      "function": "_ready",
+      "line": 259,
+      "expression": "var muzzle_shape := CylinderMesh.new()"
+    },
+    {
+      "source": "scripts/enemy.gd",
+      "function": "_ready",
+      "line": 264,
+      "expression": "muzzle_flash = _part(weapon_pivot, muzzle_shape, Vector3(0.0, -0.04, muzzle_z), Color(1.0, 0.58, 0.25), \"MuzzleFlash\", Vector3(PI * 0.5, 0, 0))"
+    },
+    {
+      "source": "scripts/enemy.gd",
+      "function": "_brief_enemy_tracer",
+      "line": 567,
+      "expression": "var streak := MeshInstance3D.new()"
+    },
+    {
+      "source": "scripts/enemy.gd",
+      "function": "_brief_enemy_tracer",
+      "line": 568,
+      "expression": "var mesh := CylinderMesh.new()"
+    },
+    {
+      "source": "scripts/enemy.gd",
+      "function": "_brief_enemy_tracer",
+      "line": 575,
+      "expression": "var mat := StandardMaterial3D.new()"
+    },
+    {
+      "source": "scripts/ally.gd",
+      "function": "_joint",
+      "line": 41,
+      "expression": "var j := Node3D.new()"
+    },
+    {
+      "source": "scripts/ally.gd",
+      "function": "_piece",
+      "line": 48,
+      "expression": "var part := MeshInstance3D.new()"
+    },
+    {
+      "source": "scripts/ally.gd",
+      "function": "_piece",
+      "line": 52,
+      "expression": "var mat := StandardMaterial3D.new()"
+    },
+    {
+      "source": "scripts/ally.gd",
+      "function": "_box",
+      "line": 60,
+      "expression": "var shape := ModelSurface.body(size, ModelSurface.Profile.PADDED)"
+    },
+    {
+      "source": "scripts/ally.gd",
+      "function": "_box",
+      "line": 61,
+      "expression": "return _piece(parent, shape, at, tint, label)"
+    },
+    {
+      "source": "scripts/ally.gd",
+      "function": "_capsule",
+      "line": 64,
+      "expression": "var shape := CapsuleMesh.new()"
+    },
+    {
+      "source": "scripts/ally.gd",
+      "function": "_capsule",
+      "line": 69,
+      "expression": "return _piece(parent, shape, at, tint, label)"
+    },
+    {
+      "source": "scripts/ally.gd",
+      "function": "_ready",
+      "line": 75,
+      "expression": "var hit := CollisionShape3D.new()"
+    },
+    {
+      "source": "scripts/ally.gd",
+      "function": "_ready",
+      "line": 76,
+      "expression": "var shape := CapsuleShape3D.new()"
+    },
+    {
+      "source": "scripts/ally.gd",
+      "function": "_ready",
+      "line": 85,
+      "expression": "var visual := _joint(self, Vector3.ZERO, \"AllyVisual\")"
+    },
+    {
+      "source": "scripts/ally.gd",
+      "function": "_ready",
+      "line": 86,
+      "expression": "_capsule(visual, Vector3(0, 0.08, 0), 0.30, 0.83, uniform, \"Jacket\")"
+    },
+    {
+      "source": "scripts/ally.gd",
+      "function": "_ready",
+      "line": 87,
+      "expression": "var chest := _capsule(visual, Vector3(0, 0.13, -0.21), 0.29, 0.60, armor, \"Armor\")"
+    },
+    {
+      "source": "scripts/ally.gd",
+      "function": "_ready",
+      "line": 89,
+      "expression": "var backpack := _capsule(visual, Vector3(0, 0.12, 0.23), 0.23, 0.48, armor, \"Pack\")"
+    },
+    {
+      "source": "scripts/ally.gd",
+      "function": "_ready",
+      "line": 91,
+      "expression": "_box(visual, Vector3(0, -0.28, 0), Vector3(0.50, 0.15, 0.31), boots, \"Belt\")"
+    },
+    {
+      "source": "scripts/ally.gd",
+      "function": "_ready",
+      "line": 93,
+      "expression": "_box(visual, Vector3(x, 0.02, -0.35), Vector3(0.115, 0.18, 0.075), armor.darkened(0.22), \"Pouch\")"
+    },
+    {
+      "source": "scripts/ally.gd",
+      "function": "_ready",
+      "line": 96,
+      "expression": "_capsule(visual, Vector3(0, 0.49, 0), 0.15, 0.27, uniform, \"NeckCollar\")"
+    },
+    {
+      "source": "scripts/ally.gd",
+      "function": "_ready",
+      "line": 97,
+      "expression": "head_pivot = _joint(visual, Vector3(0, 0.64, 0.0), \"HeadPivot\")"
+    },
+    {
+      "source": "scripts/ally.gd",
+      "function": "_ready",
+      "line": 98,
+      "expression": "_capsule(head_pivot, Vector3.ZERO, 0.19, 0.35, Color(0.54, 0.43, 0.32), \"Head\")"
+    },
+    {
+      "source": "scripts/ally.gd",
+      "function": "_ready",
+      "line": 99,
+      "expression": "_capsule(head_pivot, Vector3(0, 0.13, 0), 0.224, 0.26, armor, \"Helmet\")"
+    },
+    {
+      "source": "scripts/ally.gd",
+      "function": "_ready",
+      "line": 100,
+      "expression": "_box(head_pivot, Vector3(0, 0.06, -0.175), Vector3(0.29, 0.095, 0.075), boots, \"Visor\")"
+    },
+    {
+      "source": "scripts/ally.gd",
+      "function": "_ready",
+      "line": 101,
+      "expression": "_box(head_pivot, Vector3(0, -0.105, -0.15), Vector3(0.27, 0.115, 0.095), uniform.darkened(0.15), \"Mask\")"
+    },
+    {
+      "source": "scripts/ally.gd",
+      "function": "_ready",
+      "line": 104,
+      "expression": "var hip := _joint(visual, Vector3(side * 0.19, -0.34, 0), \"LeftHip\" if side < 0.0 else \"RightHip\")"
+    },
+    {
+      "source": "scripts/ally.gd",
+      "function": "_ready",
+      "line": 105,
+      "expression": "_capsule(hip, Vector3(0, -0.16, 0), 0.14, 0.37, uniform, \"Thigh\")"
+    },
+    {
+      "source": "scripts/ally.gd",
+      "function": "_ready",
+      "line": 106,
+      "expression": "var knee := _joint(hip, Vector3(0, -0.33, 0), \"Knee\")"
+    },
+    {
+      "source": "scripts/ally.gd",
+      "function": "_ready",
+      "line": 107,
+      "expression": "_capsule(knee, Vector3(0, -0.16, 0), 0.12, 0.37, uniform, \"Shin\")"
+    },
+    {
+      "source": "scripts/ally.gd",
+      "function": "_ready",
+      "line": 108,
+      "expression": "_box(knee, Vector3(0, -0.09, -0.135), Vector3(0.19, 0.17, 0.09), armor, \"KneePad\")"
+    },
+    {
+      "source": "scripts/ally.gd",
+      "function": "_ready",
+      "line": 109,
+      "expression": "_box(knee, Vector3(0, -0.35, -0.09), Vector3(0.22, 0.17, 0.31), boots, \"Boot\")"
+    },
+    {
+      "source": "scripts/ally.gd",
+      "function": "_ready",
+      "line": 116,
+      "expression": "var shoulder := _joint(visual, Vector3(side * 0.36, 0.31, -0.035), \"LeftShoulder\" if side < 0.0 else \"RightShoulder\")"
+    },
+    {
+      "source": "scripts/ally.gd",
+      "function": "_ready",
+      "line": 117,
+      "expression": "_capsule(shoulder, Vector3(0, -0.18, 0), 0.12, 0.45, uniform, \"UpperArm\")"
+    },
+    {
+      "source": "scripts/ally.gd",
+      "function": "_ready",
+      "line": 118,
+      "expression": "var pad := _capsule(shoulder, Vector3(0, -0.05, -0.04), 0.13, 0.20, armor, \"ShoulderArmor\")"
+    },
+    {
+      "source": "scripts/ally.gd",
+      "function": "_ready",
+      "line": 120,
+      "expression": "_box(shoulder, Vector3(0, -0.065, -0.145), Vector3(0.11, 0.06, 0.025), patch, \"FriendlyPatch\")"
+    },
+    {
+      "source": "scripts/ally.gd",
+      "function": "_ready",
+      "line": 121,
+      "expression": "var elbow := _joint(shoulder, Vector3(0, -0.33, 0), \"Elbow\")"
+    },
+    {
+      "source": "scripts/ally.gd",
+      "function": "_ready",
+      "line": 122,
+      "expression": "_capsule(elbow, Vector3(0, -0.15, 0), 0.10, 0.35, uniform, \"Forearm\")"
+    },
+    {
+      "source": "scripts/ally.gd",
+      "function": "_ready",
+      "line": 123,
+      "expression": "_box(elbow, Vector3(0, -0.30, -0.02), Vector3(0.16, 0.14, 0.15), boots, \"Glove\")"
+    },
+    {
+      "source": "scripts/ally.gd",
+      "function": "_ready",
+      "line": 130,
+      "expression": "gun_mount = _joint(visual, Vector3(0, 0.30, -0.37), \"WeaponRig\")"
+    },
+    {
+      "source": "scripts/ally.gd",
+      "function": "_ready",
+      "line": 139,
+      "expression": "var flash_mesh := CylinderMesh.new()"
+    },
+    {
+      "source": "scripts/ally.gd",
+      "function": "_ready",
+      "line": 143,
+      "expression": "muzzle = _piece(gun_mount, flash_mesh, Vector3(0.0, -0.02, -0.04 - 0.72 * 0.95), Color(1.0, 0.53, 0.23), \"MuzzleFlash\")"
+    },
+    {
+      "source": "scripts/quaternius_soldier_visual.gd",
+      "function": "_paint_character_meshes",
+      "line": 83,
+      "expression": "var material := StandardMaterial3D.new()"
+    },
+    {
+      "source": "scripts/quaternius_soldier_visual.gd",
+      "function": "_create_tactical_equipment",
+      "line": 128,
+      "expression": "_equip_capsule(\"TacticalVest\", Vector3(0.0, 0.18, -0.14),"
+    },
+    {
+      "source": "scripts/quaternius_soldier_visual.gd",
+      "function": "_create_tactical_equipment",
+      "line": 130,
+      "expression": "_equip_capsule(\"BallisticHelmet\", Vector3(0.0, 0.78, 0.0),"
+    },
+    {
+      "source": "scripts/quaternius_soldier_visual.gd",
+      "function": "_create_tactical_equipment",
+      "line": 132,
+      "expression": "_equip_capsule(\"RearPack\", Vector3(0.0, 0.19, 0.18),"
+    },
+    {
+      "source": "scripts/quaternius_soldier_visual.gd",
+      "function": "_create_tactical_equipment",
+      "line": 134,
+      "expression": "_equip_box(\"HelmetVisor\", Vector3(0.0, 0.77, -0.19),"
+    },
+    {
+      "source": "scripts/quaternius_soldier_visual.gd",
+      "function": "_create_tactical_equipment",
+      "line": 136,
+      "expression": "_equip_box(\"ChestPouch\", Vector3(-0.14, 0.13, -0.25),"
+    },
+    {
+      "source": "scripts/quaternius_soldier_visual.gd",
+      "function": "_create_tactical_equipment",
+      "line": 138,
+      "expression": "_equip_box(\"ChestPouch2\", Vector3(0.11, 0.13, -0.25),"
+    },
+    {
+      "source": "scripts/quaternius_soldier_visual.gd",
+      "function": "_equip_capsule",
+      "line": 143,
+      "expression": "var shape := CapsuleMesh.new()"
+    },
+    {
+      "source": "scripts/quaternius_soldier_visual.gd",
+      "function": "_equip_capsule",
+      "line": 148,
+      "expression": "var part := MeshInstance3D.new()"
+    },
+    {
+      "source": "scripts/quaternius_soldier_visual.gd",
+      "function": "_equip_capsule",
+      "line": 153,
+      "expression": "var mat := StandardMaterial3D.new()"
+    },
+    {
+      "source": "scripts/quaternius_soldier_visual.gd",
+      "function": "_equip_box",
+      "line": 160,
+      "expression": "var shape := BoxMesh.new()"
+    },
+    {
+      "source": "scripts/quaternius_soldier_visual.gd",
+      "function": "_equip_box",
+      "line": 162,
+      "expression": "var part := MeshInstance3D.new()"
+    },
+    {
+      "source": "scripts/quaternius_soldier_visual.gd",
+      "function": "_equip_box",
+      "line": 166,
+      "expression": "var mat := StandardMaterial3D.new()"
+    },
+    {
+      "source": "scripts/frag_grenade.gd",
+      "function": "_ready",
+      "line": 37,
+      "expression": "var shape := SphereShape3D.new()"
+    },
+    {
+      "source": "scripts/frag_grenade.gd",
+      "function": "_ready",
+      "line": 39,
+      "expression": "var hitbox := CollisionShape3D.new()"
+    },
+    {
+      "source": "scripts/frag_grenade.gd",
+      "function": "_ready",
+      "line": 43,
+      "expression": "body_model = Node3D.new()"
+    },
+    {
+      "source": "scripts/frag_grenade.gd",
+      "function": "_make_body",
+      "line": 60,
+      "expression": "var paint := StandardMaterial3D.new()"
+    },
+    {
+      "source": "scripts/frag_grenade.gd",
+      "function": "_make_body",
+      "line": 64,
+      "expression": "var steel := StandardMaterial3D.new()"
+    },
+    {
+      "source": "scripts/frag_grenade.gd",
+      "function": "_make_body",
+      "line": 68,
+      "expression": "var body := MeshInstance3D.new()"
+    },
+    {
+      "source": "scripts/frag_grenade.gd",
+      "function": "_make_body",
+      "line": 70,
+      "expression": "var shell := CylinderMesh.new()"
+    },
+    {
+      "source": "scripts/frag_grenade.gd",
+      "function": "_make_body",
+      "line": 78,
+      "expression": "var cap := MeshInstance3D.new()"
+    },
+    {
+      "source": "scripts/frag_grenade.gd",
+      "function": "_make_body",
+      "line": 80,
+      "expression": "var lever := BoxMesh.new()"
+    },
+    {
+      "source": "scripts/frag_grenade.gd",
+      "function": "_make_body",
+      "line": 87,
+      "expression": "var pin := MeshInstance3D.new()"
+    },
+    {
+      "source": "scripts/frag_grenade.gd",
+      "function": "_make_body",
+      "line": 89,
+      "expression": "var ring := TorusMesh.new()"
+    },
+    {
+      "source": "scripts/frag_grenade.gd",
+      "function": "_effect_sphere",
+      "line": 155,
+      "expression": "var mesh := SphereMesh.new()"
+    },
+    {
+      "source": "scripts/frag_grenade.gd",
+      "function": "_effect_sphere",
+      "line": 160,
+      "expression": "var instance := MeshInstance3D.new()"
+    },
+    {
+      "source": "scripts/frag_grenade.gd",
+      "function": "_effect_sphere",
+      "line": 163,
+      "expression": "var mat := StandardMaterial3D.new()"
+    },
+    {
+      "source": "scripts/frag_grenade.gd",
+      "function": "_spawn_explosion_effects",
+      "line": 175,
+      "expression": "var flash := _effect_sphere(\"BlastFlash\", Color(1.0, 0.65, 0.24, 0.87), 0.55)"
+    },
+    {
+      "source": "scripts/frag_grenade.gd",
+      "function": "_spawn_explosion_effects",
+      "line": 180,
+      "expression": "var ring := TorusMesh.new()"
+    },
+    {
+      "source": "scripts/frag_grenade.gd",
+      "function": "_spawn_explosion_effects",
+      "line": 185,
+      "expression": "var wave := MeshInstance3D.new()"
+    },
+    {
+      "source": "scripts/frag_grenade.gd",
+      "function": "_spawn_explosion_effects",
+      "line": 188,
+      "expression": "var ring_mat := StandardMaterial3D.new()"
+    },
+    {
+      "source": "scripts/frag_grenade.gd",
+      "function": "_spawn_explosion_effects",
+      "line": 198,
+      "expression": "var light := OmniLight3D.new()"
+    },
+    {
+      "source": "scripts/frag_grenade.gd",
+      "function": "_spawn_explosion_effects",
+      "line": 207,
+      "expression": "var puff := _effect_sphere(\"SmokePuff\", Color(0.15, 0.17, 0.18, 0.63), 0.34)"
+    },
+    {
+      "source": "scripts/frag_grenade.gd",
+      "function": "_spawn_explosion_effects",
+      "line": 218,
+      "expression": "var spark := _effect_sphere(\"HotFragment\", Color(1.0, 0.58, 0.19, 0.9), 0.045)"
+    },
+    {
+      "source": "scripts/turret.gd",
+      "function": "_ready",
+      "line": 11,
+      "expression": "var base := MeshInstance3D.new()"
+    },
+    {
+      "source": "scripts/turret.gd",
+      "function": "_ready",
+      "line": 12,
+      "expression": "var cylinder := CylinderMesh.new()"
+    },
+    {
+      "source": "scripts/turret.gd",
+      "function": "_ready",
+      "line": 19,
+      "expression": "var mat := StandardMaterial3D.new()"
+    },
+    {
+      "source": "scripts/turret.gd",
+      "function": "_ready",
+      "line": 22,
+      "expression": "barrel = MeshInstance3D.new()"
+    },
+    {
+      "source": "scripts/turret.gd",
+      "function": "_ready",
+      "line": 23,
+      "expression": "var tube := ModelSurface.body(Vector3(0.11, 0.11, 0.75), ModelSurface.Profile.MACHINED)"
+    },
+    {
+      "source": "scripts/turret.gd",
+      "function": "_ready",
+      "line": 28,
+      "expression": "var light := OmniLight3D.new()"
+    },
+    {
+      "source": "scripts/loot_pickup.gd",
+      "function": "_ready",
+      "line": 30,
+      "expression": "var box := MeshInstance3D.new()"
+    },
+    {
+      "source": "scripts/loot_pickup.gd",
+      "function": "_ready",
+      "line": 31,
+      "expression": "var shape := ModelSurface.body(Vector3(0.32, 0.19, 0.23), ModelSurface.Profile.MACHINED)"
+    },
+    {
+      "source": "scripts/loot_pickup.gd",
+      "function": "_ready",
+      "line": 34,
+      "expression": "var mat := StandardMaterial3D.new()"
+    },
+    {
+      "source": "scripts/loot_pickup.gd",
+      "function": "_ready",
+      "line": 39,
+      "expression": "var band := MeshInstance3D.new()"
+    },
+    {
+      "source": "scripts/loot_pickup.gd",
+      "function": "_ready",
+      "line": 40,
+      "expression": "var strip := ModelSurface.body(Vector3(0.08, 0.202, 0.235), ModelSurface.Profile.MACHINED)"
+    },
+    {
+      "source": "scripts/loot_pickup.gd",
+      "function": "_ready",
+      "line": 43,
+      "expression": "var band_mat := StandardMaterial3D.new()"
+    },
+    {
+      "source": "scripts/blood_impact.gd",
+      "function": "_ready",
+      "line": 9,
+      "expression": "var droplet_mesh := SphereMesh.new()"
+    },
+    {
+      "source": "scripts/blood_impact.gd",
+      "function": "_ready",
+      "line": 14,
+      "expression": "var blood_mat := StandardMaterial3D.new()"
+    },
+    {
+      "source": "scripts/blood_impact.gd",
+      "function": "_ready",
+      "line": 20,
+      "expression": "var droplet := MeshInstance3D.new()"
+    },
+    {
+      "source": "scripts/model_surface.gd",
+      "function": "body",
+      "line": 40,
+      "expression": "var mesh := ArrayMesh.new()"
+    },
+    {
+      "source": "scripts/weapon_materials.gd",
+      "function": "_build_surface",
+      "line": 8,
+      "expression": "var material := StandardMaterial3D.new()"
+    },
+    {
+      "source": "scripts/enemy_tactics.gd",
+      "function": "_clear",
+      "line": 14,
+      "expression": "var capsule := CapsuleShape3D.new()"
+    },
+    {
+      "source": "scripts/spawn_selector.gd",
+      "function": "select_position",
+      "line": 18,
+      "expression": "var shape := SphereShape3D.new()"
+    }
+  ],
+  "unclassified_constructor_sites": [],
+  "references": [
+    {
+      "source": "scripts/main.gd",
+      "line": 3,
+      "function": "<top>",
+      "target": "scripts/model_surface.gd",
+      "kind": "literal",
+      "exists": true
+    },
+    {
+      "source": "scripts/main.gd",
+      "line": 5,
+      "function": "<top>",
+      "target": "scripts/spawn_selector.gd",
+      "kind": "literal",
+      "exists": true
+    },
+    {
+      "source": "scripts/main.gd",
+      "line": 6,
+      "function": "<top>",
+      "target": "scripts/wave_rules.gd",
+      "kind": "literal",
+      "exists": true
+    },
+    {
+      "source": "scripts/main.gd",
+      "line": 7,
+      "function": "<top>",
+      "target": "scripts/hit_marker.gd",
+      "kind": "literal",
+      "exists": true
+    },
+    {
+      "source": "scripts/main.gd",
+      "line": 8,
+      "function": "<top>",
+      "target": "scripts/blood_impact.gd",
+      "kind": "literal",
+      "exists": true
+    },
+    {
+      "source": "scripts/main.gd",
+      "line": 9,
+      "function": "<top>",
+      "target": "scripts/loot_pickup.gd",
+      "kind": "literal",
+      "exists": true
+    },
+    {
+      "source": "scripts/main.gd",
+      "line": 10,
+      "function": "<top>",
+      "target": "scripts/survival_round_stats.gd",
+      "kind": "literal",
+      "exists": true
+    },
+    {
+      "source": "scripts/main.gd",
+      "line": 14,
+      "function": "<top>",
+      "target": "scripts/frag_grenade.gd",
+      "kind": "literal",
+      "exists": true
+    },
+    {
+      "source": "scripts/main.gd",
+      "line": 279,
+      "function": "_ready",
+      "target": "tests/fifteen_waves_qa.gd",
+      "kind": "literal",
+      "exists": true
+    },
+    {
+      "source": "scripts/main.gd",
+      "line": 425,
+      "function": "_create_world",
+      "target": "assets/textures/asphalt.png",
+      "kind": "literal",
+      "exists": true
+    },
+    {
+      "source": "scripts/main.gd",
+      "line": 550,
+      "function": "_add_box",
+      "target": "assets/textures/depot_concrete.png",
+      "kind": "literal",
+      "exists": true
+    },
+    {
+      "source": "scripts/player.gd",
+      "line": 4,
+      "function": "<top>",
+      "target": "scripts/model_surface.gd",
+      "kind": "literal",
+      "exists": true
+    },
+    {
+      "source": "scripts/player.gd",
+      "line": 6,
+      "function": "<top>",
+      "target": "scripts/weapon_materials.gd",
+      "kind": "literal",
+      "exists": true
+    },
+    {
+      "source": "scripts/player.gd",
+      "line": 7,
+      "function": "<top>",
+      "target": "scripts/weapon_audio.gd",
+      "kind": "literal",
+      "exists": true
+    },
+    {
+      "source": "scripts/player.gd",
+      "line": 208,
+      "function": "_ready",
+      "target": "scripts/scope.gdshader",
+      "kind": "literal",
+      "exists": true
+    },
+    {
+      "source": "scripts/player.gd",
+      "line": 948,
+      "function": "_update_gun_mesh",
+      "target": "assets/models/%s_%s.glb",
+      "kind": "dynamic"
+    },
+    {
+      "source": "scripts/enemy.gd",
+      "line": 4,
+      "function": "<top>",
+      "target": "scripts/model_surface.gd",
+      "kind": "literal",
+      "exists": true
+    },
+    {
+      "source": "scripts/enemy.gd",
+      "line": 6,
+      "function": "<top>",
+      "target": "scripts/weapon_materials.gd",
+      "kind": "literal",
+      "exists": true
+    },
+    {
+      "source": "scripts/enemy.gd",
+      "line": 7,
+      "function": "<top>",
+      "target": "scripts/weapon_audio.gd",
+      "kind": "literal",
+      "exists": true
+    },
+    {
+      "source": "scripts/enemy.gd",
+      "line": 8,
+      "function": "<top>",
+      "target": "scripts/weapon_pose.gd",
+      "kind": "literal",
+      "exists": true
+    },
+    {
+      "source": "scripts/enemy.gd",
+      "line": 9,
+      "function": "<top>",
+      "target": "scripts/obstacle_steering.gd",
+      "kind": "literal",
+      "exists": true
+    },
+    {
+      "source": "scripts/enemy.gd",
+      "line": 10,
+      "function": "<top>",
+      "target": "scripts/enemy_tactics.gd",
+      "kind": "literal",
+      "exists": true
+    },
+    {
+      "source": "scripts/enemy.gd",
+      "line": 11,
+      "function": "<top>",
+      "target": "scripts/quaternius_soldier_visual.gd",
+      "kind": "literal",
+      "exists": true
+    },
+    {
+      "source": "scripts/enemy.gd",
+      "line": 246,
+      "function": "_ready",
+      "target": "assets/models/%s.glb",
+      "kind": "dynamic"
+    },
+    {
+      "source": "scripts/enemy.gd",
+      "line": 270,
+      "function": "_ready",
+      "target": "assets/audio/reloads/%s.wav",
+      "kind": "dynamic"
+    },
+    {
+      "source": "scripts/ally.gd",
+      "line": 4,
+      "function": "<top>",
+      "target": "scripts/model_surface.gd",
+      "kind": "literal",
+      "exists": true
+    },
+    {
+      "source": "scripts/ally.gd",
+      "line": 6,
+      "function": "<top>",
+      "target": "scripts/weapon_materials.gd",
+      "kind": "literal",
+      "exists": true
+    },
+    {
+      "source": "scripts/ally.gd",
+      "line": 7,
+      "function": "<top>",
+      "target": "scripts/weapon_audio.gd",
+      "kind": "literal",
+      "exists": true
+    },
+    {
+      "source": "scripts/ally.gd",
+      "line": 8,
+      "function": "<top>",
+      "target": "scripts/weapon_pose.gd",
+      "kind": "literal",
+      "exists": true
+    },
+    {
+      "source": "scripts/ally.gd",
+      "line": 9,
+      "function": "<top>",
+      "target": "scripts/obstacle_steering.gd",
+      "kind": "literal",
+      "exists": true
+    },
+    {
+      "source": "scripts/ally.gd",
+      "line": 131,
+      "function": "_ready",
+      "target": "assets/models/rifle.glb",
+      "kind": "literal",
+      "exists": true
+    },
+    {
+      "source": "scripts/quaternius_soldier_visual.gd",
+      "line": 6,
+      "function": "<top>",
+      "target": "assets/characters/quaternius_base_male.glb",
+      "kind": "literal",
+      "exists": true
+    },
+    {
+      "source": "scripts/frag_grenade.gd",
+      "line": 55,
+      "function": "_ready",
+      "target": "assets/audio/explosions/grenade.ogg",
+      "kind": "literal",
+      "exists": true
+    },
+    {
+      "source": "scripts/frag_grenade.gd",
+      "line": 56,
+      "function": "_ready",
+      "target": "assets/audio/explosions/grenade.ogg",
+      "kind": "literal",
+      "exists": true
+    },
+    {
+      "source": "scripts/turret.gd",
+      "line": 4,
+      "function": "<top>",
+      "target": "scripts/model_surface.gd",
+      "kind": "literal",
+      "exists": true
+    },
+    {
+      "source": "scripts/loot_pickup.gd",
+      "line": 3,
+      "function": "<top>",
+      "target": "scripts/model_surface.gd",
+      "kind": "literal",
+      "exists": true
+    },
+    {
+      "source": "scripts/loot_pickup.gd",
+      "line": 5,
+      "function": "<top>",
+      "target": "scripts/weapon_materials.gd",
+      "kind": "literal",
+      "exists": true
+    },
+    {
+      "source": "scripts/loot_pickup.gd",
+      "line": 21,
+      "function": "_ready",
+      "target": "assets/models/%s.glb",
+      "kind": "dynamic"
+    },
+    {
+      "source": "scripts/weapon_materials.gd",
+      "line": 14,
+      "function": "_build_surface",
+      "target": "assets/textures/weapon_polymer_albedo.png",
+      "kind": "literal",
+      "exists": true
+    },
+    {
+      "source": "scripts/weapon_materials.gd",
+      "line": 15,
+      "function": "_build_surface",
+      "target": "assets/textures/weapon_metal_albedo.png",
+      "kind": "literal",
+      "exists": true
+    },
+    {
+      "source": "scripts/weapon_materials.gd",
+      "line": 19,
+      "function": "_build_surface",
+      "target": "assets/textures/weapon_polymer_normal.png",
+      "kind": "literal",
+      "exists": true
+    },
+    {
+      "source": "scripts/weapon_materials.gd",
+      "line": 20,
+      "function": "_build_surface",
+      "target": "assets/textures/weapon_metal_normal.png",
+      "kind": "literal",
+      "exists": true
+    },
+    {
+      "source": "scripts/weapon_audio.gd",
+      "line": 4,
+      "function": "<top>",
+      "target": "assets/audio/weapons/rifle.wav",
+      "kind": "literal",
+      "exists": true
+    },
+    {
+      "source": "scripts/weapon_audio.gd",
+      "line": 5,
+      "function": "<top>",
+      "target": "assets/audio/weapons/pistol.wav",
+      "kind": "literal",
+      "exists": true
+    },
+    {
+      "source": "scripts/weapon_audio.gd",
+      "line": 6,
+      "function": "<top>",
+      "target": "assets/audio/weapons/smg.wav",
+      "kind": "literal",
+      "exists": true
+    },
+    {
+      "source": "scripts/weapon_audio.gd",
+      "line": 7,
+      "function": "<top>",
+      "target": "assets/audio/weapons/rifle.wav",
+      "kind": "literal",
+      "exists": true
+    },
+    {
+      "source": "scripts/weapon_audio.gd",
+      "line": 8,
+      "function": "<top>",
+      "target": "assets/audio/weapons/shotgun.wav",
+      "kind": "literal",
+      "exists": true
+    },
+    {
+      "source": "scripts/weapon_audio.gd",
+      "line": 9,
+      "function": "<top>",
+      "target": "assets/audio/weapons/lmg.wav",
+      "kind": "literal",
+      "exists": true
+    },
+    {
+      "source": "scripts/weapon_audio.gd",
+      "line": 10,
+      "function": "<top>",
+      "target": "assets/audio/weapons/rifle.wav",
+      "kind": "literal",
+      "exists": true
+    },
+    {
+      "source": "scripts/weapon_audio.gd",
+      "line": 11,
+      "function": "<top>",
+      "target": "assets/audio/weapons/rifle.wav",
+      "kind": "literal",
+      "exists": true
+    },
+    {
+      "source": "scripts/weapon_audio.gd",
+      "line": 15,
+      "function": "<top>",
+      "target": "assets/audio/reloads/rifle.wav",
+      "kind": "literal",
+      "exists": true
+    },
+    {
+      "source": "scripts/weapon_audio.gd",
+      "line": 16,
+      "function": "<top>",
+      "target": "assets/audio/reloads/pistol.wav",
+      "kind": "literal",
+      "exists": true
+    },
+    {
+      "source": "scripts/weapon_audio.gd",
+      "line": 17,
+      "function": "<top>",
+      "target": "assets/audio/reloads/smg.wav",
+      "kind": "literal",
+      "exists": true
+    },
+    {
+      "source": "scripts/weapon_audio.gd",
+      "line": 18,
+      "function": "<top>",
+      "target": "assets/audio/reloads/rifle.wav",
+      "kind": "literal",
+      "exists": true
+    },
+    {
+      "source": "scripts/weapon_audio.gd",
+      "line": 19,
+      "function": "<top>",
+      "target": "assets/audio/reloads/shotgun.wav",
+      "kind": "literal",
+      "exists": true
+    },
+    {
+      "source": "scripts/weapon_audio.gd",
+      "line": 20,
+      "function": "<top>",
+      "target": "assets/audio/reloads/lmg.wav",
+      "kind": "literal",
+      "exists": true
+    },
+    {
+      "source": "scripts/weapon_audio.gd",
+      "line": 21,
+      "function": "<top>",
+      "target": "assets/audio/reloads/rifle.wav",
+      "kind": "literal",
+      "exists": true
+    },
+    {
+      "source": "scripts/weapon_audio.gd",
+      "line": 22,
+      "function": "<top>",
+      "target": "assets/audio/reloads/rifle.wav",
+      "kind": "literal",
+      "exists": true
+    },
+    {
+      "source": "scenes/main.tscn",
+      "line": 3,
+      "target": "scripts/main.gd",
+      "kind": "literal",
+      "exists": true
+    },
+    {
+      "source": "project.godot",
+      "line": 8,
+      "target": "scenes/main.tscn",
+      "kind": "literal",
+      "exists": true
+    },
+    {
+      "source": "project.godot",
+      "line": 23,
+      "target": "scripts/game_settings.gd",
+      "kind": "literal",
+      "exists": true
+    }
+  ],
+  "dynamic_expansions": [
+    {
+      "source": "scripts/player.gd",
+      "line": 948,
+      "function": "_update_gun_mesh",
+      "target": "assets/models/%s_%s.glb",
+      "kind": "dynamic",
+      "present": [
+        "assets/models/bolt_sniper_body.glb",
+        "assets/models/bolt_sniper_mag.glb",
+        "assets/models/bolt_sniper_action.glb",
+        "assets/models/lmg_body.glb",
+        "assets/models/lmg_mag.glb",
+        "assets/models/lmg_action.glb",
+        "assets/models/pistol_body.glb",
+        "assets/models/pistol_mag.glb",
+        "assets/models/pistol_action.glb",
+        "assets/models/rifle_body.glb",
+        "assets/models/rifle_mag.glb",
+        "assets/models/rifle_action.glb",
+        "assets/models/sentinela_body.glb",
+        "assets/models/sentinela_mag.glb",
+        "assets/models/sentinela_action.glb",
+        "assets/models/shotgun_body.glb",
+        "assets/models/shotgun_action.glb",
+        "assets/models/smg_body.glb",
+        "assets/models/smg_mag.glb",
+        "assets/models/smg_action.glb",
+        "assets/models/sniper_body.glb",
+        "assets/models/sniper_mag.glb",
+        "assets/models/sniper_action.glb"
+      ],
+      "absent": [
+        "assets/models/shotgun_mag.glb"
+      ],
+      "note": "shotgun_mag ausente por design; ResourceLoader.exists controla as variantes."
+    },
+    {
+      "source": "scripts/enemy.gd",
+      "line": 246,
+      "function": "_ready",
+      "target": "assets/models/%s.glb",
+      "kind": "dynamic",
+      "present": [
+        "assets/models/bolt_sniper.glb",
+        "assets/models/lmg.glb",
+        "assets/models/pistol.glb",
+        "assets/models/rifle.glb",
+        "assets/models/sentinela.glb",
+        "assets/models/shotgun.glb",
+        "assets/models/smg.glb",
+        "assets/models/sniper.glb"
+      ],
+      "absent": [],
+      "note": "Expansão conservadora dos oito IDs."
+    },
+    {
+      "source": "scripts/enemy.gd",
+      "line": 270,
+      "function": "_ready",
+      "target": "assets/audio/reloads/%s.wav",
+      "kind": "dynamic",
+      "present": [
+        "assets/audio/reloads/lmg.wav",
+        "assets/audio/reloads/pistol.wav",
+        "assets/audio/reloads/rifle.wav",
+        "assets/audio/reloads/shotgun.wav",
+        "assets/audio/reloads/smg.wav"
+      ],
+      "absent": [
+        "assets/audio/reloads/bolt_sniper.wav",
+        "assets/audio/reloads/sentinela.wav",
+        "assets/audio/reloads/sniper.wav"
+      ],
+      "note": "Enemy reload uses ResourceLoader.exists before load; candidates include all eight IDs conservatively, not actual NPC loadout reachability. Player WeaponAudio maps precision weapons to shared rifle recordings. Missing candidates are not proven runtime errors."
+    },
+    {
+      "source": "scripts/loot_pickup.gd",
+      "line": 21,
+      "function": "_ready",
+      "target": "assets/models/%s.glb",
+      "kind": "dynamic",
+      "present": [
+        "assets/models/bolt_sniper.glb",
+        "assets/models/lmg.glb",
+        "assets/models/pistol.glb",
+        "assets/models/rifle.glb",
+        "assets/models/sentinela.glb",
+        "assets/models/shotgun.glb",
+        "assets/models/smg.glb",
+        "assets/models/sniper.glb"
+      ],
+      "absent": [],
+      "note": "Expansão conservadora dos oito IDs."
+    }
+  ],
+  "limitations": [
+    "No local checkout/Godot/Blender; no runtime capture, GLB binary analysis or visual inspection.",
+    "Literal scanner is static, not a GDScript parser; dynamic candidates conservative, no claim of execution coverage.",
+    "No definitive provenance for recorded WAV or two map textures; verify before redistribution.",
+    "No new asset or gameplay change."
+  ],
+  "dependencies": {
+    "runtime": {
+      "engine": "Godot 4.x Compatibility",
+      "baseline_release_workflow_engine": "4.4.1",
+      "windows_15_wave_workflow_engine": "4.6.3",
+      "resolution": "1280x720",
+      "autoload": "scripts/game_settings.gd",
+      "entry_scene": "scenes/main.tscn",
+      "external_runtime_downloads": "none identified for 3D assets; game uses bundled resources"
+    },
+    "generation": {
+      "python": "3.11",
+      "packages": [
+        "numpy>=2.0,<2.5",
+        "trimesh==4.11.1",
+        "scipy>=1.11,<1.18",
+        "pillow>=10,<13"
+      ],
+      "tools": [
+        "tools/build_weapons.py",
+        "tools/generate_foley_textures.py",
+        "tools/verify_project.py"
+      ],
+      "lockfile": "not present; dependency ranges are not full reproducibility"
+    },
+    "ci": {
+      "workflows": [
+        ".github/workflows/windows-build.yml",
+        ".github/workflows/windows-survival-qa.yml"
+      ],
+      "rendering": "OpenGL3 via Xvfb on Linux; export templates Windows; git, GitHub Actions",
+      "latest_baseline_run": 45412943170,
+      "baseline_result": "failure at arsenal QA; subsequent render/export skipped"
+    },
+    "future_not_installed": [
+      "Blender Python backend",
+      "Three.js and GLTFLoader",
+      "Asset Studio"
+    ],
+    "external_provenance": [
+      {
+        "asset": "assets/characters/quaternius_base_male.glb",
+        "document": "docs/ASSET_QUATERNIUS_CC0.md",
+        "license": "CC0 stated in project documentation"
+      },
+      {
+        "asset": "assets/audio/explosions/grenade.ogg",
+        "document": "docs/ASSET_EXPLOSION_CC0.md",
+        "license": "CC0 stated in project documentation",
+        "verified_blob": "019e53664abf859fc5529f95d0db23fa3ac1e42d"
+      }
+    ]
+  },
+  "qa_resources": [
+    {
+      "path": "docs/qa/hud_current.png",
+      "git_blob_sha1": "6c4094dc7efdef3fad48225253a74a4dd5ef03e3",
+      "bytes": 773475,
+      "role": "historical_capture_not_current_visual_approval"
+    },
+    {
+      "path": "docs/qa/humanoid_current.png",
+      "git_blob_sha1": "58ef0ddeacc672226c9dad5d2c616f89f17ba82a",
+      "bytes": 798469,
+      "role": "historical_capture_not_current_visual_approval"
+    },
+    {
+      "path": "docs/qa/viewmodel_current.png",
+      "git_blob_sha1": "5e9ef40ef683ddc6404140f597b68480177da87a",
+      "bytes": 2664554,
+      "role": "historical_capture_not_current_visual_approval"
+    },
+    {
+      "path": "tests/arsenal_qa.gd",
+      "git_blob_sha1": "0f72f8506764a543e71240d86b00ba6da2661062",
+      "bytes": 8648,
+      "role": "test_source"
+    },
+    {
+      "path": "tests/checkpoint_menu_qa.gd",
+      "git_blob_sha1": "254c6c147c9036f94c1ad62fd9bf8a41c71d3816",
+      "bytes": 1618,
+      "role": "test_source"
+    },
+    {
+      "path": "tests/fifteen_waves_qa.gd",
+      "git_blob_sha1": "9fe68846c46929a6e58e600331c6ed5f422d2128",
+      "bytes": 3146,
+      "role": "test_source"
+    },
+    {
+      "path": "tests/fov_settings_qa.gd",
+      "git_blob_sha1": "2f5f2132841c04f7f83b164d39d8109518a1fd4c",
+      "bytes": 6419,
+      "role": "test_source"
+    },
+    {
+      "path": "tests/hud_qa_snapshot.gd",
+      "git_blob_sha1": "ccc1bb12f5b53337107046d0e51acec97a4028e4",
+      "bytes": 2048,
+      "role": "test_source"
+    },
+    {
+      "path": "tests/humanoid_qa_snapshot.gd",
+      "git_blob_sha1": "4c273df2931a75f09228ca114940ed9b8975e0d3",
+      "bytes": 2214,
+      "role": "test_source"
+    },
+    {
+      "path": "tests/independent_fov_qa.gd",
+      "git_blob_sha1": "1ae8ca93fdc54fa35bbf414e5b14c5ec57b1a1f4",
+      "bytes": 5354,
+      "role": "test_source"
+    },
+    {
+      "path": "tests/runtime_wave_qa.gd",
+      "git_blob_sha1": "1ae465c89475f783b1ac67b8fbc936061558203d",
+      "bytes": 83703,
+      "role": "test_source"
+    },
+    {
+      "path": "tests/sight_alignment_qa.gd",
+      "git_blob_sha1": "fbff43d231d2e06e595feb2758cbdfbbee787c85",
+      "bytes": 5301,
+      "role": "test_source"
+    },
+    {
+      "path": "tests/survival_features_qa.gd",
+      "git_blob_sha1": "e59a8440f99ea3a45d0d1cd27dd4c631b9794057",
+      "bytes": 3589,
+      "role": "test_source"
+    },
+    {
+      "path": "tests/test_arm_hierarchy.py",
+      "git_blob_sha1": "623ebb960c9ca03d3964360ffb0c11ad015b613e",
+      "bytes": 5250,
+      "role": "test_source"
+    },
+    {
+      "path": "tests/test_arsenal_qa_contract.py",
+      "git_blob_sha1": "61772b346d76d8f2201ed0fa7fb8273789582cfd",
+      "bytes": 1387,
+      "role": "test_source"
+    },
+    {
+      "path": "tests/test_bolt_sniper_contract.py",
+      "git_blob_sha1": "97a425841d4717287077f01664db0108ce0ae01e",
+      "bytes": 4021,
+      "role": "test_source"
+    },
+    {
+      "path": "tests/test_enemy_navigation_contract.py",
+      "git_blob_sha1": "141764454cca5474d16c40bc5cafe55b31150f84",
+      "bytes": 3481,
+      "role": "test_source"
+    },
+    {
+      "path": "tests/test_fov_contract.py",
+      "git_blob_sha1": "f7878314388e2d83a391dc79f5134c5010755e9b",
+      "bytes": 1778,
+      "role": "test_source"
+    },
+    {
+      "path": "tests/test_independent_fov_contract.py",
+      "git_blob_sha1": "bec057df3d0e5244a8ec4a461a70525acee07f96",
+      "bytes": 1959,
+      "role": "test_source"
+    },
+    {
+      "path": "tests/test_player_animation_contract.py",
+      "git_blob_sha1": "71450b9368199a4c8ba72e6e950242bd1816fc37",
+      "bytes": 7749,
+      "role": "test_source"
+    },
+    {
+      "path": "tests/test_player_input_contract.py",
+      "git_blob_sha1": "84933875917135989cdec3205ff093d88c43a610",
+      "bytes": 6445,
+      "role": "test_source"
+    },
+    {
+      "path": "tests/test_player_posture_contract.py",
+      "git_blob_sha1": "ed1b99f3fc0712a598005927878dec657550889e",
+      "bytes": 5563,
+      "role": "test_source"
+    },
+    {
+      "path": "tests/test_player_weapon_contract.py",
+      "git_blob_sha1": "599c495c0c5d0bbac4623e7df556503de0eed4dd",
+      "bytes": 5785,
+      "role": "test_source"
+    },
+    {
+      "path": "tests/test_shop_consumables_contract.py",
+      "git_blob_sha1": "a132177971b6d86cfb1dbaa43266ffffbad060a5",
+      "bytes": 2127,
+      "role": "test_source"
+    },
+    {
+      "path": "tests/test_sniper_contract.py",
+      "git_blob_sha1": "e3b5da61dd02bd00c165eb34bb37dd4a7d2571f1",
+      "bytes": 4962,
+      "role": "test_source"
+    },
+    {
+      "path": "tests/test_sniper_sight_geometry.py",
+      "git_blob_sha1": "09ecdfed0e0f899af539bc089bc80bdbc0c049f7",
+      "bytes": 4445,
+      "role": "test_source"
+    },
+    {
+      "path": "tests/test_viewmodel_framing_contract.py",
+      "git_blob_sha1": "d67ea5312fad49955f9ccc5e3827113958e99aa7",
+      "bytes": 1847,
+      "role": "test_source"
+    },
+    {
+      "path": "tests/test_viewmodel_snapshot_contract.py",
+      "git_blob_sha1": "c547af6310a463852e0aa6f00d1e2a1fec0d7b43",
+      "bytes": 1609,
+      "role": "test_source"
+    },
+    {
+      "path": "tests/test_viewmodel_transition_contract.py",
+      "git_blob_sha1": "8bf145f453ee2f6afb6152494a04ad2e8fbd7db1",
+      "bytes": 4104,
+      "role": "test_source"
+    },
+    {
+      "path": "tests/test_wave_counter_reconciliation.py",
+      "git_blob_sha1": "17c2405e63deb14fe35732c6fe006f1b442139c5",
+      "bytes": 1817,
+      "role": "test_source"
+    },
+    {
+      "path": "tests/test_weapon_surface_integrity.py",
+      "git_blob_sha1": "b43ec42e548b39cf4fe7898cc2ab3a170910c363",
+      "bytes": 2427,
+      "role": "test_source"
+    },
+    {
+      "path": "tests/test_weapon_wall_clip_contract.py",
+      "git_blob_sha1": "eea3eef03020e13e631642d3603fcc2f71f86021",
+      "bytes": 2851,
+      "role": "test_source"
+    },
+    {
+      "path": "tests/viewmodel_framing_qa.gd",
+      "git_blob_sha1": "4aa8c1c3c430d823c1d85c7bafcddfa310c68451",
+      "bytes": 5736,
+      "role": "test_source"
+    },
+    {
+      "path": "tests/viewmodel_qa_snapshot.gd",
+      "git_blob_sha1": "f3e3fb197417fdea9a6744835f7a128e4f2a5602",
+      "bytes": 4907,
+      "role": "test_source"
+    },
+    {
+      "path": "tests/wave_rules_qa.gd",
+      "git_blob_sha1": "41c849a961f979254b9891ff05cfad31c9de2829",
+      "bytes": 3408,
+      "role": "test_source"
+    }
+  ],
+  "map_static_summary": {
+    "id": "map:campo_de_testes",
+    "scene": "scenes/main.tscn",
+    "source": "scripts/main.gd",
+    "scope": "counts from source calls, not live node counts",
+    "floor_m": [
+      52,
+      52
+    ],
+    "boundary_walls": 4,
+    "containers": 4,
+    "sandbag_stacks": 4,
+    "barrels": 8,
+    "facade_groups": 3,
+    "light_post_groups": 4,
+    "shops": 3,
+    "shop_ids": [
+      "weapons",
+      "gear",
+      "support"
+    ],
+    "note": "Each composed asset contains additional visual children. Capture actual transforms, materials and collision nodes in Godot before declaring runtime coverage."
+  },
+  "verification": {
+    "method": "static comparison with immutable remote Git tree and source scan; no engine execution",
+    "checks": [
+      {
+        "name": "All 60 tracked asset paths covered exactly once",
+        "pass": true
+      },
+      {
+        "name": "Exact git blob SHA-1 and sizes for every asset",
+        "pass": true
+      },
+      {
+        "name": "All tracked script and scene paths represented",
+        "pass": true
+      },
+      {
+        "name": "All literal references resolve",
+        "pass": true
+      },
+      {
+        "name": "All conservative dynamic expansions match tree",
+        "pass": true
+      },
+      {
+        "name": "All import metadata have matching source",
+        "pass": true
+      },
+      {
+        "name": "All 290 identified constructor sites assigned to families",
+        "pass": true
+      },
+      {
+        "name": "Unique stable family IDs and tracked source paths",
+        "pass": true
+      },
+      {
+        "name": "All families explicitly pending runtime capture",
+        "pass": true
+      },
+      {
+        "name": "Checklist preserves all 131 tasks",
+        "pass": true
+      }
+    ]
+  }
+}
