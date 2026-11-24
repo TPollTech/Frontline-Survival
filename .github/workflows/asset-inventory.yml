@@ -15,7 +15,6 @@ jobs:
     timeout-minutes: 12
     env:
       FRONTLINE_INVENTORY_DIR: ${{ github.workspace }}/qa-inventory
-      XDG_DATA_HOME: ${{ runner.temp }}/frontline-inventory-profile
     steps:
       - uses: actions/checkout@v4
         with:
@@ -36,6 +35,8 @@ jobs:
           timeout 120s godot --headless --editor --import --path . 2>&1 | tee "$FRONTLINE_INVENTORY_DIR/import.log"
           if grep -E 'SCRIPT ERROR:|Parse Error' "$FRONTLINE_INVENTORY_DIR/import.log"; then exit 1; fi
       - name: Inventory actual instantiated scenes and render evidence
+        env:
+          XDG_DATA_HOME: ${{ runner.temp }}/frontline-inventory-profile
         run: |
           set -o pipefail
           timeout 180s xvfb-run -a -s '-screen 0 1280x720x24' godot --path . --rendering-driver opengl3 --script res://tools/asset_pipeline/runtime/inventory_qa.gd 2>&1 | tee "$FRONTLINE_INVENTORY_DIR/runtime.log"
