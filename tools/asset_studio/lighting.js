@@ -29,9 +29,9 @@ export async function createLighting(renderer,scene){
  scene.add(key,key.target);
  const floor=new THREE.Mesh(new THREE.PlaneGeometry(1,1),new THREE.MeshStandardMaterial({color:0x4b535a,roughness:0.95,metalness:0}));
  floor.rotation.x=-Math.PI/2;floor.receiveShadow=true;floor.visible=false;scene.add(floor);
- let grid=null,active=false,gridEnabled=true,shadowsEnabled=true;
+ let grid=null,active=false,gridEnabled=true,shadowsEnabled=true,bottomView=false;
  function refresh(){renderer.shadowMap.needsUpdate=true;}
- function applyVisibility(){floor.visible=active;if(grid)grid.visible=active&&gridEnabled;key.castShadow=shadowsEnabled;refresh();}
+ function applyVisibility(){floor.visible=active&&!bottomView;if(grid)grid.visible=active&&gridEnabled&&!bottomView;key.castShadow=shadowsEnabled;refresh();}
  function place(model,box){
    const size=box.getSize(new THREE.Vector3()),center=box.getCenter(new THREE.Vector3());
    const span=Math.max(size.x,size.y,size.z,.0001);
@@ -57,5 +57,6 @@ export async function createLighting(renderer,scene){
  function setShadows(on){shadowsEnabled=on;renderer.shadowMap.enabled=on;applyVisibility();}
  function setExposure(value){renderer.toneMappingExposure=value;}
  function diagnostics(){return {hdr:hash,environment:!!scene.environment,aces:renderer.toneMapping===THREE.ACESFilmicToneMapping,srgb:renderer.outputColorSpace===THREE.SRGBColorSpace,antialias:renderer.getContext().getContextAttributes().antialias,softShadow:renderer.shadowMap.type===THREE.PCFSoftShadowMap,shadows:renderer.shadowMap.enabled,grid:!!grid?.visible,floor:floor.visible,exposure:renderer.toneMappingExposure};}
- return {place,clear,setGrid,setShadows,setExposure,diagnostics};
+ function setBottomView(on){bottomView=on;applyVisibility();}
+ return {place,clear,setGrid,setShadows,setExposure,setBottomView,diagnostics};
 }

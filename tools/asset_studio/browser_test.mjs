@@ -62,13 +62,37 @@ for(const a of catalog.assets){
    await page.locator('#zoom-in').click();assert((await cameraState()).distance<reset.distance*.9);
    await page.locator('#zoom-out').click();assert(Math.abs((await cameraState()).distance-reset.distance)<reset.distance*1e-5);
    await page.locator('#reset').click();
-   await page.setViewportSize({width:760,height:900});
-   await page.waitForFunction(a=>Math.abs(JSON.parse(document.querySelector('#viewport').dataset.camera).aspect-a)>.05,home.aspect);
+   await page.setViewportSize({width:520,height:900});
+   await page.waitForFunction(a=>{const c=JSON.parse(document.querySelector('#viewport').dataset.camera);const v=document.querySelector('#viewport');return Math.abs(c.aspect-v.clientWidth/v.clientHeight)<.01&&Math.abs(c.aspect-a)>.03;},home.aspect);
    const narrow=await assertFit();await page.screenshot({path:dir+'/studio-camera-narrow.png'});
    await page.setViewportSize({width:1440,height:900});
    await page.waitForFunction(a=>Math.abs(JSON.parse(document.querySelector('#viewport').dataset.camera).aspect-a)<.01,home.aspect);
    await assertFit();
-   cameraEvidence={home,rotated,panned,reset,narrow};
+   const views={front:[0,0,-1],back:[0,0,1],left:[-1,0,0],right:[1,0,0],top:[0,1,0],bottom:[0,-1,0]};
+   const viewEvidence={};
+   for(const [name,axis] of Object.entries(views)){
+     await page.locator('#view').selectOption(name);
+     const c=await assertFit();
+     assert.equal(c.projection,'orthographic');assert.equal(c.mode,name);assert.equal(c.rotate,false);
+     assert(distance(c.direction,axis)<1e-5,'wrong axis '+name);
+     assert.equal((await diagnostics()).floor,name!=='bottom');
+     await page.screenshot({path:dir+'/studio-view-'+name+'.png'});
+     viewEvidence[name]=c;
+   }
+   const bottom=await cameraState();
+   await page.locator('#zoom-in').click();assert((await cameraState()).cameraZoom>bottom.cameraZoom);
+   await page.locator('#reset').click();assert.equal((await assertFit()).cameraZoom,1);
+   await page.locator('#view').selectOption('perspective');assert.equal((await assertFit()).projection,'perspective');
+   assert.equal((await diagnostics()).floor,true);
+   await page.locator('#fullscreen').click();
+   await page.waitForFunction(()=>document.fullscreenElement===document.querySelector('.workspace'));
+   await page.waitForFunction(()=>{const c=JSON.parse(document.querySelector('#viewport').dataset.camera),v=document.querySelector('#viewport');return Math.abs(c.aspect-v.clientWidth/v.clientHeight)<.01;});
+   const full=await assertFit();await page.screenshot({path:dir+'/studio-fullscreen.png'});
+   await page.locator('#fullscreen').click();await page.waitForFunction(()=>!document.fullscreenElement);
+   await page.waitForFunction(()=>{const c=JSON.parse(document.querySelector('#viewport').dataset.camera),v=document.querySelector('#viewport');return Math.abs(c.aspect-v.clientWidth/v.clientHeight)<.01;});
+   await assertFit();
+   cameraEvidence={home,rotated,panned,reset,narrow,views:viewEvidence,fullscreen:full};
+   console.log('STUDIO_VIEWS_PASS six orthographic axes perspective fullscreen');
    console.log('STUDIO_CAMERA_PASS orbit pan wheel reset resize');
  }
 }

@@ -25,11 +25,11 @@ async function initRenderer(){
  viewport.prepend(renderer.domElement);
  new ResizeObserver(()=>{const w=viewport.clientWidth,h=viewport.clientHeight;if(w&&h){renderer.setSize(w,h,false);navigation.resize(w,h);}}).observe(viewport);
  renderer.domElement.addEventListener('webglcontextlost',e=>{e.preventDefault();state('Contexto WebGL perdido. Recarregue a página.','error');});
- function loop(){requestAnimationFrame(loop);navigation.update();renderer.render(scene,camera);frame++;}
+ function loop(){requestAnimationFrame(loop);navigation.update();renderer.render(scene,navigation.camera);frame++;}
  loop();
 }
 function dispose(root){const geos=new Set(),mats=new Set(),textures=new Set();root.traverse(o=>{if(o.geometry)geos.add(o.geometry);for(const m of [].concat(o.material||[])){mats.add(m);for(const v of Object.values(m))if(v?.isTexture)textures.add(v);}if(o.isSkinnedMesh&&o.skeleton)o.skeleton.dispose();});textures.forEach(t=>t.dispose());mats.forEach(m=>m.dispose());geos.forEach(g=>g.dispose());}
-function clear(){navigation?.clear();$('zoom-in').disabled=true;$('zoom-out').disabled=true;lighting?.clear();$('grid-scale').textContent='—';if(lighting)viewport.dataset.lighting=JSON.stringify(lighting.diagnostics());if(model){scene.remove(model);dispose(model);model=null;}viewport.querySelectorAll('img,audio').forEach(x=>x.remove());$('reset').disabled=true;delete viewport.dataset.resource;delete viewport.dataset.sha256;}
+function clear(){navigation?.clear();$('view').disabled=true;$('zoom-in').disabled=true;$('zoom-out').disabled=true;lighting?.clear();$('grid-scale').textContent='—';if(lighting)viewport.dataset.lighting=JSON.stringify(lighting.diagnostics());if(model){scene.remove(model);dispose(model);model=null;}viewport.querySelectorAll('img,audio').forEach(x=>x.remove());$('reset').disabled=true;delete viewport.dataset.resource;delete viewport.dataset.sha256;}
 function fit(){if(model)navigation.reset();}
 function resources(a){return [...new Set([a.preview?.resource,...(a.outputs||[]).map(x=>x.path)].filter(p=>p&&catalog.resources[p]?.status!=='missing'&&catalog.resources[p]))];}
 function renderList(){const q=$('search').value.trim().toLowerCase(),cat=$('category').value;const list=catalog.assets.filter(a=>(!cat||a.category===cat)&&(!q||[a.id,a.category,a.source?.path,...resources(a)].join(' ').toLowerCase().includes(q)));$('count').textContent=list.length+' de '+catalog.assets.length+' registros';$('assets').replaceChildren(...list.map(a=>{const b=document.createElement('button');b.type='button';b.dataset.asset=a.id;b.setAttribute('aria-current',String(a===selected));b.textContent=a.id;const sm=document.createElement('small');sm.textContent=a.category+' · '+(resources(a).length?'arquivo real':'captura pendente');b.append(sm);b.addEventListener('click',()=>select(a));return b;}));}
@@ -50,7 +50,7 @@ async function load(p){
    const data=await loader.parseAsync(bytes,new URL(safePath(p),location.href).href.replace(/[^/]+$/,''));
    if(token!==request){dispose(data.scene);return;}
    const box=new THREE.Box3().setFromObject(data.scene,true);if(box.isEmpty()) {dispose(data.scene);throw Error('Modelo vazio');}
-   model=data.scene;scene.add(model);const step=lighting.place(model,box);$('grid-scale').textContent=Number(step.toPrecision(4))+' m / célula';viewport.dataset.lighting=JSON.stringify(lighting.diagnostics());navigation.setBounds(box);$('reset').disabled=false;$('zoom-in').disabled=false;$('zoom-out').disabled=false;state('Modelo original carregado','ready');
+   model=data.scene;scene.add(model);const step=lighting.place(model,box);$('grid-scale').textContent=Number(step.toPrecision(4))+' m / célula';viewport.dataset.lighting=JSON.stringify(lighting.diagnostics());navigation.setBounds(box);$('view').disabled=false;$('reset').disabled=false;$('zoom-in').disabled=false;$('zoom-out').disabled=false;state('Modelo original carregado','ready');
  }else if(['png','jpg','jpeg','webp'].includes(ext)){
    const img=document.createElement('img');img.alt=p;img.src=safePath(p);viewport.append(img);state('Textura original','ready');
  }else if(['ogg','wav','mp3'].includes(ext)){
@@ -59,10 +59,16 @@ async function load(p){
  viewport.dataset.resource=p;viewport.dataset.sha256=catalog.resources[p].sha256;
  }catch(e){if(token===request){clear();state('Falha: '+e.message,'error');}}
 }
-$('variant').addEventListener('change',()=>load($('variant').value));$('reset').addEventListener('click',fit);$('zoom-in').addEventListener('click',()=>navigation.zoom(.8));$('zoom-out').addEventListener('click',()=>navigation.zoom(1.25));$('search').addEventListener('input',renderList);$('category').addEventListener('change',renderList);
+$('variant').addEventListener('change',()=>load($('variant').value));$('reset').addEventListener('click',fit);$('view').addEventListener('change',()=>{navigation.setView($('view').value);lighting.setBottomView($('view').value==='bottom');viewport.dataset.lighting=JSON.stringify(lighting.diagnostics());});$('zoom-in').addEventListener('click',()=>navigation.zoom(.8));$('zoom-out').addEventListener('click',()=>navigation.zoom(1.25));$('search').addEventListener('input',renderList);$('category').addEventListener('change',renderList);
 try{
  await initRenderer();const res=await fetch('./live_catalog.json',{cache:'no-store'});if(!res.ok)throw Error('Catálogo indisponível: '+res.status);catalog=await res.json();if(catalog.kind!=='frontline_live_catalog'||catalog.schema_version!==1||!Array.isArray(catalog.assets))throw Error('Catálogo incompatível');
  $('revision').textContent='main · '+catalog.revision.slice(0,7)+' · '+catalog.assets.length+' registros';
  for(const c of [...new Set(catalog.assets.map(a=>a.category))].sort()){const o=document.createElement('option');o.value=c;o.textContent=c;$('category').append(o);}
  renderList();const initial=catalog.assets.find(a=>resources(a).some(p=>p.endsWith('.glb')));if(initial)select(initial);else state('Selecione um recurso.','unavailable');
 }catch(e){state('Falha de inicialização: '+e.message,'error');}
+
+const fullscreen=$('fullscreen'),workspace=document.querySelector('.workspace');
+function fullscreenState(){const active=document.fullscreenElement===workspace;fullscreen.textContent=active?'Sair da tela cheia':'Tela cheia';fullscreen.setAttribute('aria-pressed',String(active));}
+fullscreen.disabled=!document.fullscreenEnabled||!workspace.requestFullscreen;
+fullscreen.addEventListener('click',async()=>{try{if(document.fullscreenElement===workspace)await document.exitFullscreen();else await workspace.requestFullscreen();}catch(e){$('fullscreen-status').textContent='Tela cheia indisponível: '+e.message;}});
+document.addEventListener('fullscreenchange',()=>{fullscreenState();$('fullscreen-status').textContent='';});

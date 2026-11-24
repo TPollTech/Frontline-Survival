@@ -102,3 +102,5 @@ Interface independente em tools/asset_studio, Three.js local e catálogo vivo ge
 Iluminação do Studio em lighting.js: HDRI sintético local RGBE com PMREM, ACES/sRGB, MSAA, PCFSoft e piso/grade independentes. O ambiente de inspeção não modifica assets e não reproduz a iluminação exata do Godot.
 
 Navegação do Studio em camera-navigation.js: fit analítico por oito cantos AABB e aspecto, OrbitControls e reset sem inércia residual; escala e transformações do asset preservadas. QA real no navegador. Vistas ortográficas e runtime seguem etapas próprias.
+
+Studio: seis OrthographicCamera por eixos canônicos mundiais, perspectiva, zoom/pan e fullscreen nativo. Piso oculto na vista inferior para não ocluir o asset. Não implica câmera real do Godot.

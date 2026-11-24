@@ -26,16 +26,23 @@ export function fitDistance(box,direction,fov,aspect,padding=1.16){
  }));
 }
 
-export function createCameraNavigation(camera,canvas,onChange){
+// Fixed world-axis inspection. Front looks from -Z, right from +X.
+export const VIEWS=Object.freeze({
+ front:[0,0,-1],back:[0,0,1],left:[-1,0,0],right:[1,0,0],
+ top:[0,1,0],bottom:[0,-1,0]
+});
+export function createCameraNavigation(perspective,canvas,onChange){
+ let camera=perspective,mode='perspective',aspect=perspective.aspect;
+ const ortho=new THREE.OrthographicCamera(-1,1,1,-1,.001,1000);
  let controls,box=null,home=null;
  function configure(){
    controls?.dispose();
    controls=new OrbitControls(camera,canvas);
    controls.enableDamping=true;controls.dampingFactor=.09;
-   controls.enableRotate=true;controls.enableZoom=true;controls.enablePan=true;
+   controls.enableRotate=mode==='perspective';controls.enableZoom=true;controls.enablePan=true;
    controls.screenSpacePanning=true;
    controls.rotateSpeed=.8;controls.zoomSpeed=1;controls.panSpeed=.85;
-   controls.minPolarAngle=.02;controls.maxPolarAngle=Math.PI-.02;
+   controls.minPolarAngle=mode==='perspective'?.02:0;controls.maxPolarAngle=mode==='perspective'?Math.PI-.02:Math.PI;
    controls.enabled=!!box;
    controls.mouseButtons={LEFT:THREE.MOUSE.ROTATE,MIDDLE:THREE.MOUSE.DOLLY,RIGHT:THREE.MOUSE.PAN};
    controls.touches={ONE:THREE.TOUCH.ROTATE,TWO:THREE.TOUCH.DOLLY_PAN};
@@ -47,7 +54,7 @@ export function createCameraNavigation(camera,canvas,onChange){
    const projected=corners(box).map(p=>p.project(camera));
    return {position:camera.position.toArray(),target:controls.target.toArray(),
       distance:camera.position.distanceTo(controls.target),minDistance:controls.minDistance,maxDistance:controls.maxDistance,
-      aspect:camera.aspect,near:camera.near,far:camera.far,damping:controls.enableDamping,
+      aspect,mode,projection:camera.isOrthographicCamera?'orthographic':'perspective',direction:camera.position.clone().sub(controls.target).normalize().toArray(),cameraZoom:camera.zoom,rotate:controls.enableRotate,near:camera.near,far:camera.far,damping:controls.enableDamping,
       pan:controls.enablePan,zoom:controls.enableZoom,homeDistance:home.distance,
       bounds:[box.min.toArray(),box.max.toArray()],maxNdc:Math.max(...projected.map(p=>Math.max(Math.abs(p.x),Math.abs(p.y)))),
       depthInside:projected.every(p=>p.z>=-1&&p.z<=1)};
@@ -57,32 +64,53 @@ export function createCameraNavigation(camera,canvas,onChange){
    if(!box)return;
    const center=box.getCenter(new THREE.Vector3());
    const radius=Math.max(box.getSize(new THREE.Vector3()).length()/2,1e-6);
-   const distance=fitDistance(box,defaultDirection,camera.fov,camera.aspect);
+   const direction=mode==='perspective'?defaultDirection:new THREE.Vector3(...VIEWS[mode]);
+   const distance=mode==='perspective'?fitDistance(box,direction,perspective.fov,aspect):radius*3;
+   camera=mode==='perspective'?perspective:ortho;
+   camera.up.set(0,1,0);
+   // At the poles, choose an explicit up direction rather than a singular lookAt.
+   if(mode==='top')camera.up.set(0,0,-1);
+   if(mode==='bottom')camera.up.set(0,0,1);
+   camera.position.copy(center).addScaledVector(direction,distance);
+   camera.zoom=1;
+   if(camera.isOrthographicCamera){
+     const right=new THREE.Vector3().crossVectors(camera.up,direction).normalize();
+     const up=new THREE.Vector3().crossVectors(direction,right);
+     const offsets=corners(box).map(p=>p.sub(center));
+     const half=Math.max(radius*.001,...offsets.map(p=>Math.max(Math.abs(p.dot(up)),Math.abs(p.dot(right))/aspect)))*1.16;
+     camera.left=-half*aspect;camera.right=half*aspect;camera.top=half;camera.bottom=-half;
+   }else camera.aspect=aspect;
    // Fresh control instance deliberately clears queued inertial input.
    configure();
    controls.target.copy(center);controls.cursor.copy(center);
    controls.maxTargetRadius=radius*4;
    controls.minDistance=Math.max(radius*.025,1e-7);
    controls.maxDistance=Math.max(distance*8,radius*20);
-   camera.position.copy(center).addScaledVector(defaultDirection,distance);
+   controls.minZoom=.05;controls.maxZoom=40;
    camera.near=Math.max(radius/20000,1e-8);
    camera.far=controls.maxDistance+radius*12;
    camera.zoom=1;camera.updateProjectionMatrix();
    controls.update();controls.saveState();
-   home={position:camera.position.clone(),target:center.clone(),distance};
+   home={position:camera.position.clone(),target:center.clone(),distance,zoom:camera.zoom};
    notify();
  }
  function setBounds(value){box=value.clone();reset();}
+ function setView(value){if(value!=='perspective'&&!Object.hasOwn(VIEWS,value))throw Error('Vista desconhecida');mode=value;if(box)reset();}
  function clear(){box=null;home=null;configure();notify();}
- function atHome(){return home&&camera.position.distanceTo(home.position)<home.distance*1e-6&&controls.target.distanceTo(home.target)<home.distance*1e-6;}
+ function atHome(){return home&&camera.position.distanceTo(home.position)<home.distance*1e-6&&controls.target.distanceTo(home.target)<home.distance*1e-6&&Math.abs(camera.zoom-home.zoom)<1e-6;}
  function resize(w,h){
    if(!(w>0&&h>0))return;
    const refit=atHome();
-   camera.aspect=w/h;camera.updateProjectionMatrix();
+   aspect=w/h;
+   if(camera.isOrthographicCamera){
+     const half=camera.top;camera.left=-half*aspect;camera.right=half*aspect;
+   }else camera.aspect=aspect;
+   camera.updateProjectionMatrix();
    if(refit)reset();else notify();
  }
  function zoom(factor){
    if(!box||!Number.isFinite(factor)||factor<=0)return;
+   if(camera.isOrthographicCamera){camera.zoom=THREE.MathUtils.clamp(camera.zoom/factor,controls.minZoom,controls.maxZoom);camera.updateProjectionMatrix();controls.update();notify();return;}
    const offset=camera.position.clone().sub(controls.target);
    const distance=THREE.MathUtils.clamp(offset.length()*factor,controls.minDistance,controls.maxDistance);
    camera.position.copy(controls.target).add(offset.setLength(distance));
@@ -92,5 +120,5 @@ export function createCameraNavigation(camera,canvas,onChange){
    const changed=controls.update();
    if(changed)notify();
  }
- return {setBounds,reset,clear,resize,zoom,update,diagnostics};
+ return {setBounds,setView,reset,clear,resize,zoom,update,diagnostics,get camera(){return camera;}};
 }
