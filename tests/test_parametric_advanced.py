@@ -114,8 +114,28 @@ class AdvancedBlenderTests(unittest.TestCase):
         self.assertAlmostEqual(self.block.signed_volume(),8.)
 
     def test_empty_intersection(self):
-        with self.assertRaises(BlenderError):
+        # Reject a genuine empty evaluated mesh, not an arbitrary process/API failure.
+        with self.assertRaisesRegex(BlenderError,"empty boolean result"):
             self.backend.boolean("empty",self.block,self.block,"intersection",right_transform=Transform.translation((5,0,0)))
+
+    def test_disjoint_boolean_solids(self):
+        t=Transform.translation((5,0,0))
+        for op,expected in (("union",16.),("difference",8.)):
+            with self.subTest(op=op):
+                m=self.backend.boolean("disjoint",self.block,self.block,op,right_transform=t)
+                self.assertTrue(m.closed_oriented())
+                self.assertAlmostEqual(m.signed_volume(),expected,places=5)
+                if op=="union":
+                    self.assertEqual(m.bounds(),((-1,-1,-1),(6,1,1)))
+                else:
+                    self.assertEqual(m.bounds(),self.block.bounds())
+
+    def test_contained_boolean_cavity(self):
+        inner=PythonBackend().build(Box("inner",(1,1,1)))
+        m=self.backend.boolean("cavity",self.block,inner,"difference")
+        self.assertTrue(m.closed_oriented())
+        self.assertAlmostEqual(m.signed_volume(),7.,places=5)
+        self.assertEqual(m.bounds(),self.block.bounds())
 
     def test_rounded_bevel(self):
         a=self.backend.bevel(self.block,0.05,1)

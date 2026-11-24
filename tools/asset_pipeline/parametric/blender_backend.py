@@ -76,6 +76,8 @@ class BlenderBackend:
             try:
                 out=json.loads(dst.read_text(encoding="utf-8"))
                 require(out["id"]==mesh.id and bool(out["blender_version"]),"wrong Blender output")
+                if "boolean" in options:
+                    require(bool(out["vertices"]) and bool(out["triangles"]),"empty boolean result")
                 result=MeshSpec(out["id"],out["vertices"],out["triangles"])
                 if mesh.closed_oriented():
                     require(result.closed_oriented() and result.signed_volume()>0,"Blender changed closed orientation")

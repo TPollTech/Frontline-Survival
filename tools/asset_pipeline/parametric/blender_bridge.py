@@ -33,7 +33,9 @@ def main():
         operation=data["boolean"]
         other=mesh_object("qa_operand",operation["vertices"],operation["triangles"])
         mod=obj.modifiers.new("exact_csg","BOOLEAN")
-        mod.operation=operation["operation"].upper()
+        # Public recipe names are not identical to bpy enum identifiers.
+        mod.operation={"union":"UNION","difference":"DIFFERENCE",
+                       "intersection":"INTERSECT"}[operation["operation"]]
         mod.solver="EXACT"
         mod.object=other
     if data["bevel_m"]>0:
