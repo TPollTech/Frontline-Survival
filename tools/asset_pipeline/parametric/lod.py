@@ -180,6 +180,25 @@ class AssetLOD:
         object.__setattr__(self,"bounds_tolerance",tol)
         object.__setattr__(self,"hysteresis_m",h)
 
+    def budget_report(self):
+        """Static usage per instance; not a frame-time or hardware benchmark."""
+        budget=BUDGETS[self.category]
+        levels=[]
+        for level in self.levels:
+            metrics=level.metrics()
+            caps={"triangles":budget.triangles[level.index],
+                  "material_slots":budget.max_material_slots}
+            levels.append({"index":level.index,"start_distance_m":level.start_distance_m,
+                           "metrics":metrics,"limits":caps,
+                           "remaining":{key:limit-metrics[key] for key,limit in caps.items()}})
+        collision={"colliders":len(self.colliders),
+                   "collision_triangles":sum(c.triangle_count() for c in self.colliders)}
+        caps={"colliders":budget.max_colliders,"collision_triangles":budget.max_collision_triangles}
+        return {"schema_version":1,"asset_id":self.id,"category":self.category,
+                "scope":"per_instance","limits_provisional":True,"hardware_validated":False,
+                "levels":levels,"collision":{"metrics":collision,"limits":caps,
+                "remaining":{key:limit-collision[key] for key,limit in caps.items()}}}
+
     def select(self,distance_m,previous=None):
         d=number(distance_m)
         require(d>=0,"negative LOD distance")
