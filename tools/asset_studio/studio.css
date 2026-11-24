@@ -6,3 +6,5 @@
 .workspace:fullscreen{background:#10151b;width:100%;height:100%;min-height:0}.workspace:fullscreen #viewport{min-height:0}#fullscreen-status{font-size:11px;color:#e6ad80}.workspace{min-width:0}#viewport canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
 
 #viewport img.runtime-capture{width:100%;height:100%;max-width:100%;max-height:100%;object-fit:contain;background:#10151b}#runtime-view{max-width:260px}
+
+#inspection[hidden]{display:none}#inspection pre{white-space:pre-wrap;overflow-wrap:anywhere;font:11px/1.5 ui-monospace,monospace;background:#10151b;border:1px solid var(--line);border-radius:5px;padding:8px;max-height:220px;overflow:auto}#uv-preview{position:static;width:100%;height:auto;aspect-ratio:6/5;border:1px solid var(--line)}#inspection input[type=range]{margin:4px 0 8px;padding:0;accent-color:var(--accent)}#inspection select{margin-bottom:7px}#inspection .inspect-check{display:flex;gap:8px;align-items:center}#inspection .inspect-check input{width:auto;margin:0;accent-color:var(--accent)}#inspection output{float:right}#inspection button{font-size:12px;margin:4px 0}#screenshot-status{font-size:11px;color:#a6b4c0}

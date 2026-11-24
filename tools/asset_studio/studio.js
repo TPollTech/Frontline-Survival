@@ -2,8 +2,9 @@ import * as THREE from 'three';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 import {createCameraNavigation} from './camera-navigation.js';
 import {createLighting} from './lighting.js';
+import {createInspection} from './inspection.js';
 const $=id=>document.getElementById(id);
-let catalog,selected,model,frame=0,request=0,renderer,scene,camera,navigation,lighting;
+let catalog,selected,model,frame=0,request=0,renderer,scene,camera,navigation,lighting,inspection;
 const viewport=$('viewport'),status=$('state');
 function state(s,kind='info'){status.textContent=s;status.dataset.kind=kind;}
 function safePath(p){if(typeof p!=='string'||p.startsWith('/')||p.includes('\\')||p.includes(':')||p.split('/').some(x=>!x||x==='.'||x==='..'))throw Error('Caminho inseguro');return './'+p.split('/').map(encodeURIComponent).join('/');}
@@ -17,6 +18,7 @@ async function initRenderer(){
  camera=new THREE.PerspectiveCamera(42,1,.001,1000);camera.position.set(2,1.3,2);
  navigation=createCameraNavigation(camera,renderer.domElement,info=>{if(info)viewport.dataset.camera=JSON.stringify(info);else delete viewport.dataset.camera;});
  lighting=await createLighting(renderer,scene);
+ inspection=createInspection({scene,renderer,camera:()=>navigation.camera,viewport});
  const update=()=>{viewport.dataset.lighting=JSON.stringify(lighting.diagnostics());};
  $('grid').addEventListener('change',()=>{lighting.setGrid($('grid').checked);update();});
  $('shadows').addEventListener('change',()=>{lighting.setShadows($('shadows').checked);update();});
@@ -25,11 +27,11 @@ async function initRenderer(){
  viewport.prepend(renderer.domElement);
  new ResizeObserver(()=>{const w=viewport.clientWidth,h=viewport.clientHeight;if(w&&h){renderer.setSize(w,h,false);navigation.resize(w,h);}}).observe(viewport);
  renderer.domElement.addEventListener('webglcontextlost',e=>{e.preventDefault();state('Contexto WebGL perdido. Recarregue a página.','error');});
- function loop(){requestAnimationFrame(loop);navigation.update();renderer.render(scene,navigation.camera);frame++;}
+ function loop(){requestAnimationFrame(loop);navigation.update();inspection.tick();renderer.render(scene,navigation.camera);frame++;}
  loop();
 }
 function dispose(root){const geos=new Set(),mats=new Set(),textures=new Set();root.traverse(o=>{if(o.geometry)geos.add(o.geometry);for(const m of [].concat(o.material||[])){mats.add(m);for(const v of Object.values(m))if(v?.isTexture)textures.add(v);}if(o.isSkinnedMesh&&o.skeleton)o.skeleton.dispose();});textures.forEach(t=>t.dispose());mats.forEach(m=>m.dispose());geos.forEach(g=>g.dispose());}
-function clear(){navigation?.clear();$('view').disabled=true;$('zoom-in').disabled=true;$('zoom-out').disabled=true;lighting?.clear();$('grid-scale').textContent='—';if(lighting)viewport.dataset.lighting=JSON.stringify(lighting.diagnostics());if(model){scene.remove(model);dispose(model);model=null;}viewport.querySelectorAll('img,audio').forEach(x=>x.remove());$('reset').disabled=true;delete viewport.dataset.resource;delete viewport.dataset.sha256;delete viewport.dataset.runtimeView;}
+function clear(){inspection?.clear();navigation?.clear();$('view').disabled=true;$('zoom-in').disabled=true;$('zoom-out').disabled=true;lighting?.clear();$('grid-scale').textContent='—';if(lighting)viewport.dataset.lighting=JSON.stringify(lighting.diagnostics());if(model){scene.remove(model);dispose(model);model=null;}viewport.querySelectorAll('img,audio').forEach(x=>x.remove());$('reset').disabled=true;delete viewport.dataset.resource;delete viewport.dataset.sha256;delete viewport.dataset.runtimeView;}
 function fit(){if(model)navigation.reset();}
 function resources(a){return [...new Set([a.preview?.resource,...(a.outputs||[]).map(x=>x.path)].filter(p=>p&&catalog.resources[p]?.status!=='missing'&&catalog.resources[p]))];}
 function renderList(){const q=$('search').value.trim().toLowerCase(),cat=$('category').value;const list=catalog.assets.filter(a=>(!cat||a.category===cat)&&(!q||[a.id,a.category,a.source?.path,...resources(a)].join(' ').toLowerCase().includes(q)));$('count').textContent=list.length+' de '+catalog.assets.length+' registros';$('assets').replaceChildren(...list.map(a=>{const b=document.createElement('button');b.type='button';b.dataset.asset=a.id;b.setAttribute('aria-current',String(a===selected));b.textContent=a.id;const sm=document.createElement('small');sm.textContent=a.category+' · '+(a.runtime_views?.length?'captura Godot disponível':resources(a).length?'arquivo real':'captura pendente');b.append(sm);b.addEventListener('click',()=>select(a));return b;}));}
@@ -74,7 +76,7 @@ async function load(p){
    } finally {for(const url of objectURLs)URL.revokeObjectURL(url);}
    if(token!==request){dispose(data.scene);return;}
    const box=new THREE.Box3().setFromObject(data.scene,true);if(box.isEmpty()) {dispose(data.scene);throw Error('Modelo vazio');}
-   model=data.scene;scene.add(model);const step=lighting.place(model,box);$('grid-scale').textContent=Number(step.toPrecision(4))+' m / célula';viewport.dataset.lighting=JSON.stringify(lighting.diagnostics());navigation.setBounds(box);$('view').disabled=false;$('reset').disabled=false;$('zoom-in').disabled=false;$('zoom-out').disabled=false;state('Modelo original carregado','ready');
+   model=data.scene;scene.add(model);const step=lighting.place(model,box);inspection.attach(data,selected);$('grid-scale').textContent=Number(step.toPrecision(4))+' m / célula';viewport.dataset.lighting=JSON.stringify(lighting.diagnostics());navigation.setBounds(box);$('view').disabled=false;$('reset').disabled=false;$('zoom-in').disabled=false;$('zoom-out').disabled=false;state('Modelo original carregado','ready');
  }else if(['png','jpg','jpeg','webp'].includes(ext)){
    const img=document.createElement('img');img.alt=p;img.src=safePath(p);viewport.append(img);state('Textura original','ready');
  }else if(['ogg','wav','mp3'].includes(ext)){
