@@ -62,3 +62,7 @@ A biblioteca em tools/asset_pipeline/parametric implementa IR de cena/malha, rec
 ## Validação da fundação paramétrica
 
 API Python e backend Blender real aprovados em 22/22 testes no CI 45442588521 (Blender 3.0.1). Ver [BIBLIOTECA_PARAMETRICA.md](BIBLIOTECA_PARAMETRICA.md) e [evidências](qa/parametric_foundation_evidence.json). Próxima tarefa estrutural: geometrias avançadas, extrusão, revolução, booleanas e bevels. Nenhuma migração de modelo aprovada.
+
+## Operações geométricas avançadas
+
+A extensão tools/asset_pipeline/parametric/advanced.py implementa perfis e triangulação determinística, extrusão e revolução. O backend Blender recebe CSG exato e bevel configurável. Consulte [BIBLIOTECA_PARAMETRICA.md](BIBLIOTECA_PARAMETRICA.md). Sem alterar catálogo histórico ou recursos de gameplay; validação CI ampliada.

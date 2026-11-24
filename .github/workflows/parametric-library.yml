@@ -26,7 +26,7 @@ jobs:
           node tools/asset_pipeline/build_manifest.mjs
       - name: Python foundation tests without Blender
         run: |
-          python -m unittest discover -s tests -p 'test_parametric_library.py' -v
+          python -m unittest discover -s tests -p 'test_parametric*.py' -v
       - name: Install optional Blender backend
         run: |
           sudo apt-get update
@@ -38,7 +38,7 @@ jobs:
           FRONTLINE_REQUIRE_BLENDER: '1'
         run: |
           set -o pipefail
-          python -m unittest discover -s tests -p 'test_parametric_library.py' -v 2>&1 | tee parametric-qa.log
+          python -m unittest discover -s tests -p 'test_parametric*.py' -v 2>&1 | tee parametric-qa.log
       - name: Upload QA evidence
         if: always()
         uses: actions/upload-artifact@v4

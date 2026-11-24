@@ -7,7 +7,7 @@ from pathlib import Path
 import shutil
 import subprocess
 import tempfile
-from .model import MeshSpec, number, require
+from .model import MeshSpec, number, require, stable_id, Transform
 from .recipes import PythonBackend
 
 class BlenderError(RuntimeError):
@@ -34,13 +34,36 @@ class BlenderBackend:
         bevel=number(bevel_m)
         require(bevel>=0 and type(segments) is int and 1<=segments<=8,"invalid bevel parameters")
         if bevel>0:
-            require(mesh.closed_oriented(),"bevel requires closed oriented input")
+            require(mesh.closed_oriented() and mesh.signed_volume()>0,"bevel requires closed outward input")
+        return self._evaluate(mesh, {"bevel_m":bevel,"segments":segments})
+
+    def bevel(self, mesh, width_m, segments=3, *, angle_rad=math.pi/6):
+        require(isinstance(mesh,MeshSpec),"expected MeshSpec")
+        width,angle=number(width_m),number(angle_rad)
+        require(width>0 and 0<angle<math.pi and type(segments) is int and 1<=segments<=8,"invalid bevel")
+        require(mesh.closed_oriented() and mesh.signed_volume()>0,"bevel requires closed outward input")
+        return self._evaluate(mesh, {"bevel_m":width,"segments":segments,"angle_rad":angle})
+
+    def boolean(self, id, left, right, operation, *, right_transform=None):
+        """Real Blender exact CSG; empty/invalid results raise BlenderError."""
+        stable_id(id)
+        require(operation in ("union","difference","intersection"),"unsupported boolean")
+        require(all(isinstance(m,MeshSpec) and m.closed_oriented() and m.signed_volume()>0 for m in (left,right)),
+                "boolean requires closed outward operands")
+        t=Transform() if right_transform is None else right_transform
+        require(isinstance(t,Transform),"expected transform")
+        operand=MeshSpec(right.id,[t.point(v) for v in right.vertices],right.triangles)
+        return self._evaluate(MeshSpec(id,left.vertices,left.triangles),
+            {"bevel_m":0.,"segments":1,"boolean":{"operation":operation,
+             "vertices":operand.vertices,"triangles":operand.triangles}})
+
+    def _evaluate(self, mesh, options):
         if not self.available:
             raise BlenderError("Blender unavailable; set FRONTLINE_BLENDER or install blender")
         with tempfile.TemporaryDirectory(prefix="frontline-blender-") as temp:
             src,dst=Path(temp)/"input.json",Path(temp)/"output.json"
             src.write_text(json.dumps({"id":mesh.id,"vertices":mesh.vertices,"triangles":mesh.triangles,
-                                       "bevel_m":bevel,"segments":segments},allow_nan=False),encoding="utf-8")
+                                       **options},allow_nan=False),encoding="utf-8")
             bridge=Path(__file__).with_name("blender_bridge.py").resolve()
             try:
                 proc=subprocess.run([self.executable,"--background","--factory-startup","--disable-autoexec",
