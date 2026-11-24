@@ -4,6 +4,9 @@ const IDS: Array[String] = ["pistol", "smg", "rifle", "shotgun", "lmg", "sentine
 var samples: Array[Dictionary] = []
 var failures: Array[String] = []
 var output_dir: String
+var query_records: Array[Dictionary] = []
+var physical_resources: Array[Dictionary] = []
+var library_materials: Dictionary = {}
 
 func _initialize() -> void:
     call_deferred("_run")
@@ -64,6 +67,7 @@ func _mesh(node: MeshInstance3D) -> Dictionary:
         var indices: int = 0
         var normals: int = 0
         var uvs: int = 0
+        var tangents: int = 0
         if arrays.size() == Mesh.ARRAY_MAX:
             if arrays[Mesh.ARRAY_VERTEX] != null:
                 vertices = arrays[Mesh.ARRAY_VERTEX].size()
@@ -73,6 +77,8 @@ func _mesh(node: MeshInstance3D) -> Dictionary:
                 normals = arrays[Mesh.ARRAY_NORMAL].size()
             if arrays[Mesh.ARRAY_TEX_UV] != null:
                 uvs = arrays[Mesh.ARRAY_TEX_UV].size()
+            if arrays[Mesh.ARRAY_TANGENT] != null:
+                tangents = int(arrays[Mesh.ARRAY_TANGENT].size() / 4.0)
         # ArrayMesh exposes topology; standard PrimitiveMesh surfaces are triangles.
         var primitive: Variant = null
         if mesh is ArrayMesh:
@@ -80,7 +86,7 @@ func _mesh(node: MeshInstance3D) -> Dictionary:
         elif mesh is PrimitiveMesh and not mesh is PointMesh:
             primitive = Mesh.PRIMITIVE_TRIANGLES
         surfaces.append({"index": i, "primitive": primitive, "vertices": vertices,
-            "indices": indices, "normals": normals, "uvs": uvs,
+            "indices": indices, "normals": normals, "uvs": uvs, "tangents": tangents,
             "triangles": int((indices if indices > 0 else vertices) / 3.0) if primitive == Mesh.PRIMITIVE_TRIANGLES else null,
             "effective_material": _material(node.get_active_material(i))})
     return {"class": mesh.get_class(), "path": mesh.resource_path,
@@ -154,6 +160,10 @@ func _walk(node: Node, origin: Node, rows: Array[Dictionary]) -> void:
         item["bones"] = bones
     if node is AnimationPlayer:
         item["animations"] = Array((node as AnimationPlayer).get_animation_list())
+    if node is AudioStreamPlayer or node is AudioStreamPlayer3D or node is AudioStreamPlayer2D:
+        var stream: AudioStream = node.get("stream") as AudioStream
+        if stream != null:
+            item["audio"] = {"path": stream.resource_path, "class": stream.get_class(), "length_s": stream.get_length()}
     if node is CanvasItem:
         var canvas := node as CanvasItem
         if canvas.material != null:
@@ -223,6 +233,111 @@ func _pose(p: Variant, id: String, optic: String, muzzle: String, pose: String) 
     if muzzle != "":
         _expect(p.viewmodel_root.find_child("Attachment_Muzzle_" + muzzle, true, false) != null, "missing muzzle " + id + " " + muzzle)
 
+# Inspect actual imported resources without assuming that loading a file proves use in a scene.
+func _physical_inventory() -> void:
+    var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string("res://assets/catalog/manifest.json"))
+    if not parsed is Dictionary:
+        _expect(false, "manifest missing")
+        return
+    var resources: Dictionary = parsed["resources"]
+    var keys: Array = resources.keys()
+    keys.sort()
+    for path in keys:
+        var uri: String = "res://" + str(path)
+        var kind: String = str(resources[path]["category"])
+        var record: Dictionary = {"path": path, "category": kind, "file_exists": FileAccess.file_exists(uri)}
+        if kind == "import_metadata":
+            _expect(record["file_exists"], "missing import metadata " + str(path))
+        else:
+            var resource: Resource = ResourceLoader.load(uri)
+            record["loaded"] = resource != null
+            _expect(resource != null, "resource failed to load " + str(path))
+            if resource != null:
+                record["class"] = resource.get_class()
+                if resource is Texture2D:
+                    record["dimensions_px"] = [resource.get_width(), resource.get_height()]
+                elif resource is AudioStream:
+                    record["length_s"] = resource.get_length()
+                elif resource is PackedScene:
+                    record["packed_scene"] = true
+        physical_resources.append(record)
+    # These are actual engine library resources, not evidence of mesh assignment.
+    var materials: Variant = load("res://scripts/weapon_materials.gd")
+    for polymer in [false, true]:
+        var material: Material = materials._build_surface(polymer)
+        library_materials["polymer" if polymer else "metal"] = _material(material)
+
+func _added_meshes(parent: Node, previous: Array) -> Array[MeshInstance3D]:
+    var result: Array[MeshInstance3D] = []
+    for child in parent.get_children():
+        if child is MeshInstance3D and not previous.has(child) and not child.is_queued_for_deletion():
+            result.append(child as MeshInstance3D)
+    return result
+
+func _query_and_effect_inventory(game: Variant, p: Variant) -> void:
+    # Real gameplay methods on the isolated QA scene, never a personal save.
+    # Wait for the physics world to synchronize before queries.
+    await physics_frame
+    await physics_frame
+    game.phase = "wave"
+    game.wave = 1
+    game.spawn_remaining = 1
+    var spawned: bool = game._spawn_enemy()
+    query_records.append({"family": "query:spawn", "source": "scripts/main.gd:_spawn_enemy -> scripts/spawn_selector.gd:select_position", "executed": true, "result_valid": spawned,
+        "shape": {"class": "SphereShape3D", "radius_m": 0.72, "collision_mask": 3}, "shape_origin": "source_review"})
+    _expect(spawned, "real spawn query returned no candidate")
+    if spawned:
+        var enemy: Variant = get_nodes_in_group("enemies")[0]
+        enemy.set_physics_process(false)
+        var tactics: Variant = load("res://scripts/enemy_tactics.gd")
+        var cover: Dictionary = tactics.find_cover(enemy, p.global_position)
+        var peek: Variant = null
+        if cover.has("position"):
+            peek = _vec(tactics.find_peek(enemy, cover["position"], p.global_position))
+        query_records.append({"family": "query:enemy_tactics", "source": "scripts/enemy_tactics.gd:find_cover", "executed": true,
+            "cover_found": not cover.is_empty(), "cover_m": _vec(cover["position"]) if cover.has("position") else null,
+            "peek_m": peek, "shape": {"class": "CapsuleShape3D", "height_m": 1.65, "radius_m": 0.35, "collision_mask": 1}, "shape_origin": "source_review"})
+        var before: Array = game.get_children()
+        # Retry the actual randomly gated transient effect without modifying its recipe.
+        for attempt in range(32):
+            enemy._brief_enemy_tracer()
+            if not _added_meshes(game, before).is_empty():
+                break
+        var streaks := _added_meshes(game, before)
+        _expect(not streaks.is_empty(), "enemy tracer not instantiated")
+        for streak in streaks:
+            _snapshot("enemy_tracer", streak, ["effect:enemy_tracer"], {"sample": "actual enemy visual callback"})
+        enemy.free()
+    game.phase = "break"
+    # Placement query executes the genuine game method. An INF rejection is a real result, not a crash.
+    var placement: Vector3 = game._turret_position()
+    query_records.append({"family": "query:turret", "source": "scripts/main.gd:_turret_position", "executed": true,
+        "result_valid": placement.is_finite(), "placement_m": _vec(placement) if placement.is_finite() else null,
+        "shape": {"class": "CylinderShape3D", "height_m": 1.0, "radius_m": 0.46, "collision_mask": 3}, "shape_origin": "source_review"})
+    # Use a downward-facing camera on the actual map; record transient marker and timed impact separately.
+    game.phase = "wave"
+    game.airstrike_tokens = 1
+    p.camera.rotation.x = -PI * 0.48
+    var prior: Array = game.get_children()
+    game._call_airstrike()
+    var markers := _added_meshes(game, prior)
+    _expect(game.airstrike_tokens == 0 and markers.size() == 1, "airstrike marker absent")
+    if markers.size() == 1:
+        var marker := markers[0]
+        _snapshot("airstrike_marker", marker, ["effect:combat"], {"sample": "actual support marker"})
+        var deadline := Time.get_ticks_msec() + 4000
+        var found := false
+        while Time.get_ticks_msec() < deadline and not found:
+            await process_frame
+            for candidate in _added_meshes(game, prior):
+                if candidate != marker and candidate.mesh is SphereMesh:
+                    _snapshot("airstrike_impact", candidate, ["effect:combat"], {"sample": "actual timed support impact"})
+                    found = true
+                    break
+        _expect(found, "airstrike timed impact absent")
+    p.camera.rotation = Vector3.ZERO
+    game.phase = "break"
+
 func _run() -> void:
     output_dir = OS.get_environment("FRONTLINE_INVENTORY_DIR")
     if output_dir.is_empty():
@@ -241,6 +356,7 @@ func _run() -> void:
     root.add_child(game)
     game.set_process(false)
     game.set_physics_process(false)
+    _physical_inventory()
     var p: Variant = game.player
     p.set_physics_process(false)
     p.controls_locked = true
@@ -328,12 +444,15 @@ func _run() -> void:
     p.equip("shotgun")
     game._on_shot_fired(p.camera.to_global(Vector3(0, 0, -5)), false)
     _snapshot("combat_visual_event", game, ["effect:combat"], {"sample": "shot visual callback"})
+    await _query_and_effect_inventory(game, p)
     var report: Dictionary = {"schema_version": 1, "kind": "frontline_runtime_inventory",
         "commit": OS.get_environment("GITHUB_SHA"), "godot": Engine.get_version_info(),
         "display": DisplayServer.get_name(), "coordinate_unit": "m",
-        "samples": samples, "failures": failures,
+        "samples": samples, "failures": failures, "query_records": query_records,
+        "physical_resources": physical_resources, "library_materials": library_materials,
         "limitations": ["finite sampled states, not exhaustive live instances", "no geometry buffers exported",
-            "no explicit LOD index arrays", "physics queries are source-only", "airstrike and enemy tracer not sampled",
+            "no explicit LOD index arrays", "query shapes are source-reviewed; results sampled through real methods",
+            "library materials loaded separately from actual mesh assignments",
             "screenshots are not visual approval", "no Asset Studio yet"]}
     var file := FileAccess.open(output_dir.path_join("runtime_inventory.json"), FileAccess.WRITE)
     if file == null:

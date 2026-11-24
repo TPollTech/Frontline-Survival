@@ -5,7 +5,7 @@ Atualizado em 24/11/2026. Mantém as 96 tarefas anteriores e adiciona a fundaç�
 ## 00 — Fundação do sistema 3D e Asset Studio
 
 - [x] Auditar SNC Energies e SNC Adventures e arquitetura atual do Frontline Survival — Auditoria estática concluída e evidências em [AUDITORIA_ARQUITETURA_3D.md](AUDITORIA_ARQUITETURA_3D.md); não equivale a aprovação visual.
-- [ ] Inventariar todos os assets, fontes, dependências e cenas existentes — Parcial: estático e 83 amostras Godot aprovadas; 32/32 GLBs observados, 20/24 famílias com tags; quatro screenshots inspecionados, sem homologação visual. [Evidências e lacunas](INVENTARIO_RUNTIME.md).
+- [ ] Inventariar todos os assets, fontes, dependências e cenas existentes — Parcial: estático e 83 amostras Godot aprovadas; 32/32 GLBs observados, 20/24 famílias com tags; quatro screenshots inspecionados, sem homologação visual. [Evidências e lacunas](INVENTARIO_RUNTIME.md). Complemento de consultas, efeitos, recursos e materiais implementado; execução pendente.
 - [x] Definir arquitetura modular, manifesto canônico e convenções de escala e eixos — Contrato v1 implementado e validado com baseline; [arquitetura](ARQUITETURA_ASSET_PIPELINE.md). Motor, catálogo vivo e captura runtime ainda pendentes.
 - [ ] Implementar biblioteca paramétrica Python e backend Blender quando necessário
 - [ ] Implementar geometrias avançadas, extrusão, revolução, booleanas e bevels

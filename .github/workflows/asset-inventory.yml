@@ -42,7 +42,7 @@ jobs:
           timeout 180s xvfb-run -a -s '-screen 0 1280x720x24' godot --path . --rendering-driver opengl3 --script res://tools/asset_pipeline/runtime/inventory_qa.gd 2>&1 | tee "$FRONTLINE_INVENTORY_DIR/runtime.log"
           grep -q ASSET_RUNTIME_INVENTORY_PASS "$FRONTLINE_INVENTORY_DIR/runtime.log"
           if grep -E 'SCRIPT ERROR:|Parse Error|ASSET_RUNTIME_ERROR' "$FRONTLINE_INVENTORY_DIR/runtime.log"; then exit 1; fi
-          python3 docs/qa/verify_runtime_inventory.py "$FRONTLINE_INVENTORY_DIR/runtime_inventory.json"
+          python3 docs/qa/verify_runtime_inventory.py "$FRONTLINE_INVENTORY_DIR/runtime_inventory.json" "$FRONTLINE_INVENTORY_DIR/reconciliation.json"
           for image in map_briefing fps_rifle_ads enemy_rifle enemy_experimental; do test -s "$FRONTLINE_INVENTORY_DIR/$image.png"; done
       - name: Upload evidence including failures
         if: always()
