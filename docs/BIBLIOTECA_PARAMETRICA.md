@@ -123,3 +123,12 @@ exporter.py serializa SceneSpec, RenderMesh, MaterialLibrary e RigSpec em GLB bi
 ### Estado da exportação
 
 CI 45466926545: 115/115 testes com Blender real, 99 Python e 16 skips sem Blender; 16,803 s com Blender. CI 45466926460: dois bundles idênticos, importação GLB chegou à verificação de atributos e falhou; diagnóstico ampliado sem reduzir critérios. Exportação permanece parcial.
+
+
+## Revisão 00-10 e 00-11 — 24/11/2026
+
+AssetLOD.budget_report() informa métricas e folgas estáticas por nível e contabiliza colisores independentes, com limites explicitamente provisórios e hardware_validated=false. O CI [45500828834](https://github.com/TPollTech/Frontline-Survival/actions/runs/45500828834) confirma a fixture Godot 4.4.1: 256/128/64 triângulos e hit_z=0,5 em todos os níveis. Não é benchmark de FPS, integração de LOD no gameplay ou homologação dos assets de produção; 00-10 permanece parcial.
+
+O exportador agora normaliza e valida o manifesto de fontes antes de serializar GLB/glTF: ordem canônica, caminhos locais, SHA-256 e rejeição de duplicatas. O teste novo confirma igualdade dos bundles com a lista de fontes invertida e rejeita entradas inválidas. O CI [45500882660](https://github.com/TPollTech/Frontline-Survival/actions/runs/45500882660) aprovou 117/117 testes com Blender real (101 aprovados + 16 skips esperados sem Blender), incluindo os dois testes novos.
+
+No Godot, o locator filho do joint foi promovido a osso auxiliar (bone_root, bone_tip, socket_tip_socket); o teste antigo supunha exatamente dois ossos, embora a skin tenha dois binds. O QA agora verifica a identidade, parentesco, posição de repouso e pesos dos joints e do helper sem dispensar índices, tangentes, UV, material e texturas. O [CI 45501055855](https://github.com/TPollTech/Frontline-Survival/actions/runs/45501055855), commit e1fa71f, confirmou reprodução dos bundles e importação dos dois formatos, 2 joints autorais, 1 helper e 2 binds, sem peso no helper. A fundação de exportação 00-11 foi validada no escopo da fixture técnica. Animação por keyframes, empacotamento de colisões/LOD, dependências transitivas completas declaradas pelo chamador, reprodução entre ambientes distintos e migração de assets reais ainda não são homologados. Nenhum modelo de produção foi alterado; não há revisão visual de modelo novo nem release Windows aprovada.
