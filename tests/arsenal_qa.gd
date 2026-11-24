@@ -1,7 +1,7 @@
 extends SceneTree
 ## Individual runtime regression using the actual player and an isolated
 ## in-game collision target. Never loads or changes a real saved game.
-const PlayerScript = preload("res://scripts/player.gd")
+
 const IDS: Array[String] = ["pistol", "smg", "rifle", "shotgun", "lmg", "sentinela", "sniper", "bolt_sniper"]
 
 class QATarget extends StaticBody3D:
@@ -37,7 +37,16 @@ func _ready_to_fire(player: Variant) -> void:
     player.camera.rotation = Vector3.ZERO
 
 func _run() -> void:
-    var player: Variant = PlayerScript.new()
+    if root.get_node_or_null("GameSettings") == null:
+        push_error("ARSENAL_QA_ERROR: GameSettings autoload missing")
+        quit(1)
+        return
+    var player_script: Variant = load("res://scripts/player.gd")
+    if player_script == null or not player_script.can_instantiate():
+        push_error("ARSENAL_QA_ERROR: player script failed to instantiate")
+        quit(1)
+        return
+    var player: Variant = player_script.new()
     root.add_child(player)
     player.set_physics_process(false)
     player.controls_locked = false
@@ -54,7 +63,7 @@ func _run() -> void:
     target.global_position = player.camera.to_global(Vector3(0, 0, -4))
     await physics_frame
     await physics_frame
-    var specs: Dictionary = PlayerScript.WEAPONS
+    var specs: Dictionary = player_script.WEAPONS
     _expect(specs.size() == IDS.size(), "arsenal", "weapon registry coverage")
     for id in IDS:
         var initial_failures: int = failures.size()

@@ -4,7 +4,7 @@ import subprocess
 import tempfile
 import unittest
 from pathlib import Path
-from tools.asset_pipeline.live_catalog import build, canonical, sha, resolve_gltf_uri, runtime_resource_paths
+from tools.asset_pipeline.live_catalog import build, canonical, sha, resolve_gltf_uri, runtime_resource_paths, sample_metrics
 
 class CatalogTests(unittest.TestCase):
     def setUp(self):
@@ -79,6 +79,7 @@ class CatalogTests(unittest.TestCase):
                  "query_records":[],"limitations":[]}
         catalog=build(self.root,paths=[],revision=revision,runtime=runtime)
         self.assertEqual(catalog["resources"]["custom/model.glb"]["observations"],["sample"])
+        self.assertEqual(catalog["runtime_samples"]["sample"]["mesh_nodes"],2)
         self.assertEqual(catalog["runtime_resource_gaps"],[{"sample":"sample","path":"custom/missing.glb","reason":"not a local file"}])
         self.assertEqual(next(a for a in catalog["assets"] if a["id"]=="file:custom/model.glb")["validation"]["runtime"],"sampled")
         self.put("custom/model.glb","changed")
@@ -94,6 +95,21 @@ class CatalogTests(unittest.TestCase):
         sample={"nodes":[{"mesh":{"path":"res://assets/model.glb::Mesh_1","surfaces":[{"effective_material":{"albedo_texture":{"path":"res://assets/tex.png::Image"},"roughness_texture":None}}]},"audio":{"path":"res://assets/audio.wav"}},{"mesh":{"path":None}}]}
         self.assertEqual(set(runtime_resource_paths(sample)),{"assets/model.glb","assets/tex.png","assets/audio.wav"})
 
+
+    def test_runtime_sample_metrics_scope_and_unknown_topology(self):
+        sample={"id":"s","families":["z","a"],"nodes":[
+            {"mesh":{"lod_bias":1.0,"surfaces":[{"vertices":3,"triangles":1},{"vertices":2,"triangles":None}]}},
+            {"collision":{"class":"BoxShape3D","disabled":False}},
+            {"collision":{"class":"SphereShape3D","disabled":True}}]}
+        m=sample_metrics(sample)
+        self.assertEqual(m["scope"],"whole_sample_subtree")
+        self.assertEqual((m["vertices"],m["triangles"],m["unknown_triangle_surfaces"]),(5,1,1))
+        self.assertEqual(m["collision_classes"],{"BoxShape3D":1})
+        self.assertEqual((m["enabled_colliders"],m["disabled_colliders"]),(1,1))
+        self.assertEqual(m["lod_bias_counts"],{"1.0":1})
+        self.assertFalse(m["lod_indices_measured"])
+        self.assertFalse(m["approved"])
+        self.assertEqual(m["families"],["a","z"])
 
     def test_deterministic_and_changed(self):
         self.put("assets/a.glb","a")

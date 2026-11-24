@@ -6,6 +6,7 @@ on:
       - '.github/workflows/lod-collision.yml'
       - 'tools/asset_pipeline/parametric/**'
       - 'tools/asset_pipeline/runtime/lod_collision_qa.gd'
+      - 'tools/asset_pipeline/runtime/lod_selector.gd'
   workflow_dispatch:
 permissions:
   contents: read
@@ -28,7 +29,7 @@ jobs:
           mkdir -p qa-lod
           printf 'config_version=5\n[application]\nconfig/name="LOD QA"\n[rendering]\nrenderer/rendering_method="gl_compatibility"\n' > qa-lod/project.godot
           python -m tools.asset_pipeline.parametric.lod_fixture qa-lod/fixture.json
-          cp tools/asset_pipeline/runtime/lod_collision_qa.gd qa-lod/
+          cp tools/asset_pipeline/runtime/{lod_collision_qa,lod_selector}.gd qa-lod/
       - name: Actual Godot physics and mesh swap
         run: |
           set -o pipefail

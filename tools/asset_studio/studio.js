@@ -35,8 +35,27 @@ function clear(){inspection?.clear();navigation?.clear();$('view').disabled=true
 function fit(){if(model)navigation.reset();}
 function resources(a){return [...new Set([a.preview?.resource,...(a.outputs||[]).map(x=>x.path)].filter(p=>p&&catalog.resources[p]?.status!=='missing'&&catalog.resources[p]))];}
 function renderList(){const q=$('search').value.trim().toLowerCase(),cat=$('category').value;const list=catalog.assets.filter(a=>(!cat||a.category===cat)&&(!q||[a.id,a.category,a.source?.path,...resources(a)].join(' ').toLowerCase().includes(q)));$('count').textContent=list.length+' de '+catalog.assets.length+' registros';$('assets').replaceChildren(...list.map(a=>{const b=document.createElement('button');b.type='button';b.dataset.asset=a.id;b.setAttribute('aria-current',String(a===selected));b.textContent=a.id;const sm=document.createElement('small');sm.textContent=a.category+' · '+(a.runtime_views?.length?'captura Godot disponível':resources(a).length?'arquivo real':'captura pendente');b.append(sm);b.addEventListener('click',()=>select(a));return b;}));}
+function sampleDetails(){
+ const id=$('runtime-sample').value,m=catalog.runtime_samples?.[id];
+ $('runtime-sample-info').textContent=m?[
+ 'Escopo: subárvore inteira da amostra, não orçamento individual.',
+ 'Nós: '+m.nodes+' · malhas: '+m.mesh_nodes+' · superfícies: '+m.surfaces,
+ 'Vértices: '+m.vertices+' · triângulos conhecidos: '+m.triangles,
+ 'Superfícies sem topologia medida: '+m.unknown_triangle_surfaces,
+ 'Colisões ativas: '+m.enabled_colliders+' · desativadas: '+m.disabled_colliders,
+ 'Classes: '+JSON.stringify(m.collision_classes),
+ 'LOD bias: '+JSON.stringify(m.lod_bias_counts)+' · índices LOD não medidos',
+ 'Famílias: '+m.families.join(', ')
+ ].join('\n'):'Nenhuma amostra reconciliada nesta revisão.';
+}
+function selectSamples(a){
+ const ids=(a.runtime_samples||[]).filter(id=>catalog.runtime_samples?.[id]);
+ $('runtime-sample').replaceChildren(...ids.map(id=>new Option(id,id)));
+ $('runtime-sample').disabled=!ids.length;sampleDetails();
+}
+$('runtime-sample').addEventListener('change',sampleDetails);
 function details(a,p){$('details').replaceChildren();row('ID',a.id);row('Categoria',a.category);row('Uso',a.usage);row('Fonte',a.source?.path);row('Arquivo',p);row('SHA-256',catalog.resources[p]?.sha256);row('Runtime',a.validation?.runtime);row('Homologação','Não homologado');row('Procedência',a.provenance);textList($('deps'),[...new Set([...(a.dependencies?.resources||[]),...(a.dependencies?.assets||[]),...(a.dependencies?.sources||[]),...(catalog.resources[p]?.gltf_dependencies||[]).map(d=>d.path)])]);textList($('gaps'),[...(a.gaps||[]),'Prévia não certifica materiais ou poses efetivos do Godot.']);}
-function select(a){selected=a;$('title').textContent=a.id;renderList();const paths=resources(a);$('variant').replaceChildren(...paths.map(p=>{const o=document.createElement('option');o.value=p;o.textContent=p.split('/').pop();return o;}));$('variant').disabled=!paths.length;
+function select(a){selected=a;selectSamples(a);$('title').textContent=a.id;renderList();const paths=resources(a);$('variant').replaceChildren(...paths.map(p=>{const o=document.createElement('option');o.value=p;o.textContent=p.split('/').pop();return o;}));$('variant').disabled=!paths.length;
  const selector=$('runtime-view');selector.replaceChildren(new Option('Arquivo 3D / recurso',''),...(a.runtime_views||[]).map(v=>new Option(v.label,v.id)));selector.disabled=!(a.runtime_views||[]).length;selector.value='';
  load(paths.includes(a.preview?.resource)?a.preview.resource:paths[0]);}
 async function verified(p){const res=await fetch(safePath(p),{cache:'no-store'});if(!res.ok)throw Error('HTTP '+res.status);const bytes=await res.arrayBuffer();const expected=catalog.resources[p].sha256;const actual=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',bytes)),b=>b.toString(16).padStart(2,'0')).join('');if(!expected||actual!==expected)throw Error('Hash divergente');return bytes;}

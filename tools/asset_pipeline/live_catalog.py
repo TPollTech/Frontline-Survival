@@ -106,6 +106,25 @@ def runtime_resource_paths(sample):
             if isinstance(value, str) and value.startswith("res://"):
                 yield value[6:].split("::", 1)[0]
 
+def sample_metrics(sample):
+    """Measured counts of the entire sampled subtree, not per-asset budgets."""
+    nodes=sample["nodes"]
+    meshes=[n["mesh"] for n in nodes if n.get("mesh") and not n["mesh"].get("missing")]
+    surfaces=[surf for mesh in meshes for surf in mesh.get("surfaces",[])]
+    collisions=[n for n in nodes if n.get("collision") and not n["collision"].get("missing")]
+    enabled=[n for n in collisions if not n["collision"].get("disabled",False)]
+    triangles=[surf.get("triangles") for surf in surfaces]
+    return {"id":sample["id"],"families":sorted(sample["families"]),
+            "scope":"whole_sample_subtree","context":sample.get("context",{}),
+            "nodes":len(nodes),"mesh_nodes":len(meshes),"surfaces":len(surfaces),
+            "vertices":sum(surf.get("vertices",0) for surf in surfaces),
+            "triangles":sum(t for t in triangles if t is not None),
+            "unknown_triangle_surfaces":sum(t is None for t in triangles),
+            "enabled_colliders":len(enabled),"disabled_colliders":len(collisions)-len(enabled),
+            "collision_classes":dict(sorted(Counter(n["collision"]["class"] for n in enabled).items())),
+            "lod_bias_counts":dict(sorted(Counter(str(m["lod_bias"]) for m in meshes if "lod_bias" in m).items())),
+            "lod_indices_measured":False,"approved":False}
+
 def category(p):
     suffix=Path(p).suffix.lower()
     if suffix in (".glb",".gltf") and p.startswith("assets/models/"):
@@ -265,6 +284,7 @@ def build(root,paths=None,runtime=None,revision=None):
            "validation":{"approved":False,"runtime":"not_observed_current","studio_visual":"pending","godot_visual":"pending"}}
         assets.append(a);byid[id]=a
     runtime_summary=None
+    runtime_samples={}
     if runtime is not None:
         require(runtime.get("kind")=="frontline_runtime_inventory" and runtime.get("schema_version")==1 and not runtime.get("failures"),"invalid runtime evidence")
         require(runtime.get("commit")==revision,"stale runtime capture")
@@ -289,6 +309,7 @@ def build(root,paths=None,runtime=None,revision=None):
         for s in runtime["samples"]:
             require(s["id"] not in sample_ids,"duplicate runtime sample")
             sample_ids.add(s["id"])
+            runtime_samples[s["id"]]=sample_metrics(s)
             observed={p for p in runtime_resource_paths(s) if p in resources and resources[p]["status"]!="missing"}
             for p in sorted(observed):
                 resources[p]["observations"].append(s["id"])
@@ -315,7 +336,7 @@ def build(root,paths=None,runtime=None,revision=None):
             "assets":assets,"resources":resources,"sources":source_records,
             "missing_literal_references":missing,"dynamic_references":dynamic,
             "known_dynamic_gaps":baseline["known_dynamic_gaps"],"runtime_candidates":runtime_candidates,
-            "runtime":runtime_summary,"runtime_resource_gaps":runtime_gaps,"approved":False,
+            "runtime":runtime_summary,"runtime_samples":runtime_samples,"runtime_resource_gaps":runtime_gaps,"approved":False,
             "counts":{"assets":len(assets),"resources":len(resources),"categories":dict(Counter(a["category"] for a in assets)),
                       "resource_status":dict(Counter(r["status"] for r in resources.values())),
                       "runtime_sampled_assets":sum(a["validation"]["runtime"] in ("sampled","query_executed") for a in assets)}}

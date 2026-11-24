@@ -18,6 +18,18 @@ assert.equal(response.status(),200);
 await page.locator('#state[data-kind=ready]').waitFor({timeout:30000});
 const catalog=await (await page.request.get(new URL('live_catalog.json',url.endsWith('/')?url:url+'/').href)).json();
 assert.equal(await page.locator('#assets button').count(),catalog.assets.length);
+if(process.env.REQUIRE_RUNTIME_VIEWS==='1'){
+ assert(catalog.runtime&&catalog.runtime.commit===catalog.revision);
+ assert.equal(Object.keys(catalog.runtime_samples).length,catalog.runtime.samples);
+ const sampled=catalog.assets.find(a=>a.runtime_samples?.some(id=>catalog.runtime_samples[id]));
+ assert(sampled);
+ await page.locator('#assets button').filter({hasText:sampled.id}).first().click();
+ assert.equal(await page.locator('#runtime-sample').isDisabled(),false);
+ const id=await page.locator('#runtime-sample').inputValue();
+ assert.match(await page.locator('#runtime-sample-info').textContent(),/subárvore inteira/);
+ assert((await page.locator('#runtime-sample-info').textContent()).includes('Colisões ativas: '+catalog.runtime_samples[id].enabled_colliders));
+ console.log('STUDIO_RECONCILED_RUNTIME_PASS',catalog.runtime.samples,'samples');
+}
 const observed=[];
 let lightingEvidence=null,cameraEvidence=null;
 const cameraState=()=>page.locator('#viewport').getAttribute('data-camera').then(JSON.parse);

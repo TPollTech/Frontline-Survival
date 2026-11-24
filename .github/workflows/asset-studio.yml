@@ -5,7 +5,8 @@ on:
     paths:
       - 'tools/asset_studio/**'
       - 'tools/asset_pipeline/live_catalog.py'
-      - 'tools/asset_pipeline/runtime/capture_views.gd'
+      - 'tools/asset_pipeline/runtime/**'
+      - 'tests/test_live_catalog.py'
       - 'assets/**'
       - 'scenes/**'
       - 'scripts/**'
@@ -51,6 +52,14 @@ jobs:
           timeout 120s xvfb-run -a -s '-screen 0 1280x720x24' godot --path . --rendering-driver opengl3 --script res://tools/asset_pipeline/runtime/capture_views.gd 2>&1 | tee "$FRONTLINE_VIEWS_DIR/render.log"
           grep -q RUNTIME_VIEWS_PASS "$FRONTLINE_VIEWS_DIR/render.log"
           if grep -E 'SCRIPT ERROR:|Parse Error|RUNTIME_VIEW_FAIL' "$FRONTLINE_VIEWS_DIR/render.log"; then exit 1; fi
+          inventory="$RUNNER_TEMP/studio-runtime-inventory"
+          mkdir -p "$inventory"
+          FRONTLINE_INVENTORY_DIR="$inventory" XDG_DATA_HOME="$RUNNER_TEMP/studio-inventory-profile" timeout 180s xvfb-run -a -s '-screen 0 1280x720x24' godot --path . --rendering-driver opengl3 --script res://tools/asset_pipeline/runtime/inventory_qa.gd 2>&1 | tee "$inventory/runtime.log"
+          grep -q ASSET_RUNTIME_INVENTORY_PASS "$inventory/runtime.log"
+          if grep -E 'SCRIPT ERROR:|Parse Error|ASSET_RUNTIME_ERROR' "$inventory/runtime.log"; then exit 1; fi
+          python docs/qa/verify_runtime_inventory.py "$inventory/runtime_inventory.json" "$inventory/reconciliation.json"
+          rm -rf "$RUNNER_TEMP/studio"
+          python tools/asset_studio/prepare.py "$RUNNER_TEMP/studio" --runtime "$inventory/runtime_inventory.json"
           python tools/asset_studio/attach_runtime_views.py "$RUNNER_TEMP/studio" "$FRONTLINE_VIEWS_DIR"
       - name: Browser GLB loading and navigation
         run: |

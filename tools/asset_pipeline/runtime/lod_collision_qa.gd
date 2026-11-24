@@ -5,6 +5,7 @@ var visual: MeshInstance3D
 var body: StaticBody3D
 var shape: CollisionShape3D
 var meshes: Array[ArrayMesh] = []
+const LODSelector = preload("res://lod_selector.gd")
 
 func fail(message: String) -> void:
     push_error("LOD_COLLISION_FAIL " + message)
@@ -51,8 +52,20 @@ func _run() -> void:
     body.add_child(shape)
     world.add_child(body)
     var collider_id := shape.shape.get_instance_id()
-    for i in range(meshes.size()):
-        visual.mesh = meshes[i]
+    var selector = LODSelector.new()
+    var starts: Array[float] = []
+    for level in data.asset.levels:
+        starts.append(float(level.start_distance_m))
+    if not selector.configure(starts,float(data.asset.hysteresis_m)):
+        fail("invalid LOD thresholds")
+        return
+    var distances: Array[float] = [0.0, starts[1], starts[1]+1.1, starts[2], starts[2]+1.1, starts[2], starts[2]-1.1, starts[1], starts[1]-1.1]
+    var expected_levels := [0,0,1,1,2,2,1,1,0]
+    for step in range(distances.size()):
+        var i: int = expected_levels[step]
+        if not selector.update_visual(visual,meshes,distances[step]) or visual.mesh != meshes[i]:
+            fail("hysteresis mismatch at step " + str(step))
+            return
         await physics_frame
         await physics_frame
         var query := PhysicsRayQueryParameters3D.create(Vector3(0,0,3),Vector3(0,0,-3))
@@ -64,5 +77,6 @@ func _run() -> void:
             fail("collider changed with LOD")
             return
         print("LOD_COLLISION_LEVEL_PASS ",i," triangles=",expected[i]," hit_z=",hit.position.z)
+    print("LOD_HYSTERESIS_PASS ",distances.size()," transitions, unchanged collider")
     print("LOD_COLLISION_GODOT_PASS")
     quit(0)
