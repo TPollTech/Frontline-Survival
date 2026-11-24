@@ -2,7 +2,7 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
-from tools.asset_pipeline.live_catalog import build, canonical, sha
+from tools.asset_pipeline.live_catalog import build, canonical, sha, resolve_gltf_uri, runtime_resource_paths
 
 class CatalogTests(unittest.TestCase):
     def setUp(self):
@@ -43,6 +43,27 @@ class CatalogTests(unittest.TestCase):
         self.put("assets/data.bin","buffer")
         c=self.catalog(["assets/new.gltf"])
         self.assertIn("assets/data.bin",c["resources"])
+    def test_gltf_dependency_paths_and_hashes(self):
+        self.put("assets/models/new.gltf",json.dumps({"buffers":[{"uri":"../buffers/data.bin"}],"images":[{"uri":"../textures/metal%20a.png"},{"uri":"https://example.invalid/x.png"},{"uri":"../../../outside.png"},{"uri":"data:image/png;base64,AA=="}]}))
+        self.put("assets/buffers/data.bin","buffer")
+        self.put("assets/textures/metal a.png","image")
+        c=self.catalog(["assets/models/new.gltf"])
+        deps=c["resources"]["assets/models/new.gltf"]["gltf_dependencies"]
+        self.assertEqual(deps,[{"uri":"../buffers/data.bin","path":"assets/buffers/data.bin"},{"uri":"../textures/metal%20a.png","path":"assets/textures/metal a.png"}])
+        self.assertEqual(c["resources"]["assets/buffers/data.bin"]["sha256"],sha(b"buffer"))
+        self.assertEqual(len(c["missing_literal_references"]),2)
+        self.assertEqual(canonical(c),canonical(self.catalog(["assets/models/new.gltf"])))
+
+    def test_unsafe_gltf_uris(self):
+        for uri in ("../../../x","https://example.invalid/x","//example.invalid/x","/assets/x","%2Fx","foo%2fbar","foo%5cbar","x?y=1","x#y","%00x","file:x"):
+            with self.subTest(uri=uri),self.assertRaises(ValueError):
+                resolve_gltf_uri("assets/models/a.gltf",uri)
+
+    def test_runtime_paths_normalize_subresources(self):
+        sample={"nodes":[{"mesh":{"path":"res://assets/model.glb::Mesh_1","surfaces":[{"effective_material":{"albedo_texture":{"path":"res://assets/tex.png::Image"},"roughness_texture":None}}]},"audio":{"path":"res://assets/audio.wav"}},{"mesh":{"path":None}}]}
+        self.assertEqual(set(runtime_resource_paths(sample)),{"assets/model.glb","assets/tex.png","assets/audio.wav"})
+
+
     def test_deterministic_and_changed(self):
         self.put("assets/a.glb","a")
         self.put("assets/b.png","b")
