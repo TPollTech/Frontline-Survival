@@ -66,3 +66,7 @@ API Python e backend Blender real aprovados em 22/22 testes no CI 45442588521 (B
 ## Operações geométricas avançadas
 
 A extensão tools/asset_pipeline/parametric/advanced.py implementa perfis e triangulação determinística, extrusão e revolução. O backend Blender recebe CSG exato e bevel configurável. Consulte [BIBLIOTECA_PARAMETRICA.md](BIBLIOTECA_PARAMETRICA.md). Sem alterar catálogo histórico ou recursos de gameplay; validação CI ampliada.
+
+## Curvas e superfícies
+
+Biblioteca organic.py estende a IR com curvas cúbicas, patches bicúbicos, loft elíptico e topologia personalizada. Validação de fan de vértice e bordas complementa MeshSpec; normais, UV, rigging, export e homologação permanecem tarefas próprias. Ver [BIBLIOTECA_PARAMETRICA.md](BIBLIOTECA_PARAMETRICA.md).

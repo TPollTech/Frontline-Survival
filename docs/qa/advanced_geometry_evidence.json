@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "kind": "advanced_geometry_validation",
+  "tested_commit": "79e7baa9c8df7b26723e5919a265cc609bfdeb20",
+  "run_id": 45453292708,
+  "job_id": 138655887783,
+  "artifact_id": 14949246767,
+  "artifact_sha256_reported": "84a53b491eb9d81088f3dcb7e36cc7feab1607938d03983df3ef746942ef611f",
+  "conclusion": "success",
+  "python": {
+    "total": 45,
+    "passed": 35,
+    "skipped": 10
+  },
+  "blender": {
+    "version": "3.0.1",
+    "passed": 45,
+    "skipped": 0,
+    "failed": 0,
+    "seconds": 11.066
+  },
+  "manifest_tests": 18,
+  "production_asset_approval": false
+}

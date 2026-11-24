@@ -4,6 +4,7 @@ from typing import Protocol
 import math
 from .model import MeshSpec, number, vector, require, stable_id
 from .advanced import Extrusion, Revolution, build_advanced
+from .organic import BezierPatch, OrganicLoft, CustomTopology, build_organic
 
 @dataclass(frozen=True)
 class Box:
@@ -32,7 +33,7 @@ class Cylinder:
         object.__setattr__(self,"height_m",height)
 
 class GeometryBackend(Protocol):
-    def build(self, recipe: Box | Cylinder | Extrusion | Revolution) -> MeshSpec: ...
+    def build(self, recipe: Box | Cylinder | Extrusion | Revolution | BezierPatch | OrganicLoft | CustomTopology) -> MeshSpec: ...
 
 class PythonBackend:
     """Direct indexed meshes with outward CCW winding in canonical Y-up coordinates."""
@@ -54,6 +55,8 @@ class PythonBackend:
                 triangles.extend(((i,i+n,j+n),(i,j+n,j),(2*n,i,j),(2*n+1,j+n,i+n)))
         elif isinstance(recipe,(Extrusion,Revolution)):
             return build_advanced(recipe)
+        elif isinstance(recipe,(BezierPatch,OrganicLoft,CustomTopology)):
+            return build_organic(recipe)
         else:
             raise TypeError("unsupported recipe")
         mesh=MeshSpec(recipe.id,vertices,triangles)
