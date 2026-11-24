@@ -128,6 +128,9 @@ class BlenderMaterialTests(unittest.TestCase):
             evidence=json.loads(out.read_text())
             self.assertEqual(evidence["decoded_images"],18)
             self.assertEqual(len(evidence["materials"]),6)
+            self.assertEqual(len(evidence["color_spaces"]),18)
+            for t in lib.textures:
+                self.assertIn(evidence["color_spaces"][t.id],("sRGB",) if t.color_space=="sRGB" else ("Non-Color","Linear"))
             self.assertTrue(all(len(m["linked"])==4 for m in evidence["materials"]))
 
 if __name__=="__main__":

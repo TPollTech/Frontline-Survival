@@ -9,9 +9,22 @@ def main():
     d=json.loads((directory/"materials.json").read_text())
     bpy.ops.wm.read_factory_settings(use_empty=True)
     images={}
+    color_spaces={}
     for t in d["textures"]:
         image=bpy.data.images.load(str(directory/t["path"]),check_existing=False)
-        image.colorspace_settings.name="sRGB" if t["color_space"]=="sRGB" else "Non-Color"
+        # A full OCIO config offers Non-Color; Blender's minimal fallback
+        # has only Linear and sRGB. Linear is identity for these RGB data maps.
+        if t["color_space"]=="sRGB":
+            image.colorspace_settings.name="sRGB"
+        else:
+            try:
+                image.colorspace_settings.name="Non-Color"
+            except TypeError:
+                image.colorspace_settings.name="Linear"
+        actual=image.colorspace_settings.name
+        if actual not in (("sRGB",) if t["color_space"]=="sRGB" else ("Non-Color","Linear")):
+            raise ValueError("unexpected image color space")
+        color_spaces[t["id"]]=actual
         if tuple(image.size)!=(t["width"],t["height"]) or not image.has_data:
             # Force the actual decode before checking data.
             _=image.pixels[0]
@@ -48,7 +61,7 @@ def main():
             raise ValueError("missing PBR link")
         evidence.append({"id":spec["id"],"linked":sockets})
     output.write_text(json.dumps({"version":bpy.app.version_string,"decoded_images":len(images),
-                                  "materials":evidence},sort_keys=True))
+                                  "materials":evidence,"color_spaces":color_spaces},sort_keys=True))
 
 if __name__=="__main__":
     main()
