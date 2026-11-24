@@ -1,4 +1,6 @@
 import json
+import struct
+import subprocess
 import tempfile
 import unittest
 from pathlib import Path
@@ -53,6 +55,35 @@ class CatalogTests(unittest.TestCase):
         self.assertEqual(c["resources"]["assets/buffers/data.bin"]["sha256"],sha(b"buffer"))
         self.assertEqual(len(c["missing_literal_references"]),2)
         self.assertEqual(canonical(c),canonical(self.catalog(["assets/models/new.gltf"])))
+
+    def test_glb_external_dependency(self):
+        p=self.root/"assets/new.glb"
+        p.parent.mkdir(parents=True,exist_ok=True)
+        doc=json.dumps({"asset":{"version":"2.0"},"buffers":[{"uri":"external.bin","byteLength":4}]}).encode()
+        doc+=b" "*((-len(doc))%4)
+        p.write_bytes(struct.pack("<4sII",b"glTF",2,20+len(doc))+struct.pack("<I4s",len(doc),b"JSON")+doc)
+        self.put("assets/external.bin","data")
+        c=self.catalog(["assets/new.glb"])
+        self.assertEqual(c["resources"]["assets/new.glb"]["gltf_dependencies"],[{"uri":"external.bin","path":"assets/external.bin"}])
+
+    def test_runtime_discovers_resource_and_rejects_drift(self):
+        self.put("custom/model.glb","model bytes")
+        def git(*args):
+            return subprocess.check_output(["git","-C",str(self.root),*args]).decode().strip()
+        git("init","-q")
+        git("add",".")
+        git("-c","user.name=Fixture","-c","user.email=fixture@example.invalid","commit","-qm","fixture")
+        revision=git("rev-parse","HEAD")
+        runtime={"kind":"frontline_runtime_inventory","schema_version":1,"commit":revision,"failures":[],
+                 "samples":[{"id":"sample","families":[],"nodes":[{"mesh":{"path":"res://custom/model.glb"}},{"mesh":{"path":"res://custom/missing.glb"}}]}],
+                 "query_records":[],"limitations":[]}
+        catalog=build(self.root,paths=[],revision=revision,runtime=runtime)
+        self.assertEqual(catalog["resources"]["custom/model.glb"]["observations"],["sample"])
+        self.assertEqual(catalog["runtime_resource_gaps"],[{"sample":"sample","path":"custom/missing.glb","reason":"not a local file"}])
+        self.assertEqual(next(a for a in catalog["assets"] if a["id"]=="file:custom/model.glb")["validation"]["runtime"],"sampled")
+        self.put("custom/model.glb","changed")
+        with self.assertRaisesRegex(ValueError,"runtime source drift"):
+            build(self.root,paths=[],revision=revision,runtime=runtime)
 
     def test_unsafe_gltf_uris(self):
         for uri in ("../../../x","https://example.invalid/x","//example.invalid/x","/assets/x","%2Fx","foo%2fbar","foo%5cbar","x?y=1","x#y","%00x","file:x"):
