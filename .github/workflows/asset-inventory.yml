@@ -1,0 +1,53 @@
+name: Asset inventory runtime evidence
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/asset-inventory.yml'
+      - 'tools/asset_pipeline/runtime/**'
+      - 'docs/qa/verify_runtime_inventory.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  inventory:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 12
+    env:
+      FRONTLINE_INVENTORY_DIR: ${{ github.workspace }}/qa-inventory
+      XDG_DATA_HOME: ${{ runner.temp }}/frontline-inventory-profile
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Verify static baseline and manifest
+        run: |
+          python3 docs/qa/verify_asset_inventory.py
+          node tools/asset_pipeline/build_manifest.mjs
+      - uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.4.1
+          use-dotnet: false
+          include-templates: false
+      - name: Import actual tracked game assets
+        run: |
+          set -o pipefail
+          mkdir -p "$FRONTLINE_INVENTORY_DIR"
+          timeout 120s godot --headless --editor --import --path . 2>&1 | tee "$FRONTLINE_INVENTORY_DIR/import.log"
+          if grep -E 'SCRIPT ERROR:|Parse Error' "$FRONTLINE_INVENTORY_DIR/import.log"; then exit 1; fi
+      - name: Inventory actual instantiated scenes and render evidence
+        run: |
+          set -o pipefail
+          timeout 180s xvfb-run -a -s '-screen 0 1280x720x24' godot --path . --rendering-driver opengl3 --script res://tools/asset_pipeline/runtime/inventory_qa.gd 2>&1 | tee "$FRONTLINE_INVENTORY_DIR/runtime.log"
+          grep -q ASSET_RUNTIME_INVENTORY_PASS "$FRONTLINE_INVENTORY_DIR/runtime.log"
+          if grep -E 'SCRIPT ERROR:|Parse Error|ASSET_RUNTIME_ERROR' "$FRONTLINE_INVENTORY_DIR/runtime.log"; then exit 1; fi
+          python3 docs/qa/verify_runtime_inventory.py "$FRONTLINE_INVENTORY_DIR/runtime_inventory.json"
+          for image in map_briefing fps_rifle_ads enemy_rifle enemy_experimental; do test -s "$FRONTLINE_INVENTORY_DIR/$image.png"; done
+      - name: Upload evidence including failures
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Frontline-Runtime-Inventory-${{ github.sha }}
+          path: qa-inventory/
+          if-no-files-found: warn
+          retention-days: 30

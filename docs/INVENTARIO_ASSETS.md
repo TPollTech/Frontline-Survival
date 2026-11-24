@@ -82,3 +82,7 @@ As verificações acima foram executadas sobre a árvore Git remota e o JSON ger
 O [CI anterior](https://github.com/TPollTech/Frontline-Survival/actions/runs/45412943170) falhou no QA individual do arsenal. A falha não foi corrigida nesta tarefa. O ambiente atual não tem Godot, Blender ou checkout local acessível; sem renderização e sem captura real de nós em execução. Não foi alterado nenhum asset, script de gameplay, versão ou workflow.
 
 **Estado da tarefa:** levantamento estático concluído e verificado; manter tarefa parcial/desmarcada no checklist, pois a verificação integral das instâncias runtime, materiais efetivos, hierarquias, colisões, LOD, dimensões, procedência e variações reais ainda precisa ser executada. Não usar este JSON como se fosse um catálogo de assets homologados. A próxima fase deve implementar/validar um extrator de cena real no Godot, conciliando seus resultados com este inventário, sem reconstituir modelos fictícios no Studio.
+
+## Complemento runtime
+
+Veja [INVENTARIO_RUNTIME.md](INVENTARIO_RUNTIME.md) para o novo extrator de cenas e workflow isolado. A baseline histórica permanece imutável; não equivale a catálogo vivo.
