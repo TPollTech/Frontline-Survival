@@ -24,7 +24,7 @@ func _run() -> void:
         var document := GLTFDocument.new()
         var state := GLTFState.new()
         var code := document.append_from_file(path,state)
-        var row := {"path":entry.path,"sha256":entry.sha256,"import_code":code,"mesh_nodes":0,"triangles":0,"unknown_topology":0,"visual_approval":false}
+        var row := {"path":entry.path,"sha256":FileAccess.get_sha256(path),"import_code":code,"mesh_nodes":0,"triangles":0,"unknown_topology":0,"visual_approval":false}
         if code == OK:
             var scene := document.generate_scene(state)
             if scene != null:
