@@ -102,6 +102,8 @@ async function loadRuntime(id){
   if(token!==request)return;
   if(image.naturalWidth!==view.width||image.naturalHeight!==view.height)throw Error('Dimensões divergentes');
   viewport.append(image);row('Captura',view.label);row('Revisão',catalog.revision);row('SHA-256 da captura',hash);row('Câmera',view.camera.path);row('Modo',view.context.kind);
+  if(view.context.collision_shape_counts){row('Colisões habilitadas',view.context.enabled_colliders);row('Debug meshes reais',view.context.debug_mesh_count);row('Classes de colisão',JSON.stringify(view.context.collision_shape_counts));row('Limitação do overlay','Linhas da Shape3D, sem teste de profundidade; captura estática');}
+  if(view.context.lod_bias_counts){row('LOD bias real (instâncias)',JSON.stringify(view.context.lod_bias_counts));row('Índices explícitos de LOD','Não medidos; não inferir níveis pelo bias');}
   if(view.context.native_player_tps===false)row('Limitação','Câmera externa QA de aliado, não TPS do jogador');
   viewport.dataset.runtimeView=id;viewport.dataset.sha256=hash;state('Captura original do Godot','ready');
  }catch(e){if(token===request){clear();state('Falha na captura: '+e.message,'error');}}

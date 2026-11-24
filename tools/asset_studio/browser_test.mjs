@@ -164,7 +164,10 @@ if(catalog.runtime_views){
    captures.push(v.id);
   }
  }
- assert.equal(captures.length,4);
+ assert.equal(captures.length,5);
+ assert(captures.includes('map_collision'));
+ const collision=catalog.assets.flatMap(a=>a.runtime_views||[]).find(v=>v.id==='map_collision');
+ assert(collision.context.debug_mesh_count>0&&collision.context.collision_shapes.length===collision.context.debug_mesh_count);
  console.log('STUDIO_RUNTIME_VIEWS_PASS',captures.join(','));
 }else if(process.env.REQUIRE_RUNTIME_VIEWS==='1')throw Error('missing Godot captures');
 // Browser-only neutral test fixture: never written into the production catalog or package.

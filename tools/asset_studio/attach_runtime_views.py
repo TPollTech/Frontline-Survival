@@ -5,6 +5,7 @@ from pathlib import Path
 EXPECTED={"fps":("viewmodel:assembly","Primeira pessoa — câmera real"),
           "map_top":("map:campo_de_testes","Mapa completo — superior"),
           "map_overview":("map:campo_de_testes","Mapa completo — perspectiva"),
+          "map_collision":("map:campo_de_testes","Colisões reais Godot — diagnóstico"),
           "external_character":("ally:legacy","Personagem — câmera externa de inspeção")}
 
 def require(ok,message):
@@ -35,6 +36,9 @@ def attach(stage,capture):
         context=r["context"]
         if id.startswith("map_"):
             require(context["visible_mesh_nodes"]>=30 and context["shops"]==3 and all(b>a for a,b in zip(context["bounds_min_m"],context["bounds_max_m"])),"incomplete map")
+        if id=="map_collision":
+            require(context["kind"]=="actual_collision_debug" and context["debug_mesh_count"]>0 and len(context["collision_shapes"])==context["debug_mesh_count"] and context["debug_mesh_count"]<=context["enabled_colliders"],"invalid collision debug evidence")
+            require(sum(context["collision_shape_counts"].values())==context["debug_mesh_count"] and all(len(c["world_basis_origin"])==4 and c["path"] for c in context["collision_shapes"]),"invalid collision transforms")
         if id=="external_character":
             require(context["native_player_tps"] is False and context["visible_mesh_nodes"]>0,"incorrect third person claim")
         records.append({**r,"label":label,"resource":"runtime-views/"+r["file"],"sha256":hashlib.sha256(data).hexdigest(),"bytes":len(data),"fidelity":"actual_godot_frame","approved":False})
