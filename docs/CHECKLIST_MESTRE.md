@@ -4,7 +4,7 @@ Atualizado em 24/11/2026. Mantém as 96 tarefas anteriores e adiciona a fundaç�
 
 ## 00 — Fundação do sistema 3D e Asset Studio
 
-- [ ] Auditar SNC Energies e SNC Adventures e arquitetura atual do Frontline Survival
+- [x] Auditar SNC Energies e SNC Adventures e arquitetura atual do Frontline Survival — Auditoria estática concluída e evidências em [AUDITORIA_ARQUITETURA_3D.md](AUDITORIA_ARQUITETURA_3D.md); não equivale a aprovação visual.
 - [ ] Inventariar todos os assets, fontes, dependências e cenas existentes
 - [ ] Definir arquitetura modular, manifesto canônico e convenções de escala e eixos
 - [ ] Implementar biblioteca paramétrica Python e backend Blender quando necessário
