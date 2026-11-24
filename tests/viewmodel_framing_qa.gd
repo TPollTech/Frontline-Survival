@@ -15,7 +15,9 @@ func _expect(ok: bool, message: String) -> void:
 func _run() -> void:
     var settings: Variant = root.get_node("GameSettings")
     var previous_fov: float = settings.field_of_view
+    var previous_weapon_fov: float = settings.weapon_field_of_view
     settings.field_of_view = 76.0
+    settings.weapon_field_of_view = 76.0
     var scene: PackedScene = load("res://scenes/main.tscn")
     var game: Variant = scene.instantiate()
     var checkpoint := OS.get_temp_dir().path_join("frontline-framing-%s.save" % OS.get_process_id())
@@ -55,6 +57,7 @@ func _run() -> void:
             var ads: bool = column == 1
             player.aim = ads
             player.camera.fov = player.get_target_camera_fov(false)
+            player._update_viewmodel_projection(1.0, false, 22.0)
             player.gun.position = player.get_viewmodel_rest_pose(ads)
             player._animate_viewmodel(0.25, 0.0)
             var reference: Vector3 = player.gun.position + Vector3(0.0, 0.0, player.viewmodel_depth)
@@ -81,6 +84,7 @@ func _run() -> void:
         _expect(sheet.save_png("res://docs/qa/weapon_framing.png") == OK, "could not save framing sheet")
     game.free()
     settings.field_of_view = previous_fov
+    settings.weapon_field_of_view = previous_weapon_fov
     if FileAccess.file_exists(checkpoint):
         DirAccess.remove_absolute(checkpoint)
     print("QA_FRAMING_PASS" if failures.is_empty() else "QA_FRAMING_FAIL")

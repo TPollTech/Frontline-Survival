@@ -28,10 +28,12 @@ func _run() -> void:
     var settings: Variant = root.get_node("GameSettings")
     var original_path: String = settings.settings_path
     var original_fov: float = settings.field_of_view
+    var original_weapon_fov: float = settings.weapon_field_of_view
     var temp: String = OS.get_temp_dir().path_join("frontline-fov-%s.cfg" % OS.get_process_id())
     var checkpoint: String = temp + ".save"
     settings.settings_path = temp
     settings.set_value("fov", 76.0)
+    settings.set_value("weapon_fov", 76.0)
     var scene: PackedScene = load("res://scenes/main.tscn")
     var game: Variant = scene.instantiate()
     game.checkpoint_path = checkpoint
@@ -49,6 +51,14 @@ func _run() -> void:
         _expect(is_equal_approx(player.camera.fov, 60.0), "paused player camera did not receive FOV")
         var cfg := ConfigFile.new()
         _expect(cfg.load(temp) == OK and float(cfg.get_value("controls", "fov", -1.0)) == 60.0, "FOV not saved")
+    var weapon_slider := menu.options.find_child("Setting_weapon_fov", true, false) as HSlider
+    _expect(weapon_slider != null and weapon_slider.min_value == 60.0 and weapon_slider.max_value == 100.0, "weapon FOV slider missing or invalid")
+    if weapon_slider != null:
+        weapon_slider.value = 90.0
+        _expect(is_equal_approx(player.viewmodel_fov, 90.0), "weapon slider did not update projection")
+        _expect(is_equal_approx(player.camera.fov, 60.0), "weapon FOV changed world camera")
+        var weapon_cfg := ConfigFile.new()
+        _expect(weapon_cfg.load(temp) == OK and float(weapon_cfg.get_value("controls", "weapon_fov", -1.0)) == 90.0, "weapon FOV not saved")
     menu._back_options()
     menu._start()
     await physics_frame
@@ -71,7 +81,9 @@ func _run() -> void:
     _expect(not paused and is_equal_approx(player.camera.fov, 100.0), "resume lost FOV")
     await _capture("fov_100")
     settings.field_of_view = 76.0
+    settings.weapon_field_of_view = 76.0
     settings._load()
+    _expect(is_equal_approx(settings.weapon_field_of_view, 90.0), "config reload lost independent weapon FOV")
     _expect(is_equal_approx(settings.field_of_view, 100.0), "config reload lost FOV")
     settings.apply()
     for pair in [[-50.0, 60.0], [500.0, 100.0], [NAN, 76.0], [INF, 76.0], ["invalid", 76.0]]:
@@ -103,6 +115,7 @@ func _run() -> void:
     game.free()
     settings.settings_path = original_path
     settings.field_of_view = original_fov
+    settings.weapon_field_of_view = original_weapon_fov
     settings.apply()
     if FileAccess.file_exists(temp):
         DirAccess.remove_absolute(temp)

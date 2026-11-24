@@ -77,6 +77,9 @@ var scope_mask: ColorRect
 var precision_click := false
 var camera: Camera3D
 var applied_base_fov: float = 0.0
+var applied_weapon_base_fov: float = 0.0
+var viewmodel_fov: float = 76.0
+var viewmodel_projection: Node3D
 var gun: Node3D
 var weapon_model: Node3D
 var viewmodel_root: Node3D
@@ -183,6 +186,16 @@ func _ready() -> void:
     GameSettings.changed.connect(_on_camera_settings_changed)
     camera.current = true
     add_child(camera)
+    # A camera-local projection adapter: a perspective camera projects x/z
+    # and y/z using cot(fov/2). Compensating only the transverse coordinates
+    # gives the viewmodel its own exact screen projection, without another
+    # viewport or changing the depth buffer, physics ray or local rig geometry.
+    viewmodel_projection = Node3D.new()
+    viewmodel_projection.name = "IndependentViewmodelProjection"
+    camera.add_child(viewmodel_projection)
+    viewmodel_fov = GameSettings.weapon_field_of_view
+    applied_weapon_base_fov = GameSettings.weapon_field_of_view
+    _sync_viewmodel_projection()
     gun = Node3D.new()
     scope_mask = ColorRect.new()
     var scope_layer := CanvasLayer.new()
@@ -196,7 +209,7 @@ func _ready() -> void:
     scope_mask.material = lens
     scope_mask.hide()
     gun.position = Vector3(0.32, -0.28, -0.65)
-    camera.add_child(gun)
+    viewmodel_projection.add_child(gun)
     muzzle_flash = MeshInstance3D.new()
     muzzle_flash.mesh = _build_muzzle_flash()
     var flash_mat := StandardMaterial3D.new()
@@ -287,11 +300,31 @@ func _sniper_scope() -> String:
 func _on_camera_settings_changed() -> void:
     # Signals are synchronous even while the player physics is paused.
     # Unrelated audio/video settings must not disturb an in-flight ADS transition.
-    if is_equal_approx(applied_base_fov, GameSettings.field_of_view):
+    if not is_instance_valid(camera) or not is_instance_valid(viewmodel_projection):
         return
-    applied_base_fov = GameSettings.field_of_view
-    if is_instance_valid(camera):
+    if not is_equal_approx(applied_base_fov, GameSettings.field_of_view):
+        applied_base_fov = GameSettings.field_of_view
         camera.fov = get_target_camera_fov(false)
+    if not is_equal_approx(applied_weapon_base_fov, GameSettings.weapon_field_of_view):
+        applied_weapon_base_fov = GameSettings.weapon_field_of_view
+        viewmodel_fov = get_target_viewmodel_fov(false)
+    _sync_viewmodel_projection()
+
+func get_target_viewmodel_fov(sprint_zoom: bool) -> float:
+    var base: float = GameSettings.weapon_field_of_view
+    if aim and weapon_id == "sentinela" and has_attachment("optic", "scope4"):
+        return rad_to_deg(2.0 * atan(tan(deg_to_rad(base * 0.5)) / 4.0))
+    return base * (_ads_fov_multiplier() if aim else (1.045 if sprint_zoom else 1.0))
+
+func _sync_viewmodel_projection() -> void:
+    if not is_instance_valid(viewmodel_projection) or not is_instance_valid(camera):
+        return
+    var factor: float = tan(deg_to_rad(camera.fov * 0.5)) / tan(deg_to_rad(viewmodel_fov * 0.5))
+    viewmodel_projection.scale = Vector3(factor, factor, 1.0)
+
+func _update_viewmodel_projection(delta: float, sprint_zoom: bool, fov_speed: float) -> void:
+    viewmodel_fov = lerpf(viewmodel_fov, get_target_viewmodel_fov(sprint_zoom), minf(1.0, delta * fov_speed))
+    _sync_viewmodel_projection()
 
 func get_target_camera_fov(sprint_zoom: bool) -> float:
     var base: float = GameSettings.field_of_view
@@ -447,6 +480,7 @@ func _physics_process(delta: float) -> void:
     scope_mask.visible = use_scope and absf(gun.position.x) < 0.055
     gun.visible = not scope_mask.visible
     camera.fov = lerpf(camera.fov, target_fov, minf(1.0, delta * fov_speed))
+    _update_viewmodel_projection(delta, sprint_blend * motion_ratio > 0.55, fov_speed)
     walk_clock += delta * motion_ratio * (10.0 if sprinting else 8.0)
     sprint_stride = sin(walk_clock * 1.16) * sprint_blend * motion_ratio
     shot_spread_kick = move_toward(shot_spread_kick, 0.0, delta * 1.25)

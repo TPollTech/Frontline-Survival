@@ -211,6 +211,25 @@ jobs:
           retention-days: 30
           if-no-files-found: error
 
+      - name: Independent FOV QA - real camera projection and comparison
+        shell: bash
+        run: |
+          set -o pipefail
+          timeout 55s xvfb-run -a -s '-screen 0 1280x720x24' godot --path . --rendering-driver opengl3 --script res://tests/independent_fov_qa.gd 2>&1 | tee godot-projection.log
+          grep -q 'QA_PROJECTION_PASS' godot-projection.log
+          test -s docs/qa/independent_fov.png
+          if grep -E 'SCRIPT ERROR:|ERROR:.*Parse Error|QA_PROJECTION_FAIL|PROJECTION_QA_ERROR:' godot-projection.log; then
+            exit 1
+          fi
+
+      - name: Upload independent FOV comparison
+        uses: actions/upload-artifact@v4
+        with:
+          name: Frontline-Independent-FOV-${{ github.sha }}
+          path: docs/qa/independent_fov.png
+          retention-days: 30
+          if-no-files-found: error
+
       - name: Rendered framing QA - all eight weapons in hip and ADS
         shell: bash
         run: |

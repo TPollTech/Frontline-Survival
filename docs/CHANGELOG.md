@@ -1,5 +1,17 @@
 # Frontline Survival — Histórico de versões
 
+## 0.9.31 — FOV independente das armas
+
+- Configurações de FOV de cenário e de armas salvas separadamente (60°–100°, padrão 76°).
+- Projeção em espaço da câmera com compensação tangencial em X/Y, preservando profundidade e rig local; sem segundo viewport.
+- Preserva projeção ADS, lunetas, corrida, câmera física e interação com paredes.
+- QA de projeção nas oito armas, 24 capturas OpenGL comparativas e regressão de persistência.
+- Homologação visual Windows pendente; iluminação e oclusão continuam compartilhadas com o mundo.
+
+[Notas da release](releases/v0.9.31.md)
+
+---
+
 ## 0.9.30 — Enquadramento padronizado das oito armas
 
 - Perfis centralizados preservam escala de malhas, offsets e encaixes existentes.

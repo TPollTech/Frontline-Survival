@@ -15,6 +15,7 @@ var sfx_volume: float = 28.0
 var ui_volume: float = 42.0
 var mouse_sensitivity: float = 1.0
 var field_of_view: float = FOV_DEFAULT
+var weapon_field_of_view: float = FOV_DEFAULT
 var fullscreen: bool = false
 var show_fps: bool = true
 var intermission_seconds: int = 30
@@ -49,6 +50,7 @@ func _load() -> void:
     ui_volume = clampf(float(cfg.get_value("audio", "ui", ui_volume)), 0.0, 100.0)
     mouse_sensitivity = clampf(float(cfg.get_value("controls", "mouse_sensitivity", mouse_sensitivity)), 0.35, 3.0)
     field_of_view = _normalize_fov(cfg.get_value("controls", "fov", FOV_DEFAULT))
+    weapon_field_of_view = _normalize_fov(cfg.get_value("controls", "weapon_fov", FOV_DEFAULT))
     fullscreen = bool(cfg.get_value("video", "fullscreen", fullscreen))
     show_fps = bool(cfg.get_value("video", "fps", show_fps))
     intermission_seconds = clampi(int(cfg.get_value("gameplay", "intermission_seconds", intermission_seconds)), 30, 120)
@@ -66,6 +68,7 @@ func _save() -> void:
     cfg.set_value("audio", "ui", ui_volume)
     cfg.set_value("controls", "mouse_sensitivity", mouse_sensitivity)
     cfg.set_value("controls", "fov", field_of_view)
+    cfg.set_value("controls", "weapon_fov", weapon_field_of_view)
     cfg.set_value("video", "fullscreen", fullscreen)
     cfg.set_value("video", "fps", show_fps)
     cfg.set_value("gameplay", "intermission_seconds", intermission_seconds)
@@ -113,6 +116,7 @@ func set_value(key: String, value: Variant) -> void:
         "ui": ui_volume = clampf(float(value), 0.0, 100.0)
         "sensitivity": mouse_sensitivity = clampf(float(value), 0.35, 3.0)
         "fov": field_of_view = _normalize_fov(value)
+        "weapon_fov": weapon_field_of_view = _normalize_fov(value)
         "fullscreen": fullscreen = bool(value)
         "fps": show_fps = bool(value)
         "intermission": intermission_seconds = clampi(int(value), 30, 120)

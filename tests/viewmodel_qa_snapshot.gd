@@ -79,6 +79,7 @@ func _capture() -> void:
         game.player.muzzle_flash.visible = idx == 8
         game.player.aim = ads
         game.player.camera.fov = base_fov * (game.player._ads_fov_multiplier() if ads else 1.0)
+        game.player._update_viewmodel_projection(1.0, false, 22.0)
         game.player.gun.position = game.player.get_viewmodel_rest_pose(ads)
         game.player.gun.rotation = Vector3.ZERO
         game.player._animate_viewmodel(0.25, 0.0)
