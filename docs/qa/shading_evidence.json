@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "kind": "shading_validation",
+  "tested_commit": "23d90a696e0e0694b3ac9f35793333fe13221905",
+  "run_id": 45456153062,
+  "job_id": 138666008846,
+  "artifact_id": 14949733546,
+  "artifact_sha256_reported": "175d002d11aa0621f20d993b1c0344fd0a54e98cbe3921f8e12950a45b730d41",
+  "conclusion": "success",
+  "python": {
+    "total": 71,
+    "passed": 57,
+    "skipped": 14
+  },
+  "blender": {
+    "version": "3.0.1",
+    "passed": 71,
+    "skipped": 0,
+    "seconds": 14.914
+  },
+  "manifest_tests": 18,
+  "production_asset_approval": false
+}

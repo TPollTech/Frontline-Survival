@@ -74,3 +74,7 @@ Biblioteca organic.py estende a IR com curvas cúbicas, patches bicúbicos, loft
 ## Atributos de renderização
 
 RenderMesh preserva MeshSpec e mapeamento de vértices fonte; normais e UVs por canto são convertidos em buffers indexados com splits explícitos. Tangentes Python e backend opcional Blender MikkTSpace. A integração do RenderMesh ao exportador será realizada na tarefa de exportação; não editar manifesto de baseline. Ver [BIBLIOTECA_PARAMETRICA.md](BIBLIOTECA_PARAMETRICA.md).
+
+## Biblioteca PBR
+
+PBRMaterial, TextureData e MaterialLibrary em parametric/pbr.py definem fatores lineares, papéis de texturas sRGB/linear, ORM e normal +Y, procedência e hashes. Receitas procedurais neutras geram biblioteca independente da baseline. O futuro exportador resolve IDs da biblioteca e converte a convenção UV/normal de forma consistente. Não migrar nem aprovar assets existentes nesta etapa.

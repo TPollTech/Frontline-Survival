@@ -10,8 +10,8 @@ Atualizado em 24/11/2026. Mantém as 96 tarefas anteriores e adiciona a fundaç�
 - [x] Implementar biblioteca paramétrica Python e backend Blender quando necessário — API, IR e backends validados: 22/22 testes, incluindo Blender 3.0.1 real, no [CI 45442588521](https://github.com/TPollTech/Frontline-Survival/actions/runs/45442588521). [Biblioteca](BIBLIOTECA_PARAMETRICA.md). Sem homologação de modelos.
 - [x] Implementar geometrias avançadas, extrusão, revolução, booleanas e bevels — 45/45 testes Blender real aprovados no [CI 45453292708](https://github.com/TPollTech/Frontline-Survival/actions/runs/45453292708). [Biblioteca](BIBLIOTECA_PARAMETRICA.md). Sem homologação de modelos.
 - [x] Implementar curvas, superfícies orgânicas e topologia personalizada — 59/59 testes aprovados com Blender real no [CI 45454861861](https://github.com/TPollTech/Frontline-Survival/actions/runs/45454861861). Sem homologação de modelos.
-- [ ] Implementar normais suavizadas e ponderadas, UV mapping e tangentes — Parcial: normais ponderadas, UVs por canto e tangentes Python/Blender MikkTSpace implementadas; revalidação CI pendente. [Biblioteca](BIBLIOTECA_PARAMETRICA.md).
-- [ ] Implementar materiais PBR, texturas e biblioteca de materiais
+- [x] Implementar normais suavizadas e ponderadas, UV mapping e tangentes — 71/71 testes com Blender real no [CI 45456153062](https://github.com/TPollTech/Frontline-Survival/actions/runs/45456153062). Sem homologação de modelos.
+- [ ] Implementar materiais PBR, texturas e biblioteca de materiais — Parcial: biblioteca PBR, seis receitas e 18 texturas, testes de integridade e Blender implementados; CI pendente. [Biblioteca](BIBLIOTECA_PARAMETRICA.md).
 - [ ] Implementar hierarquias, pivôs, encaixes, rigging e skeleton
 - [ ] Implementar colisões independentes e LOD com orçamentos por categoria
 - [ ] Implementar exportação determinística GLB/glTF 2.0 e rastreabilidade de fontes

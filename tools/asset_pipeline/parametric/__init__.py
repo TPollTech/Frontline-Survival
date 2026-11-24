@@ -6,8 +6,10 @@ from .organic import BezierCurve, BezierPatch, LoftSection, OrganicLoft, CustomT
 from .blender_backend import BlenderBackend, BlenderError
 from .shading import RenderMesh, corner_normals, planar_uv, triangle_atlas_uv, corner_tangents, build_render_mesh
 from .shading_blender import blender_tangents
+from .pbr import TextureData, PBRMaterial, MaterialLibrary, generate_library
 
 __all__ = ["MeshSpec", "MaterialSpec", "NodeSpec", "SceneSpec", "Transform",
            "Box", "Cylinder", "Extrusion", "Revolution", "BezierCurve", "BezierPatch",
            "LoftSection", "OrganicLoft", "CustomTopology", "PythonBackend", "GeometryBackend", "BlenderBackend", "BlenderError",
-           "RenderMesh", "corner_normals", "planar_uv", "triangle_atlas_uv", "corner_tangents", "build_render_mesh", "blender_tangents"]
+           "RenderMesh", "corner_normals", "planar_uv", "triangle_atlas_uv", "corner_tangents", "build_render_mesh", "blender_tangents",
+           "TextureData", "PBRMaterial", "MaterialLibrary", "generate_library"]
