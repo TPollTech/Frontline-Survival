@@ -63,3 +63,27 @@ Metas derivadas das contagens das receitas já medidas, ainda não observadas ne
 A revisão remota permanece 828426a, preservada. Foram realizadas dez verificações estáticas/numéricas independentes em JavaScript sobre os arquivos reais dessa revisão: correspondência de caps object com BUDGETS; parâmetros originais dos postes em comparação com 70f1f91c; restauração das malhas; quatro posições previstas; ausência de criação/mutação de colisor no helper; contagem de triângulos das receitas (cilindro usa contagens históricas, não nova medição); modelo numérico do seletor com os quatro estados iniciais e nove distâncias; geometria da trajetória de câmera nas quatro âncoras; troca somente de mesh no registro; alinhamento de escopo entre QA, CI, inventário e Studio. 10/10 aprovadas; não são execução de GDScript nem de física. Totais previstos continuam 49.248/10.584/4.128 triângulos.
 
 A consulta de status combinado retornou lista vazia, e a consulta de workflows associada ao commit não retornou execuções (essa consulta é limitada a eventos de pull request; não comprova ausência de execução push). A página pública e a API de Actions não ficaram acessíveis. Git ls-remote falhou por DNS e Godot/Blender não foram encontrados no ambiente. Não foi possível obter o ID da execução atual nem baixar/inspecionar as novas capturas. Ausência de resultado não significa falha ou sucesso do CI. Sem evidência visual, nenhuma outra família foi ampliada e não se identificou correção de código justificada nesta revisão. Necessário ID/link da execução push correspondente a 828426a e seus artefatos de Godot/Studio, ou execução verificável no ambiente com engine. Hardware-alvo continua sem benchmark. Alteração exclusivamente documental, sem novo build; 00-10 permanece parcial.
+
+
+## Execução independente do Actions — 25/11/2026
+
+Base 1bcf176 preservada. Cota do Actions esgotada conforme responsável; nenhum workflow disparado. Clone local continua bloqueado por DNS, sem binário Godot/Blender. Não foi feita ampliação de famílias nem alteração visual ou física. Os resultados anteriores de 171 checks continuam válidos apenas para as quatro famílias naquela revisão; os 207 previstos ainda não foram medidos.
+
+Novo runner `tools/asset_pipeline/world_lod_local.py` executa localmente o teste de orçamento, importação e QA renderizado já existente (Godot 4.4.1, Compatibility), em checkout limpo e pasta nova externa ao repositório. Mantém logs de versão, orçamento, importação e Godot; configura XDG_DATA_HOME e, no Windows, APPDATA/LOCALAPPDATA para perfil temporário (isolamento ainda não exercitado na engine). Não executa CI. Exige o marcador WORLD_LOD_PASS 207, retorno zero, ausência dos erros de script previstos e HEAD/checkout inalterados; confere 23 assemblies, 207 linhas, 86 peças, oito bloqueadores e 15 não bloqueantes, sequência de níveis, limites, invariância de colisor/ray registrada, totais esperados 49.248/10.584/4.128 e cabeçalhos das 30 capturas 1280x720. O modo verify-only verifica consistência de arquivos, não autenticidade/proveniência ou inspeção visual. Hardware e visual_reviewed permanecem false. Sem prova de FPS/VRAM ou contato CharacterBody3D. O runner usa o QA real existente, não geometria substituta.
+
+Testes realmente executados: Python 3.13.5, 11/11 regressões com fixtures sintéticas (test_world_lod_local.py), compilação sintática dos dois arquivos. Fixtures validam aceitação de relatório consistente e rejeição de cobertura incompleta, família errada, caminho duplicado, triângulos/LOD errados, alterações de colisor/ray, falsa aprovação de hardware e cabeçalho/captura ausente. Os PNGs sintéticos são apenas cabeçalhos, não renders. O runner completo, orçamento real, integração Godot e Studio ainda não executados. O runner não substitui inspeção de imagens nem benchmark.
+
+No Windows, na raiz do clone atualizado, com Python 3.10+ e Godot 4.4.1 (caminho exemplificativo, ajustar ao executável real):
+
+```powershell
+python -m unittest discover -s tests -p test_world_lod_local.py -v
+python tools/asset_pipeline/world_lod_local.py "$env:TEMP\frontline-lod-qa-01" --godot "C:\Godot\Godot_v4.4.1-stable_win64_console.exe"
+```
+
+No Linux com display:
+
+```sh
+python tools/asset_pipeline/world_lod_local.py /tmp/frontline-lod-qa-01 --godot godot
+```
+
+Usar pasta nova a cada execução; se Linux sem display, executar sob xvfb-run. Para conferir arquivos coletados sem executar engine, acrescentar --verify-only ao comando. Enviar local-summary.json, world-lod-report.json, logs e PNGs reais para inspeção; o perfil temporário não é necessário. Depois validar inventário/Studio e benchmark no Ryzen 5 7530U/iGPU/8GB. Sem homologação, build ou ZIP. Estado 00-10 parcial; não alterar outros IDs.
