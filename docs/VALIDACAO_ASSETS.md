@@ -103,3 +103,8 @@ CI 45534922543 aprovado, 36 transições/rays, quatro bloqueadores independentes
 ## Ampliação LOD real — 00-10
 
 45542221025 e 45542221048 aprovados: 19 conjuntos, 74 peças, oito bloqueadores independentes, 11 não bloqueantes, 171 verificações de transição/ray, 57 registros LOD. 12 imagens abertas; oclusões impedem comparação detalhada, novo teste de câmera fixa 45542462884 em validação. Ver [LOD_COLISOES_RUNTIME.md](LOD_COLISOES_RUNTIME.md). Sem benchmark ou homologação integral.
+
+
+### Revisão de câmera fixa confirmada
+
+[45542462884](https://github.com/TPollTech/Frontline-Survival/actions/runs/45542462884) aprovado, 171 verificações repetidas; inventário 45542462819 aprovado. Artefato [14989089738](https://github.com/TPollTech/Frontline-Survival/actions/runs/45542462884/artifacts/14989089738) baixado e 12 imagens de câmera fixa abertas: uma por nível em cada família. Barricadas apresentam redução perceptível de arredondamento no LOD2; contêiner mantém corpo e nervuras (apenas reforços laterais migrados, pouco visíveis de frente); tambores mantêm silhueta e anéis, estação mostra facetas nos níveis inferiores quando vista de perto. Não há desaparecimento grosseiro nas imagens. Capturas fixas foram feitas a 4 m, com distância sintética passada ao seletor apenas em QA; não são a distância normal de uso de LOD2. Não medem popping em movimento. Nenhuma alteração de gameplay adicional. 00-10 parcial por cobertura das demais famílias e benchmark indisponível.
