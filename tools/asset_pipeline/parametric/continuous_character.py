@@ -12,6 +12,7 @@ from .pbr import TextureData,MaterialLibrary
 from .shading import build_render_mesh
 from .continuous_glove import blend,smooth
 from .intersection_audit import audit
+from .combined_pose_audit import evaluate as combined_pose_audit
 
 LOW=(-.49,0.,-.175)
 HIGH=(.49,1.80,.155)
@@ -177,5 +178,6 @@ def build_character(level,lib):
     if contacts["contact_pairs"] or any(c["contacts"]["contact_pairs"] for c in checks):
         raise ValueError(("character nonadjacent contact gate",level,contacts,checks))
     contract={"unit":"m","up":"+Y","dimensions_m":[b-a for a,b in zip(LOW,HIGH)],"pivots_local_m":{"anchor":[0,0,0],mesh.id:[0,0,0],**{"bone:"+b.id:list(b.rest_local.matrix[12:15]) for b in sk.bones}},"forward":{"node":"anchor","local_axis":[0,0,-1],"world_axis":[0,0,-1]},"tolerance_m":.001}
-    meta={"bone_count":len(bones),"parents":{b.id:b.parent_id for b in sk.bones},"pose_bone":"arm_0_upper","pose_child":"arm_0_lower","pose_degrees":25,"skin_meshes":1,"mixed_vertices":sum(len(w)>1 for w in skin.weights),"components":1,"euler_characteristic":2,"source_vertices":len(vs),"quad_patches":len(quads),"rest_contacts":contacts,"deformation_checks":checks}
+    combined_checks=combined_pose_audit("mannequin",mesh,skin,sk)
+    meta={"combined_pose_checks":combined_checks,"bone_count":len(bones),"parents":{b.id:b.parent_id for b in sk.bones},"pose_bone":"arm_0_upper","pose_child":"arm_0_lower","pose_degrees":25,"skin_meshes":1,"mixed_vertices":sum(len(w)>1 for w in skin.weights),"components":1,"euler_characteristic":2,"source_vertices":len(vs),"quad_patches":len(quads),"rest_contacts":contacts,"deformation_checks":checks}
     return scene,render,rig,meta,contract

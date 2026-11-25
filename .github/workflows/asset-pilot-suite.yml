@@ -10,6 +10,7 @@ on:
       - 'tools/asset_pipeline/parametric/continuous_glove.py'
       - 'tools/asset_pipeline/parametric/continuous_character.py'
       - 'tools/asset_pipeline/parametric/intersection_audit.py'
+      - 'tools/asset_pipeline/parametric/combined_pose_audit.py'
       - 'tests/test_continuous_character.py'
       - 'tests/test_continuous_glove.py'
       - 'tests/test_pilot_anatomy.py'
@@ -74,6 +75,16 @@ jobs:
           timeout 240s xvfb-run -a -s '-screen 0 1280x720x24' godot --path . --rendering-driver opengl3 --script res://tools/asset_pipeline/runtime/pilot_suite_qa.gd 2>&1 | tee "$FRONTLINE_PILOT_DIR/godot.log"
           grep -q 'SUITE_GODOT_PASS 39' "$FRONTLINE_PILOT_DIR/godot.log"
           if grep -E 'SCRIPT ERROR:|Parse Error|SUITE_GODOT_FAIL' "$FRONTLINE_PILOT_DIR/godot.log"; then exit 1; fi
+      - name: Upload early native rig evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: Rig-native-${{ github.sha }}
+          path: |
+            ${{ runner.temp }}/pilot-suite/glove/*.png
+            ${{ runner.temp }}/pilot-suite/glove/*.json
+            ${{ runner.temp }}/pilot-suite/mannequin/*.png
+            ${{ runner.temp }}/pilot-suite/mannequin/*.json
+          if-no-files-found: error
       - name: Stage identical GLBs and render in isolated Studio
         run: |
           python tools/asset_studio/prepare.py "$RUNNER_TEMP/suite-studio"

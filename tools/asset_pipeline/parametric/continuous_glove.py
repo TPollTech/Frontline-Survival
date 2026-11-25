@@ -13,6 +13,7 @@ from .rig import BoneSpec,SkeletonSpec,SkinSpec,RigSpec,rotation
 from .pbr import TextureData,MaterialLibrary
 from .shading import build_render_mesh
 from .intersection_audit import audit
+from .combined_pose_audit import evaluate as combined_pose_audit
 
 LOW=(-.078,0.,-.022)
 HIGH=(.048,.192,.022)
@@ -200,5 +201,6 @@ def build_glove(level,lib):
     rest_contacts=audit(vertices,tris)
     if rest_contacts["contact_pairs"] or any(c["contacts"]["contact_pairs"] for c in checks):
         raise ValueError(("glove nonadjacent contact gate",level,rest_contacts,checks))
-    meta={"bone_count":len(bones),"parents":{b.id:b.parent_id for b in sk.bones},"pose_bone":"finger_1_j1","pose_child":"finger_1_j2","pose_degrees":25,"skin_meshes":1,"mixed_vertices":sum(len(w)>1 for w in skin.weights),"components":1,"euler_characteristic":2,"source_vertices":len(vertices),"quad_patches":len(quads),"rest_contacts":rest_contacts,"deformation_checks":checks}
+    combined_checks=combined_pose_audit("glove",mesh,skin,sk)
+    meta={"combined_pose_checks":combined_checks,"bone_count":len(bones),"parents":{b.id:b.parent_id for b in sk.bones},"pose_bone":"finger_1_j1","pose_child":"finger_1_j2","pose_degrees":25,"skin_meshes":1,"mixed_vertices":sum(len(w)>1 for w in skin.weights),"components":1,"euler_characteristic":2,"source_vertices":len(vertices),"quad_patches":len(quads),"rest_contacts":rest_contacts,"deformation_checks":checks}
     return scene,render,rig,meta,contract
