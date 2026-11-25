@@ -21,7 +21,7 @@ def fixture():
 def main():
     scene,renders,lib,rig=fixture()
     root=Path(__file__).resolve().parents[3]
-    sources=source_manifest(root,[str(p.relative_to(root)) for p in Path(__file__).parent.glob("*.py")],sys.argv[2])
+    sources=source_manifest(root,[p.relative_to(root).as_posix() for p in Path(__file__).parent.glob("*.py")],sys.argv[2])
     write_bundle(sys.argv[1],export_bundle(scene,renders,lib,sources=sources,rig=rig))
 if __name__=="__main__":
     main()

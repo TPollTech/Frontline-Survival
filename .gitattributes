@@ -1,0 +1,2 @@
+# QA hashes raw committed bytes, not filtered checkout text.
+* -text

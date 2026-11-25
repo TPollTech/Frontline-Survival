@@ -67,3 +67,7 @@ Executar o roteiro integrado do guia num checkout limpo com perfil isolado, capt
 ## Coleta unificada Windows
 
 Preparado [QA All-in-One](QA_ALL_IN_ONE.md) para executar os runners existentes sem comandos manuais no Godot. Somente inicializador, dependente de internet; não há bundle offline ou homologação nesta entrega. Aguardar resultados reais e solucionar todas as lacunas da etapa 00 antes de avançar.
+
+## Evidência Windows recebida — 95c7ac8
+
+Ver [QA_RETESTE_WINDOWS.md](QA_RETESTE_WINDOWS.md): 26/47 passos, 7 falhas, 14 bloqueados; inventário, vistas, LOD, objetos/mapa e importação reais aprovados nos gates executados. Catálogo e WebGL ainda bloqueados. Corrigidos caminhos canônicos, preservação dos bytes e preparado reteste incremental; warnings de normais/tangentes e teste de limpeza permanecem abertos. Nenhum ID promovido.

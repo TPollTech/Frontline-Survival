@@ -17,3 +17,7 @@ Execução local isolada do núcleo Python em Python 3.13.5 com subprocessos de 
 ## Primeira execução Windows — correção de detecção (25/11/2026)
 
 O ZIP de resultados enviado pelo usuário continha somente setup.log: Windows PowerShell 5.1, erro `No suitable Python runtime found` do py.exe sob ErrorActionPreference=Stop. Nenhum teste do projeto executado. A sondagem opcional agora procura primeiro os caminhos conhecidos, usa Continue no escopo da função, captura exceções do lançador e retorna null se ausente, permitindo acionar winget e consultar novamente após instalação. O tratamento fatal do restante do bootstrap permanece Stop. Alteração verificada estaticamente; PowerShell 5.1 não disponível neste ambiente, novo teste no Windows necessário. Nenhum estado de homologação promovido.
+
+## Reteste incremental após a execução Windows
+
+Consulte [QA_RETESTE_WINDOWS.md](QA_RETESTE_WINDOWS.md) para os resultados reais e correções. RETESTAR.bat reutiliza a instalação anterior e recebe REVISION.txt com o SHA integrado. Nenhum download integral; Git fetch e dependências ausentes podem requerer internet. Não apagar a pasta antiga. Os três modos LOD anteriores são registrados como previous_evidence_only somente quando o diff permite; não como novos passes. Não iniciar etapas posteriores até 34/34 concluídas.

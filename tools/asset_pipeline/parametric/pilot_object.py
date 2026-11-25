@@ -41,7 +41,7 @@ def main():
     p=argparse.ArgumentParser();p.add_argument("output");p.add_argument("revision");a=p.parse_args()
     out=Path(a.output);out.mkdir(parents=True,exist_ok=True)
     root=Path(__file__).resolve().parents[3]
-    sources=source_manifest(root,[str(p.relative_to(root)) for p in Path(__file__).parent.glob("*.py")],a.revision)
+    sources=source_manifest(root,[p.relative_to(root).as_posix() for p in Path(__file__).parent.glob("*.py")],a.revision)
     rows=[]
     for level in range(3):
         scene,renders,lib=build(level)

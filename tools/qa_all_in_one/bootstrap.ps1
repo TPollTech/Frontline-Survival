@@ -71,9 +71,9 @@ try {
     if (-not $git -or -not $python) { throw 'Git or Python not found after installation.' }
     $env:Path = (Split-Path $git) + ';' + $env:Path
     $repo = Join-Path $run 'source'
-    Native $git @('clone','--no-checkout','--single-branch','--branch','main','https://github.com/TPollTech/Frontline-Survival.git',$repo)
+    Native $git @('-c','core.autocrlf=false','clone','--no-checkout','--single-branch','--branch','main','https://github.com/TPollTech/Frontline-Survival.git',$repo)
     Native $git @('-C',$repo,'merge-base','--is-ancestor',$rev,'origin/main')
-    Native $git @('-C',$repo,'checkout','--detach',$rev)
+    Native $git @('-C',$repo,'-c','core.autocrlf=false','checkout','--detach',$rev)
     $node = Portable 'https://nodejs.org/dist/v22.16.0/node-v22.16.0-win-x64.zip' 'node' 'node.exe'
     $npm = Join-Path (Split-Path $node) 'node_modules\npm\bin\npm-cli.js'
     if (-not (Test-Path $npm)) { throw 'Portable npm missing.' }

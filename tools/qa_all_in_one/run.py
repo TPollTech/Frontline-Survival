@@ -13,7 +13,7 @@ from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from functools import partial
 import zipfile
 
-ERROR = re.compile(r'SCRIPT ERROR:|Parse Error|ASSET_RUNTIME_(?:ERROR|FAIL)|RUNTIME_VIEW_FAIL|WORLD_LOD_(?:BENCH_|MOTION_)?FAIL|IMPORT_VALIDATION_FAIL|PILOT_GODOT_FAIL|SUITE_GODOT_FAIL|EXPORT_QA_FAIL')
+ERROR = re.compile(r'SCRIPT ERROR:|Parse Error|ASSET_RUNTIME_(?:ERROR|FAIL)|RUNTIME_VIEW_FAIL|WORLD_LOD_(?:BENCH_|MOTION_)?FAIL|IMPORT_VALIDATION_FAIL|PILOT_GODOT_FAIL|SUITE_GODOT_FAIL|EXPORT_QA_FAIL|Texture with GL ID of [0-9]+: leaked')
 IDS = ('00-10','00-13','00-17','00-18','00-19','00-20','00-21','00-24','00-25','00-27','00-28','00-29','00-30','00-31','00-32','00-34')
 
 class QA:
@@ -55,20 +55,26 @@ class QA:
         with zipfile.ZipFile(target) as z:
             if z.testzip() is not None: raise RuntimeError('evidence ZIP corrupted')
         print('EVIDENCE ZIP:',target,flush=True)
-        return 1 if error or any(r['status']!='passed' for r in self.rows) else 0
+        return 1 if error or any(r['status'] not in ('passed','previous_evidence_only') for r in self.rows) else 0
 
-def run(q, rev, godot, node, npm, work):
+def run(q, rev, godot, node, npm, work, previous=None):
     py=sys.executable; root=q.root; out=q.out
     env=os.environ.copy(); env['PYTHONDONTWRITEBYTECODE']='1'; env['GITHUB_SHA']=rev
     env['FRONTLINE_REQUIRE_BLENDER']='1'
     env['PATH']=str(Path(py).parent)+os.pathsep+env['PATH']
-    env['PLAYWRIGHT_BROWSERS_PATH']=str(work/'browsers')
+    env.setdefault('PLAYWRIGHT_BROWSERS_PATH',str(work/'browsers'))
     def step(name,args,ids=IDS,**kw):
         kw.setdefault('env',env); return q.step(name,args,ids,**kw)
     for mode in ('lod','benchmark','motion'):
+        if previous and any(r['name']==mode and r['status']=='passed' for r in previous['steps']):
+            log=q.out/(mode+'.log')
+            log.write_text('Prior evidence only; not executed on this revision. See original evidence '+previous['revision'],encoding='utf-8')
+            q.rows.append({'name':mode,'tasks':['00-10','00-19','00-25','00-34'],'status':'previous_evidence_only','previous_revision':previous['revision'],'previous_summary_sha256':previous['summary_sha256'],'log':log.name})
+            print(mode,'previous_evidence_only',flush=True)
+            continue
         step(mode,[py,'tools/asset_pipeline/world_lod_local.py',out/mode,'--godot',godot]+([] if mode=='lod' else ['--'+mode]),('00-10','00-19','00-25','00-34'),timeout=1800)
     step('manifest',[node,'tools/asset_pipeline/build_manifest.mjs'])
-    for label,pattern in [('parametric','test_parametric*.py'),('gltf','test_validate_gltf.py'),('catalog','test_live_catalog.py'),('scopes','test_runtime_asset_scopes.py'),('lod_contracts','test_world_lod*.py'),('pilot_finish','test_pilot_finish.py'),('pilot_art','test_pilot_art.py'),('pilot_anatomy','test_pilot_anatomy.py'),('glove','test_continuous_glove.py'),('character','test_continuous_character.py')]:
+    for label,pattern in [('windows_contract','test_qa_windows_contract.py'),('parametric','test_parametric*.py'),('gltf','test_validate_gltf.py'),('catalog','test_live_catalog.py'),('scopes','test_runtime_asset_scopes.py'),('lod_contracts','test_world_lod*.py'),('pilot_finish','test_pilot_finish.py'),('pilot_art','test_pilot_art.py'),('pilot_anatomy','test_pilot_anatomy.py'),('glove','test_continuous_glove.py'),('character','test_continuous_character.py')]:
         step(label,[py,'-m','unittest','discover','-s','tests','-p',pattern,'-v'])
     step('arsenal_tests',[node,'--test','tests/test_arsenal_sources.mjs'],('00-28','00-34'))
     step('arsenal_rebuild',[node,'tools/asset_pipeline/arsenal_sources.mjs',out/'arsenal.json','--rebuild',py],('00-28','00-34'),timeout=1800)
@@ -90,7 +96,7 @@ def run(q, rev, godot, node, npm, work):
         ge=env.copy(); ge.update(APPDATA=str(profile),LOCALAPPDATA=str(profile),XDG_DATA_HOME=str(profile),FRONTLINE_INVENTORY_DIR=str(inventory),FRONTLINE_VIEWS_DIR=str(views),FRONTLINE_PILOT_DIR=str(out/'pilot'),FRONTLINE_VALIDATION_REPORT=str(out/'production-report.json'),FRONTLINE_IMPORT_REPORT=str(out/'godot-imports.json'))
         render=[godot,'--path',project,'--rendering-driver','opengl3','--audio-driver','Dummy']
         step('godot_import',render+['--editor','--import'],cwd=project,env=ge,engine=True)
-        for name,script,marker,need in [('inventory','inventory_qa','ASSET_RUNTIME_INVENTORY_PASS',()),('views','capture_views','RUNTIME_VIEWS_PASS',()),('objects','world_asset_geometry_qa','WORLD_ASSET_GEOMETRY',()),('map','map_layout_qa','MAP_LAYOUT_QA',()),('pilot_godot','pilot_object_qa','PILOT_GODOT_PASS',('pilot',)),('imports','validate_imports','IMPORT_VALIDATION_COMPLETE',('production_audit',))]:
+        for name,script,marker,need in [('inventory','inventory_qa','ASSET_RUNTIME_INVENTORY_PASS',()),('views','capture_views','RUNTIME_VIEWS_PASS',()),('objects','world_asset_geometry_qa','WORLD_ASSET_GEOMETRY 13/13',()),('map','map_layout_qa','MAP_LAYOUT_QA 49/49',()),('pilot_godot','pilot_object_qa','PILOT_GODOT_PASS',('pilot',)),('imports','validate_imports','IMPORT_VALIDATION_COMPLETE',('production_audit',))]:
             step(name,render+['--script','res://tools/asset_pipeline/runtime/'+script+'.gd'],cwd=project,env=ge,engine=True,marker=marker,needs=('godot_import',)+need)
         suite_env=ge.copy(); suite_env['FRONTLINE_PILOT_DIR']=str(out/'suite')
         step('suite_godot',render+['--script','res://tools/asset_pipeline/runtime/pilot_suite_qa.gd'],cwd=project,env=suite_env,engine=True,marker='SUITE_GODOT_PASS 39',needs=('godot_import','suite'),timeout=1800)
@@ -103,7 +109,7 @@ def run(q, rev, godot, node, npm, work):
         runtime=inventory/'runtime_inventory.json'
         step('reconcile_inventory',[py,'docs/qa/verify_runtime_inventory.py',runtime,inventory/'reconciliation.json'],cwd=project,needs=('inventory',))
         step('live_catalog',[py,'tools/asset_pipeline/live_catalog.py','--runtime',runtime,'--output',out/'catalog.json'],cwd=project,needs=('reconcile_inventory',))
-        step('npm',[node,npm,'install','--ignore-scripts'],cwd=studio)
+        step('npm',[node,npm,'install','--ignore-scripts','--prefer-offline'],cwd=studio)
         step('chromium',[node,studio/'node_modules/playwright/cli.js','install','chromium'],cwd=studio,needs=('npm',),timeout=1800)
         stage=work/'studio'
         step('prepare_studio',[py,'tools/asset_studio/prepare.py',stage,'--runtime',runtime],cwd=project,needs=('npm','live_catalog'))
@@ -136,7 +142,7 @@ def run(q, rev, godot, node, npm, work):
         step('remove_worktree',['git','worktree','remove','--force',project])
 
 def main():
-    p=argparse.ArgumentParser(); p.add_argument('--root',type=Path,required=True); p.add_argument('--out',type=Path,required=True); p.add_argument('--work',type=Path,required=True); p.add_argument('--godot',required=True); p.add_argument('--node',required=True); p.add_argument('--npm',required=True); a=p.parse_args()
+    p=argparse.ArgumentParser(); p.add_argument('--root',type=Path,required=True); p.add_argument('--out',type=Path,required=True); p.add_argument('--work',type=Path,required=True); p.add_argument('--godot',required=True); p.add_argument('--node',required=True); p.add_argument('--npm',required=True); p.add_argument('--previous-summary',type=Path); a=p.parse_args()
     root=a.root.resolve(); out=a.out.resolve(); work=a.work.resolve()
     if out.is_relative_to(root) or work.is_relative_to(root) or work.is_relative_to(out) or out.is_relative_to(work): raise ValueError('use separate external directories')
     rev=subprocess.check_output(['git','rev-parse','HEAD'],cwd=root,text=True).strip()
@@ -144,7 +150,21 @@ def main():
     q=QA(root,out); error=None
     try:
         work.mkdir(parents=True)
-        run(q,rev,a.godot,a.node,a.npm,work)
+        previous=None
+        if a.previous_summary:
+            raw=a.previous_summary.read_bytes(); candidate=json.loads(raw)
+            before=candidate['revision']
+            if not re.fullmatch(r'[0-9a-f]{40}',before): raise ValueError('invalid previous revision')
+            subprocess.run(['git','merge-base','--is-ancestor',before,rev],cwd=root,check=True)
+            changed=subprocess.check_output(['git','diff','--name-only','-z',before,rev],cwd=root).decode('utf-8').split('\0')
+            # Only changes outside the actual game and LOD runner permit deferring
+            # the three expensive LOD captures. Never label prior evidence passed.
+            permitted={'.gitattributes','tests/test_qa_windows_contract.py','tools/asset_pipeline/runtime/world_asset_geometry_qa.gd','tools/asset_pipeline/parametric/export_fixture.py','tools/asset_pipeline/parametric/pilot_object.py','tools/asset_pipeline/parametric/pilot_suite.py'}
+            if all(not p or p in permitted or p.startswith(('docs/','tools/qa_all_in_one/')) for p in changed):
+                previous={**candidate,'summary_sha256':hashlib.sha256(raw).hexdigest()}
+            else:
+                print('Game or other pipeline sources changed; rerunning all LOD modes.',flush=True)
+        run(q,rev,a.godot,a.node,a.npm,work,previous)
     except Exception as exc:
         error=repr(exc); print(error,flush=True)
     return q.finish(rev,error)

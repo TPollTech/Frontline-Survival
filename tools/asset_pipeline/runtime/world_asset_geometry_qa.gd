@@ -43,5 +43,11 @@ func _run() -> void:
     expect(sun.shadow_enabled and is_equal_approx(sun.light_energy, 1.24), "sun")
     expect(sun.rotation_degrees.is_equal_approx(Vector3(-32, -49, 0)), "sun orientation")
     sun.free()
+    # Release the test-only sky and environment before shutting down GLES3.
+    # This is a lifecycle probe, not a claim that the renderer leak is fixed.
+    env.sky = null
+    env = null
+    await process_frame
+    await process_frame
     print("WORLD_ASSET_GEOMETRY ", checks - failures, "/", checks, " checks")
     quit(1 if failures else 0)
