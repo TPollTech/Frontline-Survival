@@ -132,7 +132,8 @@ def build_character(level,lib):
         tris.append((a,b,c));uv.extend(chart(i) for i in (a,b,c))
     def chart(i,back=False):
         x,y,z=vs[i];u=(x-LOW[0])/(HIGH[0]-LOW[0]);v=y/HIGH[1]
-        return ((.04 if back else .52)+.44*u,.04+.82*v)
+        # The second layer faces canonical -Z (front), matching the boot toes.
+        return ((.52 if back else .04)+.44*u,.04+.82*v)
     for a,b,c,d in quads:
         face(a,b,c,chart);face(a,c,d,chart)
         back=lambda i:chart(i,True)

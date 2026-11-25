@@ -36,6 +36,13 @@ class ContinuousCharacterTests(unittest.TestCase):
             self.assertEqual(meta["rest_contacts"]["contact_pairs"],0)
             self.assertTrue(all(c["contacts"]["contact_pairs"]==0 for c in meta["deformation_checks"]))
             self.assertEqual(len(rig.skins[0].weights),len(mesh.vertices))
+            # Sidewall uses a separate UV strip; front details must be on -Z.
+            half=len(mesh.vertices)//2
+            front_uv=[uv for i,uv in zip(render.source_vertices,render.uv) if i>=half and uv[1]<.87]
+            back_uv=[uv for i,uv in zip(render.source_vertices,render.uv) if i<half and uv[1]<.87]
+            self.assertTrue(front_uv and back_uv)
+            self.assertTrue(all(.52-1e-9<=u<=.96+1e-9 for u,v in front_uv))
+            self.assertTrue(all(.04-1e-9<=u<=.48+1e-9 for u,v in back_uv))
             self.assertLessEqual(len(mesh.triangles),BUDGETS["character"].triangles[level])
             for a,b in zip(mesh.bounds(),(LOW,HIGH)):
                 for x,y in zip(a,b):self.assertAlmostEqual(x,y)
