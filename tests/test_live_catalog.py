@@ -1,4 +1,6 @@
 import json
+import base64
+from tools.asset_pipeline.runtime_catalog_evidence import dynamic_evidence,geometry_evidence
 import struct
 import subprocess
 import tempfile
@@ -126,6 +128,27 @@ class CatalogTests(unittest.TestCase):
     def test_stale_runtime(self):
         with self.assertRaisesRegex(ValueError,"stale runtime"):
             self.catalog([],{"kind":"frontline_runtime_inventory","schema_version":1,"commit":"old","failures":[]})
+    def test_dynamic_probe_reconciliation(self):
+        ref={"source":"scripts/player.gd","line":1,"target":"assets/%s_%s.glb"}
+        row={"source":ref["source"],"pattern":ref["target"],"arguments":["a","body"],"path":"assets/a_body.glb","exists":True,"guarded":True}
+        resources={row["path"]:{"status":"new","sha256":"a"*64}}
+        result=dynamic_evidence([ref],{"dynamic_probes":[row]},resources,{"fps_a___hip":{row["path"]}})[0]
+        self.assertEqual(result["status"],"finite_domain_probed")
+        self.assertEqual(result["candidates"][0]["observed_samples"],["fps_a___hip"])
+        with self.assertRaisesRegex(ValueError,"expansion mismatch"):
+            dynamic_evidence([ref],{"dynamic_probes":[{**row,"path":"bad"}]},resources,{})
+    def test_geometry_buffer_integrity_and_mapping(self):
+        data=b"godot fixture bytes";digest=sha(data)
+        row={"encoding":"godot_variant_v4_base64","bytes":len(data),"data":base64.b64encode(data).decode(),"primitive":3}
+        sample={"id":"map","nodes":[{"path":".","mesh":{"path":"","surfaces":[{"buffer_sha256":digest,"primitive":3}]}}]}
+        runtime={"geometry_buffers":{digest:row},"samples":[sample]}
+        index,compositions=geometry_evidence(runtime)
+        self.assertEqual(index[digest]["sample_ids"],["map"])
+        self.assertEqual(compositions["map"]["nodes"][0]["buffer_sha256"],[digest])
+        with self.assertRaisesRegex(ValueError,"integrity"):
+            geometry_evidence({**runtime,"geometry_buffers":{digest:{**row,"bytes":1}}})
+        with self.assertRaisesRegex(ValueError,"missing procedural"):
+            geometry_evidence({**runtime,"geometry_buffers":{}})
     def test_unsafe_path(self):
         with self.assertRaises(ValueError):
             self.catalog(["assets/../bad.glb"])

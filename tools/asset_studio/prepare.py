@@ -31,6 +31,11 @@ def main():
     for name in ("build","examples/jsm"):
         shutil.copytree(three/name,out/"vendor/three"/name)
     shutil.copyfile(three/"LICENSE",out/"vendor/three/LICENSE")
+    if catalog.get("geometry_index"):
+        payload=canonical({"kind":"frontline_runtime_geometry","revision":catalog["revision"],"buffers":runtime["geometry_buffers"]})
+        (out/"runtime_geometry.json").write_bytes(payload)
+        from tools.asset_pipeline.live_catalog import sha
+        catalog["geometry_payload_sha256"]=sha(payload)
     (out/"live_catalog.json").write_bytes(canonical(catalog))
     print("STUDIO_STAGE_PASS",json.dumps(catalog["counts"],sort_keys=True))
 if __name__=="__main__":main()

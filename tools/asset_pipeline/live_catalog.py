@@ -10,6 +10,10 @@ import struct
 import posixpath
 from urllib.parse import unquote, urlsplit
 from collections import Counter, defaultdict
+try:
+    from .runtime_catalog_evidence import dynamic_evidence, geometry_evidence
+except ImportError:
+    from runtime_catalog_evidence import dynamic_evidence, geometry_evidence
 
 EXT={
  ".glb":"model",".gltf":"model",".obj":"model",".fbx":"model",".dae":"model",
@@ -97,9 +101,13 @@ def runtime_resource_paths(sample):
     for node in sample["nodes"]:
         mesh = node.get("mesh") or {}
         audio = node.get("audio") or {}
-        values = [mesh.get("path"), audio.get("path")]
+        values = [mesh.get("path"), audio.get("path"),node.get("scene"),mesh.get("skin_path"),(node.get("collision") or {}).get("path")]
+        material = node.get("canvas_material") or {}
+        values.extend((material.get("path"),material.get("shader")))
         for surf in mesh.get("surfaces", []):
-            for key, value in (surf.get("effective_material") or {}).items():
+            mat=surf.get("effective_material") or {}
+            values.extend((mat.get("path"),mat.get("shader")))
+            for key, value in mat.items():
                 if key.endswith("_texture") and isinstance(value, dict):
                     values.append(value.get("path"))
         for value in values:
@@ -285,13 +293,14 @@ def build(root,paths=None,runtime=None,revision=None):
         assets.append(a);byid[id]=a
     runtime_summary=None
     runtime_samples={}
+    dynamic_resolution=[]; geometry_index={}; runtime_compositions={}
     if runtime is not None:
         require(runtime.get("kind")=="frontline_runtime_inventory" and runtime.get("schema_version")==1 and not runtime.get("failures"),"invalid runtime evidence")
         require(runtime.get("commit")==revision,"stale runtime capture")
         # A working tree different from HEAD cannot inherit CI capture.
         regenerated_import_metadata=[]
         observed_paths = {p for sample in runtime["samples"] for p in runtime_resource_paths(sample) if p in resources and resources[p]["status"] != "missing"}
-        for p in sorted(set(known)|set(baseline["source_registry"])|observed_paths):
+        for p in sorted(set(known)|set(baseline["source_registry"])|observed_paths|set(sources)):
             fp=resources.get(p) if p in resources else source_records.get(p)
             try:
                 expected=git(root,"rev-parse",revision+":"+p).decode().strip()
@@ -323,6 +332,11 @@ def build(root,paths=None,runtime=None,revision=None):
             a=byid[q["family"]]
             a["validation"]["runtime"]="query_executed" if q["executed"] else "not_observed_current"
             a["query_evidence"]=q
+        dynamic_resolution=dynamic_evidence(dynamic,runtime,resources,{s["id"]:set(runtime_resource_paths(s)) for s in runtime["samples"]})
+        geometry_index,runtime_compositions=geometry_evidence(runtime)
+        for id,comp in runtime_compositions.items():
+            runtime_samples[id]["procedural_buffer_count"]=len({h for n in comp["nodes"] for h in n["buffer_sha256"]})
+            runtime_samples[id]["composition_available"]=True
         runtime_summary={"commit":revision,"sha256":sha(canonical(runtime)),"samples":len(sample_ids),
                          "limitations":runtime["limitations"],"regenerated_import_metadata":regenerated_import_metadata,"approved":False}
     for a in assets:
@@ -337,6 +351,8 @@ def build(root,paths=None,runtime=None,revision=None):
             "missing_literal_references":missing,"dynamic_references":dynamic,
             "known_dynamic_gaps":baseline["known_dynamic_gaps"],"runtime_candidates":runtime_candidates,
             "runtime":runtime_summary,"runtime_samples":runtime_samples,"runtime_resource_gaps":runtime_gaps,"approved":False,
+            "dynamic_resolution":dynamic_resolution,"geometry_index":geometry_index,"runtime_compositions":runtime_compositions,
+            "geometry_payload":"runtime_geometry.json" if geometry_index else None,
             "counts":{"assets":len(assets),"resources":len(resources),"categories":dict(Counter(a["category"] for a in assets)),
                       "resource_status":dict(Counter(r["status"] for r in resources.values())),
                       "runtime_sampled_assets":sum(a["validation"]["runtime"] in ("sampled","query_executed") for a in assets)}}

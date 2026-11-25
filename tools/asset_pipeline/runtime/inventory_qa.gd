@@ -7,6 +7,7 @@ var output_dir: String
 var query_records: Array[Dictionary] = []
 var physical_resources: Array[Dictionary] = []
 var library_materials: Dictionary = {}
+var geometry_buffers: Dictionary = {}
 
 func _initialize() -> void:
     call_deferred("_run")
@@ -55,6 +56,20 @@ func _material(m: Material) -> Variant:
         result["shader"] = shader_mat.shader.resource_path if shader_mat.shader != null else ""
     return result
 
+# Serialize actual Godot arrays, not approximated preview geometry. Cache by
+# payload hash (not instance id, since resources may be freed/reused).
+func _buffer(mesh: Mesh, index: int, arrays: Array, primitive: Variant) -> String:
+    # No Objects are encoded. var_to_bytes preserves packed arrays exactly.
+    var payload := var_to_bytes({"primitive":primitive,"arrays":arrays})
+    var ctx := HashingContext.new()
+    ctx.start(HashingContext.HASH_SHA256)
+    ctx.update(payload)
+    var digest := ctx.finish().hex_encode()
+    if not geometry_buffers.has(digest):
+        geometry_buffers[digest] = {"encoding":"godot_variant_v4_base64","bytes":payload.size(),
+            "data":Marshalls.raw_to_base64(payload),"primitive":primitive}
+    return digest
+
 func _mesh(node: MeshInstance3D) -> Dictionary:
     if node.mesh == null:
         return {"missing": true}
@@ -88,6 +103,7 @@ func _mesh(node: MeshInstance3D) -> Dictionary:
         surfaces.append({"index": i, "primitive": primitive, "vertices": vertices,
             "indices": indices, "normals": normals, "uvs": uvs, "tangents": tangents,
             "triangles": int((indices if indices > 0 else vertices) / 3.0) if primitive == Mesh.PRIMITIVE_TRIANGLES else null,
+            "buffer_sha256": _buffer(mesh,i,arrays,primitive) if mesh.resource_path.is_empty() else null,
             "effective_material": _material(node.get_active_material(i))})
     return {"class": mesh.get_class(), "path": mesh.resource_path,
         "bounds_local_m": {"origin": _vec(bounds.position), "size": _vec(bounds.size)},
@@ -338,6 +354,25 @@ func _query_and_effect_inventory(game: Variant, p: Variant) -> void:
     p.camera.rotation = Vector3.ZERO
     game.phase = "break"
 
+# Finite domains are explicit probes of existing formatted paths. Actual
+# reachability is established separately by sampled scene nodes.
+func _dynamic_probes() -> Array[Dictionary]:
+    var rows: Array[Dictionary] = []
+    for source in ["scripts/enemy.gd","scripts/loot_pickup.gd"]:
+        for id in IDS:
+            var path := "assets/models/%s.glb" % id
+            rows.append({"source":source,"pattern":"assets/models/%s.glb","arguments":[id],
+                "path":path,"exists":ResourceLoader.exists("res://"+path),"guarded":true})
+    for id in IDS:
+        var path := "assets/audio/reloads/%s.wav" % id
+        rows.append({"source":"scripts/enemy.gd","pattern":"assets/audio/reloads/%s.wav","arguments":[id],
+            "path":path,"exists":ResourceLoader.exists("res://"+path),"guarded":true})
+        for part in ["body","mag","action"]:
+            path = "assets/models/%s_%s.glb" % [id,part]
+            rows.append({"source":"scripts/player.gd","pattern":"assets/models/%s_%s.glb","arguments":[id,part],
+                "path":path,"exists":ResourceLoader.exists("res://"+path),"guarded":true})
+    return rows
+
 func _run() -> void:
     output_dir = OS.get_environment("FRONTLINE_INVENTORY_DIR")
     if output_dir.is_empty():
@@ -449,11 +484,12 @@ func _run() -> void:
         "commit": OS.get_environment("GITHUB_SHA"), "godot": Engine.get_version_info(),
         "display": DisplayServer.get_name(), "coordinate_unit": "m",
         "samples": samples, "failures": failures, "query_records": query_records,
+        "geometry_buffers":geometry_buffers,"dynamic_probes":_dynamic_probes(),
         "physical_resources": physical_resources, "library_materials": library_materials,
-        "limitations": ["finite sampled states, not exhaustive live instances", "no geometry buffers exported",
+        "limitations": ["finite sampled states, not exhaustive live instances", "procedural base surface buffers captured as Godot Variant; native LOD indices and blend shapes not serialized",
             "no explicit LOD index arrays", "query shapes are source-reviewed; results sampled through real methods",
             "library materials loaded separately from actual mesh assignments",
-            "screenshots are not visual approval", "no Asset Studio yet"]}
+            "screenshots are not visual approval", "runtime geometry is inspection data, not a web-renderable glTF"]}
     var file := FileAccess.open(output_dir.path_join("runtime_inventory.json"), FileAccess.WRITE)
     if file == null:
         _expect(false, "write inventory")

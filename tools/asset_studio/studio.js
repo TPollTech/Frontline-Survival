@@ -45,6 +45,8 @@ function sampleDetails(){
  'Colisões ativas: '+m.enabled_colliders+' · desativadas: '+m.disabled_colliders,
  'Classes: '+JSON.stringify(m.collision_classes),
  'LOD bias: '+JSON.stringify(m.lod_bias_counts)+' · índices LOD não medidos',
+ 'Buffers procedurais reais: '+(m.procedural_buffer_count??'não capturados'),
+ 'Composição: '+(m.composition_available?'hierarquia e referências de malha registradas (inspeção de dados)':'pendente'),
  'Famílias: '+m.families.join(', ')
  ].join('\n'):'Nenhuma amostra reconciliada nesta revisão.';
 }
