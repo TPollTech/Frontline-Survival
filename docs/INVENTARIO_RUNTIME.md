@@ -62,3 +62,8 @@ A revisão das novas imagens confirma mapa e mira reais, mãos e soldado legado 
 **Critério de encerramento:** esta tarefa enumera e rastreia o conteúdo existente, as fontes, dependências e famílias de geração. A baseline estática foi confrontada com a main sem divergências e a cobertura das famílias identificadas foi conferida na engine. É suficiente para iniciar a migração incremental, sem exigir a execução de todas as combinações infinitas de estados dinâmicos. Fontes originais de terceiros ou licenças ainda desconhecidas permanecem explicitamente desconhecidas; não foram certificadas. Dados de geometria completos, índices LOD, cobertura de todas as poses, verificação de atribuição polimérica, validação de IA e Studio ficam nas tarefas específicas posteriores. Preservar todos os registros e não promover approved no manifesto.
 
 O [CI Windows 45440510474](https://github.com/TPollTech/Frontline-Survival/actions/runs/45440510474) continua com conclusão failure (Arsenal QA - isolated individual tests of all eight weapons). Nenhum novo executável aprovado e nenhum asset ou gameplay alterado. A tarefa de inventário da baseline fica concluída; homologação visual e catálogo vivo continuam pendentes.
+
+
+## Catálogo procedimental e LOD
+
+45535740278 e 45535950057 aprovados: 86 composições, 167 buffers únicos finais, 48 caminhos dinâmicos sondados; os quatro assemblies reais de barricadas têm três níveis registrados, sem mudar produção. Artefatos baixados e hashes verificados. Ver [CATALOGO_VIVO.md](CATALOGO_VIVO.md). Captura finita, não aprovação artística ou exportação glTF das composições.
