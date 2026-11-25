@@ -8,7 +8,7 @@ const browser=await chromium.launch({headless:true,args:['--no-sandbox','--use-a
 try{
  const page=await browser.newPage({viewport:{width:1440,height:900}});
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
- await page.goto('http://127.0.0.1:8765');
+ await page.goto(process.env.STUDIO_URL||'http://127.0.0.1:8765');
  await page.locator('#state[data-kind=ready]').waitFor({timeout:30000});
  let total=0;
  for(const name of suite.pilots){
@@ -30,6 +30,11 @@ try{
    await page.screenshot({path:folder+'/studio-lod'+level+'.png'});
    rows.push({level,sha256:sha,triangles:info.triangles,dimensions_m:info.dimensions,visual_approval:false});
    total++;
+  }
+  if(process.env.REQUIRE_QA_CAPTURE==='1'){
+   await page.locator('#runtime-view').selectOption('godot-lod0');
+   await page.waitForFunction(()=>document.querySelector('#viewport').dataset.runtimeView==='godot-lod0');
+   assert(await page.locator('#viewport img.runtime-capture').isVisible());
   }
   await writeFile(folder+'/studio-report.json',JSON.stringify({revision:report.revision,rows,visual_approval:false}));
   console.log('SUITE_STUDIO_ASSET_PASS',name,rows.length);

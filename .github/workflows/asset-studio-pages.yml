@@ -11,7 +11,7 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-22.04
-    timeout-minutes: 15
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -60,6 +60,22 @@ jobs:
           python tools/asset_studio/prepare.py "$RUNNER_TEMP/pages/Frontline-Survival" --runtime "$inventory/runtime_inventory.json"
           touch "$RUNNER_TEMP/pages/Frontline-Survival/.nojekyll"
           python tools/asset_studio/attach_runtime_views.py "$RUNNER_TEMP/pages/Frontline-Survival" "$FRONTLINE_VIEWS_DIR"
+      - name: Generate and validate isolated QA model library
+        env:
+          XDG_DATA_HOME: ${{ runner.temp }}/pages-pilot-profile
+        run: |
+          set -o pipefail
+          suite="$RUNNER_TEMP/pages-suite"
+          bollard="$RUNNER_TEMP/pages-bollard"
+          python -m tools.asset_pipeline.parametric.pilot_suite "$suite" "$GITHUB_SHA"
+          python -m tools.asset_pipeline.parametric.pilot_object "$bollard" "$GITHUB_SHA"
+          FRONTLINE_PILOT_DIR="$suite" timeout 240s xvfb-run -a -s '-screen 0 1280x720x24' godot --path . --rendering-driver opengl3 --script res://tools/asset_pipeline/runtime/pilot_suite_qa.gd 2>&1 | tee "$suite/godot.log"
+          grep -q 'SUITE_GODOT_PASS 39' "$suite/godot.log"
+          if grep -E 'SCRIPT ERROR:|Parse Error|SUITE_GODOT_FAIL' "$suite/godot.log"; then exit 1; fi
+          FRONTLINE_PILOT_DIR="$bollard" timeout 120s xvfb-run -a -s '-screen 0 1280x720x24' godot --path . --rendering-driver opengl3 --script res://tools/asset_pipeline/runtime/pilot_object_qa.gd 2>&1 | tee "$bollard/godot.log"
+          grep -q PILOT_GODOT_PASS "$bollard/godot.log"
+          if grep -E 'SCRIPT ERROR:|Parse Error|PILOT_GODOT_FAIL' "$bollard/godot.log"; then exit 1; fi
+          python -m tools.asset_studio.publish_qa "$RUNNER_TEMP/pages/Frontline-Survival" "$suite" "$bollard"
       - name: Test project subpath before publication
         run: |
           python -m http.server 8765 --bind 127.0.0.1 --directory "$RUNNER_TEMP/pages" > "$RUNNER_TEMP/pages-server.log" 2>&1 &
@@ -67,6 +83,8 @@ jobs:
           trap 'kill "$server" || true' EXIT
           for n in $(seq 1 30); do curl -fsS http://127.0.0.1:8765/Frontline-Survival/live_catalog.json >/dev/null && break; sleep 1; done
           STUDIO_URL=http://127.0.0.1:8765/Frontline-Survival/ REQUIRE_RUNTIME_VIEWS=1 STUDIO_EVIDENCE="$RUNNER_TEMP/pages-evidence" node tools/asset_studio/browser_test.mjs
+          STUDIO_URL=http://127.0.0.1:8765/Frontline-Survival/qa/ FRONTLINE_PILOT_DIR="$RUNNER_TEMP/pages-suite" REQUIRE_QA_CAPTURE=1 node tools/asset_studio/pilot_suite_test.mjs
+          STUDIO_URL=http://127.0.0.1:8765/Frontline-Survival/qa/ FRONTLINE_PILOT_DIR="$RUNNER_TEMP/pages-bollard" node tools/asset_studio/pilot_test.mjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -107,6 +125,11 @@ jobs:
                   with urllib.request.urlopen(base+"live_catalog.json?revision="+os.environ["GITHUB_SHA"],timeout=15) as response:
                       catalog=json.load(response)
                   assert catalog["revision"]==os.environ["GITHUB_SHA"], "published revision mismatch"
+                  with urllib.request.urlopen(base+"qa/live_catalog.json?revision="+os.environ["GITHUB_SHA"],timeout=15) as response:
+                      qa=json.load(response)
+                  assert qa["revision"]==catalog["revision"] and qa["scope"]=="QA_ONLY" and len(qa["assets"])==14 and qa["runtime_views"]["count"]==42 and not qa["approved"]
+                  assert not any(x["id"].startswith("qa:") for x in catalog["assets"])
+                  print("PAGES_QA_DEPLOY_PASS",base+"qa/",len(qa["assets"]))
                   print("PAGES_DEPLOY_PASS",base,catalog["revision"])
                   break
               except Exception as exc:

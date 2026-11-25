@@ -8,7 +8,7 @@ const browser=await chromium.launch({headless:true,args:['--no-sandbox','--use-a
 try{
  const page=await browser.newPage({viewport:{width:1440,height:900}});
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
- await page.goto('http://127.0.0.1:8765');
+ await page.goto(process.env.STUDIO_URL||'http://127.0.0.1:8765');
  await page.locator('#state[data-kind=ready]').waitFor({timeout:30000});
  await page.locator('#assets button').filter({hasText:report.id}).click();
  const rows=[];
