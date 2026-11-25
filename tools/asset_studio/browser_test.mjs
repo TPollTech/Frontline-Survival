@@ -50,9 +50,10 @@ if(process.env.REQUIRE_RUNTIME_VIEWS==='1'){
  }
  console.log('STUDIO_RUNTIME_PAYLOAD_PASS',Object.keys(catalog.geometry_index).length,'buffers');
  if(catalog.surface_payload){
-   const scenarios=['map_briefing','fps_rifle___hip','enemy_soldier_rifle','enemy_quaternius_experimental','loot_ammo','turret'];
-   for(const id of scenarios){
-     const asset=catalog.assets.find(a=>a.runtime_samples?.includes(id));assert(asset,id);
+   const raw=await page.request.get(new URL(catalog.surface_payload,url.endsWith('/')?url:url+'/').href);assert.equal(raw.status(),200);const bytes=await raw.body();assert.equal(createHash('sha256').update(bytes).digest('hex'),catalog.surface_payload_sha256);const native=JSON.parse(bytes.toString('utf8'));assert.equal(native.coverage.length,86);assert(Object.keys(catalog.geometry_index).every(h=>native.buffers[h]));
+   const scenarios=[['map_briefing','map:campo_de_testes'],['fps_rifle___hip','viewmodel:assembly'],['enemy_soldier_rifle','enemy:legacy'],['enemy_quaternius_experimental','character:quaternius_equipment'],['loot_ammo','object:loot'],['turret','object:turret']];
+   for(const [id,family] of scenarios){
+     const asset=catalog.assets.find(a=>a.id===family&&a.runtime_samples?.includes(id));assert(asset,id);
      await page.locator('#assets button').filter({hasText:asset.id}).first().click();
      await page.locator('#runtime-sample').selectOption(id);
      await page.locator('#open-composition').click();
@@ -61,6 +62,7 @@ if(process.env.REQUIRE_RUNTIME_VIEWS==='1'){
      const stats=JSON.parse(await page.locator('#viewport').getAttribute('data-composition'));
      const expected=catalog.surface_coverage.find(s=>s.id===id);
      assert.equal(stats.surfaces,expected.surfaces);assert.equal(stats.triangles,expected.visible_triangles);assert(stats.maxMatrixError<1e-5);
+     assert.equal(await page.locator('#title').textContent(),'Composição · '+id);assert(await page.locator('#pose-x').isDisabled());
      await page.screenshot({path:dir+'/composition-'+id+'.png'});
      console.log('STUDIO_COMPOSITION_PASS',JSON.stringify(stats));
    }

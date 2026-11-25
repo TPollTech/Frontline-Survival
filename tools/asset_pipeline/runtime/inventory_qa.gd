@@ -63,6 +63,7 @@ func _material(m: Material) -> Variant:
             "cull_mode": mat.cull_mode, "shading_mode": mat.shading_mode,
             "vertex_color_as_albedo": mat.vertex_color_use_as_albedo,
             "triplanar": mat.uv1_triplanar, "uv_scale": _vec(mat.uv1_scale),
+            "triplanar_world":mat.uv1_world_triplanar,"triplanar_sharpness":mat.uv1_triplanar_sharpness,
             "albedo_texture": _texture(mat.albedo_texture),
             "normal_texture": _texture(mat.normal_texture),
             "normal_enabled": mat.normal_enabled, "normal_scale": mat.normal_scale,
@@ -110,6 +111,7 @@ func _buffer(mesh: Mesh, index: int, arrays: Array, primitive: Variant) -> Strin
     if not geometry_buffers.has(digest):
         geometry_buffers[digest] = {"encoding":"godot_variant_v4_base64","bytes":payload.size(),
             "data":Marshalls.raw_to_base64(payload),"primitive":primitive}
+    _studio_buffer(arrays,primitive,digest)
     return digest
 
 func _mesh(node: MeshInstance3D) -> Dictionary:

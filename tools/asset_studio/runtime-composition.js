@@ -4,6 +4,22 @@ const hex=async b=>Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256
 const decode=s=>Uint8Array.from(atob(s),x=>x.charCodeAt(0));
 async function checked(row){const b=decode(row.data);require(b.byteLength===row.bytes&&await hex(b)===row.sha256,'Buffer divergente');return b;}
 async function payload(name,hash,revision){require(name&&hash,'Payload ausente');const r=await fetch('./'+name,{cache:'no-store'});require(r.ok,'HTTP '+r.status);const b=await r.arrayBuffer();require(await hex(b)===hash,'Payload divergente');const data=JSON.parse(new TextDecoder().decode(b));require(data.revision===revision,'Revisão divergente');return data;}
+// Project the captured albedo texture on the same three local/world axes.
+// This is an approximation of Godot's blend, not its complete material shader.
+function triplanarAlbedo(material,source){
+ const scale=new THREE.Vector3(...(source.uv_scale||[1,1,1]));
+ const offset=new THREE.Vector3(...(source.uv_offset||[0,0,0]));
+ const sharp=Math.max(.01,source.triplanar_sharpness??1);
+ const world=!!source.triplanar_world;
+ material.customProgramCacheKey=()=> 'frontline-runtime-triplanar-v1-'+world;
+ material.onBeforeCompile=shader=>{
+  shader.uniforms.fsTriScale={value:scale};shader.uniforms.fsTriOffset={value:offset};shader.uniforms.fsTriSharp={value:sharp};
+  shader.vertexShader=shader.vertexShader.replace('#include <common>','#include <common>\nvarying vec3 fsTriPos;\nvarying vec3 fsTriNormal;')
+   .replace('#include <begin_vertex>','#include <begin_vertex>\n'+(world?'fsTriPos=(modelMatrix*vec4(position,1.0)).xyz; fsTriNormal=mat3(modelMatrix)*normal;':'fsTriPos=position; fsTriNormal=normal;'));
+  shader.fragmentShader=shader.fragmentShader.replace('#include <common>','#include <common>\nvarying vec3 fsTriPos;\nvarying vec3 fsTriNormal;\nuniform vec3 fsTriScale;\nuniform vec3 fsTriOffset;\nuniform float fsTriSharp;')
+   .replace('#include <map_fragment>','\n#ifdef USE_MAP\nvec3 p=fsTriPos*fsTriScale+fsTriOffset;\nvec3 w=pow(max(abs(normalize(fsTriNormal)),vec3(0.00001)),vec3(fsTriSharp));\nw/=max(w.x+w.y+w.z,0.00001);\nvec4 fsAlbedo=texture2D(map,p.zy)*w.x+texture2D(map,p.xz)*w.y+texture2D(map,p.xy)*w.z;\ndiffuseColor*=fsAlbedo;\n#endif\n');
+ };
+}
 export function createRuntimeComposition(catalog){
  let pending=null;
  const get=()=>pending??=(Promise.all([payload(catalog.composition_payload,catalog.composition_payload_sha256,catalog.revision),payload(catalog.surface_payload,catalog.surface_payload_sha256,catalog.revision)]).catch(e=>{pending=null;throw e;}));
@@ -23,19 +39,20 @@ export function createRuntimeComposition(catalog){
    tex.colorSpace=slot==='map'?THREE.SRGBColorSpace:THREE.NoColorSpace;
    tex.flipY=false;tex.wrapS=tex.wrapT=THREE.RepeatWrapping;
    const scale=mat.uv_scale||[1,1],offset=mat.uv_offset||[0,0];tex.repeat.set(scale[0],scale[1]);tex.offset.set(offset[0],offset[1]);tex.needsUpdate=true;
-   textures.set(key,tex);return tex;
+   tex.name=t.path||id;textures.set(key,tex);return tex;
   }
   async function material(m,hasColor){
    const key=JSON.stringify([m,hasColor]);if(materials.has(key))return materials.get(key);
    if(m&&m.class!=='StandardMaterial3D')warnings.add('Material não reproduzido integralmente: '+m.class);
-   if(m?.triplanar)warnings.add('UV triplanar do Godot não reproduzido');
+   if(m?.triplanar)warnings.add('Albedo triplanar aproximado; shader/normal triplanar do Godot não reproduzido integralmente');
    const a=m?.albedo||[.7,.7,.7,1],color=new THREE.Color().setRGB(...a.slice(0,3),THREE.SRGBColorSpace);
    const opts={color,opacity:a[3],transparent:!!m?.transparency&&m.transparency!==2,side:m?.cull_mode===2?THREE.DoubleSide:m?.cull_mode===1?THREE.BackSide:THREE.FrontSide,vertexColors:!!m?.vertex_color_as_albedo&&hasColor};
    if(m?.transparency===2)opts.alphaTest=m.alpha_scissor_threshold??.5;
    const mat=m?.shading_mode===0?new THREE.MeshBasicMaterial(opts):new THREE.MeshStandardMaterial({...opts,metalness:m?.metallic??0,roughness:m?.roughness??.8});
    mat.map=await texture(m?.albedo_texture,'map',m||{});
+   if(m?.triplanar&&mat.map)triplanarAlbedo(mat,m);
    if(mat.isMeshStandardMaterial){
-    mat.normalMap=m?.normal_enabled?await texture(m.normal_texture,'normalMap',m):null;
+    mat.normalMap=m?.normal_enabled&&!m?.triplanar?await texture(m.normal_texture,'normalMap',m):null;
     mat.normalScale.set(m?.normal_scale??1,m?.normal_scale??1);
     if(m?.emission_enabled){mat.emissive.setRGB(...m.emission.slice(0,3),THREE.SRGBColorSpace);mat.emissiveIntensity=m.emission_energy??1;}
     if(m?.metallic_texture||m?.roughness_texture)warnings.add('Canais metálico/rugosidade: inspeção escalar, packing Godot pendente');

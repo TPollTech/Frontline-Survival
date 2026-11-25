@@ -36,7 +36,7 @@ function dispose(root){const geos=new Set(),mats=new Set(),textures=new Set();ro
 function clear(){inspection?.clear();navigation?.clear();$('view').disabled=true;$('zoom-in').disabled=true;$('zoom-out').disabled=true;lighting?.clear();$('grid-scale').textContent='—';if(lighting)viewport.dataset.lighting=JSON.stringify(lighting.diagnostics());if(model){scene.remove(model);dispose(model);model=null;}viewport.querySelectorAll('img,audio').forEach(x=>x.remove());$('reset').disabled=true;delete viewport.dataset.resource;delete viewport.dataset.sha256;delete viewport.dataset.runtimeView;delete viewport.dataset.composition;}
 function fit(){if(model)navigation.reset();}
 function resources(a){return [...new Set([a.preview?.resource,...(a.outputs||[]).map(x=>x.path)].filter(p=>p&&catalog.resources[p]?.status!=='missing'&&catalog.resources[p]))];}
-function renderList(){const q=$('search').value.trim().toLowerCase(),cat=$('category').value;const list=catalog.assets.filter(a=>(!cat||a.category===cat)&&(!q||[a.id,a.category,a.source?.path,...resources(a)].join(' ').toLowerCase().includes(q)));$('count').textContent=list.length+' de '+catalog.assets.length+' registros';$('assets').replaceChildren(...list.map(a=>{const b=document.createElement('button');b.type='button';b.dataset.asset=a.id;b.setAttribute('aria-current',String(a===selected));b.textContent=a.id;const sm=document.createElement('small');sm.textContent=a.category+' · '+(a.runtime_views?.length?'captura Godot disponível':resources(a).length?'arquivo real':'captura pendente');b.append(sm);b.addEventListener('click',()=>select(a));return b;}));}
+function renderList(){const q=$('search').value.trim().toLowerCase(),cat=$('category').value;const list=catalog.assets.filter(a=>(!cat||a.category===cat)&&(!q||[a.id,a.category,a.source?.path,...resources(a)].join(' ').toLowerCase().includes(q)));$('count').textContent=list.length+' de '+catalog.assets.length+' registros';$('assets').replaceChildren(...list.map(a=>{const b=document.createElement('button');b.type='button';b.dataset.asset=a.id;b.setAttribute('aria-current',String(a===selected));b.textContent=a.id;const sm=document.createElement('small');sm.textContent=a.category+' · '+(a.runtime_views?.length?'captura Godot disponível':resources(a).length?'arquivo real':a.runtime_samples?.length&&catalog.surface_payload?'composição 3D disponível':'captura pendente');b.append(sm);b.addEventListener('click',()=>select(a));return b;}));}
 function sampleDetails(){
  const id=$('runtime-sample').value,m=catalog.runtime_samples?.[id];
  $('runtime-sample-info').textContent=m?[
@@ -59,14 +59,15 @@ function selectSamples(a){
 }
 $('runtime-sample').addEventListener('change',sampleDetails);
 $('open-composition').addEventListener('click',async()=>{
- const id=$('runtime-sample').value,token=++request;clear();details(selected,undefined);$('runtime-view').value='';
+ const id=$('runtime-sample').value,token=++request;clear();details(selected,undefined);$('runtime-view').value='';$('title').textContent='Composição · '+id;
  state('Reconstruindo superfícies reais…','loading');
  $('fidelity').textContent='Composição estática · buffers reais Godot · iluminação Studio';
  try{
   compositionBuilder??=createRuntimeComposition(catalog);
   const data=await compositionBuilder(id);if(token!==request){dispose(data.scene);return;}
-  const box=new THREE.Box3().setFromObject(data.scene,true);if(box.isEmpty()){dispose(data.scene);throw Error('Composição sem geometria');}
+  const box=new THREE.Box3();data.scene.updateMatrixWorld(true);data.scene.traverseVisible(n=>{if(n.isMesh&&n.geometry.boundingBox)box.union(n.geometry.boundingBox.clone().applyMatrix4(n.matrixWorld));});if(box.isEmpty()){dispose(data.scene);throw Error('Composição sem geometria visível');}
   model=data.scene;scene.add(model);const step=lighting.place(model,box);inspection.attach(data,selected);navigation.setBounds(box);
+  for(const k of ['pose-x','pose-y','pose-z','pose-reset'])$(k).disabled=true;row('Pose','Captura estática; articulação desabilitada nesta composição');
   $('grid-scale').textContent=Number(step.toPrecision(4))+' m / célula';for(const k of ['view','reset','zoom-in','zoom-out'])$(k).disabled=false;
   viewport.dataset.composition=JSON.stringify(data.stats);row('Amostra',id);row('Superfícies visíveis',data.stats.visibleSurfaces);row('Triângulos visíveis',data.stats.triangles);row('Limitações',data.stats.warnings.join(' · '));
   state('Composição reconstruída dos buffers Godot','ready');
@@ -78,7 +79,7 @@ function select(a){selected=a;selectSamples(a);$('title').textContent=a.id;rende
  load(paths.includes(a.preview?.resource)?a.preview.resource:paths[0]);}
 async function verified(p){const res=await fetch(safePath(p),{cache:'no-store'});if(!res.ok)throw Error('HTTP '+res.status);const bytes=await res.arrayBuffer();const expected=catalog.resources[p].sha256;const actual=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',bytes)),b=>b.toString(16).padStart(2,'0')).join('');if(!expected||actual!==expected)throw Error('Hash divergente');return bytes;}
 async function load(p){
- $('runtime-view').value='';
+ $('title').textContent=selected.id;$('runtime-view').value='';
  const token=++request;clear();details(selected,p);$('fidelity').textContent=p?'Arquivo original · sem substituição geométrica':'Composição real ainda não exportada';
  if(!p){state('Sem prévia 3D: dados de runtime necessários.','unavailable');return;}
  $('variant').value=p;state('Verificando arquivo…','loading');
@@ -125,7 +126,7 @@ async function load(p){
 async function loadRuntime(id){
  if(!id){load($('variant').value||undefined);return;}
  const view=selected?.runtime_views?.find(v=>v.id===id);if(!view)return;
- const token=++request;clear();$('runtime-view').value=id;details(selected,undefined);
+ const token=++request;clear();$('title').textContent=selected.id;$('runtime-view').value=id;details(selected,undefined);
  $('fidelity').textContent='Captura real do Godot · imagem estática, não modelo 3D';
  state('Verificando captura…','loading');
  try{

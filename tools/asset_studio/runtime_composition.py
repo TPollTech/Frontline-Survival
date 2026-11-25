@@ -13,6 +13,7 @@ def raw(row):
 def stage(runtime,catalog,out):
     buffers=runtime["studio_buffers"]; textures=runtime["studio_textures"]
     require(buffers,"missing portable surface buffers")
+    require(set(runtime["geometry_buffers"])<=set(buffers),"registered procedural or LOD buffer not portable")
     measured={}
     for digest,b in buffers.items():
         a=b["attributes"]; positions=raw(a["position"])
@@ -32,6 +33,10 @@ def stage(runtime,catalog,out):
     for digest,t in textures.items():
         b=base64.b64decode(t["data"],validate=True)
         require(len(b)==t["bytes"] and sha(b)==digest and b[:8]==b"\x89PNG\r\n\x1a\n","texture integrity")
+    for assembly in runtime.get("registered_world_lods",[]):
+        for level in assembly["levels"]:
+            tris=sum((measured[h][1] or measured[h][0])//3 for h in level["buffer_sha256"])
+            require(tris*len(assembly["parts"])==level["assembly_triangles"],"registered LOD triangle mismatch")
     coverage=[]
     for sample in runtime["samples"]:
         total=visible=triangles=0;unsupported=0;skinned=0
