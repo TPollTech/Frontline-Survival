@@ -48,7 +48,8 @@ def glove_library(lib,size=512):
             u=(i+.5)/size
             face=(u-.04)/.44 if u<.5 else (u-.52)/.44
             x=LOW[0]+face*(HIGH[0]-LOW[0]);y=(v-.04)/.82*HIGH[1]
-            grip=u>=.5 and ((x/.041)**2+((y-.078)/.039)**2<1)
+            grip=u>=.5 and ((abs(x)/.039)**4+(abs(y-.076)/.032)**4<1)
+            grip_rib=grip and int(y*640)%5==0
             knuckle=u<.5 and y>.094 and y<.125 and -.043<x<.043
             cuff=y<.028 and v<.86
             seam=abs(y-.031)<.0012 or abs(y-.102)<.0008
@@ -56,12 +57,13 @@ def glove_library(lib,size=512):
             weave=math.sin(i*math.pi/2)*math.sin(j*math.pi/2)
             grain=((i*37+j*17+i*j*13)%19-9)/9
             color=(57,61,48) if grip or knuckle else (80,86,62) if not cuff else (59,64,47)
-            if thread:color=(135,137,106)
+            if grip_rib:color=(65,69,54)
+            if thread:color=(105,111,86)
             base.extend(max(0,min(255,round(c+2.5*weave+2*grain))) for c in color)
-            orm.extend((228 if seam else 250,210 if grip or knuckle else 232,0))
-            nx=.085*math.cos(i*math.pi/2);ny=.085*math.cos(j*math.pi/2)
+            orm.extend((238 if seam else 250,195 if grip else 218 if knuckle else 232,0))
+            nx=.085*math.cos(i*math.pi/2);ny=.085*math.cos(j*math.pi/2)+(.12*math.sin(y*640*2*math.pi/5) if grip else 0.)
             normal.extend(round((q*.5+.5)*255) for q in (nx,ny,math.sqrt(1-nx*nx-ny*ny)))
-    tex=[TextureData(MATERIAL+"_"+role,role,size,size,bytes(data),"procedural:continuous_glove_atlas_v1","original project asset") for role,data in (("base_color",base),("orm",orm),("normal",normal))]
+    tex=[TextureData(MATERIAL+"_"+role,role,size,size,bytes(data),"procedural:continuous_glove_atlas_v2","original project asset") for role,data in (("base_color",base),("orm",orm),("normal",normal))]
     mat=replace(original,id=MATERIAL,base_color_texture=tex[0].id,orm_texture=tex[1].id,normal_texture=tex[2].id,normal_scale=.45)
     return MaterialLibrary([*lib.materials,mat],[*lib.textures,*tex])
 
@@ -97,12 +99,12 @@ def build_glove(level,lib):
         id="finger_"+str(f);length=LENGTHS[f]
         previous=root[start:end+1];center=(xs[start]+xs[end])/2
         joints[id]=[(center,.112+length*t,0.) for t in (0,.44,.76)]
-        for t,width in zip(FINGER_T[1:],(.99,.98,.93,.86,.80,.65,.34)):
+        for t,width in zip(FINGER_T[1:],(.99,.98,.93,.86,.80,.72,.48)):
             row=[]
             for k in range(n+1):
                 u=k/n;cross=2*u-1
                 x=center+(xs[end]-xs[start])*cross*width/2
-                y=.112+length*t-(.003*cross*cross if t==1 else 0)
+                y=.112+length*t-(.0018*cross*cross if t==1 else 0)
                 thick=.0105*width*(.65+.35*math.sqrt(max(0,1-cross*cross)))
                 row.append(add(x,y,thick,digit_weights(id,t,(0,.44,.76))))
             connect(previous,row);previous=row
@@ -195,5 +197,8 @@ def build_glove(level,lib):
         if not moved or min(ratios)<.025 or max(ratios)>8:raise ValueError(("unstable deformation",id,min(ratios),max(ratios)))
         checks.append({"bone":id,"degrees":deg,"moved_vertices":moved,"min_area_ratio":min(ratios),"max_area_ratio":max(ratios),"contacts":audit(deformed,tris)})
     contract={"unit":"m","up":"+Y","dimensions_m":[b-a for a,b in zip(LOW,HIGH)],"pivots_local_m":{"anchor":[0,0,0],mesh.id:[0,0,0],**{"bone:"+b.id:list(b.rest_local.matrix[12:15]) for b in sk.bones}},"forward":{"node":"anchor","local_axis":[0,0,-1],"world_axis":[0,0,-1]},"tolerance_m":.001}
-    meta={"bone_count":len(bones),"parents":{b.id:b.parent_id for b in sk.bones},"pose_bone":"finger_1_j1","pose_child":"finger_1_j2","pose_degrees":25,"skin_meshes":1,"mixed_vertices":sum(len(w)>1 for w in skin.weights),"components":1,"euler_characteristic":2,"source_vertices":len(vertices),"quad_patches":len(quads),"rest_contacts":audit(vertices,tris),"deformation_checks":checks}
+    rest_contacts=audit(vertices,tris)
+    if rest_contacts["contact_pairs"] or any(c["contacts"]["contact_pairs"] for c in checks):
+        raise ValueError(("glove nonadjacent contact gate",level,rest_contacts,checks))
+    meta={"bone_count":len(bones),"parents":{b.id:b.parent_id for b in sk.bones},"pose_bone":"finger_1_j1","pose_child":"finger_1_j2","pose_degrees":25,"skin_meshes":1,"mixed_vertices":sum(len(w)>1 for w in skin.weights),"components":1,"euler_characteristic":2,"source_vertices":len(vertices),"quad_patches":len(quads),"rest_contacts":rest_contacts,"deformation_checks":checks}
     return scene,render,rig,meta,contract

@@ -24,6 +24,8 @@ class ContinuousCharacterTests(unittest.TestCase):
             self.assertEqual(meta["bone_count"],15)
             self.assertGreater(meta["mixed_vertices"],0)
             self.assertEqual(len(meta["deformation_checks"]),4)
+            self.assertEqual(meta["rest_contacts"]["contact_pairs"],0)
+            self.assertTrue(all(c["contacts"]["contact_pairs"]==0 for c in meta["deformation_checks"]))
             self.assertEqual(len(rig.skins[0].weights),len(mesh.vertices))
             self.assertLessEqual(len(mesh.triangles),BUDGETS["character"].triangles[level])
             for a,b in zip(mesh.bounds(),(LOW,HIGH)):

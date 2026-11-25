@@ -24,21 +24,31 @@ def character_library(lib,size=512):
         v=1-(j+.5)/size;y=(v-.04)/.82*1.8
         for i in range(size):
             u=(i+.5)/size;x=LOW[0]+((u-.04)/.44 if u<.5 else (u-.52)/.44)*(HIGH[0]-LOW[0])
+            front=u>=.5
             color=(83,88,67)
             if y<.88:color=(108,100,78)
             if y<.14 or (.83<y<.99 and abs(x)>.29):color=(45,49,43)
             if 1.57<y:color=(60,66,57)
             if .875<y<.94 and abs(x)<.22:color=(49,53,44)
-            if 1.12<y<1.34 and .045<abs(x)<.17:color=(67,75,56)
-            if abs(y-1.34)<.005 and abs(x)<.18:color=(111,116,91)
+            pocket=front and 1.12<y<1.34 and .045<abs(x)<.17
+            if pocket:color=(67,75,56)
+            if front and abs(y-1.34)<.005 and .045<abs(x)<.17:color=(98,104,81)
+            if front and abs(x)<.009 and .96<y<1.54:color=(47,52,42)
+            if front and abs(x)<.007 and .96<y<1.54 and int(y*160)%3==0:color=(103,108,89)
+            if not front and 1.24<y<1.44 and abs(x)<.15:color=(74,80,61)
+            # Fabric face covering and opaque eye-protection panel, not a detailed face.
+            visor=front and 1.662<y<1.724 and abs(x)<.083
+            if visor:color=(35,42,42)
+            if visor and abs(y-1.716)<.004:color=(66,78,76)
+            if .055<y<.065:color=(34,37,32)
             if abs(abs(x)-.11)<.004 and .23<y<.7:color=(87,80,64)
             weave=math.sin(i*math.pi/2)*math.sin(j*math.pi/2)
             grain=((i*31+j*19+i*j*11)%23-11)/11
             base.extend(max(0,min(255,round(c+2*weave+2*grain))) for c in color)
-            orm.extend((247,231 if y>.14 else 213,0))
+            orm.extend((247,132 if visor else 218 if pocket else 231 if y>.14 else 213,0))
             a=.065*math.cos(i*math.pi/2);b=.065*math.cos(j*math.pi/2)
             normal.extend(round((q*.5+.5)*255) for q in (a,b,math.sqrt(1-a*a-b*b)))
-    tex=[TextureData(MATERIAL+"_"+role,role,size,size,bytes(data),"procedural:continuous_character_atlas_v1","original project asset") for role,data in (("base_color",base),("orm",orm),("normal",normal))]
+    tex=[TextureData(MATERIAL+"_"+role,role,size,size,bytes(data),"procedural:continuous_character_atlas_v2","original project asset") for role,data in (("base_color",base),("orm",orm),("normal",normal))]
     mat=replace(original,id=MATERIAL,base_color_texture=tex[0].id,orm_texture=tex[1].id,normal_texture=tex[2].id,normal_scale=.4)
     return MaterialLibrary([*lib.materials,mat],[*lib.textures,*tex])
 
@@ -92,7 +102,7 @@ def build_character(level,lib):
         root=[pts[i] for i in previous];cx=sum(p[0] for p in root)/len(root);cy=sum(p[1] for p in root)/len(root)
         count=len(previous)-1
         for t,dx,dy,w,d in ((.12,.075,-.02,.075,.077),(.25,.115,-.105,.070,.071),(.43,.157,-.218,.057,.062),(.55,.185,-.29,.053,.056),(.72,.221,-.39,.052,.058),(.85,.245,-.475,.038,.043),(.94,.263,-.525,.043,.035),(1,.272,-.575,.026,.024)):
-            if t<.25:skin=blend("spine",upper,smooth(t/.25))
+            if t<.25:skin=blend("spine",upper,.5*smooth(t/.25)) # retain shoulder support; audited at all LODs
             elif t<.66:skin=blend(upper,lower,smooth((t-.38)/.24))
             elif t<.92:skin=blend(lower,hand,smooth((t-.72)/.20))
             else:skin=((hand,1.),)
@@ -164,6 +174,8 @@ def build_character(level,lib):
         if not moved:raise ValueError("pose has no effect")
         checks.append({"bone":id,"degrees":deg,"moved_vertices":moved,"contacts":audit(deformed,tris)})
     contacts=audit(vs,tris)
+    if contacts["contact_pairs"] or any(c["contacts"]["contact_pairs"] for c in checks):
+        raise ValueError(("character nonadjacent contact gate",level,contacts,checks))
     contract={"unit":"m","up":"+Y","dimensions_m":[b-a for a,b in zip(LOW,HIGH)],"pivots_local_m":{"anchor":[0,0,0],mesh.id:[0,0,0],**{"bone:"+b.id:list(b.rest_local.matrix[12:15]) for b in sk.bones}},"forward":{"node":"anchor","local_axis":[0,0,-1],"world_axis":[0,0,-1]},"tolerance_m":.001}
     meta={"bone_count":len(bones),"parents":{b.id:b.parent_id for b in sk.bones},"pose_bone":"arm_0_upper","pose_child":"arm_0_lower","pose_degrees":25,"skin_meshes":1,"mixed_vertices":sum(len(w)>1 for w in skin.weights),"components":1,"euler_characteristic":2,"source_vertices":len(vs),"quad_patches":len(quads),"rest_contacts":contacts,"deformation_checks":checks}
     return scene,render,rig,meta,contract
