@@ -28,3 +28,8 @@ O modo padrão registra avisos de legado e retorna erro para falhas impeditivas.
 CI anterior [45504785180](https://github.com/TPollTech/Frontline-Survival/actions/runs/45504785180): 86 amostras runtime, 32 GLBs e cinco capturas, inspeção e ZIP offline aprovados. [45504785421](https://github.com/TPollTech/Frontline-Survival/actions/runs/45504785421) corrigiu a falha histórica do arsenal, oito armas aprovadas (249 verificações individuais; uma verificação adicional da cobertura do registro). A revisão 0305d713 mudou modelos depois desse CI. Novo Windows [45511716282](https://github.com/TPollTech/Frontline-Survival/actions/runs/45511716282) e Studio [45511716406](https://github.com/TPollTech/Frontline-Survival/actions/runs/45511716406) ainda em validação ao registrar. Não se declara nova release ou homologação artística.
 
 00-23 e 00-26: fundações técnicas concluídas no escopo suportado. 00-24 e 00-25: parciais até contratos físicos/semânticos de produção, orçamentos agregados e benchmark. As tarefas de migração, cobertura de composições e homologação não são promovidas.
+
+
+## Primeiro piloto canônico
+
+[Windows 45511716282](https://github.com/TPollTech/Frontline-Survival/actions/runs/45511716282) e [Studio 45511716406](https://github.com/TPollTech/Frontline-Survival/actions/runs/45511716406) concluídos com sucesso. O primeiro piloto autoral, com contrato físico e orçamento agregado por instância/LOD, foi acrescentado; consulte [PILOTOS_ASSETS.md](PILOTOS_ASSETS.md). A validação estrita das seis exportações e a reprodução byte a byte passaram no CI 45514843046; execução Godot/Studio pendente ao registrar.
