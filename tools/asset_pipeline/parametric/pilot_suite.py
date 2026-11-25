@@ -32,15 +32,15 @@ PILOTS={
  "opaque fictional optical accessory housing; no optical function"),
  "glove":("first_person",[
  P("cuff","loft",(0,.025,0),(.085,.05,.055),"fabric"),
- P("palm","loft",(0,.078,0),(.092,.085,.040),"fabric"),
- *[P("finger_"+str(i),"loft",(x,.12+h/2,0),(.018,h,.021),"rubber") for i,(x,h) in enumerate([(-.032,.058),(-.011,.076),(.011,.071),(.032,.052)])],
+ P("palm","loft",(0,.078,0),(.096,.092,.040),"fabric"),
+ *[P("finger_"+str(i),"loft",(x,.105+h/2,0),(.018,h,.021),"rubber") for i,(x,h) in enumerate([(-.032,.058),(-.011,.076),(.011,.071),(.032,.052)])],
  P("thumb","loft",(-.052,.095,.008),(.024,.055,.028),"rubber")],
  "gloved hand study with five separate poseable nodes; not anatomical skinning"),
  "mannequin":("character",[
- P("torso","loft",(0,1.20,0),(.48,.52,.25),"fabric"),
- P("head","loft",(0,1.66,0),(.22,.28,.22),"rubber"),
+ P("torso","loft",(0,1.185,0),(.48,.69,.25),"fabric"),
+ P("head","loft",(0,1.63,0),(.22,.28,.22),"rubber"),
  *[P("leg_"+str(i),"loft",(x,.45,0),(.16,.83,.16),"fabric") for i,x in enumerate([-.11,.11])],
- *[P("arm_"+str(i),"loft",(x,1.15,0),(.13,.52,.14),"fabric") for i,x in enumerate([-.30,.30])],
+ *[P("arm_"+str(i),"loft",(x,1.15,0),(.13,.52,.14),"fabric") for i,x in enumerate([-.265,.265])],
  *[P("boot_"+str(i),"chamfer",(x,.065,-.045),(.17,.13,.30),"rubber") for i,x in enumerate([-.11,.11])]],
  "static clothed mannequin with independent limb pivots; no skeleton or animation homologation"),
  "shelter":("structure",[
@@ -62,8 +62,8 @@ PILOTS={
  "planter with simplified organic foliage masses, not botanical simulation"),
  "terrain_tile":("terrain",[
  P("ground","chamfer",(0,.10,0),(4,.2,4),"concrete"),
- P("ridge_a","loft",(-.9,.28,.5),(1.8,.36,1.3),"concrete"),
- P("ridge_b","loft",(1.0,.22,-.8),(1.4,.24,1.5),"concrete")],
+ P("ridge_a","loft",(-.9,.24,.5),(2.2,.28,1.7),"concrete"),
+ P("ridge_b","loft",(1.0,.18,-.8),(1.6,.20,1.8),"concrete")],
  "terrain chunk study with authored raised surfaces; no navigation bake"),
  "yard_composition":("map",[
  P("ground","chamfer",(0,.10,0),(6,.2,5),"concrete"),

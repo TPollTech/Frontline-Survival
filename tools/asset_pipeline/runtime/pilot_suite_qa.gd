@@ -36,7 +36,11 @@ func _run() -> void:
     player.viewmodel_projection.hide()
     var camera: Camera3D=player.camera
     camera.make_current()
-    var forward: Vector3=-camera.global_transform.basis.z
+    var initial_camera: Transform3D=camera.global_transform
+    var forward: Vector3=-initial_camera.basis.z
+    var horizontal:=Vector3(forward.x,0,forward.z).normalized()
+    await physics_frame
+    await physics_frame
     var anchor:=Node3D.new()
     game.add_child(anchor)
     var total:=0
@@ -48,8 +52,24 @@ func _run() -> void:
             return
         var dimensions:=vec(report.contract.dimensions_m)
         var expected_center: Vector3=(vec(report.bounds_min_m)+vec(report.bounds_max_m))*0.5
-        # Native camera, visual QA placement; deliberately not gameplay placement.
-        anchor.global_position=camera.global_position+forward*maxf(0.8,dimensions.length()*1.9)-expected_center
+        # Isolated QA framing; ground-supported categories use actual map physics.
+        camera.global_transform=initial_camera
+        anchor.global_transform=Transform3D.IDENTITY
+        var grounded: bool=report.category in ["character","structure","object","environment","terrain","map","vehicle","collision","geometry_library"]
+        var candidate: Vector3=camera.global_position+horizontal*maxf(1.6,dimensions.length()*1.55)
+        if grounded:
+            var query:=PhysicsRayQueryParameters3D.create(candidate+Vector3.UP*4.0,candidate-Vector3.UP*12.0,1,[player.get_rid()])
+            var hit: Dictionary=anchor.get_world_3d().direct_space_state.intersect_ray(query)
+            if hit.is_empty():
+                fail("ground query "+str(name))
+                return
+            anchor.global_position=hit.position-Vector3.UP*float(report.bounds_min_m[1])
+        else:
+            anchor.global_position=camera.global_position+forward*maxf(.38,dimensions.length()*1.55)-expected_center
+        # Show the authored front with a modest turn, not the opaque rear wall.
+        anchor.look_at(Vector3(camera.global_position.x,anchor.global_position.y,camera.global_position.z),Vector3.UP)
+        anchor.rotate_y(.32)
+        camera.look_at(anchor.to_global(expected_center),Vector3.UP)
         var body: StaticBody3D = null
         var collider: CollisionShape3D = null
         var collider_id: int = 0
@@ -90,16 +110,18 @@ func _run() -> void:
                 return
             var count:=0
             var bounds:=all[0].global_transform*all[0].mesh.get_aabb()
+            var local_bounds:=anchor.global_transform.affine_inverse()*all[0].global_transform*all[0].mesh.get_aabb()
             for m in all:
                 bounds=bounds.merge(m.global_transform*m.mesh.get_aabb())
+                local_bounds=local_bounds.merge(anchor.global_transform.affine_inverse()*m.global_transform*m.mesh.get_aabb())
                 for i in range(m.mesh.get_surface_count()):
                     var a:=m.mesh.surface_get_arrays(i)
                     if a[Mesh.ARRAY_NORMAL]==null or a[Mesh.ARRAY_TEX_UV]==null or a[Mesh.ARRAY_TANGENT]==null or m.mesh.surface_get_material(i)==null:
                         fail("missing render attributes "+str(name))
                         return
                     count+=int(a[Mesh.ARRAY_INDEX].size()/3.0) if a[Mesh.ARRAY_INDEX]!=null and a[Mesh.ARRAY_INDEX].size()>0 else int(a[Mesh.ARRAY_VERTEX].size()/3.0)
-            if count!=int(expected.metrics.triangles) or (bounds.size-dimensions).abs().length()>.001:
-                fail("dimensions/triangles "+str(name)+" "+str(bounds.size)+" "+str(dimensions))
+            if count!=int(expected.metrics.triangles) or (local_bounds.size-dimensions).abs().length()>.001:
+                fail("dimensions/triangles "+str(name)+" "+str(local_bounds.size)+" "+str(dimensions))
                 return
             for i in range(8):
                 var corner:=bounds.get_endpoint(i)
@@ -118,7 +140,7 @@ func _run() -> void:
             if image.is_empty() or image.save_png(folder.path_join("godot-lod"+str(level)+".png"))!=OK:
                 fail("capture "+str(name))
                 return
-            rows.append({"level":level,"sha256":FileAccess.get_sha256(path),"triangles":count,"dimensions_m":[bounds.size.x,bounds.size.y,bounds.size.z],"camera":"native_player_qa_placement","visual_approval":false,"independent_collision_checked":collider!=null})
+            rows.append({"level":level,"sha256":FileAccess.get_sha256(path),"triangles":count,"dimensions_m":[local_bounds.size.x,local_bounds.size.y,local_bounds.size.z],"camera":"native_player_qa_placement","ground_contact_sampled":grounded,"visual_approval":false,"independent_collision_checked":collider!=null})
             visual.free()
             total+=1
         if body!=null:
