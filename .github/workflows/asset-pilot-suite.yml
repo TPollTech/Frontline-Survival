@@ -4,6 +4,7 @@ on:
     branches: [main]
     paths:
       - 'tools/asset_pipeline/parametric/pilot_suite.py'
+      - 'tools/asset_pipeline/parametric/pilot_finish.py'
       - 'tools/asset_pipeline/runtime/pilot_suite_qa.gd'
       - 'tools/asset_pipeline/stage_pilot.py'
       - 'tools/asset_studio/pilot_suite_test.mjs'
@@ -48,7 +49,7 @@ jobs:
           timeout 120s godot --headless --editor --import --path . 2>&1 | tee "$FRONTLINE_PILOT_DIR/import.log"
           if grep -E 'SCRIPT ERROR:|Parse Error' "$FRONTLINE_PILOT_DIR/import.log"; then exit 1; fi
           timeout 240s xvfb-run -a -s '-screen 0 1280x720x24' godot --path . --rendering-driver opengl3 --script res://tools/asset_pipeline/runtime/pilot_suite_qa.gd 2>&1 | tee "$FRONTLINE_PILOT_DIR/godot.log"
-          grep -q 'SUITE_GODOT_PASS 27' "$FRONTLINE_PILOT_DIR/godot.log"
+          grep -q 'SUITE_GODOT_PASS 39' "$FRONTLINE_PILOT_DIR/godot.log"
           if grep -E 'SCRIPT ERROR:|Parse Error|SUITE_GODOT_FAIL' "$FRONTLINE_PILOT_DIR/godot.log"; then exit 1; fi
       - name: Stage identical GLBs and render in isolated Studio
         run: |

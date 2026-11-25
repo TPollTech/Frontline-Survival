@@ -4,7 +4,7 @@ from pathlib import Path
 from .model import SceneSpec,NodeSpec,Transform
 from .recipes import PythonBackend,Revolution,Box
 from .shading import build_render_mesh
-from .pbr import generate_library
+from .pilot_finish import finished_library,bevel_block
 from .exporter import source_manifest,export_bundle,write_bundle
 from .lod import BUDGETS
 from tools.asset_pipeline.validate_gltf import Audit
@@ -16,20 +16,20 @@ PROFILE=((0,.045),(.07,.045),(.076,.055),(.076,.76),(.073,.80),(.058,.825),(0,.8
 BASE=(.22,.045,.22)
 LEVELS=(48,24,12)
 CONTRACT={"unit":"m","up":"+Y","dimensions_m":[.22,.835,.22],
-          "pivots_local_m":{"anchor":[0,0,0],"base":[0,.0225,0],"body":[0,0,0],"band":[0,0,0]},
+          "pivots_local_m":{"anchor":[0,0,0],"base":[0,0,0],"body":[0,0,0],"band":[0,0,0]},
           "forward":{"node":"anchor","local_axis":[0,0,-1],"world_axis":[0,0,-1]},"tolerance_m":.001}
 def build(level):
     backend=PythonBackend();n=LEVELS[level]
-    meshes=(backend.build(Box("base",BASE)),
+    meshes=(bevel_block("base",BASE,level),
             backend.build(Revolution("body",PROFILE,n)),
             backend.build(Revolution("band",((.076,.57),(.078,.575),(.078,.655),(.076,.66)),n)))
-    lib=generate_library(64,9133)
+    lib=finished_library(128,9133)
     names=sorted(m.id for m in lib.materials)
     # Reuse existing authored material presets; no custom renderer materials.
-    metal=next((m for m in names if "steel" in m or "metal" in m),names[0])
-    rubber="rubber" if "rubber" in names else names[-1]
+    metal="safety_amber"
+    rubber="graphite"
     mats=tuple(lib.material(m) for m in sorted({metal,rubber}))
-    nodes=(NodeSpec("anchor"),NodeSpec("base","base","anchor",metal,Transform.translation((0,.0225,0))),
+    nodes=(NodeSpec("anchor"),NodeSpec("base","base","anchor",metal,Transform.translation((0,0,0))),
            NodeSpec("body","body","anchor",metal),NodeSpec("band","band","anchor",rubber))
     scene=SceneSpec("pilot_bollard",meshes,mats,nodes)
     return scene,tuple(build_render_mesh(m) for m in meshes),lib

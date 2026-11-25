@@ -5,7 +5,7 @@ from .model import SceneSpec,NodeSpec,Transform
 from .recipes import PythonBackend,Extrusion
 from .organic import OrganicLoft,LoftSection
 from .shading import build_render_mesh
-from .pbr import generate_library
+from .pilot_finish import bevel_block,finished_library
 from .exporter import source_manifest,export_bundle,write_bundle
 from .lod import BUDGETS
 from tools.asset_pipeline.validate_gltf import Audit
@@ -74,7 +74,43 @@ PILOTS={
  P("post_b","loft",(2.1,.58,-1.7),(.18,.76,.18),"painted_steel")],
  "authored multi-object yard chunk; not an export of the existing map or a complete playable map"),
 }
-SEGMENTS=(32,16,8)
+# Four additional geometry categories. Collision visual is explicitly a QA proxy
+# for a dedicated authored box shape, not a claim about legacy gameplay physics.
+PILOTS.update({
+ "utility_cart":("vehicle",[
+ P("deck","chamfer",(0,.40,0),(1.25,.18,1.8),"cool_steel"),
+ P("cab","chamfer",(0,.88,.35),(.96,.75,.72),"safety_amber"),
+ P("cargo","chamfer",(0,.64,-.48),(1.10,.48,.75),"graphite"),
+ *[P("wheel_"+str(i),"loft",(x,.23,z),(.22,.46,.46),"graphite") for i,(x,z) in enumerate([(-.63,-.60),(.63,-.60),(-.63,.60),(.63,.60)])]],
+ "static industrial utility cart; visual only, no drive or wheel physics"),
+ "signal_effect":("effect",[
+ P("signal_volume","loft",(0,.15,0),(.16,.30,.16),"signal_lime")],
+ "opaque static signal-volume geometry study, not a particle or shader effect"),
+ "collision_proxy":("collision",[
+ P("proxy","box",(0,.50,0),(.60,1.0,.60),"signal_blue")],
+ "visual QA representation of the authored independent box; Godot Shape3D verified separately"),
+ "geometry_sample":("geometry_library",[
+ P("profile","chamfer",(-.45,.30,0),(.60,.60,.60),"cool_steel"),
+ P("loft_sample","loft",(.45,.45,0),(.65,.90,.65),"safety_amber")],
+ "authored chamfer and loft demonstration using the canonical geometry library"),
+})
+SEGMENTS=(48,24,8)
+# Palette refinements are local to QA. No edits to production material library.
+PALETTE={
+ "training_prop":{"shell":"cool_steel","fore_shell":"graphite","rear_pad":"graphite","top_shell":"brushed_metal"},
+ "optic_shell":{"housing":"graphite","mount_shell":"cool_steel","top_trim":"signal_blue"},
+ "glove":{"cuff":"olive_textile","palm":"sand_textile"},
+ "mannequin":{"torso":"olive_textile","leg_0":"sand_textile","leg_1":"sand_textile","head":"graphite"},
+ "shelter":{"roof":"cool_steel","back":"cool_steel","post_0":"safety_amber","post_1":"safety_amber"},
+ "supply_station":{"cabinet":"signal_blue","console":"graphite","knob":"safety_amber"},
+ "planter":{"soil":"earth","plant_0":"foliage","plant_1":"foliage","plant_2":"foliage"},
+ "terrain_tile":{"ground":"earth","ridge_a":"earth","ridge_b":"earth"},
+ "yard_composition":{"cabinet":"signal_blue","post_a":"safety_amber","post_b":"safety_amber"},
+}
+for name,choices in PALETTE.items():
+    for p in PILOTS[name][1]:
+        if p["id"] in choices:p["material"]=choices[p["id"]]
+
 
 def authored_contract(parts):
     lo=[min(p["center"][i]-p["size"][i]/2 for p in parts) for i in range(3)]
@@ -88,13 +124,22 @@ def authored_contract(parts):
 
 def mesh_for(p,level):
     x,y,z=p["size"];rx,rz=x/2,z/2
-    if p["kind"]=="chamfer":
-        d=min(rx,rz)*.18
-        profile=((-rx+d,-rz),(rx-d,-rz),(rx,-rz+d),(rx,rz-d),(rx-d,rz),(-rx+d,rz),(-rx,rz-d),(-rx,-rz+d))
-        return PythonBackend().build(Extrusion(p["id"],profile,y))
+    if p["kind"]=="box":
+        from .organic import CustomTopology
+        v=((-rx,0,-rz),(rx,0,-rz),(rx,0,rz),(-rx,0,rz),(-rx,y,-rz),(rx,y,-rz),(rx,y,rz),(-rx,y,rz))
+        f=((0,1,2,3),(4,7,6,5),(0,4,5,1),(1,5,6,2),(2,6,7,3),(3,7,4,0))
+        return PythonBackend().build(CustomTopology(p["id"],v,f,True))
+    if p["kind"]=="chamfer":return bevel_block(p["id"],p["size"],level)
     # Exact extrema at central ring, softened ends, authored ground pivot.
-    sections=tuple(LoftSection(y*t,(0,0),(rx*s,rz*s)) for t,s in ((0,.72),(.2,.94),(.5,1),(.8,.92),(1,.68)))
-    return PythonBackend().build(OrganicLoft(p["id"],sections,SEGMENTS[level],(2,1,1)[level]))
+    profile=((0,.72),(.2,.94),(.5,1),(.8,.92),(1,.68))
+    if p["id"].startswith("finger"):profile=((0,.88),(.18,.99),(.5,1),(.83,.90),(1,.52))
+    elif p["id"] in ("torso","palm"):profile=((0,.78),(.2,.88),(.5,1),(.8,.96),(1,.72))
+    elif p["id"].startswith("plant"):profile=((0,.36),(.2,.72),(.5,1),(.8,.63),(1,.20))
+    elif p["id"].startswith("wheel"):profile=((0,.86),(.2,1),(.5,1),(.8,1),(1,.86))
+    sections=tuple(LoftSection(y*t,(0,0),(rx*k,rz*k)) for t,k in profile)
+    # effect budget is small: same mesh geometry, smaller authored resolution.
+    seg=(24,12,8)[level] if p["id"]=="signal_volume" else SEGMENTS[level]
+    return PythonBackend().build(OrganicLoft(p["id"],sections,seg,(2,1,1)[level]))
 
 def generate(name,root,out,revision,lib,sources):
     category,parts,reference=PILOTS[name]
@@ -113,10 +158,11 @@ def generate(name,root,out,revision,lib,sources):
             if row["metrics"]["triangles"]>BUDGETS[category].triangles[level]:raise ValueError((name,level,"triangle budget exceeded"))
             row["level"]=level;rows.append(row)
     tris=[r["metrics"]["triangles"] for r in rows if r["path"]=="asset.glb"]
-    if not tris[0]>tris[1]>tris[2]:raise ValueError((name,"LOD reduction missing",tris))
+    if category!="collision" and not tris[0]>tris[1]>tris[2]:raise ValueError((name,"LOD reduction missing",tris))
+    if category=="collision" and len(set(tris))!=1:raise ValueError("collision proxy must stay invariant")
     result={"id":"qa:"+name,"slug":name,"category":category,"revision":revision,"contract":contract,
         "bounds_min_m":lo,"bounds_max_m":hi,"reference":reference,"source":"tools/asset_pipeline/parametric/pilot_suite.py",
-        "exports":rows,"collision":None,"lod_distances_m":None,
+        "exports":rows,"collision":{"type":"box","size_m":[.60,1.0,.60],"center_m":[0,.50,0],"independent":True} if category=="collision" else None,"lod_distances_m":None,
         "budget_scope":"assembled individual QA asset; provisional; no distance integration","visual_approval":False,"production_integrated":False}
     (folder/"pilot-report.json").write_bytes(canonical(result))
     print("SUITE_EXPORT_PASS",name,tris,flush=True)
@@ -127,7 +173,7 @@ def main():
     out=Path(a.output);out.mkdir(parents=True,exist_ok=True)
     root=Path(__file__).resolve().parents[3]
     sources=source_manifest(root,[str(p.relative_to(root)) for p in Path(__file__).parent.glob("*.py")],a.revision)
-    lib=generate_library(64,9133)
+    lib=finished_library(128,9133)
     names=[generate(name,root,out,a.revision,lib,sources) for name in sorted(PILOTS)]
     (out/"suite.json").write_bytes(canonical({"revision":a.revision,"pilots":names,"approved":False}))
 if __name__=="__main__":main()

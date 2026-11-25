@@ -50,6 +50,19 @@ func _run() -> void:
         var expected_center: Vector3=(vec(report.bounds_min_m)+vec(report.bounds_max_m))*0.5
         # Native camera, visual QA placement; deliberately not gameplay placement.
         anchor.global_position=camera.global_position+forward*maxf(0.8,dimensions.length()*1.9)-expected_center
+        var body: StaticBody3D = null
+        var collider: CollisionShape3D = null
+        var collider_id: int = 0
+        if report.get("collision") != null:
+            body=StaticBody3D.new()
+            collider=CollisionShape3D.new()
+            var shape:=BoxShape3D.new()
+            shape.size=vec(report.collision.size_m)
+            collider.shape=shape
+            collider.position=vec(report.collision.center_m)
+            body.add_child(collider)
+            anchor.add_child(body)
+            collider_id=shape.get_instance_id()
         var rows: Array[Dictionary]=[]
         for level in range(3):
             var path:=folder.path_join("lod"+str(level)+"/asset.glb")
@@ -94,6 +107,9 @@ func _run() -> void:
                 if camera.is_position_behind(corner) or not Rect2(Vector2.ZERO,Vector2(root.size)).has_point(screen):
                     fail("camera clipping "+str(name))
                     return
+            if collider != null and (collider.shape.get_instance_id()!=collider_id or not (collider.shape as BoxShape3D).size.is_equal_approx(dimensions)):
+                fail("collider contract "+str(name))
+                return
             await process_frame
             await RenderingServer.frame_post_draw
             await process_frame
@@ -102,9 +118,11 @@ func _run() -> void:
             if image.is_empty() or image.save_png(folder.path_join("godot-lod"+str(level)+".png"))!=OK:
                 fail("capture "+str(name))
                 return
-            rows.append({"level":level,"sha256":FileAccess.get_sha256(path),"triangles":count,"dimensions_m":[bounds.size.x,bounds.size.y,bounds.size.z],"camera":"native_player_qa_placement","visual_approval":false})
+            rows.append({"level":level,"sha256":FileAccess.get_sha256(path),"triangles":count,"dimensions_m":[bounds.size.x,bounds.size.y,bounds.size.z],"camera":"native_player_qa_placement","visual_approval":false,"independent_collision_checked":collider!=null})
             visual.free()
             total+=1
+        if body!=null:
+            body.free()
         var out:=FileAccess.open(folder.path_join("godot-report.json"),FileAccess.WRITE)
         if out==null:
             fail("report output")
