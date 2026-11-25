@@ -1,19 +1,12 @@
-FRONTLINE SURVIVAL - QA ALL-IN-ONE (PREVIEW)
+FRONTLINE SURVIVAL - QA UNIVERSAL (PREVIEW)
 
-1. Extraia o ZIP em uma pasta gravavel no Windows 10/11 x64.
-2. Execute TESTAR_TUDO.bat. Mantenha a janela aberta.
-3. Envie o arquivo RESULTADOS-*.zip criado ao lado do BAT pelo ChatGPT.
-
-Primeira execucao requer internet, espaco livre (planeje 10 GB ou mais),
-acesso ao GitHub e permissao para instalar Git/Python 3.11 via winget se ausentes.
-Se o repositorio exigir autenticacao, use a janela oficial do Git; nao envie senhas.
-Godot 4.4.1, Node 22.16.0, Blender 3.0.1 e Chromium sao baixados automaticamente.
-Projeto e dependencias ficam isolados em %LOCALAPPDATA%\FrontlineQA.
-Nao use o Godot manualmente. Janelas da engine podem abrir durante os testes.
-Nao feche o processo antes de terminar. O ZIP inclui evidencias e setup.log;
-se o preparo falhar, o ZIP contem apenas o log de preparo.
-Nao inclua senhas nem perfis pessoais. O log pode conter caminhos locais.
-
-Este e um inicializador, nao um ZIP offline do jogo. O fluxo Windows completo
-nao foi testado neste ambiente. Falhas sao registradas, nao mascaradas.
-Aprovacao automatica nao equivale a inspecao visual ou etapa 00 concluida.
+Execute QA_UNIVERSAL.bat (ou TESTAR_TUDO.bat do ZIP).
+Windows x64, internet, espaco livre (planeje 10 GB ou mais).
+Sem REVISION.txt, fixa a revisao de main obtida por Git no inicio;
+com REVISION.txt, verifica que o SHA pertence ao historico de main.
+Cache local em %LOCALAPPDATA%\FrontlineQA. Reutiliza ferramentas
+compativeis no PATH, caminhos conhecidos e instalacoes QA anteriores.
+Se a evidencia revisada anterior estiver neste PC, pode fazer reteste parcial;
+em outro PC, executa o QA completo. Nao abra Godot manualmente.
+Envie primeiro DIAGNOSTICO-*.txt; guarde RESULTADOS-*.zip completo.
+O fluxo Windows ainda exige validacao real. Nao equivale a homologacao visual.

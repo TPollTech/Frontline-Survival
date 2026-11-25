@@ -14,7 +14,7 @@ def git(*args): return subprocess.check_output(['git', '-C', str(root), *args])
 if git('status','--porcelain').strip(): raise ValueError('checkout must be clean')
 rev = git('rev-parse','HEAD').decode().strip()
 with zipfile.ZipFile(output,'x',zipfile.ZIP_DEFLATED) as z:
-    for name in ('TESTAR_TUDO.bat','bootstrap.ps1','LEIA-ME.txt'):
+    for name in ('TESTAR_TUDO.bat','bootstrap.ps1','LEIA-ME.txt','QA_UNIVERSAL.bat','RETESTAR.bat'):
         z.writestr(name,git('show',rev+':tools/qa_all_in_one/'+name))
     z.writestr('REVISION.txt',rev+'\n')
 with zipfile.ZipFile(output) as z:
