@@ -2,6 +2,14 @@
 
 Atualizado em 24/11/2026. Mantém as 96 tarefas anteriores e adiciona a fundação de modelagem/Studio e a regressão de QA. Fonte de requisitos: [especificação obrigatória](ASSET_STUDIO_SPEC.md). Estado verificado: main v0.9.34 de desenvolvimento; última release v0.9.31; [CI do arsenal corrigido e aprovado](https://github.com/TPollTech/Frontline-Survival/actions/runs/45504785421) na revisão 446f31eb. Nova revisão de assets posterior em revalidação. Priorizar 00. Estados: [ ] pendente/parcial; [x] somente tarefa integralmente validada. Os trabalhos anteriores não são descartados; reavaliar na arquitetura nova. Nenhuma homologação visual manual foi confirmada nesta revisão.
 
+### Continuidade e execução individual
+
+O checklist é a fonte oficial dos estados e das evidências. Os IDs seguem a etapa e a posição já atribuída nesta revisão, de `00-01` a `10-11` por etapa. Preserve o vínculo entre ID e tarefa. Para novas tarefas autorizadas, atribua o próximo ID livre na etapa. Exclusão, renumeração ou reorganização requer autorização.
+
+Em cada conversa, consulte a main e reconstrua o painel completo a partir deste documento. A porcentagem oficial usa apenas tarefas concluídas. A ação de uma linha solicita a execução exclusiva daquele ID ou a revalidação, caso esteja concluído. Inclua estado anterior, justificativa, evidências, dependências, documentação e commit de referência no comando.
+
+Antes de alterar o projeto, siga AGENTS.md, confira critérios de aceite e integre a main atual. Registre os testes executados, resultados, limitações e bloqueios. Mantenha em parcial o que ainda requer implementação, validação ou homologação. Atualize apenas os estados sustentados por evidência e verifique o commit remoto. Enquanto o GitHub Actions estiver sem cota, use testes locais e `[skip ci]`. Após cada execução, reenvie o painel integral com todos os IDs e a próxima tarefa recomendada.
+
 ## 00 — Fundação do sistema 3D e Asset Studio
 
 - [x] Auditar SNC Energies e SNC Adventures e arquitetura atual do Frontline Survival — Auditoria estática concluída e evidências em [AUDITORIA_ARQUITETURA_3D.md](AUDITORIA_ARQUITETURA_3D.md); não equivale a aprovação visual.
