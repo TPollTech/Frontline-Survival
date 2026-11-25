@@ -56,7 +56,7 @@ func _run() -> void:
         await physics_frame
         await physics_frame
         var query := PhysicsRayQueryParameters3D.create(center+Vector3(0,0,ray_extent),center-Vector3(0,0,ray_extent),1)
-        var baseline := entry.anchor.get_world_3d().direct_space_state.intersect_ray(query)
+        var baseline: Dictionary = entry.anchor.get_world_3d().direct_space_state.intersect_ray(query)
         if body!=null and (baseline.is_empty() or baseline.collider!=body):
             fail("baseline blocker ray")
             return
@@ -87,7 +87,7 @@ func _run() -> void:
                 return
             await physics_frame
             await physics_frame
-            var hit:=entry.anchor.get_world_3d().direct_space_state.intersect_ray(query)
+            var hit: Dictionary = entry.anchor.get_world_3d().direct_space_state.intersect_ray(query)
             if hit.is_empty()!=baseline.is_empty() or (not hit.is_empty() and (hit.collider!=baseline.collider or hit.position.distance_to(baseline.position)>.002)):
                 fail("actual blocker ray changed")
                 return
