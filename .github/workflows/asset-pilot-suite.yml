@@ -34,6 +34,8 @@ jobs:
           sudo apt-get install -y --no-install-recommends blender
           blender --version
       - name: Test authored finishing and category contracts
+        env:
+          FRONTLINE_REQUIRE_BLENDER: '1'
         run: |
           python -m unittest discover -s tests -p 'test_pilot_finish.py' -v
           python -m unittest discover -s tests -p 'test_pilot_art.py' -v

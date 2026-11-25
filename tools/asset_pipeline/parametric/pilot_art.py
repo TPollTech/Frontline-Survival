@@ -63,6 +63,21 @@ def detailed(name,p,level):
             off=-x*.45+i*x*.9/max(1,n-1)
             items.append((panel("seam_"+str(i),(x*.025,y*.95,z*.35),level),(off,y*.025,-z*.325)))
         return combine(id,items)
+    if name=="utility_cart" and id=="cargo":
+        # Dark material shared by load box and visible glazing, kept as one
+        # material group. These are decorative opaque panels, not a vehicle interior.
+        items=[(panel("cargo_bin",p["size"],level),(0,0,0))]
+        items.append((panel("front_glazing",(.72,.29,.018),level),(0,.58,.461)))
+        for sign in (-1,1):
+            items.append((panel("side_glazing_"+str(sign),(.018,.27,.48),level),(sign*.481,.60,.82)))
+        return combine(id,items)
+    if name=="supply_station" and id=="console":
+        items=[(panel("console_shell",p["size"],level),(0,0,0))]
+        # Independent dark door handle and ventilation backing, positioned
+        # relative to the console node but within the assembly envelope.
+        items.append((panel("door_handle",(.035,.14,.035),level),(.30,-.45,-.22)))
+        items.append((panel("display_bezel",(.48,.10,.016),level),(-.10,.045,-z/2+.008)))
+        return combine(id,items)
     if name=="utility_cart" and id.startswith("wheel_"):
         # Axis along X, not vertical. Closed revolved visual tire profile.
         profile=((0,0),(z*.31,0),(z*.43,x*.07),(z*.5,x*.22),(z*.5,x*.78),(z*.43,x*.93),(z*.31,x),(0,x))
