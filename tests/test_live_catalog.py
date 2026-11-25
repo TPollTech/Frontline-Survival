@@ -50,6 +50,40 @@ class CatalogTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,"missing shared character recipe"):
             self.catalog(paths)
 
+
+    def test_world_asset_recipes_are_linked_to_real_families(self):
+        helper="scripts/world_asset_geometry.gd"
+        families={
+            "map:campo_de_testes":("scripts/main.gd",["world_box","cylinder"]),
+            "environment:lighting":("scripts/main.gd",["depot_environment","depot_sun"]),
+            "object:loot":("scripts/loot_pickup.gd",["machined"]),
+            "object:turret":("scripts/turret.gd",["cylinder","machined"]),
+            "object:grenade":("scripts/frag_grenade.gd",["cylinder","box"]),
+        }
+        assets=[]
+        consumers={}
+        for aid,(p,names) in families.items():
+            consumers.setdefault(p,set()).update(names)
+            assets.append({"id":aid,"category":aid.split(":")[0],"source":{"path":p,"kind":"godot_recipe"},"outputs":[],"dependencies":{"sources":[],"assets":[],"resources":[]},"preview":{"resource":None},"validation":{}})
+        for p,names in consumers.items():
+            self.put(p,'const WorldAssetGeometry = preload("res://'+helper+'")\n'+"\n".join("WorldAssetGeometry."+n+"()" for n in sorted(names)))
+        self.put(helper,"\n".join("static func "+n+"():\n    BoxMesh.new()" for n in ("box","machined","world_box","cylinder","depot_environment","depot_sun")))
+        self.put("scripts/model_surface.gd","extends RefCounted")
+        self.put("assets/catalog/manifest.json",json.dumps({"assets":assets,"resources":{},"source_registry":{},"known_dynamic_gaps":[]}))
+        paths=[helper,"scripts/model_surface.gd"]+list(consumers)
+        c=self.catalog(paths)
+        self.assertEqual(len(c["assets"]),5)
+        self.assertNotIn(helper,c["runtime_candidates"])
+        for a in c["assets"]:
+            self.assertIn(helper,a["dependencies"]["sources"])
+            self.assertEqual(a["canonical_shared_recipes"]["functions"],families[a["id"]][1])
+            self.assertEqual(a["canonical_shared_recipes"]["fingerprint"],c["sources"][helper])
+            self.assertFalse(a["canonical_shared_recipes"]["approved"])
+        self.assertEqual(canonical(c),canonical(self.catalog(paths)))
+        self.put("scripts/turret.gd",'const WorldAssetGeometry = preload("res://'+helper+'")')
+        with self.assertRaisesRegex(ValueError,"missing shared world recipe"):
+            self.catalog(paths)
+
     def test_discovery_and_reference(self):
         self.put("assets/new.glb","model bytes")
         self.put("scenes/map.tscn",'[ext_resource path="res://assets/new.glb"]')

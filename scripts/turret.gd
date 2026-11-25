@@ -1,6 +1,8 @@
 extends Node3D
 class_name SurvivalTurret
 
+const WorldAssetGeometry = preload("res://scripts/world_asset_geometry.gd")
+
 const ModelSurface = preload("res://scripts/model_surface.gd")
 
 var time_left: float = 115.0
@@ -9,10 +11,7 @@ var barrel: MeshInstance3D
 
 func _ready() -> void:
     var base := MeshInstance3D.new()
-    var cylinder := CylinderMesh.new()
-    cylinder.top_radius = 0.33
-    cylinder.bottom_radius = 0.42
-    cylinder.height = 0.8
+    var cylinder := WorldAssetGeometry.cylinder(0.33, 0.42, 0.8)
     base.mesh = cylinder
     base.position.y = 0.42
     add_child(base)
@@ -20,7 +19,7 @@ func _ready() -> void:
     mat.albedo_color = Color(0.10, 0.45, 0.50)
     base.material_override = mat
     barrel = MeshInstance3D.new()
-    var tube := ModelSurface.body(Vector3(0.11, 0.11, 0.75), ModelSurface.Profile.MACHINED)
+    var tube := WorldAssetGeometry.machined(Vector3(0.11, 0.11, 0.75))
     barrel.mesh = tube
     barrel.position = Vector3(0, 0.79, -0.35)
     barrel.material_override = mat

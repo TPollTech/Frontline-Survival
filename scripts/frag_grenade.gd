@@ -1,5 +1,7 @@
 extends RigidBody3D
 class_name SurvivalFragGrenade
+
+const WorldAssetGeometry = preload("res://scripts/world_asset_geometry.gd")
 ## Offline, original grenade projectile. Godot physics owns flight and bounces.
 ## CC0 recorded explosion optional: assets/audio/explosions/grenade.ogg.
 signal detonated(targets_hit: int)
@@ -67,18 +69,14 @@ func _make_body() -> void:
     steel.roughness = 0.37
     var body := MeshInstance3D.new()
     body.name = "GrenadeShell"
-    var shell := CylinderMesh.new()
-    shell.top_radius = BODY_RADIUS
-    shell.bottom_radius = BODY_RADIUS * 0.92
-    shell.height = 0.19
+    var shell := WorldAssetGeometry.cylinder(BODY_RADIUS, BODY_RADIUS * 0.92, 0.19)
     shell.radial_segments = 12
     body.mesh = shell
     body.material_override = paint
     body_model.add_child(body)
     var cap := MeshInstance3D.new()
     cap.name = "SafetyLever"
-    var lever := BoxMesh.new()
-    lever.size = Vector3(0.042, 0.15, 0.035)
+    var lever := WorldAssetGeometry.box(Vector3(0.042, 0.15, 0.035))
     cap.mesh = lever
     cap.material_override = steel
     cap.position = Vector3(0.0, 0.10, 0.09)

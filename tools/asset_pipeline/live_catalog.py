@@ -306,6 +306,29 @@ def build(root,paths=None,runtime=None,revision=None):
             asset["dependencies"]["sources"]=sorted(set(asset["dependencies"]["sources"])|{character_helper,"scripts/model_surface.gd"})
             asset["canonical_shared_recipes"]={"path":character_helper,"functions":list(functions),"fingerprint":record,"approved":False}
         shared_procedural.add(character_helper)
+    # The world helper is a real shared dependency, not a second preview mesh.
+    world_helper="scripts/world_asset_geometry.gd"
+    world_families={
+        "map:campo_de_testes": ("world_box","cylinder"),
+        "environment:lighting": ("depot_environment","depot_sun"),
+        "object:loot": ("machined",),
+        "object:turret": ("cylinder","machined"),
+        "object:grenade": ("cylinder","box"),
+    }
+    if world_helper in sources:
+        record=source_records.get(world_helper)
+        require(record is not None,"missing world asset helper")
+        helper_text=safe(root,world_helper).read_text(encoding="utf-8")
+        for aid,functions in world_families.items():
+            require(aid in byid,"missing world asset family: "+aid)
+            asset=byid[aid]
+            consumer_text=safe(root,asset["source"]["path"]).read_text(encoding="utf-8")
+            require('preload("res://'+world_helper+'")' in consumer_text,"missing world asset helper reference: "+aid)
+            for name in functions:
+                require(re.search(r"^static func "+name+r"\(",helper_text,re.M) and "WorldAssetGeometry."+name+"(" in consumer_text,"missing shared world recipe: "+aid+":"+name)
+            asset["dependencies"]["sources"]=sorted(set(asset["dependencies"]["sources"])|{world_helper,"scripts/model_surface.gd"})
+            asset["canonical_shared_recipes"]={"path":world_helper,"functions":list(functions),"fingerprint":record,"approved":False}
+        shared_procedural.add(world_helper)
     known_procedural={a["source"]["path"] for a in assets if a["source"].get("kind")=="godot_recipe"}|shared_procedural
     runtime_candidates=sorted(set(possible)-known_procedural)
     for p in runtime_candidates:

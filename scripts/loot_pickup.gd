@@ -1,5 +1,7 @@
 extends Node3D
 
+const WorldAssetGeometry = preload("res://scripts/world_asset_geometry.gd")
+
 const ModelSurface = preload("res://scripts/model_surface.gd")
 ## World pickups from defeated enemies. Short lifetime + hard cap imposed by main.
 const GunMaterials = preload("res://scripts/weapon_materials.gd")
@@ -28,7 +30,7 @@ func _ready() -> void:
                 GunMaterials.apply_colors(model)
     else:
         var box := MeshInstance3D.new()
-        var shape := ModelSurface.body(Vector3(0.32, 0.19, 0.23), ModelSurface.Profile.MACHINED)
+        var shape := WorldAssetGeometry.machined(Vector3(0.32, 0.19, 0.23))
         box.mesh = shape
         box.position.y = 0.12
         var mat := StandardMaterial3D.new()
@@ -37,7 +39,7 @@ func _ready() -> void:
         box.material_override = mat
         add_child(box)
         var band := MeshInstance3D.new()
-        var strip := ModelSurface.body(Vector3(0.08, 0.202, 0.235), ModelSurface.Profile.MACHINED)
+        var strip := WorldAssetGeometry.machined(Vector3(0.08, 0.202, 0.235))
         band.mesh = strip
         band.position = box.position
         var band_mat := StandardMaterial3D.new()

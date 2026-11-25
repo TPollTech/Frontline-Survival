@@ -1,5 +1,7 @@
 extends Node3D
 
+const WorldAssetGeometry = preload("res://scripts/world_asset_geometry.gd")
+
 const ModelSurface = preload("res://scripts/model_surface.gd")
 const WorldLOD = preload("res://scripts/world_lod.gd")
 var world_lod = WorldLOD.new()
@@ -399,27 +401,9 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _create_world() -> void:
     var world_env := WorldEnvironment.new()
-    var environment := Environment.new()
-    environment.background_mode = Environment.BG_SKY
-    var sky := Sky.new()
-    var sky_mat := ProceduralSkyMaterial.new()
-    sky_mat.sky_top_color = Color(0.25, 0.38, 0.49)
-    sky_mat.sky_horizon_color = Color(0.78, 0.76, 0.70)
-    sky_mat.ground_bottom_color = Color(0.17, 0.20, 0.19)
-    sky.sky_material = sky_mat
-    environment.sky = sky
-    environment.ambient_light_source = Environment.AMBIENT_SOURCE_SKY
-    environment.ambient_light_energy = 0.65
-    environment.fog_enabled = true
-    environment.fog_light_color = Color(0.64, 0.68, 0.69)
-    environment.fog_density = 0.0025
-    world_env.environment = environment
+    world_env.environment = WorldAssetGeometry.depot_environment()
     add_child(world_env)
-    var sun := DirectionalLight3D.new()
-    sun.rotation_degrees = Vector3(-32, -49, 0)
-    sun.light_color = Color(1.0, 0.90, 0.77)
-    sun.light_energy = 1.24
-    sun.shadow_enabled = true
+    var sun := WorldAssetGeometry.depot_sun()
     add_child(sun)
     var ground := _add_box(Vector3(0, -0.5, 0), Vector3(52, 1, 52), Color(0.83, 0.87, 0.83))
     ground.add_to_group("deployment_ground")
@@ -448,10 +432,7 @@ func _create_world() -> void:
     _add_shop("support", "SUPORTE", Vector3(0, 0, 21), Color(0.22, 0.62, 0.84))
 
 func _add_cylinder(at: Vector3, radius: float, height: float, color: Color, rot: Vector3 = Vector3.ZERO) -> MeshInstance3D:
-    var mesh := CylinderMesh.new()
-    mesh.top_radius = radius
-    mesh.bottom_radius = radius
-    mesh.height = height
+    var mesh := WorldAssetGeometry.cylinder(radius, radius, height)
     var part := MeshInstance3D.new()
     part.mesh = mesh
     part.position = at
@@ -588,9 +569,7 @@ func _add_box(pos: Vector3, dimensions: Vector3, tint: Color, solid: bool = true
     root.position = pos
     add_child(root)
     var model := MeshInstance3D.new()
-    var cube := BoxMesh.new()
-    cube.size = dimensions
-    model.mesh = cube if solid or dimensions[dimensions.min_axis_index()] < 0.035 else ModelSurface.body(dimensions, ModelSurface.Profile.MACHINED)
+    model.mesh = WorldAssetGeometry.world_box(dimensions, solid)
     var mat := StandardMaterial3D.new()
     if solid and dimensions.y > 4.0 and maxf(dimensions.x, dimensions.z) > 30.0:
         mat.albedo_texture = preload("res://assets/textures/depot_concrete.png")
