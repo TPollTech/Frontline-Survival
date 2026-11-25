@@ -1,0 +1,25 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import {readFileSync,mkdtempSync,rmSync} from "node:fs";
+import {tmpdir} from "node:os";
+import {join} from "node:path";
+import {createHash} from "node:crypto";
+import {execFileSync} from "node:child_process";
+import {collectArsenal} from "../tools/asset_pipeline/arsenal_sources.mjs";
+
+const blob=b=>createHash("sha1").update("blob "+b.length+"\0").update(b).digest("hex");
+const manifest=JSON.parse(readFileSync("assets/catalog/manifest.json","utf8"));
+const paths=["tools/build_weapons.py","scripts/player.gd","scripts/main.gd","scripts/model_surface.gd","scripts/weapon_materials.gd","tools/generate_foley_textures.py"];
+const sources=Object.fromEntries(paths.map(p=>{const b=readFileSync(p);return [p,{text:b.toString("utf8"),git_blob_sha1:blob(b)}]}));
+const models=Object.fromEntries(execFileSync("git",["ls-files","-z","--","assets/models/"],{encoding:"utf8"}).split("\0").filter(p=>p.endsWith(".glb")).map(p=>[p,blob(readFileSync(p))]));
+const audit=()=>collectArsenal(manifest,sources,models);
+test("production arsenal source coverage",()=>{const a=audit();assert.equal(a.counts.weapons,8);assert.equal(a.counts.glbs,31);assert.equal(a.counts.attachments,7)});
+test("deterministic index",()=>assert.deepEqual(audit(),audit()));
+test("missing output rejected",()=>{const x={...models};delete x["assets/models/pistol.glb"];assert.throws(()=>collectArsenal(manifest,sources,x),/Missing current GLB/)});
+test("unregistered output rejected",()=>assert.throws(()=>collectArsenal(manifest,sources,{...models,"assets/models/unregistered.glb":"0".repeat(40)}),/Unregistered/));
+test("missing source rejected",()=>{const x={...sources};delete x["tools/build_weapons.py"];assert.throws(()=>collectArsenal(manifest,x,models),/Missing source/)});
+test("missing recipe rejected",()=>{const p="tools/build_weapons.py";const x={...sources,[p]:{...sources[p],text:sources[p].text.replace("def pistol():","def removed():")}};assert.throws(()=>collectArsenal(manifest,x,models),/Missing recipe/)});
+test("new attachment rejected",()=>{const p="scripts/player.gd";const x={...sources,[p]:{...sources[p],text:sources[p].text.replace('["red_dot", "holo"]','["red_dot", "new_optic"]')}};assert.throws(()=>collectArsenal(manifest,x,models),/Attachment guard differs/)});
+test("wrong output role rejected",()=>{const m=structuredClone(manifest);m.assets.find(a=>a.id==="weapon:pistol").outputs[0].role="wrong";assert.throws(()=>collectArsenal(m,sources,models),/Variant coverage mismatch/)});
+test("no false visual approval",()=>{const a=audit();assert.equal(a.approved,false);assert.ok(a.weapons.every(w=>!w.validation.approved));assert.ok(a.attachments.every(w=>!w.validation.approved&&w.standalone_glb===null))});
+test("CLI writes clean revision report outside checkout",()=>{const tmp=mkdtempSync(join(tmpdir(),"frontline-index-test-"));try{const out=join(tmp,"report.json");execFileSync(process.execPath,["tools/asset_pipeline/arsenal_sources.mjs",out]);const r=JSON.parse(readFileSync(out,"utf8"));assert.deepEqual(r.counts,audit().counts);assert.equal(r.revision,execFileSync("git",["rev-parse","HEAD"],{encoding:"utf8"}).trim());assert.equal(r.reproduction.state,"not_run")}finally{rmSync(tmp,{recursive:true,force:true})}});
