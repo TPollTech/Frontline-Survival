@@ -58,3 +58,8 @@ CIs 45518029777 e 45518280679 aprovados. Artefatos inspecionados de estação, a
 ## Publicação e poses
 
 Pages 45518280483 publicou QA 0aed750b com HTTP pós-deploy confirmado. CIs 45519485851/45519577840 aprovaram seis LODs skinned e controles de pose em Godot/Studio. Capturas inspecionadas, orientação do veículo confirmada; refinamento de encaixes e pesos em aa303b81 ainda em revalidação. Ver [PILOTOS_ASSETS.md](PILOTOS_ASSETS.md).
+
+
+## Superfície contínua QA
+
+CI 45520645718 confirmou 42 capturas em repouso e seis posadas publicadas. Revisão real de imagens aa303b81; nova luva com superfície fechada única, atlas UV/PBR e testes de deformação em 73596b74, CI 45525440788 em execução. Ver [PILOTOS_ASSETS.md](PILOTOS_ASSETS.md). Sem homologação artística.
