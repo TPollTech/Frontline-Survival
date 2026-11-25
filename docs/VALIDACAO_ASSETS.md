@@ -98,3 +98,8 @@ CI 45534922543 aprovado, 36 transições/rays, quatro bloqueadores independentes
 ## Comparação das composições do Studio — 00-13
 
 45538009975 aprovado, 86/86 árvores, 32 GLBs e offline. Comparação mesma câmera 12 pontos, 0,00003791 px; artefatos baixados e imagens comparadas. Paridade de renderização e deploy final pendentes. [Evidências](ASSET_STUDIO.md).
+
+
+## Ampliação LOD real — 00-10
+
+45542221025 e 45542221048 aprovados: 19 conjuntos, 74 peças, oito bloqueadores independentes, 11 não bloqueantes, 171 verificações de transição/ray, 57 registros LOD. 12 imagens abertas; oclusões impedem comparação detalhada, novo teste de câmera fixa 45542462884 em validação. Ver [LOD_COLISOES_RUNTIME.md](LOD_COLISOES_RUNTIME.md). Sem benchmark ou homologação integral.
