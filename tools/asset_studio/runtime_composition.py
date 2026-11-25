@@ -35,8 +35,9 @@ def stage(runtime,catalog,out):
         require(len(b)==t["bytes"] and sha(b)==digest and b[:8]==b"\x89PNG\r\n\x1a\n","texture integrity")
     for assembly in runtime.get("registered_world_lods",[]):
         for level in assembly["levels"]:
-            tris=sum((measured[h][1] or measured[h][0])//3 for h in level["buffer_sha256"])
-            require(tris*len(assembly["parts"])==level["assembly_triangles"],"registered LOD triangle mismatch")
+            parts=level.get("part_buffers",[level["buffer_sha256"]]*len(assembly["parts"]))
+            tris=sum((measured[h][1] or measured[h][0])//3 for part in parts for h in part)
+            require(tris==level["assembly_triangles"],"registered LOD triangle mismatch")
     coverage=[]
     for sample in runtime["samples"]:
         total=visible=triangles=0;unsupported=0;skinned=0

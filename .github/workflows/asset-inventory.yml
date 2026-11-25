@@ -57,7 +57,7 @@ jobs:
           python3 tools/asset_pipeline/live_catalog.py --runtime "$FRONTLINE_INVENTORY_DIR/runtime_inventory.json" --output "$FRONTLINE_INVENTORY_DIR/live_catalog.json"
           python3 tools/asset_pipeline/live_catalog.py --runtime "$FRONTLINE_INVENTORY_DIR/runtime_inventory.json" --output "$RUNNER_TEMP/live_catalog_repeat.json"
           cmp "$FRONTLINE_INVENTORY_DIR/live_catalog.json" "$RUNNER_TEMP/live_catalog_repeat.json"
-          python3 -c 'import json,sys; c=json.load(open(sys.argv[1])); assert len(c["dynamic_resolution"])==4 and all(r["status"]=="finite_domain_probed" for r in c["dynamic_resolution"]); assert sum(len(r["candidates"]) for r in c["dynamic_resolution"])==48; assert c["geometry_index"] and len(c["runtime_compositions"])==c["runtime"]["samples"]; assert len(c["registered_world_lods"])==4 and all(len(a["levels"])==3 for a in c["registered_world_lods"]); print("RUNTIME_CATALOG_COVERAGE_PASS", len(c["geometry_index"]),len(c["runtime_compositions"]))' "$FRONTLINE_INVENTORY_DIR/live_catalog.json"
+          python3 -c 'import json,sys; c=json.load(open(sys.argv[1])); assert len(c["dynamic_resolution"])==4 and all(r["status"]=="finite_domain_probed" for r in c["dynamic_resolution"]); assert sum(len(r["candidates"]) for r in c["dynamic_resolution"])==48; assert c["geometry_index"] and len(c["runtime_compositions"])==c["runtime"]["samples"]; assert len(c["registered_world_lods"])==19 and all(len(a["levels"])==3 for a in c["registered_world_lods"]); print("RUNTIME_CATALOG_COVERAGE_PASS", len(c["geometry_index"]),len(c["runtime_compositions"]))' "$FRONTLINE_INVENTORY_DIR/live_catalog.json"
       - name: Upload evidence including failures
         if: always()
         uses: actions/upload-artifact@v4

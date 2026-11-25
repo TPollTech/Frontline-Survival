@@ -89,3 +89,23 @@ static func body_lods(size: Vector3, profile: Profile = Profile.MOLDED) -> Array
         levels.append(mesh)
     explicit_cache[key] = levels
     return levels
+
+
+# Original CylinderMesh arrays at LOD0; lower tessellation of the same
+# canonical primitive parameters, preserving radius/height/caps and UVs.
+static var cylinder_cache: Dictionary = {}
+static func cylinder_lods(source: CylinderMesh) -> Array[ArrayMesh]:
+    var key := Vector4(source.top_radius,source.bottom_radius,source.height,float(source.radial_segments*100+source.rings))
+    if cylinder_cache.has(key):
+        return cylinder_cache[key]
+    var levels: Array[ArrayMesh] = []
+    for i in range(3):
+        var primitive: CylinderMesh = source if i==0 else source.duplicate()
+        if i>0:
+            primitive.radial_segments = [source.radial_segments,24,12][i]
+            primitive.rings = [source.rings,1,0][i]
+        var mesh := ArrayMesh.new()
+        mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES,primitive.get_mesh_arrays())
+        levels.append(mesh)
+    cylinder_cache[key]=levels
+    return levels

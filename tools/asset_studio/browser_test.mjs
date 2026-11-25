@@ -45,7 +45,7 @@ if(process.env.REQUIRE_RUNTIME_VIEWS==='1'){
      }
    }else{
      assert.equal(payload.samples.length,catalog.runtime.samples);
-     assert.equal(payload.registered_world_lods.length,4);
+     assert.equal(payload.registered_world_lods.length,19);
    }
  }
  console.log('STUDIO_RUNTIME_PAYLOAD_PASS',Object.keys(catalog.geometry_index).length,'buffers');

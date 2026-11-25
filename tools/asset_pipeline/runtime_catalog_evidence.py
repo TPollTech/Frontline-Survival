@@ -69,11 +69,16 @@ def geometry_evidence(runtime):
         sample=next((s for s in runtime["samples"] if s["id"]==assembly["sample"]),None)
         require(sample is not None,"missing LOD assembly sample")
         paths={n["path"]:n for n in sample["nodes"]}
-        require(assembly["shape"] in paths and paths[assembly["shape"]].get("collision"),"missing independent LOD shape")
-        require(assembly["blocker"] in paths and all(p in paths and paths[p].get("mesh") for p in assembly["parts"]),"missing LOD assembly nodes")
+        if assembly.get("collision_policy","existing_box")=="existing_box":
+            require(assembly["shape"] in paths and paths[assembly["shape"]].get("collision") and assembly["blocker"] in paths,"missing independent LOD shape")
+        else:
+            require(assembly["collision_policy"]=="nonblocking" and assembly["shape"] is None and assembly["blocker"] is None,"invalid nonblocking policy")
+        require(all(p in paths and paths[p].get("mesh") for p in assembly["parts"]),"missing LOD assembly nodes")
         require([l["index"] for l in assembly["levels"]]==[0,1,2],"invalid registered LOD sequence")
         for level in assembly["levels"]:
             require(level["buffer_sha256"],"empty registered LOD")
+            if "part_buffers" in level:
+                require(len(level["part_buffers"])==len(assembly["parts"]) and all(level["part_buffers"]) and {h for part in level["part_buffers"] for h in part}==set(level["buffer_sha256"]),"invalid per-part LOD buffers")
             for digest in level["buffer_sha256"]:
                 require(digest in index,"unknown registered LOD buffer")
                 if assembly["sample"] not in index[digest]["sample_ids"]:

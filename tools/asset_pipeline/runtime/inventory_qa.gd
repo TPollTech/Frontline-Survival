@@ -424,19 +424,27 @@ func _dynamic_probes() -> Array[Dictionary]:
 func _registered_world_lods(game: Node3D, registry: Variant) -> Array[Dictionary]:
     var result: Array[Dictionary] = []
     for entry in registry.entries:
-        var blocker: StaticBody3D = entry.blocker
         var part_paths: Array[String] = []
         for part in entry.parts:
             part_paths.append(str(game.get_path_to(part)))
         var levels: Array[Dictionary] = []
-        for i in range(entry.levels.size()):
-            var mesh: ArrayMesh = entry.levels[i]
+        for i in range(3):
             var hashes: Array[String] = []
-            for j in range(mesh.get_surface_count()):
-                hashes.append(_buffer(mesh,j,mesh.surface_get_arrays(j),mesh.surface_get_primitive_type(j)))
-            levels.append({"index":i,"buffer_sha256":hashes,"assembly_triangles":entry.triangles[i]})
-        result.append({"sample":"map_briefing","category":entry.category,"blocker":str(game.get_path_to(blocker)),
-            "shape":str(game.get_path_to(entry.shape)),"parts":part_paths,"levels":levels,
+            var part_buffers: Array = []
+            for part_lods in entry.part_levels:
+                var mesh: ArrayMesh = part_lods[i]
+                var own: Array[String] = []
+                for j in range(mesh.get_surface_count()):
+                    var hash := _buffer(mesh,j,mesh.surface_get_arrays(j),mesh.surface_get_primitive_type(j))
+                    own.append(hash)
+                    if not hashes.has(hash):
+                        hashes.append(hash)
+                part_buffers.append(own)
+            levels.append({"index":i,"buffer_sha256":hashes,"part_buffers":part_buffers,"assembly_triangles":entry.triangles[i]})
+        result.append({"sample":"map_briefing","category":entry.category,"family":entry.family,
+            "anchor":str(game.get_path_to(entry.anchor)),"collision_policy":entry.collision_policy,
+            "blocker":str(game.get_path_to(entry.blocker)) if entry.blocker!=null else null,
+            "shape":str(game.get_path_to(entry.shape)) if entry.shape!=null else null,"parts":part_paths,"levels":levels,
             "starts_m":entry.selector.distances,"hysteresis_m":entry.selector.hysteresis,
             "active_index":entry.selector.current})
     return result

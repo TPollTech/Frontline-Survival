@@ -465,7 +465,7 @@ func _add_cylinder(at: Vector3, radius: float, height: float, color: Color, rot:
     return part
 
 func _add_container(at: Vector3, dimensions: Vector3, color: Color) -> void:
-    _add_box(at, dimensions, color)
+    var blocker := _add_box(at, dimensions, color) as StaticBody3D
     var dark := color.darkened(0.22)
     _add_box(at + Vector3(0, dimensions.y * 0.5 + 0.015, 0), Vector3(dimensions.x + 0.08, 0.05, dimensions.z + 0.08), dark, false)
     for i in range(int(dimensions.x / 0.48)):
@@ -475,9 +475,19 @@ func _add_container(at: Vector3, dimensions: Vector3, color: Color) -> void:
     for i in range(int(dimensions.z / 0.48)):
         var z: float = at.z - dimensions.z * 0.5 + 0.24 + float(i) * 0.48
         _add_box(Vector3(at.x + dimensions.x * 0.5 + 0.026, at.y, z), Vector3(0.045, dimensions.y - 0.12, 0.038), dark, false)
+    var corners: Array[MeshInstance3D] = []
+    var corner_levels: Array = []
+    var corner_size := Vector3(0.08, dimensions.y + 0.05, 0.10)
     for side in [-1.0, 1.0]:
         var sx: float = side
-        _add_box(Vector3(at.x + sx * (dimensions.x * 0.5), at.y, at.z), Vector3(0.08, dimensions.y + 0.05, 0.10), dark, false)
+        var node := _add_box(Vector3(at.x + sx * (dimensions.x * 0.5), at.y, at.z), corner_size, dark, false)
+        var visual := node.get_child(0) as MeshInstance3D
+        var lods := ModelSurface.body_lods(corner_size,ModelSurface.Profile.MACHINED)
+        visual.mesh=lods[0]
+        corners.append(visual)
+        corner_levels.append(lods)
+    if not world_lod.register_assembly(corners,corner_levels,blocker,"structure","container_corners",blocker):
+        push_warning("Container corner LOD rejected; preserving original collision")
 
 func _add_sandbags(center: Vector3, count: int, levels: int) -> void:
     var color := Color(0.52, 0.48, 0.34)
@@ -504,10 +514,18 @@ func _add_sandbags(center: Vector3, count: int, levels: int) -> void:
         push_warning("Barricade LOD rejected; preserving base visual and collision")
 
 func _add_barrel(center: Vector3, color: Color) -> void:
-    _add_cylinder(center + Vector3(0, 0.53, 0), 0.34, 1.05, color)
-    _add_cylinder(center + Vector3(0, 0.83, 0), 0.35, 0.055, color.lightened(0.16))
-    _add_cylinder(center + Vector3(0, 0.20, 0), 0.35, 0.055, color.lightened(0.13))
-    _add_cylinder(center + Vector3(0, 1.07, 0), 0.34, 0.03, Color(0.13, 0.18, 0.19))
+    var parts: Array[MeshInstance3D] = [
+        _add_cylinder(center + Vector3(0, 0.53, 0), 0.34, 1.05, color),
+        _add_cylinder(center + Vector3(0, 0.83, 0), 0.35, 0.055, color.lightened(0.16)),
+        _add_cylinder(center + Vector3(0, 0.20, 0), 0.35, 0.055, color.lightened(0.13)),
+        _add_cylinder(center + Vector3(0, 1.07, 0), 0.34, 0.03, Color(0.13, 0.18, 0.19))]
+    var per_part: Array = []
+    for part in parts:
+        var lods := ModelSurface.cylinder_lods(part.mesh as CylinderMesh)
+        part.mesh=lods[0]
+        per_part.append(lods)
+    if not world_lod.register_assembly(parts,per_part,parts[0],"object","barrel"):
+        push_warning("Barrel LOD rejected; keeping decorative nonblocking policy")
 
 func _add_depot_decor() -> void:
     # Linhas de pista e faixas de seguranca no patio.
@@ -572,8 +590,16 @@ func _add_box(pos: Vector3, dimensions: Vector3, tint: Color, solid: bool = true
 
 func _add_shop(id: String, title: String, at: Vector3, color: Color) -> void:
     shops.append({"id":id,"name":title,"position":at})
-    _add_box(at + Vector3(0, 0.35, 0), Vector3(2.6, 0.7, 1.8), color, false)
-    _add_box(at + Vector3(0, 1.05, 0), Vector3(2.1, 0.7, 1.0), Color(0.12, 0.16, 0.18), false)
+    var base_size := Vector3(2.6,0.7,1.8)
+    var top_size := Vector3(2.1,0.7,1.0)
+    var base := _add_box(at + Vector3(0,0.35,0),base_size,color,false)
+    var top := _add_box(at + Vector3(0,1.05,0),top_size,Color(0.12,0.16,0.18),false)
+    var parts: Array[MeshInstance3D] = [base.get_child(0) as MeshInstance3D,top.get_child(0) as MeshInstance3D]
+    var per_part: Array = [ModelSurface.body_lods(base_size,ModelSurface.Profile.MACHINED),ModelSurface.body_lods(top_size,ModelSurface.Profile.MACHINED)]
+    for i in range(parts.size()):
+        parts[i].mesh=per_part[i][0]
+    if not world_lod.register_assembly(parts,per_part,base,"object","shop"):
+        push_warning("Shop LOD rejected; preserving interaction and nonblocking policy")
     var label := Label3D.new()
     label.text = title + "\n[F] INTERAGIR"
     label.font_size = 42
