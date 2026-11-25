@@ -67,9 +67,9 @@ def detailed(name,p,level):
         # Dark material shared by load box and visible glazing, kept as one
         # material group. These are decorative opaque panels, not a vehicle interior.
         items=[(panel("cargo_bin",p["size"],level),(0,0,0))]
-        items.append((panel("front_glazing",(.72,.29,.018),level),(0,.58,.461)))
+        items.append((panel("front_glazing",(.72,.27,.018),level),(0,.58,.461)))
         for sign in (-1,1):
-            items.append((panel("side_glazing_"+str(sign),(.018,.27,.48),level),(sign*.481,.60,.82)))
+            items.append((panel("side_glazing_"+str(sign),(.018,.25,.48),level),(sign*.481,.60,.82)))
         return combine(id,items)
     if name=="supply_station" and id=="console":
         items=[(panel("console_shell",p["size"],level),(0,0,0))]
