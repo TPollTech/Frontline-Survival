@@ -12,17 +12,20 @@ from tools.asset_pipeline.live_catalog import canonical
 
 # Authored dimensions in metres; ground pivot, canonical Y up.
 # Industrial safety bollard, not based on a proprietary manufacturer's drawing.
-PROFILE=((0,.045),(.07,.045),(.076,.055),(.076,.76),(.073,.80),(.058,.825),(0,.835))
+PROFILE=((0,.045),(.07,.045),(.076,.055),(.076,.57),(0,.57))
+TOP_PROFILE=((0,.66),(.076,.66),(.076,.76),(.073,.80),(.058,.825),(0,.835))
+BAND_PROFILE=((0,.57),(.076,.57),(.082,.575),(.082,.655),(.076,.66),(0,.66))
 BASE=(.22,.045,.22)
 LEVELS=(48,24,12)
 CONTRACT={"unit":"m","up":"+Y","dimensions_m":[.22,.835,.22],
-          "pivots_local_m":{"anchor":[0,0,0],"base":[0,0,0],"body":[0,0,0],"band":[0,0,0]},
+          "pivots_local_m":{"anchor":[0,0,0],"base":[0,0,0],"body":[0,0,0],"body_top":[0,0,0],"band":[0,0,0]},
           "forward":{"node":"anchor","local_axis":[0,0,-1],"world_axis":[0,0,-1]},"tolerance_m":.001}
 def build(level):
     backend=PythonBackend();n=LEVELS[level]
     meshes=(bevel_block("base",BASE,level),
             backend.build(Revolution("body",PROFILE,n)),
-            backend.build(Revolution("band",((.076,.57),(.078,.575),(.078,.655),(.076,.66)),n)))
+            backend.build(Revolution("body_top",TOP_PROFILE,n)),
+            backend.build(Revolution("band",BAND_PROFILE,n)))
     lib=finished_library(128,9133)
     names=sorted(m.id for m in lib.materials)
     # Reuse existing authored material presets; no custom renderer materials.
@@ -30,7 +33,7 @@ def build(level):
     rubber="graphite"
     mats=tuple(lib.material(m) for m in sorted({metal,rubber}))
     nodes=(NodeSpec("anchor"),NodeSpec("base","base","anchor",metal,Transform.translation((0,0,0))),
-           NodeSpec("body","body","anchor",metal),NodeSpec("band","band","anchor",rubber))
+           NodeSpec("body","body","anchor",metal),NodeSpec("body_top","body_top","anchor",metal),NodeSpec("band","band","anchor",rubber))
     scene=SceneSpec("pilot_bollard",meshes,mats,nodes)
     return scene,tuple(build_render_mesh(m) for m in meshes),lib
 

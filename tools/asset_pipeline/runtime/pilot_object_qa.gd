@@ -38,7 +38,16 @@ func _run() -> void:
     var anchor := Node3D.new()
     game.add_child(anchor)
     var forward: Vector3=-player.camera.global_transform.basis.z
-    anchor.global_position=player.camera.global_position+forward*2.5-Vector3.UP*0.9
+    var horizontal:=Vector3(forward.x,0,forward.z).normalized()
+    var candidate: Vector3=player.camera.global_position+horizontal*3.0
+    await physics_frame
+    await physics_frame
+    var query:=PhysicsRayQueryParameters3D.create(candidate+Vector3.UP*4.0,candidate-Vector3.UP*12.0,1,[player.get_rid()])
+    var hit: Dictionary=anchor.get_world_3d().direct_space_state.intersect_ray(query)
+    if hit.is_empty():
+        fail("no ground contact for bollard")
+        return
+    anchor.global_position=hit.position
     var collider:=StaticBody3D.new()
     var shape:=CollisionShape3D.new()
     var box:=BoxShape3D.new()
@@ -70,7 +79,7 @@ func _run() -> void:
         anchor.add_child(visual)
         var all: Array[MeshInstance3D]=[]
         meshes(visual,all)
-        if all.size()!=3:
+        if all.size()!=4:
             fail("mesh hierarchy")
             return
         var triangles:=0
@@ -94,7 +103,7 @@ func _run() -> void:
         if image.is_empty() or image.save_png(folder.path_join("godot-lod"+str(level)+".png"))!=OK:
             fail("capture failed")
             return
-        rows.append({"level":level,"sha256":expected.sha256,"triangles":triangles,"dimensions_m":[bounds.size.x,bounds.size.y,bounds.size.z],"collider_invariant":true,"camera":"native_player","visual_approval":false})
+        rows.append({"level":level,"sha256":expected.sha256,"triangles":triangles,"dimensions_m":[bounds.size.x,bounds.size.y,bounds.size.z],"collider_invariant":true,"camera":"native_player","ground_contact":true,"visual_approval":false})
         visual.free()
     var out:=FileAccess.open(folder.path_join("godot-report.json"),FileAccess.WRITE)
     if out==null:
