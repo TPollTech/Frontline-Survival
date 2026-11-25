@@ -1,0 +1,55 @@
+name: Arsenal source provenance
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'tools/asset_pipeline/arsenal_sources.mjs'
+      - 'tests/test_arsenal_sources.mjs'
+      - 'tools/build_weapons.py'
+      - 'tools/generate_foley_textures.py'
+      - 'assets/models/**'
+      - 'assets/catalog/manifest.json'
+      - 'scripts/player.gd'
+      - 'scripts/main.gd'
+      - 'scripts/model_surface.gd'
+      - 'scripts/weapon_materials.gd'
+      - '.github/workflows/arsenal-sources.yml'
+  workflow_dispatch:
+    inputs:
+      rebuild:
+        description: 'Try byte-for-byte regeneration with explicit candidate dependencies'
+        type: boolean
+        default: false
+permissions:
+  contents: read
+jobs:
+  provenance:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify source registry and regressions
+        run: node --test tests/test_arsenal_sources.mjs
+      - name: Generate current index
+        run: node tools/asset_pipeline/arsenal_sources.mjs "$RUNNER_TEMP/arsenal-source-index.json"
+      - uses: actions/setup-python@v5
+        if: github.event_name == 'workflow_dispatch' && inputs.rebuild
+        with:
+          python-version: '3.11'
+      - name: Isolated reproduction (candidate environment, not an approval)
+        if: github.event_name == 'workflow_dispatch' && inputs.rebuild
+        run: |
+          python -m pip install numpy==2.2.6 trimesh==4.11.1 scipy==1.15.3
+          python -m pip freeze > "$RUNNER_TEMP/arsenal-python-deps.txt"
+          node tools/asset_pipeline/arsenal_sources.mjs "$RUNNER_TEMP/arsenal-reproduction.json" --rebuild python
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Arsenal-Source-Provenance-${{ github.sha }}
+          path: |
+            ${{ runner.temp }}/arsenal-*.json
+            ${{ runner.temp }}/arsenal-python-deps.txt
+          if-no-files-found: warn
