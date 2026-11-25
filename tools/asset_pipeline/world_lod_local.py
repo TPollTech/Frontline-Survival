@@ -5,9 +5,11 @@ import json
 import math
 from pathlib import Path
 import re
+import shutil
 import struct
 import subprocess
 import sys
+import tempfile
 import os
 
 FAMILIES = {
@@ -104,9 +106,9 @@ def run_local(root, output, godot):
         env["LOCALAPPDATA"]=str(profile)
     elif sys.platform=="darwin":
         raise ValueError("local runner currently supports Windows and Linux only")
-    def run(name,args,timeout,marker=None):
+    def run(name,args,timeout,marker=None,*,cwd=root):
         try:
-            result=subprocess.run(args,cwd=root,env=env,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,timeout=timeout)
+            result=subprocess.run(args,cwd=cwd,env=env,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,timeout=timeout)
         except subprocess.TimeoutExpired as exc:
             (output / (name+".log")).write_bytes(exc.stdout or b"")
             raise
@@ -115,8 +117,23 @@ def run_local(root, output, godot):
         require(result.returncode==0 and not ERROR.search(data) and (marker is None or marker in data),f"{name} failed; inspect log")
     run("version",[godot,"--version"],15,"4.4.1")
     run("budget",[sys.executable,"-m","unittest","discover","-s","tests","-p","test_world_lod_contract.py","-v"],120)
-    run("import",[godot,"--headless","--editor","--import","--path",str(root)],180)
-    run("godot",[godot,"--path",str(root),"--rendering-driver","opengl3","--script","res://tools/asset_pipeline/runtime/world_lod_qa.gd"],240,"WORLD_LOD_PASS 207")
+    # Godot writes import metadata and UIDs beside resources, including tracked
+    # files. Import a snapshot so QA never changes the source checkout.
+    with tempfile.TemporaryDirectory(prefix="frontline-lod-") as temporary:
+        staging = Path(temporary)
+        archive = staging / "project.zip"
+        project = staging / "project"
+        subprocess.run(
+            ["git", "-C", str(root), "archive", "--format=zip", "-o", str(archive), commit],
+            check=True,
+            timeout=120,
+        )
+        shutil.unpack_archive(archive, project)
+        run("import", [godot, "--headless", "--editor", "--import", "--path", str(project)],
+            180, cwd=project)
+        run("godot", [godot, "--path", str(project), "--rendering-driver", "opengl3",
+                      "--script", "res://tools/asset_pipeline/runtime/world_lod_qa.gd"],
+            240, "WORLD_LOD_PASS 207", cwd=project)
     require(git(root,"rev-parse","HEAD")==commit and not git(root,"status","--porcelain"),"checkout changed during run")
     summary=verify_directory(output)
     summary["commit"]=commit

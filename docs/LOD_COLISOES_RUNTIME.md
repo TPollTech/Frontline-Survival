@@ -98,3 +98,14 @@ Godot 4.7.2 stable no Windows, Compatibility/OpenGL 3.3, AMD Radeon integrada no
 Foram abertas as seis imagens dos postes. No comparativo com câmera fixa, a haste e a luminária permanecem visíveis nos três níveis, com mudança discreta no contorno da carcaça no LOD2. A captura distante sofre oclusão parcial e serve para conferir a luminária, com visibilidade limitada da haste. A sequência fixa usa o seletor com distâncias sintéticas e não cobre popping em movimento.
 
 Sem alteração funcional e sem disparo de Actions. A tarefa permanece parcial: falta verificar Godot 4.4.1 e Asset Studio para esta revisão, ampliar a cobertura a outras famílias e medir desempenho no Ryzen 5 7530U com 8 GB. Sem novo executável ou ZIP de distribuição nesta atualização documental.
+
+## Validação local no Godot 4.4.1 — 25/11/2026
+
+Base `4b603e425fa12f6cf035cff6d508c5449905a481`, com `56ee143d` e alterações posteriores preservadas. Git e Godot disponíveis no Linux. Renderização Compatibility/OpenGL 4.5 com Mesa llvmpipe em Xorg, por software. Sem disparo de Actions.
+
+- Na main de referência e novamente pelo runner corrigido (`284b36f`), o Godot 4.4.1 retornou `WORLD_LOD_PASS 207`. No mapa real foram verificados 23 conjuntos, 86 peças, oito bloqueadores invariáveis e 15 conjuntos não bloqueantes. Os níveis somaram 49.248 / 10.584 / 4.128 triângulos. Cada poste manteve três peças, 1.632 / 360 / 144 triângulos e a política não bloqueante.
+- A importação em clone limpo reescreveu metadados `.import` versionados e gerou arquivos `.uid`. O runner agora importa um snapshot temporário da revisão Git e preserva a verificação de integridade do checkout original. A execução completa passou com o checkout limpo e verificou os cabeçalhos dos 30 PNGs de 1.280 × 720. Testes Python de orçamento e verificador: 13/13.
+- Inspeção de seis capturas dos postes no Linux. Em câmera fixa, a luminária e a parte visível da haste permanecem nos três níveis. A 31,2 m, a haste fica parcialmente ocluída e a luminária ocupa poucos pixels. As capturas fixas usam distância sintética para acionar o seletor. A análise não cobre popping durante movimento ou contato do personagem.
+- O inventário Godot aprovou 86 amostras e capturou cinco vistas nativas. O Asset Studio foi montado com o inventário da revisão correta. Seus 19 testes de catálogo passaram. Em Node, o payload de composições conferiu com o SHA-256 do catálogo e com o inventário exportado, incluindo os 23 conjuntos e os quatro postes. O Chromium headless encerrou a página durante o carregamento e o Chromium completo não conseguiu abrir um socket local. A navegação e a inspeção WebGL seguem pendentes.
+
+A tarefa segue parcial. A cobertura das demais famílias e o benchmark de FPS, frame time e memória no Ryzen 5 7530U com GPU integrada e 8 GB continuam pendentes. A medição de triângulos é por recurso, sem inferência de ganho de desempenho.
