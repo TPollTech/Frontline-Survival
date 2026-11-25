@@ -49,6 +49,22 @@ if(process.env.REQUIRE_RUNTIME_VIEWS==='1'){
    }
  }
  console.log('STUDIO_RUNTIME_PAYLOAD_PASS',Object.keys(catalog.geometry_index).length,'buffers');
+ if(catalog.surface_payload){
+   const scenarios=['map_briefing','fps_rifle___hip','enemy_soldier_rifle','enemy_quaternius_experimental','loot_ammo','turret'];
+   for(const id of scenarios){
+     const asset=catalog.assets.find(a=>a.runtime_samples?.includes(id));assert(asset,id);
+     await page.locator('#assets button').filter({hasText:asset.id}).first().click();
+     await page.locator('#runtime-sample').selectOption(id);
+     await page.locator('#open-composition').click();
+     await page.waitForFunction(id=>document.querySelector('#state').dataset.kind==='error'||(JSON.parse(document.querySelector('#viewport').dataset.composition||'{}').id===id&&document.querySelector('#state').dataset.kind==='ready'),id,{timeout:60000});
+     assert.equal(await page.locator('#state').getAttribute('data-kind'),'ready',await page.locator('#state').textContent());
+     const stats=JSON.parse(await page.locator('#viewport').getAttribute('data-composition'));
+     const expected=catalog.surface_coverage.find(s=>s.id===id);
+     assert.equal(stats.surfaces,expected.surfaces);assert.equal(stats.triangles,expected.visible_triangles);assert(stats.maxMatrixError<1e-5);
+     await page.screenshot({path:dir+'/composition-'+id+'.png'});
+     console.log('STUDIO_COMPOSITION_PASS',JSON.stringify(stats));
+   }
+ }
  console.log('STUDIO_RECONCILED_RUNTIME_PASS',catalog.runtime.samples,'samples');
 }
 const observed=[];

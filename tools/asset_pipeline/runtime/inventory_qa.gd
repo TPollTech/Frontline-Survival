@@ -8,6 +8,9 @@ var query_records: Array[Dictionary] = []
 var physical_resources: Array[Dictionary] = []
 var library_materials: Dictionary = {}
 var geometry_buffers: Dictionary = {}
+var studio_buffers: Dictionary = {}
+var studio_textures: Dictionary = {}
+var studio_texture_cache: Dictionary = {}
 
 func _initialize() -> void:
     call_deferred("_run")
@@ -32,7 +35,22 @@ func _matrix(t: Transform3D) -> Array:
 func _texture(t: Texture2D) -> Variant:
     if t == null:
         return null
-    return {"path": t.resource_path, "width": t.get_width(), "height": t.get_height()}
+    var result := {"path":t.resource_path,"width":t.get_width(),"height":t.get_height()}
+    var rid := t.get_rid()
+    if studio_texture_cache.has(rid):
+        result["studio_sha256"] = studio_texture_cache[rid]
+        return result
+    var image := t.get_image()
+    if image != null and not image.is_empty():
+        if image.is_compressed():
+            image.decompress()
+        var png := image.save_png_to_buffer()
+        if not png.is_empty():
+            var hash := _digest(png)
+            studio_textures[hash] = {"data":Marshalls.raw_to_base64(png),"bytes":png.size(),"width":image.get_width(),"height":image.get_height()}
+            studio_texture_cache[rid] = hash
+            result["studio_sha256"] = hash
+    return result
 
 func _material(m: Material) -> Variant:
     if m == null:
@@ -50,7 +68,9 @@ func _material(m: Material) -> Variant:
             "normal_enabled": mat.normal_enabled, "normal_scale": mat.normal_scale,
             "metallic_texture": _texture(mat.metallic_texture),
             "roughness_texture": _texture(mat.roughness_texture),
-            "emission_enabled": mat.emission_enabled, "emission": _color(mat.emission)})
+            "emission_enabled": mat.emission_enabled, "emission": _color(mat.emission),
+            "emission_energy":mat.emission_energy_multiplier,"uv_offset":_vec(mat.uv1_offset),
+            "alpha_scissor_threshold":mat.alpha_scissor_threshold})
     elif m is ShaderMaterial:
         var shader_mat := m as ShaderMaterial
         result["shader"] = shader_mat.shader.resource_path if shader_mat.shader != null else ""
@@ -58,6 +78,28 @@ func _material(m: Material) -> Variant:
 
 # Serialize actual Godot arrays, not approximated preview geometry. Cache by
 # payload hash (not instance id, since resources may be freed/reused).
+func _digest(payload: PackedByteArray) -> String:
+    var ctx := HashingContext.new()
+    ctx.start(HashingContext.HASH_SHA256)
+    ctx.update(payload)
+    return ctx.finish().hex_encode()
+
+# Portable attributes from native Godot arrays; original Variant hash retained.
+func _studio_buffer(arrays: Array, primitive: Variant, source_hash: String) -> String:
+    if studio_buffers.has(source_hash):
+        return source_hash
+    var packed: Dictionary = {}
+    for pair in [["position",Mesh.ARRAY_VERTEX],["normal",Mesh.ARRAY_NORMAL],
+        ["uv",Mesh.ARRAY_TEX_UV],["uv1",Mesh.ARRAY_TEX_UV2],["tangent",Mesh.ARRAY_TANGENT],
+        ["color",Mesh.ARRAY_COLOR],["index",Mesh.ARRAY_INDEX],
+        ["joints",Mesh.ARRAY_BONES],["weights",Mesh.ARRAY_WEIGHTS]]:
+        var v: Variant = arrays[pair[1]]
+        if v != null and v.size() > 0:
+            var bytes: PackedByteArray = v.to_byte_array()
+            packed[pair[0]] = {"data":Marshalls.raw_to_base64(bytes),"bytes":bytes.size(),"sha256":_digest(bytes)}
+    studio_buffers[source_hash] = {"primitive":primitive,"attributes":packed}
+    return source_hash
+
 func _buffer(mesh: Mesh, index: int, arrays: Array, primitive: Variant) -> String:
     # No Objects are encoded. var_to_bytes preserves packed arrays exactly.
     var payload := var_to_bytes({"primitive":primitive,"arrays":arrays})
@@ -100,7 +142,9 @@ func _mesh(node: MeshInstance3D) -> Dictionary:
             primitive = (mesh as ArrayMesh).surface_get_primitive_type(i)
         elif mesh is PrimitiveMesh and not mesh is PointMesh:
             primitive = Mesh.PRIMITIVE_TRIANGLES
-        surfaces.append({"index": i, "primitive": primitive, "vertices": vertices,
+        var source_hash := _digest(var_to_bytes({"primitive":primitive,"arrays":arrays}))
+        var studio_hash := _studio_buffer(arrays,primitive,source_hash)
+        surfaces.append({"studio_sha256":studio_hash,"index": i, "primitive": primitive, "vertices": vertices,
             "indices": indices, "normals": normals, "uvs": uvs, "tangents": tangents,
             "triangles": int((indices if indices > 0 else vertices) / 3.0) if primitive == Mesh.PRIMITIVE_TRIANGLES else null,
             "buffer_sha256": _buffer(mesh,i,arrays,primitive) if mesh.resource_path.is_empty() else null,
@@ -111,6 +155,7 @@ func _mesh(node: MeshInstance3D) -> Dictionary:
         "visibility_range_begin": node.visibility_range_begin,
         "visibility_range_end": node.visibility_range_end,
         "skin_path": node.skin.resource_path if node.skin != null else null,
+        "has_skin": node.skin != null,
         "skeleton_path": str(node.skeleton)}
 
 func _shape(node: CollisionShape3D) -> Dictionary:
@@ -504,7 +549,7 @@ func _run() -> void:
         "commit": OS.get_environment("GITHUB_SHA"), "godot": Engine.get_version_info(),
         "display": DisplayServer.get_name(), "coordinate_unit": "m",
         "samples": samples, "failures": failures, "query_records": query_records,
-        "geometry_buffers":geometry_buffers,"dynamic_probes":_dynamic_probes(),
+        "geometry_buffers":geometry_buffers,"studio_buffers":studio_buffers,"studio_textures":studio_textures,"dynamic_probes":_dynamic_probes(),
         "registered_world_lods":_registered_world_lods(game,game.world_lod),
         "physical_resources": physical_resources, "library_materials": library_materials,
         "limitations": ["finite sampled states, not exhaustive live instances", "procedural base surface buffers captured as Godot Variant; native LOD indices and blend shapes not serialized",

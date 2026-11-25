@@ -24,7 +24,7 @@ def main():
         shutil.copyfile(src,dst)
         if fingerprint(out,name)["sha256"]!=rec["sha256"]:raise ValueError("copy mismatch "+name)
     studio=root/"tools/asset_studio"
-    for name in ("index.html","studio.css","studio.js","lighting.js","camera-navigation.js","inspection.js","serve_offline.py"):shutil.copyfile(studio/name,out/name)
+    for name in ("index.html","studio.css","studio.js","lighting.js","camera-navigation.js","inspection.js","runtime-composition.js","serve_offline.py"):shutil.copyfile(studio/name,out/name)
     from generate_hdri import write
     write(out)
     three=studio/"node_modules/three"
@@ -39,6 +39,9 @@ def main():
         compositions=canonical({"kind":"frontline_runtime_compositions","revision":catalog["revision"],"samples":runtime["samples"],"registered_world_lods":runtime.get("registered_world_lods",[])})
         (out/"runtime_compositions.json").write_bytes(compositions)
         catalog["composition_payload_sha256"]=sha(compositions)
+    if runtime and runtime.get("studio_buffers"):
+        from tools.asset_studio.runtime_composition import stage
+        stage(runtime,catalog,out)
     (out/"live_catalog.json").write_bytes(canonical(catalog))
     print("STUDIO_STAGE_PASS",json.dumps(catalog["counts"],sort_keys=True))
 if __name__=="__main__":main()

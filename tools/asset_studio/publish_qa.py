@@ -12,7 +12,7 @@ def main():
     p=argparse.ArgumentParser();p.add_argument("production");p.add_argument("suite");p.add_argument("bollard");p.add_argument("inventory");args=p.parse_args()
     prod,suite,bollard=map(Path,(args.production,args.suite,args.bollard))
     catalog=json.loads((prod/"live_catalog.json").read_text());qa=prod/"qa";qa.mkdir()
-    for name in ("index.html","studio.css","studio.js","lighting.js","camera-navigation.js","inspection.js","serve_offline.py","studio-light.hdr","studio-light.json"):
+    for name in ("index.html","studio.css","studio.js","lighting.js","camera-navigation.js","inspection.js","runtime-composition.js","serve_offline.py","studio-light.hdr","studio-light.json"):
         shutil.copyfile(prod/name,qa/name)
     shutil.copytree(prod/"vendor",qa/"vendor")
     q={"kind":catalog["kind"],"schema_version":catalog["schema_version"],"revision":catalog["revision"],"assets":[],"resources":{},"runtime_samples":{},"approved":False,"scope":"QA_ONLY"}

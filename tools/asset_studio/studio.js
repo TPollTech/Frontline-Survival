@@ -3,6 +3,8 @@ import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 import {createCameraNavigation} from './camera-navigation.js';
 import {createLighting} from './lighting.js';
 import {createInspection} from './inspection.js';
+import {createRuntimeComposition} from './runtime-composition.js';
+let compositionBuilder;
 const $=id=>document.getElementById(id);
 let catalog,selected,model,frame=0,request=0,renderer,scene,camera,navigation,lighting,inspection;
 const viewport=$('viewport'),status=$('state');
@@ -31,7 +33,7 @@ async function initRenderer(){
  loop();
 }
 function dispose(root){const geos=new Set(),mats=new Set(),textures=new Set();root.traverse(o=>{if(o.geometry)geos.add(o.geometry);for(const m of [].concat(o.material||[])){mats.add(m);for(const v of Object.values(m))if(v?.isTexture)textures.add(v);}if(o.isSkinnedMesh&&o.skeleton)o.skeleton.dispose();});textures.forEach(t=>t.dispose());mats.forEach(m=>m.dispose());geos.forEach(g=>g.dispose());}
-function clear(){inspection?.clear();navigation?.clear();$('view').disabled=true;$('zoom-in').disabled=true;$('zoom-out').disabled=true;lighting?.clear();$('grid-scale').textContent='—';if(lighting)viewport.dataset.lighting=JSON.stringify(lighting.diagnostics());if(model){scene.remove(model);dispose(model);model=null;}viewport.querySelectorAll('img,audio').forEach(x=>x.remove());$('reset').disabled=true;delete viewport.dataset.resource;delete viewport.dataset.sha256;delete viewport.dataset.runtimeView;}
+function clear(){inspection?.clear();navigation?.clear();$('view').disabled=true;$('zoom-in').disabled=true;$('zoom-out').disabled=true;lighting?.clear();$('grid-scale').textContent='—';if(lighting)viewport.dataset.lighting=JSON.stringify(lighting.diagnostics());if(model){scene.remove(model);dispose(model);model=null;}viewport.querySelectorAll('img,audio').forEach(x=>x.remove());$('reset').disabled=true;delete viewport.dataset.resource;delete viewport.dataset.sha256;delete viewport.dataset.runtimeView;delete viewport.dataset.composition;}
 function fit(){if(model)navigation.reset();}
 function resources(a){return [...new Set([a.preview?.resource,...(a.outputs||[]).map(x=>x.path)].filter(p=>p&&catalog.resources[p]?.status!=='missing'&&catalog.resources[p]))];}
 function renderList(){const q=$('search').value.trim().toLowerCase(),cat=$('category').value;const list=catalog.assets.filter(a=>(!cat||a.category===cat)&&(!q||[a.id,a.category,a.source?.path,...resources(a)].join(' ').toLowerCase().includes(q)));$('count').textContent=list.length+' de '+catalog.assets.length+' registros';$('assets').replaceChildren(...list.map(a=>{const b=document.createElement('button');b.type='button';b.dataset.asset=a.id;b.setAttribute('aria-current',String(a===selected));b.textContent=a.id;const sm=document.createElement('small');sm.textContent=a.category+' · '+(a.runtime_views?.length?'captura Godot disponível':resources(a).length?'arquivo real':'captura pendente');b.append(sm);b.addEventListener('click',()=>select(a));return b;}));}
@@ -53,9 +55,23 @@ function sampleDetails(){
 function selectSamples(a){
  const ids=(a.runtime_samples||[]).filter(id=>catalog.runtime_samples?.[id]);
  $('runtime-sample').replaceChildren(...ids.map(id=>new Option(id,id)));
- $('runtime-sample').disabled=!ids.length;sampleDetails();
+ $('runtime-sample').disabled=!ids.length;$('open-composition').disabled=!ids.length||!catalog.surface_payload;sampleDetails();
 }
 $('runtime-sample').addEventListener('change',sampleDetails);
+$('open-composition').addEventListener('click',async()=>{
+ const id=$('runtime-sample').value,token=++request;clear();details(selected,undefined);$('runtime-view').value='';
+ state('Reconstruindo superfícies reais…','loading');
+ $('fidelity').textContent='Composição estática · buffers reais Godot · iluminação Studio';
+ try{
+  compositionBuilder??=createRuntimeComposition(catalog);
+  const data=await compositionBuilder(id);if(token!==request){dispose(data.scene);return;}
+  const box=new THREE.Box3().setFromObject(data.scene,true);if(box.isEmpty()){dispose(data.scene);throw Error('Composição sem geometria');}
+  model=data.scene;scene.add(model);const step=lighting.place(model,box);inspection.attach(data,selected);navigation.setBounds(box);
+  $('grid-scale').textContent=Number(step.toPrecision(4))+' m / célula';for(const k of ['view','reset','zoom-in','zoom-out'])$(k).disabled=false;
+  viewport.dataset.composition=JSON.stringify(data.stats);row('Amostra',id);row('Superfícies visíveis',data.stats.visibleSurfaces);row('Triângulos visíveis',data.stats.triangles);row('Limitações',data.stats.warnings.join(' · '));
+  state('Composição reconstruída dos buffers Godot','ready');
+ }catch(e){if(token===request){clear();state('Falha na composição: '+e.message,'error');}}
+});
 function details(a,p){$('details').replaceChildren();row('ID',a.id);row('Categoria',a.category);row('Uso',a.usage);row('Fonte',a.source?.path);row('Arquivo',p);row('SHA-256',catalog.resources[p]?.sha256);row('Runtime',a.validation?.runtime);row('Homologação','Não homologado');row('Procedência',a.provenance);textList($('deps'),[...new Set([...(a.dependencies?.resources||[]),...(a.dependencies?.assets||[]),...(a.dependencies?.sources||[]),...(catalog.resources[p]?.gltf_dependencies||[]).map(d=>d.path)])]);textList($('gaps'),[...(a.gaps||[]),'Prévia não certifica materiais ou poses efetivos do Godot.']);}
 function select(a){selected=a;selectSamples(a);$('title').textContent=a.id;renderList();const paths=resources(a);$('variant').replaceChildren(...paths.map(p=>{const o=document.createElement('option');o.value=p;o.textContent=p.split('/').pop();return o;}));$('variant').disabled=!paths.length;
  const selector=$('runtime-view');selector.replaceChildren(new Option('Arquivo 3D / recurso',''),...(a.runtime_views||[]).map(v=>new Option(v.label,v.id)));selector.disabled=!(a.runtime_views||[]).length;selector.value='';
