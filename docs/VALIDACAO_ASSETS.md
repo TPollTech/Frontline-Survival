@@ -48,3 +48,8 @@ CIs 45516709723/45516709742 aprovados: 84 exports determinísticos, 42 GLBs conf
 ## Revisão artística Blender
 
 14 pilotos / 13 categorias geométricas, 42 GLBs aprovados na revisão bfc367a8; nova arte de três pilotos via BlenderBackend, contratos e reprodução em revalidação. Publicação QA corrigida após HTTP 404 de metadados HDRI. Evidências, referências e limites em [PILOTOS_ASSETS.md](PILOTOS_ASSETS.md).
+
+
+## Rigging dos pilotos
+
+CIs 45518029777 e 45518280679 aprovados. Artefatos inspecionados de estação, abrigo e veículo; correções de orientação e novas cadeias de ossos skinned nos pilotos glove/mannequin. Geração estrita e importação Godot na revisão c7f4d83e passaram; validação de poses e publicação em andamento. Ver [PILOTOS_ASSETS.md](PILOTOS_ASSETS.md).
