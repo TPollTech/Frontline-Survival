@@ -1,6 +1,8 @@
 extends Node3D
 
 const ModelSurface = preload("res://scripts/model_surface.gd")
+const WorldLOD = preload("res://scripts/world_lod.gd")
+var world_lod = WorldLOD.new()
 
 const SpawnSelector = preload("res://scripts/spawn_selector.gd")
 const WaveRules = preload("res://scripts/wave_rules.gd")
@@ -303,6 +305,7 @@ func _restart_game() -> void:
     get_tree().reload_current_scene()
 
 func _process(delta: float) -> void:
+    world_lod.tick(delta, get_viewport().get_camera_3d())
     if status_timer > 0.0:
         status_timer -= delta
     for i in range(threat_durations.size()):
@@ -478,13 +481,15 @@ func _add_container(at: Vector3, dimensions: Vector3, color: Color) -> void:
 
 func _add_sandbags(center: Vector3, count: int, levels: int) -> void:
     var color := Color(0.52, 0.48, 0.34)
+    var lod_meshes := ModelSurface.body_lods(Vector3(0.90, 0.39, 0.46), ModelSurface.Profile.PADDED)
+    var lod_parts: Array[MeshInstance3D] = []
     for level in range(levels):
         for i in range(count):
             var x := center.x + (float(i) - float(count - 1) * 0.5) * 0.85 + (0.23 if level % 2 == 1 else 0.0)
             var position := Vector3(x, 0.21 + float(level) * 0.34, center.z)
             # Base invisivel simplificada para impedir atravessar a barricada.
             var item := MeshInstance3D.new()
-            item.mesh = ModelSurface.body(Vector3(0.90, 0.39, 0.46), ModelSurface.Profile.PADDED)
+            item.mesh = lod_meshes[0]
             item.position = position
             item.rotation.y = sin(float(i * 7 + level)) * 0.09
             var mat := StandardMaterial3D.new()
@@ -492,8 +497,11 @@ func _add_sandbags(center: Vector3, count: int, levels: int) -> void:
             mat.roughness = 1.0
             item.material_override = mat
             add_child(item)
+            lod_parts.append(item)
     var hidden_blocker := _add_box(center + Vector3(0, float(levels) * 0.17, 0), Vector3(float(count) * 0.86, float(levels) * 0.34, 0.39), Color(0.50, 0.47, 0.34), true)
     hidden_blocker.visible = false
+    if not world_lod.register_barricade(lod_parts, lod_meshes, hidden_blocker as StaticBody3D):
+        push_warning("Barricade LOD rejected; preserving base visual and collision")
 
 func _add_barrel(center: Vector3, color: Color) -> void:
     _add_cylinder(center + Vector3(0, 0.53, 0), 0.34, 1.05, color)

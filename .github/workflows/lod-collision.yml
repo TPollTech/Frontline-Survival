@@ -7,13 +7,18 @@ on:
       - 'tools/asset_pipeline/parametric/**'
       - 'tools/asset_pipeline/runtime/lod_collision_qa.gd'
       - 'tools/asset_pipeline/runtime/lod_selector.gd'
+      - 'tools/asset_pipeline/runtime/world_lod_qa.gd'
+      - 'scripts/world_lod.gd'
+      - 'scripts/model_surface.gd'
+      - 'scripts/main.gd'
+      - 'tests/test_world_lod_contract.py'
   workflow_dispatch:
 permissions:
   contents: read
 jobs:
   godot:
     runs-on: ubuntu-22.04
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -36,6 +41,20 @@ jobs:
           timeout 60s godot --headless --path qa-lod --script res://lod_collision_qa.gd 2>&1 | tee qa-lod/godot.log
           grep -q LOD_COLLISION_GODOT_PASS qa-lod/godot.log
           if grep -E 'SCRIPT ERROR:|Parse Error|LOD_COLLISION_FAIL' qa-lod/godot.log; then exit 1; fi
+      - name: Verify canonical category budget
+        run: python -m unittest discover -s tests -p 'test_world_lod_contract.py' -v
+      - name: Render and verify actual game barricades
+        env:
+          FRONTLINE_LOD_DIR: ${{ runner.temp }}/world-lod
+          XDG_DATA_HOME: ${{ runner.temp }}/world-lod-profile
+        run: |
+          set -o pipefail
+          mkdir -p "$FRONTLINE_LOD_DIR"
+          timeout 120s godot --headless --editor --import --path . 2>&1 | tee "$FRONTLINE_LOD_DIR/import.log"
+          if grep -E 'SCRIPT ERROR:|Parse Error' "$FRONTLINE_LOD_DIR/import.log"; then exit 1; fi
+          timeout 120s xvfb-run -a -s '-screen 0 1280x720x24' godot --path . --rendering-driver opengl3 --script res://tools/asset_pipeline/runtime/world_lod_qa.gd 2>&1 | tee "$FRONTLINE_LOD_DIR/godot.log"
+          grep -q 'WORLD_LOD_PASS 36' "$FRONTLINE_LOD_DIR/godot.log"
+          if grep -E 'SCRIPT ERROR:|Parse Error|WORLD_LOD_FAIL' "$FRONTLINE_LOD_DIR/godot.log"; then exit 1; fi
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -43,4 +62,5 @@ jobs:
           path: |
             qa-lod/fixture.json
             qa-lod/godot.log
+            ${{ runner.temp }}/world-lod/
           if-no-files-found: warn

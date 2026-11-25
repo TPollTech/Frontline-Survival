@@ -49,3 +49,43 @@ static func _grid(indices: PackedInt32Array, first: int, stride: int) -> void:
             var b := a + stride
             var c := a + stride * (STEPS + 1)
             indices.append_array(PackedInt32Array([a, c, b, b, c, c + stride]))
+
+
+# Explicit distance LODs, reusing the exact existing authored samples.
+# Compact each level so unused vertices are not uploaded to the renderer.
+# The ordinary body() API and its native LOD are unchanged.
+static var explicit_cache: Dictionary = {}
+
+static func body_lods(size: Vector3, profile: Profile = Profile.MOLDED) -> Array[ArrayMesh]:
+    var key := Vector4(size.x, size.y, size.z, float(profile))
+    if explicit_cache.has(key):
+        return explicit_cache[key]
+    var source: Array = body(size, profile).surface_get_arrays(0)
+    var levels: Array[ArrayMesh] = []
+    for stride in [1, 2, 3]:
+        var old_indices := PackedInt32Array()
+        for face in range(6):
+            _grid(old_indices, face * (STEPS + 1) * (STEPS + 1), stride)
+        var remap: Dictionary = {}
+        var vertices := PackedVector3Array()
+        var normals := PackedVector3Array()
+        var uv := PackedVector2Array()
+        var indices := PackedInt32Array()
+        for old in old_indices:
+            if not remap.has(old):
+                remap[old] = vertices.size()
+                vertices.append(source[Mesh.ARRAY_VERTEX][old])
+                normals.append(source[Mesh.ARRAY_NORMAL][old])
+                uv.append(source[Mesh.ARRAY_TEX_UV][old])
+            indices.append(int(remap[old]))
+        var arrays: Array = []
+        arrays.resize(Mesh.ARRAY_MAX)
+        arrays[Mesh.ARRAY_VERTEX] = vertices
+        arrays[Mesh.ARRAY_NORMAL] = normals
+        arrays[Mesh.ARRAY_TEX_UV] = uv
+        arrays[Mesh.ARRAY_INDEX] = indices
+        var mesh := ArrayMesh.new()
+        mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+        levels.append(mesh)
+    explicit_cache[key] = levels
+    return levels
