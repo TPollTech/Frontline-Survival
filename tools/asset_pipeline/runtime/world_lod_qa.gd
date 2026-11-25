@@ -36,6 +36,7 @@ func _run() -> void:
     var wanted := [0,0,1,1,2,2,1,1,0]
     var index := 0
     var captured: Dictionary = {}
+    var comparison_families: Dictionary = {}
     for entry in game.world_lod.entries:
         var body: StaticBody3D = entry.blocker
         var shape: CollisionShape3D = entry.shape
@@ -100,6 +101,29 @@ func _run() -> void:
                 if image.is_empty() or image.save_png(output.path_join(entry.family+"-lod"+str(level)+".png"))!=OK:
                     fail("capture")
                     return
+        if not comparison_families.has(entry.family):
+            comparison_families[entry.family]=true
+            # First capture at the real near camera transform, then force the
+            # normal distance selector while leaving the camera fixed. This
+            # is QA comparison only; game logic and physics remain untouched.
+            var sign_z := -1.0 if center.z>0 else 1.0
+            var dy := 1.65-center.y
+            camera.global_position=center+Vector3(0,dy,sign_z*sqrt(16.0-dy*dy))
+            camera.look_at(center,Vector3.UP)
+            var fixed_camera := camera.global_transform
+            for level in range(3):
+                var distance: float = [4.0,13.2,31.2][level]
+                game.world_lod.update_at(center+Vector3(0,0,distance))
+                if entry.selector.current!=level or camera.global_transform!=fixed_camera:
+                    fail("fixed camera comparison")
+                    return
+                await process_frame
+                await RenderingServer.frame_post_draw
+                var image:=root.get_texture().get_image()
+                if image.is_empty() or image.save_png(output.path_join(entry.family+"-fixed-lod"+str(level)+".png"))!=OK:
+                    fail("fixed capture")
+                    return
+            game.world_lod.update_at(center+Vector3(0,0,4.0))
         index+=1
     var file:=FileAccess.open(output.path_join("world-lod-report.json"),FileAccess.WRITE)
     if file==null:
