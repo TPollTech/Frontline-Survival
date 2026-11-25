@@ -1,7 +1,7 @@
 extends CharacterBody3D
+class_name SurvivalPlayer
 
 const CharacterGeometry = preload("res://scripts/character_geometry.gd")
-class_name SurvivalPlayer
 
 const ModelSurface = preload("res://scripts/model_surface.gd")
 
