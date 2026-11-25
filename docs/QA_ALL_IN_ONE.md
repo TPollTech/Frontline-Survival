@@ -13,3 +13,7 @@ Resultados: ZIP de evidências interno com SHA-256 e summary.json (homologated/v
 ## Validação desta entrega
 
 Execução local isolada do núcleo Python em Python 3.13.5 com subprocessos de teste: sucesso, falha, dependência bloqueada, ausência de marker, erro de engine, código final de falha, exclusão de perfil e reconciliação SHA-256/ZIP com 16 IDs sem homologação. O núcleo foi testado antes dos acréscimos de orquestração dos pilotos; a versão final passou por py_compile. O arquivo de empacotamento passou por py_compile. Hashes dos arquivos locais conferidos com os blobs propostos. PowerShell, bootstrap, downloads, integração dos runners reais e ZIP completo ainda não executados no Windows. Não marcar tarefas concluídas por esta preparação. Manter exclusivamente etapa 00 até 34/34 aprovadas.
+
+## Primeira execução Windows — correção de detecção (25/11/2026)
+
+O ZIP de resultados enviado pelo usuário continha somente setup.log: Windows PowerShell 5.1, erro `No suitable Python runtime found` do py.exe sob ErrorActionPreference=Stop. Nenhum teste do projeto executado. A sondagem opcional agora procura primeiro os caminhos conhecidos, usa Continue no escopo da função, captura exceções do lançador e retorna null se ausente, permitindo acionar winget e consultar novamente após instalação. O tratamento fatal do restante do bootstrap permanece Stop. Alteração verificada estaticamente; PowerShell 5.1 não disponível neste ambiente, novo teste no Windows necessário. Nenhum estado de homologação promovido.

@@ -20,12 +20,23 @@ function Find-Git {
     foreach ($p in @("$env:ProgramFiles\Git\cmd\git.exe", "$env:LOCALAPPDATA\Programs\Git\cmd\git.exe")) { if (Test-Path $p) { return $p } }
 }
 function Find-Python {
+    # On Windows PowerShell 5.1, native stderr can become a terminating
+    # error under Stop, even with 2>$null. A missing runtime is expected
+    # during this optional probe; it must not abort dependency setup.
+    $ErrorActionPreference = 'Continue'
+    foreach ($candidate in @("$env:LOCALAPPDATA\Programs\Python\Python311\python.exe", "$env:ProgramFiles\Python311\python.exe")) {
+        if (Test-Path -LiteralPath $candidate -PathType Leaf) { return $candidate }
+    }
     $launcher = Get-Command py.exe -ErrorAction SilentlyContinue
     if ($launcher) {
-        $p = & $launcher.Source -3.11 -c 'import sys; print(sys.executable)' 2>$null
-        if ($LASTEXITCODE -eq 0 -and $p -and (Test-Path $p)) { return $p }
+        try {
+            $p = & $launcher.Source -3.11 -c 'import sys; print(sys.executable)' 2>$null
+            if ($LASTEXITCODE -eq 0 -and $p -and (Test-Path -LiteralPath $p -PathType Leaf)) { return $p }
+        } catch {
+            Write-Host "Python 3.11 probe unavailable: $($_.Exception.Message)"
+        }
     }
-    foreach ($p in @("$env:LOCALAPPDATA\Programs\Python\Python311\python.exe", "$env:ProgramFiles\Python311\python.exe")) { if (Test-Path $p) { return $p } }
+    return $null
 }
 function Install-Dependency([string]$id) {
     $winget = Get-Command winget.exe -ErrorAction SilentlyContinue
@@ -52,7 +63,11 @@ try {
     $git = Find-Git
     if (-not $git) { Install-Dependency 'Git.Git'; $git = Find-Git }
     $python = Find-Python
-    if (-not $python) { Install-Dependency 'Python.Python.3.11'; $python = Find-Python }
+    if (-not $python) {
+        Write-Host 'Python 3.11 not found; installing via Windows Package Manager.'
+        Install-Dependency 'Python.Python.3.11'
+        $python = Find-Python
+    }
     if (-not $git -or -not $python) { throw 'Git or Python not found after installation.' }
     $env:Path = (Split-Path $git) + ';' + $env:Path
     $repo = Join-Path $run 'source'
