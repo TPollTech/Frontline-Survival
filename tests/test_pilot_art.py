@@ -16,6 +16,14 @@ class PilotArtTests(unittest.TestCase):
             self.assertGreater(len(a.triangles),len(b.triangles))
             lo,hi=a.bounds();x,y,z=p["size"]
             for v,e in zip((*lo,*hi),(-x/2,0,-z/2,x/2,y,z/2)):self.assertAlmostEqual(v,e,places=5)
+    def test_vehicle_front_contract(self):
+        parts={p["id"]:p for p in PILOTS["utility_cart"][1]}
+        cab,cargo=parts["cab"],parts["cargo"]
+        self.assertLess(cab["center"][2],cargo["center"][2])
+        mesh=detailed("utility_cart",cargo,0)
+        front=mesh.bounds()[0][2]+cargo["center"][2]
+        self.assertLess(front,cab["center"][2]-cab["size"][2]/2)
+        self.assertGreater(front,-.9)
     def test_wheel_axis_and_extent(self):
         p=next(p for p in PILOTS["utility_cart"][1] if p["id"]=="wheel_0")
         for level in range(3):

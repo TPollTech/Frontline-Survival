@@ -83,8 +83,8 @@ PILOTS={
 PILOTS.update({
  "utility_cart":("vehicle",[
  P("deck","chamfer",(0,.40,0),(1.25,.18,1.8),"cool_steel"),
- P("cab","chamfer",(0,.88,.35),(.96,.75,.72),"safety_amber"),
- P("cargo","chamfer",(0,.64,-.48),(1.10,.48,.75),"graphite"),
+ P("cab","chamfer",(0,.88,-.35),(.96,.75,.72),"safety_amber"),
+ P("cargo","chamfer",(0,.64,.48),(1.10,.48,.75),"graphite"),
  *[P("wheel_"+str(i),"loft",(x,.23,z),(.22,.46,.46),"graphite") for i,(x,z) in enumerate([(-.63,-.60),(.63,-.60),(-.63,.60),(.63,.60)])]],
  "static industrial utility cart; visual only, no drive or wheel physics"),
  "signal_effect":("effect",[
