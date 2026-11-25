@@ -175,3 +175,27 @@ Luva poses wrist 20°, finger_1_j1 45°, finger_2_j0 35°, thumb_j0 25°. Person
 Commit 1aba84b9 aplica a redução na primeira faixa da manga, arredonda pontas dos dedos (taper final .48 em vez de .34), melhora atlas de aderência, costuras, trama e normal map da luva; atlas do personagem ganha bolsos frontais, zíper, proteção ocular opaca e detalhes de vestimenta. São detalhes procedurais, não fotogrametria nem geometria de rosto. Gate exige zero contatos não adjacentes em repouso e quatro poses por LOD para ambos os rigs; teste unitário exige o mesmo. Isso não elimina limitações anteriores do detector (faces adjacentes, contato contínuo, outras poses). Sem novos pilotos ou alterações de produção.
 
 Nova suíte [45528961593](https://github.com/TPollTech/Frontline-Survival/actions/runs/45528961593), Pages [45528961601](https://github.com/TPollTech/Frontline-Survival/actions/runs/45528961601), Windows [45528961629](https://github.com/TPollTech/Frontline-Survival/actions/runs/45528961629) em execução. Não afirmar aprovação da nova geometria, materiais ou publicação antes de confirmar testes e inspeção. Último deploy confirmado f9b972da; não houve verificação independente da URL nesta sessão. 00-13/24/25/27 parciais.
+
+
+## Correção do ombro confirmada, poses combinadas e frente do atlas
+
+Preservados fa2b7063 e 604e1821 (sincronização posterior das capturas). CI [45528961593](https://github.com/TPollTech/Frontline-Survival/actions/runs/45528961593) aprovado; geração reproduzível, 39 GLBs em Godot e Studio. Windows [45528961629](https://github.com/TPollTech/Frontline-Survival/actions/runs/45528961629) aprovado. Balizador 45528961605 aprovado. Artefato [14982624984](https://github.com/TPollTech/Frontline-Survival/actions/runs/45528961593/artifacts/14982624984) baixado. Abertas oito capturas reais LOD0 em repouso/pose, Godot/Studio. Luva: pontas arredondadas, painel de aderência retangular arredondado com estrias visíveis, costuras discretas; polegar simplificado. Personagem: ombro sem a interpenetração detectada anteriormente nas amostras; aparência ainda de manequim, cabeça/mãos genéricas, roupa de baixa complexidade. Zíper e bolsos apareciam na vista Studio +Z enquanto o Godot mostrava a face sem detalhes pela frente -Z. Fonte corrigida f93d7076, troca as ilhas frontais/traseiras do atlas sem alterar geometria ou rig e adiciona teste do mapeamento pelo índice da camada. Nova imagem não inspecionada ainda.
+
+Relatórios pilot-report.json dos GLBs da revisão 1aba84b9 confirmam zero contatos em todos os repousos e quatro poses individuais por LOD: glove 2844/1496/660 triângulos; mannequin 2676/1556/768. Os quatro contatos do ombro anteriormente registrados (2/2/0) foram eliminados. Não significa ausência de contatos entre faces adjacentes nem em todos os movimentos.
+
+### Poses combinadas
+
+Análise local independente dos GLBs corrigidos: extração POSITION/indices/JOINTS_0/WEIGHTS_0/inverseBindMatrices e hierarquia, solda analítica por posição coincidente, reconstrução LBS com rotações locais X e auditoria SAT não adjacente (tolerância 1e-8 m). Três cenários de cada rig, quatro frações (25%, 50%, 75%, 100%), três LODs: 72 amostras, zero contatos. Razões de área de faces observadas:
+
+| modelo | LOD | amostras | contatos | razão mín–máx |
+|---|---:|---:|---:|---|
+| glove | 0 | 12 | 0 | 0.62524–1.99120 |
+| glove | 1 | 12 | 0 | 0.62398–2.29154 |
+| glove | 2 | 12 | 0 | 0.62114–2.47548 |
+| mannequin | 0 | 12 | 0 | 0.71075–1.41033 |
+| mannequin | 1 | 12 | 0 | 0.50032–1.50026 |
+| mannequin | 2 | 12 | 0 | 0.74156–1.22090 |
+
+50579e2e integra `combined_pose_audit.py` em ambas as receitas e testes: três combinações por rig, 12 amostras/LOD, exige deslocamento, razão de área finita de 0.025 a 8 e zero contatos não adjacentes. Reporta ângulos, fração, áreas e contatos. Os limites são guardrails de degeneração grosseira, não limites anatômicos. Testes de CPU, não captura da animação combinada dentro do jogo. O workflow disponibiliza artefato antecipado de capturas Godot e relatórios dos rigs antes do teste mais demorado do navegador. CI 45529409669 passou testes unitários e geração reproduzível, chegou à renderização Godot; nova revisão UV f93d7076 em validação. Nenhum modelo novo nem mudanças de produção.
+
+Pages [45528961601](https://github.com/TPollTech/Frontline-Survival/actions/runs/45528961601) ainda em teste de subrota ao registrar; 45529409639 cancelado por revisão posterior, [45529734340](https://github.com/TPollTech/Frontline-Survival/actions/runs/45529734340) pendente. Última publicação confirmada f9b972da, 45526099772. Não afirmar publicação da revisão corrigida nem homologação artística sem evidência. 00-21/24/25/27 parciais.

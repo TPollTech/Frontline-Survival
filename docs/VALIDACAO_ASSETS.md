@@ -73,3 +73,8 @@ CI 45520645718 confirmou 42 capturas em repouso e seis posadas publicadas. Revis
 ## Contatos dos rigs contínuos e revisão visual
 
 45526099663/45526099772 aprovados, capturas reais abertas. Repouso zero contatos; luva zero em quatro poses nos três LODs, personagem 2/2/0 no ombro. Simulação independente dos GLBs confirmou correção 0/0/0; 1aba84b9 aplica pesos e gate, refina pontas e materiais. CI 45528961593 em validação. Ver [PILOTOS_ASSETS.md](PILOTOS_ASSETS.md).
+
+
+## Confirmação dos rigs corrigidos
+
+45528961593 e Windows 45528961629 aprovados; capturas reais 1aba84b9 inspecionadas. Zero contatos em repouso e quatro poses por LOD dos dois rigs; 72 amostras combinadas dos GLBs aprovadas em análise independente. 50579e2e incorpora os testes; f93d7076 corrige orientação UV frontal. Publicação atual e inspeção posterior pendentes. Ver [PILOTOS_ASSETS.md](PILOTOS_ASSETS.md).
