@@ -16,8 +16,6 @@ jobs:
   pilot:
     runs-on: ubuntu-22.04
     timeout-minutes: 15
-    env:
-      FRONTLINE_PILOT_DIR: ${{ runner.temp }}/pilot
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -26,6 +24,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Set isolated output directory
+        run: echo "FRONTLINE_PILOT_DIR=$RUNNER_TEMP/pilot" >> "$GITHUB_ENV"
       - name: Generate strict pilot and compare reproducibility
         run: |
           python -m tools.asset_pipeline.parametric.pilot_object "$FRONTLINE_PILOT_DIR" "$GITHUB_SHA"
