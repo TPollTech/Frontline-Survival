@@ -1,4 +1,6 @@
 extends Node3D
+
+const CharacterGeometry = preload("res://scripts/character_geometry.gd")
 ## Experimental single-enemy prototype, NOT a replacement of all combatants.
 ## Source: Quaternius Universal Base Characters, CC0-1.0.
 ## The bundled GLB includes the 65-bone human rig, not animation clips.
@@ -140,11 +142,7 @@ func _create_tactical_equipment() -> void:
 
 func _equip_capsule(name_hint: String, location: Vector3, radius: float,
         height: float, color: Color, part_scale: Vector3) -> void:
-    var shape := CapsuleMesh.new()
-    shape.radius = radius
-    shape.height = height
-    shape.radial_segments = 12
-    shape.rings = 3
+    var shape := CharacterGeometry.capsule(radius, height, 12, 3)
     var part := MeshInstance3D.new()
     part.name = name_hint
     part.mesh = shape
@@ -157,8 +155,7 @@ func _equip_capsule(name_hint: String, location: Vector3, radius: float,
     add_child(part)
 
 func _equip_box(name_hint: String, location: Vector3, size: Vector3, color: Color) -> void:
-    var shape := BoxMesh.new()
-    shape.size = size
+    var shape := CharacterGeometry.box(size)
     var part := MeshInstance3D.new()
     part.name = name_hint
     part.mesh = shape

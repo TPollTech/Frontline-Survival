@@ -281,7 +281,32 @@ def build(root,paths=None,runtime=None,revision=None):
            "animations":None,"collision":None,"lods":None,"materials":None,"budget":None,
            "provenance":rec.get("provenance"),"validation":{"approved":False,"runtime":"not_observed_current","studio_visual":"pending","godot_visual":"pending"},"runtime_samples":[]}
         assets.append(a);byid[id]=a;owners[p].append(id)
-    known_procedural={a["source"]["path"] for a in assets if a["source"].get("kind")=="godot_recipe"}
+    # Shared character recipes are dependencies of the actual runtime families,
+    # never independent preview models. Baseline IDs and sources stay intact.
+    character_helper="scripts/character_geometry.gd"
+    character_families={
+        "viewmodel:hands": ("sleeve",),
+        "enemy:legacy": ("joint","padded","capsule"),
+        "ally:legacy": ("joint","padded","capsule"),
+        "character:quaternius_equipment": ("capsule","box"),
+    }
+    shared_procedural=set()
+    if character_helper in sources:
+        record=source_records.get(character_helper)
+        require(record is not None,"missing character helper")
+        helper_text=safe(root,character_helper).read_text(encoding="utf-8")
+        for aid,functions in character_families.items():
+            require(aid in byid,"missing character family: "+aid)
+            asset=byid[aid]
+            consumer=asset["source"]["path"]
+            consumer_text=safe(root,consumer).read_text(encoding="utf-8")
+            require('preload("res://'+character_helper+'")' in consumer_text,"missing character helper reference: "+aid)
+            for name in functions:
+                require(re.search(r"^static func "+name+r"\(",helper_text,re.M) and "CharacterGeometry."+name+"(" in consumer_text,"missing shared character recipe: "+aid+":"+name)
+            asset["dependencies"]["sources"]=sorted(set(asset["dependencies"]["sources"])|{character_helper,"scripts/model_surface.gd"})
+            asset["canonical_shared_recipes"]={"path":character_helper,"functions":list(functions),"fingerprint":record,"approved":False}
+        shared_procedural.add(character_helper)
+    known_procedural={a["source"]["path"] for a in assets if a["source"].get("kind")=="godot_recipe"}|shared_procedural
     runtime_candidates=sorted(set(possible)-known_procedural)
     for p in runtime_candidates:
         id="candidate:"+p

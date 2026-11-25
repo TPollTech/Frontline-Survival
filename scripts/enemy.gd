@@ -1,4 +1,6 @@
 extends CharacterBody3D
+
+const CharacterGeometry = preload("res://scripts/character_geometry.gd")
 class_name SurvivalEnemy
 
 const ModelSurface = preload("res://scripts/model_surface.gd")
@@ -121,11 +123,7 @@ func configure(enemy_kind: String, wave_num: int, target: SurvivalPlayer, loadou
     ammo_in_mag = ammo_capacity
 
 func _joint(parent: Node3D, location: Vector3, joint_name: String) -> Node3D:
-    var joint := Node3D.new()
-    joint.name = joint_name
-    joint.position = location
-    parent.add_child(joint)
-    return joint
+    return CharacterGeometry.joint(parent, location, joint_name)
 
 func _part(parent: Node3D, shape: Mesh, location: Vector3, tint: Color, name_hint: String = "Part", rotation: Vector3 = Vector3.ZERO) -> MeshInstance3D:
     var piece := MeshInstance3D.new()
@@ -142,15 +140,11 @@ func _part(parent: Node3D, shape: Mesh, location: Vector3, tint: Color, name_hin
     return piece
 
 func _box(parent: Node3D, location: Vector3, size: Vector3, tint: Color, name_hint: String = "Equipment") -> MeshInstance3D:
-    var shape := ModelSurface.body(size, ModelSurface.Profile.PADDED)
+    var shape := CharacterGeometry.padded(size)
     return _part(parent, shape, location, tint, name_hint)
 
 func _capsule(parent: Node3D, location: Vector3, radius: float, height: float, tint: Color, name_hint: String = "Body") -> MeshInstance3D:
-    var shape := CapsuleMesh.new()
-    shape.radius = radius
-    shape.height = height
-    shape.radial_segments = 10
-    shape.rings = 2
+    var shape := CharacterGeometry.capsule(radius, height, 10, 2)
     return _part(parent, shape, location, tint, name_hint)
 
 func _ready() -> void:

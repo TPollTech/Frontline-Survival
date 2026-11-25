@@ -20,6 +20,36 @@ class CatalogTests(unittest.TestCase):
         f.write_text(data,encoding="utf-8")
     def catalog(self,paths,runtime=None):
         return build(self.root,paths=paths,revision="fixture",runtime=runtime)
+
+    def test_shared_character_recipes_are_linked_not_preview_assets(self):
+        helper="scripts/character_geometry.gd"
+        families={
+            "viewmodel:hands":("scripts/player.gd",["sleeve"]),
+            "enemy:legacy":("scripts/enemy.gd",["joint","padded","capsule"]),
+            "ally:legacy":("scripts/ally.gd",["joint","padded","capsule"]),
+            "character:quaternius_equipment":("scripts/quaternius_soldier_visual.gd",["capsule","box"]),
+        }
+        assets=[]
+        for aid,(p,names) in families.items():
+            self.put(p,'const CharacterGeometry = preload("res://'+helper+'")\n'+"\n".join("CharacterGeometry."+n+"()" for n in names))
+            assets.append({"id":aid,"category":"character","source":{"path":p,"kind":"godot_recipe"},"outputs":[],"dependencies":{"sources":[],"assets":[],"resources":[]},"preview":{"resource":None},"validation":{}})
+        self.put(helper,"\n".join("static func "+n+"():\n    MeshInstance3D.new()" for n in ("joint","padded","capsule","box","sleeve")))
+        self.put("scripts/model_surface.gd","extends RefCounted")
+        self.put("assets/catalog/manifest.json",json.dumps({"assets":assets,"resources":{},"source_registry":{},"known_dynamic_gaps":[]}))
+        paths=[helper,"scripts/model_surface.gd"]+[p for p,_ in families.values()]
+        c=self.catalog(paths)
+        self.assertEqual(len(c["assets"]),4)
+        self.assertNotIn(helper,c["runtime_candidates"])
+        for a in c["assets"]:
+            self.assertIn(helper,a["dependencies"]["sources"])
+            self.assertEqual(a["canonical_shared_recipes"]["functions"],families[a["id"]][1])
+            self.assertEqual(a["canonical_shared_recipes"]["fingerprint"],c["sources"][helper])
+            self.assertFalse(a["canonical_shared_recipes"]["approved"])
+        self.assertEqual(canonical(c),canonical(self.catalog(paths)))
+        self.put("scripts/ally.gd",'const CharacterGeometry = preload("res://'+helper+'")')
+        with self.assertRaisesRegex(ValueError,"missing shared character recipe"):
+            self.catalog(paths)
+
     def test_discovery_and_reference(self):
         self.put("assets/new.glb","model bytes")
         self.put("scenes/map.tscn",'[ext_resource path="res://assets/new.glb"]')

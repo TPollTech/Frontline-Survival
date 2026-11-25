@@ -1,4 +1,6 @@
 extends CharacterBody3D
+
+const CharacterGeometry = preload("res://scripts/character_geometry.gd")
 class_name SurvivalAlly
 
 const ModelSurface = preload("res://scripts/model_surface.gd")
@@ -38,11 +40,7 @@ func configure(target: SurvivalPlayer) -> void:
     player = target
 
 func _joint(parent: Node3D, at: Vector3, label: String) -> Node3D:
-    var j := Node3D.new()
-    j.name = label
-    j.position = at
-    parent.add_child(j)
-    return j
+    return CharacterGeometry.joint(parent, at, label)
 
 func _piece(parent: Node3D, shape: Mesh, at: Vector3, tint: Color, label: String) -> MeshInstance3D:
     var part := MeshInstance3D.new()
@@ -57,15 +55,11 @@ func _piece(parent: Node3D, shape: Mesh, at: Vector3, tint: Color, label: String
     return part
 
 func _box(parent: Node3D, at: Vector3, size: Vector3, tint: Color, label: String) -> MeshInstance3D:
-    var shape := ModelSurface.body(size, ModelSurface.Profile.PADDED)
+    var shape := CharacterGeometry.padded(size)
     return _piece(parent, shape, at, tint, label)
 
 func _capsule(parent: Node3D, at: Vector3, radius: float, height: float, tint: Color, label: String) -> MeshInstance3D:
-    var shape := CapsuleMesh.new()
-    shape.radius = radius
-    shape.height = height
-    shape.radial_segments = 10
-    shape.rings = 2
+    var shape := CharacterGeometry.capsule(radius, height, 10, 2)
     return _piece(parent, shape, at, tint, label)
 
 func _ready() -> void:
