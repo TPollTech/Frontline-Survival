@@ -332,6 +332,15 @@ def build(root,paths=None,runtime=None,revision=None):
             a=byid[q["family"]]
             a["validation"]["runtime"]="query_executed" if q["executed"] else "not_observed_current"
             a["query_evidence"]=q
+        for rec in runtime.get("physical_resources",[]):
+            if rec["path"] in resources:
+                resources[rec["path"]]["engine_load_evidence"]=rec
+        for material_id,mat in runtime.get("library_materials",{}).items():
+            for key,value in mat.items():
+                if key.endswith("_texture") and isinstance(value,dict) and str(value.get("path","")).startswith("res://"):
+                    path=value["path"][6:].split("::",1)[0]
+                    require(path in resources,"unregistered material library texture "+path)
+                    resources[path].setdefault("library_material_uses",[]).append({"material":material_id,"slot":key,"scope":"library_loaded_not_mesh_assignment"})
         dynamic_resolution=dynamic_evidence(dynamic,runtime,resources,{s["id"]:set(runtime_resource_paths(s)) for s in runtime["samples"]})
         geometry_index,runtime_compositions=geometry_evidence(runtime)
         for id,comp in runtime_compositions.items():
@@ -353,6 +362,8 @@ def build(root,paths=None,runtime=None,revision=None):
             "runtime":runtime_summary,"runtime_samples":runtime_samples,"runtime_resource_gaps":runtime_gaps,"approved":False,
             "dynamic_resolution":dynamic_resolution,"geometry_index":geometry_index,"runtime_compositions":runtime_compositions,
             "geometry_payload":"runtime_geometry.json" if geometry_index else None,
+            "registered_world_lods":runtime.get("registered_world_lods",[]) if runtime else [],
+            "composition_payload":"runtime_compositions.json" if geometry_index else None,
             "counts":{"assets":len(assets),"resources":len(resources),"categories":dict(Counter(a["category"] for a in assets)),
                       "resource_status":dict(Counter(r["status"] for r in resources.values())),
                       "runtime_sampled_assets":sum(a["validation"]["runtime"] in ("sampled","query_executed") for a in assets)}}

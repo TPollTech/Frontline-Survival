@@ -373,6 +373,26 @@ func _dynamic_probes() -> Array[Dictionary]:
                 "path":path,"exists":ResourceLoader.exists("res://"+path),"guarded":true})
     return rows
 
+func _registered_world_lods(game: Node3D, registry: Variant) -> Array[Dictionary]:
+    var result: Array[Dictionary] = []
+    for entry in registry.entries:
+        var blocker: StaticBody3D = entry.blocker
+        var part_paths: Array[String] = []
+        for part in entry.parts:
+            part_paths.append(str(game.get_path_to(part)))
+        var levels: Array[Dictionary] = []
+        for i in range(entry.levels.size()):
+            var mesh: ArrayMesh = entry.levels[i]
+            var hashes: Array[String] = []
+            for j in range(mesh.get_surface_count()):
+                hashes.append(_buffer(mesh,j,mesh.surface_get_arrays(j),mesh.surface_get_primitive_type(j)))
+            levels.append({"index":i,"buffer_sha256":hashes,"assembly_triangles":entry.triangles[i]})
+        result.append({"sample":"map_briefing","category":entry.category,"blocker":str(game.get_path_to(blocker)),
+            "shape":str(game.get_path_to(entry.shape)),"parts":part_paths,"levels":levels,
+            "starts_m":entry.selector.distances,"hysteresis_m":entry.selector.hysteresis,
+            "active_index":entry.selector.current})
+    return result
+
 func _run() -> void:
     output_dir = OS.get_environment("FRONTLINE_INVENTORY_DIR")
     if output_dir.is_empty():
@@ -485,6 +505,7 @@ func _run() -> void:
         "display": DisplayServer.get_name(), "coordinate_unit": "m",
         "samples": samples, "failures": failures, "query_records": query_records,
         "geometry_buffers":geometry_buffers,"dynamic_probes":_dynamic_probes(),
+        "registered_world_lods":_registered_world_lods(game,game.world_lod),
         "physical_resources": physical_resources, "library_materials": library_materials,
         "limitations": ["finite sampled states, not exhaustive live instances", "procedural base surface buffers captured as Godot Variant; native LOD indices and blend shapes not serialized",
             "no explicit LOD index arrays", "query shapes are source-reviewed; results sampled through real methods",

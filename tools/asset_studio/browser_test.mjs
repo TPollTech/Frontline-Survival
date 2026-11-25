@@ -28,6 +28,27 @@ if(process.env.REQUIRE_RUNTIME_VIEWS==='1'){
  const id=await page.locator('#runtime-sample').inputValue();
  assert.match(await page.locator('#runtime-sample-info').textContent(),/subárvore inteira/);
  assert((await page.locator('#runtime-sample-info').textContent()).includes('Colisões ativas: '+catalog.runtime_samples[id].enabled_colliders));
+ assert(catalog.geometry_payload&&catalog.composition_payload);
+ for(const [name,hash] of [[catalog.geometry_payload,catalog.geometry_payload_sha256],[catalog.composition_payload,catalog.composition_payload_sha256]]){
+   const resp=await page.request.get(new URL(name,url.endsWith('/')?url:url+'/').href);
+   assert.equal(resp.status(),200);
+   const bytes=await resp.body();
+   assert.equal(createHash('sha256').update(bytes).digest('hex'),hash);
+   const payload=JSON.parse(bytes.toString('utf8'));
+   assert.equal(payload.revision,catalog.revision);
+   if(name===catalog.geometry_payload){
+     assert.equal(Object.keys(payload.buffers).length,Object.keys(catalog.geometry_index).length);
+     for(const [digest,buffer] of Object.entries(payload.buffers)){
+       const data=Buffer.from(buffer.data,'base64');
+       assert.equal(data.length,buffer.bytes);
+       assert.equal(createHash('sha256').update(data).digest('hex'),digest);
+     }
+   }else{
+     assert.equal(payload.samples.length,catalog.runtime.samples);
+     assert.equal(payload.registered_world_lods.length,4);
+   }
+ }
+ console.log('STUDIO_RUNTIME_PAYLOAD_PASS',Object.keys(catalog.geometry_index).length,'buffers');
  console.log('STUDIO_RECONCILED_RUNTIME_PASS',catalog.runtime.samples,'samples');
 }
 const observed=[];

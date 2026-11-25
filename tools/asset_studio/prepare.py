@@ -36,6 +36,9 @@ def main():
         (out/"runtime_geometry.json").write_bytes(payload)
         from tools.asset_pipeline.live_catalog import sha
         catalog["geometry_payload_sha256"]=sha(payload)
+        compositions=canonical({"kind":"frontline_runtime_compositions","revision":catalog["revision"],"samples":runtime["samples"],"registered_world_lods":runtime.get("registered_world_lods",[])})
+        (out/"runtime_compositions.json").write_bytes(compositions)
+        catalog["composition_payload_sha256"]=sha(compositions)
     (out/"live_catalog.json").write_bytes(canonical(catalog))
     print("STUDIO_STAGE_PASS",json.dumps(catalog["counts"],sort_keys=True))
 if __name__=="__main__":main()

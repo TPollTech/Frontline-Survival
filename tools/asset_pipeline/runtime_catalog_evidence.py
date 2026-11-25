@@ -65,6 +65,19 @@ def geometry_evidence(runtime):
             nodes.append({"path":node["path"],"mesh_resource":mesh.get("path"),"buffer_sha256":hashes,
                           "world":node.get("world"),"visible_in_tree":node.get("visible_in_tree")})
         compositions[sample["id"]]={"scope":"sampled_mesh_nodes","nodes":nodes,"approved":False}
+    for assembly in runtime.get("registered_world_lods",[]):
+        sample=next((s for s in runtime["samples"] if s["id"]==assembly["sample"]),None)
+        require(sample is not None,"missing LOD assembly sample")
+        paths={n["path"]:n for n in sample["nodes"]}
+        require(assembly["shape"] in paths and paths[assembly["shape"]].get("collision"),"missing independent LOD shape")
+        require(assembly["blocker"] in paths and all(p in paths and paths[p].get("mesh") for p in assembly["parts"]),"missing LOD assembly nodes")
+        require([l["index"] for l in assembly["levels"]]==[0,1,2],"invalid registered LOD sequence")
+        for level in assembly["levels"]:
+            require(level["buffer_sha256"],"empty registered LOD")
+            for digest in level["buffer_sha256"]:
+                require(digest in index,"unknown registered LOD buffer")
+                if assembly["sample"] not in index[digest]["sample_ids"]:
+                    index[digest]["sample_ids"].append(assembly["sample"])
     # Some buffers are collected in a discarded repeat snapshot; retain them
     # explicitly as unreferenced rather than claiming they are part of a sample.
     return index,compositions
