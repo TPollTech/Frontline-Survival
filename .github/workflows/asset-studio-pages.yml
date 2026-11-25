@@ -60,6 +60,11 @@ jobs:
           python tools/asset_studio/prepare.py "$RUNNER_TEMP/pages/Frontline-Survival" --runtime "$inventory/runtime_inventory.json"
           touch "$RUNNER_TEMP/pages/Frontline-Survival/.nojekyll"
           python tools/asset_studio/attach_runtime_views.py "$RUNNER_TEMP/pages/Frontline-Survival" "$FRONTLINE_VIEWS_DIR"
+      - name: Install required Blender backend
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends blender
+          blender --version
       - name: Generate and validate isolated QA model library
         env:
           XDG_DATA_HOME: ${{ runner.temp }}/pages-pilot-profile

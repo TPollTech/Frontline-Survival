@@ -6,6 +6,9 @@ from .recipes import PythonBackend,Extrusion
 from .organic import OrganicLoft,LoftSection
 from .shading import build_render_mesh
 from .pilot_finish import bevel_block,finished_library
+from .pilot_art import ART_NAMES,detailed
+from .blender_backend import BlenderBackend
+import subprocess
 from .exporter import source_manifest,export_bundle,write_bundle
 from .lod import BUDGETS
 from tools.asset_pipeline.validate_gltf import Audit
@@ -122,7 +125,10 @@ def authored_contract(parts):
             "pivots_local_m":pivots,"forward":{"node":"anchor","local_axis":[0,0,-1],"world_axis":[0,0,-1]},
             "tolerance_m":.001},lo,hi
 
-def mesh_for(p,level):
+def mesh_for(p,level,name=None):
+    if name in ART_NAMES:
+        art=detailed(name,p,level)
+        if art is not None:return art
     x,y,z=p["size"];rx,rz=x/2,z/2
     if p["kind"]=="box":
         from .organic import CustomTopology
@@ -147,7 +153,7 @@ def generate(name,root,out,revision,lib,sources):
     folder=out/name;folder.mkdir(parents=True)
     rows=[]
     for level in range(3):
-        meshes=tuple(mesh_for(p,level) for p in parts)
+        meshes=tuple(mesh_for(p,level,name) for p in parts)
         nodes=(NodeSpec("anchor"),)+tuple(NodeSpec(p["id"],p["id"],"anchor",p["material"],Transform.translation(contract["pivots_local_m"][p["id"]])) for p in parts)
         scene=SceneSpec("pilot_"+name,meshes,tuple(lib.material(k) for k in sorted({p["material"] for p in parts})),nodes)
         target=folder/f"lod{level}"
@@ -162,7 +168,7 @@ def generate(name,root,out,revision,lib,sources):
     if category=="collision" and len(set(tris))!=1:raise ValueError("collision proxy must stay invariant")
     result={"id":"qa:"+name,"slug":name,"category":category,"revision":revision,"contract":contract,
         "bounds_min_m":lo,"bounds_max_m":hi,"reference":reference,"source":"tools/asset_pipeline/parametric/pilot_suite.py",
-        "exports":rows,"collision":{"type":"box","size_m":[.60,1.0,.60],"center_m":[0,.50,0],"independent":True} if category=="collision" else None,"lod_distances_m":None,
+        "art_backend":"Blender angle-limited bevel at LOD0" if name in ART_NAMES else "Python parametric","exports":rows,"collision":{"type":"box","size_m":[.60,1.0,.60],"center_m":[0,.50,0],"independent":True} if category=="collision" else None,"lod_distances_m":None,
         "budget_scope":"assembled individual QA asset; provisional; no distance integration","visual_approval":False,"production_integrated":False}
     (folder/"pilot-report.json").write_bytes(canonical(result))
     print("SUITE_EXPORT_PASS",name,tris,flush=True)
@@ -173,7 +179,10 @@ def main():
     out=Path(a.output);out.mkdir(parents=True,exist_ok=True)
     root=Path(__file__).resolve().parents[3]
     sources=source_manifest(root,[str(p.relative_to(root)) for p in Path(__file__).parent.glob("*.py")],a.revision)
-    lib=finished_library(128,9133)
+    backend=BlenderBackend()
+    if not backend.available:raise RuntimeError('Blender required for canonical artistic pilots; no fallback')
+    print('ART_BLENDER_VERSION',subprocess.check_output([backend.executable,'--version'],text=True).splitlines()[0],flush=True)
+    lib=finished_library(256,9133)
     names=[generate(name,root,out,a.revision,lib,sources) for name in sorted(PILOTS)]
     (out/"suite.json").write_bytes(canonical({"revision":a.revision,"pilots":names,"approved":False}))
 if __name__=="__main__":main()

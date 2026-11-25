@@ -44,8 +44,8 @@ def finished_library(size=128,seed=9133):
         for i in range(0,len(t.rgb),3):
             # retain texture detail; modest physically plausible contrast.
             luminance=sum(t.rgb[i:i+3])/3
-            factor=.83+.34*luminance/255
+            factor=.96+.08*luminance/255 if parent=='painted_steel' else .88+.24*luminance/255
             pixels.extend(max(0,min(255,round(v*factor))) for v in color)
         tex=replace(t,id=name+"_base_color",rgb=bytes(pixels),source="procedural:pilot-finish-v1:"+name)
-        textures.append(tex);materials.append(replace(original,id=name,base_color_texture=tex.id))
+        textures.append(tex);materials.append(replace(original,id=name,base_color_texture=tex.id,normal_scale=.28 if parent=="painted_steel" else .65))
     return MaterialLibrary(materials,textures)
