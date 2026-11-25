@@ -12,6 +12,7 @@ from .model import MeshSpec,SceneSpec,NodeSpec,Transform
 from .rig import BoneSpec,SkeletonSpec,SkinSpec,RigSpec,rotation
 from .pbr import TextureData,MaterialLibrary
 from .shading import build_render_mesh
+from .intersection_audit import audit
 
 LOW=(-.078,0.,-.022)
 HIGH=(.048,.192,.022)
@@ -192,7 +193,7 @@ def build_glove(level,lib):
         ratios=[area(*(deformed[i] for i in f))/area(*(vertices[i] for i in f)) for f in tris]
         moved=sum(math.dist(a,b)>1e-5 for a,b in zip(vertices,deformed))
         if not moved or min(ratios)<.025 or max(ratios)>8:raise ValueError(("unstable deformation",id,min(ratios),max(ratios)))
-        checks.append({"bone":id,"degrees":deg,"moved_vertices":moved,"min_area_ratio":min(ratios),"max_area_ratio":max(ratios)})
+        checks.append({"bone":id,"degrees":deg,"moved_vertices":moved,"min_area_ratio":min(ratios),"max_area_ratio":max(ratios),"contacts":audit(deformed,tris)})
     contract={"unit":"m","up":"+Y","dimensions_m":[b-a for a,b in zip(LOW,HIGH)],"pivots_local_m":{"anchor":[0,0,0],mesh.id:[0,0,0],**{"bone:"+b.id:list(b.rest_local.matrix[12:15]) for b in sk.bones}},"forward":{"node":"anchor","local_axis":[0,0,-1],"world_axis":[0,0,-1]},"tolerance_m":.001}
-    meta={"bone_count":len(bones),"parents":{b.id:b.parent_id for b in sk.bones},"pose_bone":"finger_1_j1","pose_child":"finger_1_j2","pose_degrees":25,"skin_meshes":1,"mixed_vertices":sum(len(w)>1 for w in skin.weights),"components":1,"euler_characteristic":2,"source_vertices":len(vertices),"quad_patches":len(quads),"deformation_checks":checks}
+    meta={"bone_count":len(bones),"parents":{b.id:b.parent_id for b in sk.bones},"pose_bone":"finger_1_j1","pose_child":"finger_1_j2","pose_degrees":25,"skin_meshes":1,"mixed_vertices":sum(len(w)>1 for w in skin.weights),"components":1,"euler_characteristic":2,"source_vertices":len(vertices),"quad_patches":len(quads),"rest_contacts":audit(vertices,tris),"deformation_checks":checks}
     return scene,render,rig,meta,contract
