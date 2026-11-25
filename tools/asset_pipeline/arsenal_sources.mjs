@@ -1,5 +1,5 @@
 import {readFileSync,writeFileSync,mkdtempSync,rmSync,mkdirSync,copyFileSync,readdirSync,lstatSync} from "node:fs";
-import {resolve,dirname,join} from "node:path";
+import {resolve,dirname,join,relative,isAbsolute,sep} from "node:path";
 import {fileURLToPath} from "node:url";
 import {tmpdir} from "node:os";
 import {createHash} from "node:crypto";
@@ -63,6 +63,11 @@ function main(){
   const models=Object.fromEntries(tracked.map(p=>[p,blob(read(p))]));
   const report=collectArsenal(manifest,sources,models);
   report.revision=execFileSync("git",["rev-parse","HEAD"],{cwd:root,encoding:"utf8"}).trim();
+  // A dirty tree must not claim provenance from HEAD. Compare actual blob IDs.
+  for(const [p,h] of Object.entries({...models,...Object.fromEntries(paths.map(p=>[p,sources[p].git_blob_sha1])),"assets/catalog/manifest.json":blob(read("assets/catalog/manifest.json"))})){
+    const expected=execFileSync("git",["rev-parse",report.revision+":"+p],{cwd:root,encoding:"utf8"}).trim();
+    if(h!==expected)throw Error("Source/output drift from HEAD: "+p);
+  }
   report.reproduction={state:"not_run"};
   if(args[1]==="--rebuild"){
     const work=mkdtempSync(join(tmpdir(),"frontline-arsenal-"));
@@ -84,7 +89,8 @@ function main(){
     }finally{rmSync(work,{recursive:true,force:true})}
   }
   const out=resolve(args[0]);
-  if(out===root||out.startsWith(root+"/"))throw Error("Report must be written outside the checkout");
+  const rel=relative(root,out);
+  if(!isAbsolute(rel)&&rel!==".."&&!rel.startsWith(".."+sep))throw Error("Report must be written outside the checkout");
   mkdirSync(dirname(out),{recursive:true});
   writeFileSync(out,JSON.stringify(report,null,2)+"\n");
   console.log("ARSENAL_SOURCE_INDEX",JSON.stringify(report.counts),report.reproduction.state);
