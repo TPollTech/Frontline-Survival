@@ -68,3 +68,8 @@ CI 45520645718 confirmou 42 capturas em repouso e seis posadas publicadas. Revis
 ## Contatos e personagem contínuo
 
 45525440788 passou geração e Godot, Studio pendente; 45525440883 Windows aprovado. f9b972da cria personagem contínuo e auditoria determinística de contatos não adjacentes em repouso e poses nos dois rigs. Testes unitários passaram; exportação e resultados de contatos em 45526099663 pendentes. Sem aprovação visual. Ver [PILOTOS_ASSETS.md](PILOTOS_ASSETS.md).
+
+
+## Contatos dos rigs contínuos e revisão visual
+
+45526099663/45526099772 aprovados, capturas reais abertas. Repouso zero contatos; luva zero em quatro poses nos três LODs, personagem 2/2/0 no ombro. Simulação independente dos GLBs confirmou correção 0/0/0; 1aba84b9 aplica pesos e gate, refina pontas e materiais. CI 45528961593 em validação. Ver [PILOTOS_ASSETS.md](PILOTOS_ASSETS.md).

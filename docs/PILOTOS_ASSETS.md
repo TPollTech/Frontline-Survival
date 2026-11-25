@@ -151,3 +151,27 @@ Commit f9b972da: `continuous_character.py` cria uma superfície autoral de patch
 `intersection_audit.py` verifica contato entre triângulos não adjacentes, com broad phase por células/AABB e eixos separadores (incluindo eixos coplanares), tolerância 1e-8 m. Testes sintéticos incluem cruzamento, sobreposição coplanar, separação coplanar e paralela. Ambos os rigs contínuos registram contagem, exemplos e pares testados em repouso e quatro poses de cada LOD. Pares com vértice de índice compartilhado são excluídos; o método não cobre todas as interseções adjacentes, poses entre amostras, contato com outros objetos ou distorção anatômica. Resultados não são gate de aprovação: contatos registrados precisam ser revisados/corrigidos antes de homologar; ausência de contatos não equivale a prova global. A auditoria não substitui revisão dos materiais e capturas. Não foi possível ler contagens reais ainda (logs/artefatos não disponíveis). 
 
 CI [45526099663](https://github.com/TPollTech/Frontline-Survival/actions/runs/45526099663) avançou após testes unitários para geração estrita e comparação reproduzível; Godot/Studio pendentes. [Pages 45526099772](https://github.com/TPollTech/Frontline-Survival/actions/runs/45526099772) e [Windows 45526099997](https://github.com/TPollTech/Frontline-Survival/actions/runs/45526099997) em validação. Alterações isoladas em fontes QA, testes e workflow; não substituem os assets de produção. Checklist 00-24/25/27 continua parcial.
+
+
+## Inspeção dos dois rigs contínuos e correção de contatos
+
+Preservados 7f55e051 e 5ba3a63b (sincronização posterior de capturas). CIs 45525440788, 45525440954, 45526099663, 45526099772 e 45526099997 aprovados. Pages 45526099772 confirmou PAGES_QA_DEPLOY_PASS e PAGES_DEPLOY_PASS da revisão f9b972da375ce6543e38b9cdda76a8d10345cb15 por HTTP real pós-deploy. Studio 14 pilotos, 42 capturas de repouso, seis posadas. Windows QA_ARSENAL_PASS. Balizador 45526099786 também aprovado.
+
+Artefato [14983295868](https://github.com/TPollTech/Frontline-Survival/actions/runs/45526099663/artifacts/14983295868) baixado; abertas oito capturas reais LOD0 de glove/mannequin repouso/pose, Godot e Studio. Luva: superfície contínua, pontas muito afiladas, painel de aderência circular simplificado, costuras com contraste forte; personagem: membros conectados, sem rosto detalhado, aparência de manequim, dobra de ombro pouco natural. Não homologar artisticamente.
+
+Contagens extraídas de pilot-report.json (exports GLB, por LOD, não de rig agregado final):
+
+| piloto | LOD | triângulos | repouso | quatro poses em ordem de relatório |
+|---|---:|---:|---:|---|
+| glove | 0 | 2844 | 0 | 0/0/0/0 |
+| glove | 1 | 1496 | 0 | 0/0/0/0 |
+| glove | 2 | 660 | 0 | 0/0/0/0 |
+| mannequin | 0 | 2676 | 0 | 2/0/0/0 |
+| mannequin | 1 | 1556 | 0 | 2/0/0/0 |
+| mannequin | 2 | 768 | 0 | 0/0/0/0 |
+
+Luva poses wrist 20°, finger_1_j1 45°, finger_2_j0 35°, thumb_j0 25°. Personagem arm_0_upper 25°, arm_1_lower 45°, leg_0_lower 35°, head 20°. Pares de faces do personagem LOD0 (1995,1998), (1998,2018), LOD1 (1051,1054), (1054,1066). Contatos no ombro esquerdo. Localmente, extraídos POSITION, indices, JOINTS_0, WEIGHTS_0 e inverseBindMatrices dos GLBs reais; reconstruída malha por posições coincidentes e aplicada LBS de 25° em arm_0_upper; auditoria independente SAT reproduziu exatamente os pares acima. Redução de metade do peso de braço nas faixas mistas do ombro eliminou contatos 2/2/0 para 0/0/0 no teste local. A simulação não substitui validação da nova exportação, nem mede outros estados intermediários.
+
+Commit 1aba84b9 aplica a redução na primeira faixa da manga, arredonda pontas dos dedos (taper final .48 em vez de .34), melhora atlas de aderência, costuras, trama e normal map da luva; atlas do personagem ganha bolsos frontais, zíper, proteção ocular opaca e detalhes de vestimenta. São detalhes procedurais, não fotogrametria nem geometria de rosto. Gate exige zero contatos não adjacentes em repouso e quatro poses por LOD para ambos os rigs; teste unitário exige o mesmo. Isso não elimina limitações anteriores do detector (faces adjacentes, contato contínuo, outras poses). Sem novos pilotos ou alterações de produção.
+
+Nova suíte [45528961593](https://github.com/TPollTech/Frontline-Survival/actions/runs/45528961593), Pages [45528961601](https://github.com/TPollTech/Frontline-Survival/actions/runs/45528961601), Windows [45528961629](https://github.com/TPollTech/Frontline-Survival/actions/runs/45528961629) em execução. Não afirmar aprovação da nova geometria, materiais ou publicação antes de confirmar testes e inspeção. Último deploy confirmado f9b972da; não houve verificação independente da URL nesta sessão. 00-13/24/25/27 parciais.
