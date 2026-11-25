@@ -1,0 +1,78 @@
+name: Canonical pilot asset QA
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'tools/asset_pipeline/**'
+      - 'tools/asset_studio/**'
+      - 'assets/**'
+      - 'scenes/**'
+      - 'scripts/**'
+      - '.github/workflows/asset-pilots.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  pilot:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 15
+    env:
+      FRONTLINE_PILOT_DIR: ${{ runner.temp }}/pilot
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Generate strict pilot and compare reproducibility
+        run: |
+          python -m tools.asset_pipeline.parametric.pilot_object "$FRONTLINE_PILOT_DIR" "$GITHUB_SHA"
+          python -m tools.asset_pipeline.parametric.pilot_object "$RUNNER_TEMP/pilot-repeat" "$GITHUB_SHA"
+          diff -r "$FRONTLINE_PILOT_DIR" "$RUNNER_TEMP/pilot-repeat"
+      - name: Install local Studio dependencies
+        working-directory: tools/asset_studio
+        run: |
+          npm install --ignore-scripts
+          npx playwright install --with-deps chromium
+      - uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.4.1
+          use-dotnet: false
+          include-templates: false
+      - name: Import and render pilot in real game QA session
+        env:
+          XDG_DATA_HOME: ${{ runner.temp }}/pilot-profile
+        run: |
+          set -o pipefail
+          timeout 120s godot --headless --editor --import --path . 2>&1 | tee "$FRONTLINE_PILOT_DIR/import.log"
+          if grep -E 'SCRIPT ERROR:|Parse Error' "$FRONTLINE_PILOT_DIR/import.log"; then exit 1; fi
+          timeout 120s xvfb-run -a -s '-screen 0 1280x720x24' godot --path . --rendering-driver opengl3 --script res://tools/asset_pipeline/runtime/pilot_object_qa.gd 2>&1 | tee "$FRONTLINE_PILOT_DIR/godot.log"
+          grep -q PILOT_GODOT_PASS "$FRONTLINE_PILOT_DIR/godot.log"
+          if grep -E 'SCRIPT ERROR:|Parse Error|PILOT_GODOT_FAIL' "$FRONTLINE_PILOT_DIR/godot.log"; then exit 1; fi
+      - name: Capture actual inventory and category coverage
+        run: |
+          set -o pipefail
+          inventory="$RUNNER_TEMP/pilot-inventory"
+          mkdir -p "$inventory"
+          FRONTLINE_INVENTORY_DIR="$inventory" XDG_DATA_HOME="$RUNNER_TEMP/pilot-inventory-profile" timeout 180s xvfb-run -a -s '-screen 0 1280x720x24' godot --path . --rendering-driver opengl3 --script res://tools/asset_pipeline/runtime/inventory_qa.gd 2>&1 | tee "$FRONTLINE_PILOT_DIR/inventory.log"
+          grep -q ASSET_RUNTIME_INVENTORY_PASS "$FRONTLINE_PILOT_DIR/inventory.log"
+          if grep -E 'SCRIPT ERROR:|Parse Error|ASSET_RUNTIME_ERROR' "$FRONTLINE_PILOT_DIR/inventory.log"; then exit 1; fi
+          python docs/qa/verify_runtime_inventory.py "$inventory/runtime_inventory.json" "$inventory/reconciliation.json"
+          python tools/asset_studio/prepare.py "$RUNNER_TEMP/pilot-studio" --runtime "$inventory/runtime_inventory.json"
+          python -m tools.asset_pipeline.pilot_coverage "$RUNNER_TEMP/pilot-studio/live_catalog.json" "$FRONTLINE_PILOT_DIR/category-coverage.json"
+          python -m tools.asset_pipeline.stage_pilot "$FRONTLINE_PILOT_DIR" "$RUNNER_TEMP/pilot-studio"
+      - name: Render the identical pilot files in Asset Studio
+        run: |
+          python -m http.server 8765 --bind 127.0.0.1 --directory "$RUNNER_TEMP/pilot-studio" > "$FRONTLINE_PILOT_DIR/studio-server.log" 2>&1 &
+          server=$!
+          trap 'kill "$server" || true' EXIT
+          for n in $(seq 1 30); do curl -fsS http://127.0.0.1:8765/live_catalog.json >/dev/null && break; sleep 1; done
+          node tools/asset_studio/pilot_test.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Canonical-pilot-${{ github.sha }}
+          path: ${{ runner.temp }}/pilot/
+          if-no-files-found: warn
