@@ -1,5 +1,5 @@
 extends SceneTree
-## Test existing barricades in the actual game, with the native player camera.
+## Test registered assemblies in the actual game, with the native player camera.
 var output: String
 var rows: Array[Dictionary] = []
 func _initialize() -> void:
@@ -23,6 +23,8 @@ func _run() -> void:
     game.set_process(false)
     game.set_physics_process(false)
     var p: Variant = game.player
+    var player_body: CharacterBody3D = p
+    var capsule: CapsuleShape3D = p.capsule_shape
     p.set_physics_process(false)
     p.controls_locked = true
     p.viewmodel_projection.hide()
@@ -51,6 +53,7 @@ func _run() -> void:
     var transitions := [4.,12.,13.2,30.,31.2,30.,28.8,12.,10.8]
     var wanted := [0,0,1,1,2,2,1,1,0]
     var index := 0
+    var player_contacts := 0
     var captured: Dictionary = {}
     var comparison_families: Dictionary = {}
     for entry in game.world_lod.entries:
@@ -80,6 +83,7 @@ func _run() -> void:
         if body==null and not baseline.is_empty():
             fail("unexpected decorative blocker")
             return
+        var contact_travel := Vector3.ZERO
         for step in range(transitions.size()):
             var dist: float = transitions[step]
             # Take the long direction along the map, camera at eye height.
@@ -108,6 +112,19 @@ func _run() -> void:
             if hit.is_empty()!=baseline.is_empty() or (not hit.is_empty() and (hit.collider!=baseline.collider or hit.position.distance_to(baseline.position)>.002)):
                 fail("actual blocker ray changed")
                 return
+            if body != null and step in [0, 2, 4]:
+                var start := Vector3(center.x, capsule.height * 0.5 + 0.05,
+                    center.z + size.z * 0.5 + capsule.radius + 0.5)
+                var contact := KinematicCollision3D.new()
+                if not player_body.test_move(Transform3D(Basis.IDENTITY, start), Vector3(0, 0, -1), contact) or contact.get_collider() != body:
+                    fail("player capsule missed expected blocker")
+                    return
+                if step == 0:
+                    contact_travel = contact.get_travel()
+                elif contact.get_travel().distance_to(contact_travel) > 0.002:
+                    fail("player capsule travel changed with LOD")
+                    return
+                player_contacts += 1
             rows.append({"assembly":index,"family":entry.family,"category":entry.category,"distance_m":dist,"level":level,"triangles":triangles,"collider_size":[size.x,size.y,size.z],"hit_z":hit.position.z if not hit.is_empty() else null,"collision_policy":entry.collision_policy,"shape_id_unchanged":true})
             if not captured.has(entry.family+str(level)) and step in [0,2,4]:
                 captured[entry.family+str(level)]=true
@@ -141,14 +158,15 @@ func _run() -> void:
                     return
             game.world_lod.update_at(center+Vector3(0,0,4.0))
         index+=1
-    if rows.size() != 207 or captured.size() != 15 or comparison_families.size() != 5:
+    if rows.size() != 207 or player_contacts != 24 or captured.size() != 15 or comparison_families.size() != 5:
         fail("incomplete transition or capture coverage")
         return
     var file:=FileAccess.open(output.path_join("world-lod-report.json"),FileAccess.WRITE)
     if file==null:
         fail("report")
         return
-    file.store_string(JSON.stringify({"checks":rows,"assemblies":game.world_lod.snapshot(),"hardware_validated":false}, "  "))
+    file.store_string(JSON.stringify({"checks":rows,"player_capsule_checks":player_contacts,"assemblies":game.world_lod.snapshot(),"hardware_validated":false}, "  "))
     file.close()
     print("WORLD_LOD_PASS ",rows.size()," real map transitions/rays, 8 independent blockers and 15 nonblocking assemblies")
+    print("WORLD_LOD_PLAYER_CONTACT_PASS ", player_contacts, " sweeps across three LOD levels")
     quit(0)

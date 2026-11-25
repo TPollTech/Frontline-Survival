@@ -130,15 +130,16 @@ def run_local(root, output, godot, *, benchmark=False):
             timeout=120,
         )
         shutil.unpack_archive(archive, project)
-        run("import", [godot, "--headless", "--editor", "--import", "--path", str(project)],
-            180, cwd=project)
+        # Compatibility import uses the same real renderer as the QA script.
+        # Godot 4.4.1's headless dummy renderer can fail on GLB preview textures.
+        rendered = [godot, "--path", str(project), "--rendering-driver", "opengl3",
+                    "--audio-driver", "Dummy"]
+        run("import", [*rendered, "--editor", "--import"], 180, cwd=project)
         if benchmark:
-            run("benchmark", [godot, "--path", str(project), "--rendering-driver", "opengl3",
-                              "--script", "res://tools/asset_pipeline/runtime/world_lod_benchmark.gd"],
+            run("benchmark", [*rendered, "--script", "res://tools/asset_pipeline/runtime/world_lod_benchmark.gd"],
                 600, "WORLD_LOD_BENCH_PASS 960", cwd=project)
         else:
-            run("godot", [godot, "--path", str(project), "--rendering-driver", "opengl3",
-                          "--script", "res://tools/asset_pipeline/runtime/world_lod_qa.gd"],
+            run("godot", [*rendered, "--script", "res://tools/asset_pipeline/runtime/world_lod_qa.gd"],
                 240, "WORLD_LOD_PASS 207", cwd=project)
     require(git(root,"rev-parse","HEAD")==commit and not git(root,"status","--porcelain"),"checkout changed during run")
     if benchmark:
