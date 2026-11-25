@@ -78,3 +78,8 @@ CI 45520645718 confirmou 42 capturas em repouso e seis posadas publicadas. Revis
 ## Confirmação dos rigs corrigidos
 
 45528961593 e Windows 45528961629 aprovados; capturas reais 1aba84b9 inspecionadas. Zero contatos em repouso e quatro poses por LOD dos dois rigs; 72 amostras combinadas dos GLBs aprovadas em análise independente. 50579e2e incorpora os testes; f93d7076 corrige orientação UV frontal. Publicação atual e inspeção posterior pendentes. Ver [PILOTOS_ASSETS.md](PILOTOS_ASSETS.md).
+
+
+## LOD real de barricadas — 00-10
+
+CI 45534922543 aprovado, 36 transições/rays, quatro bloqueadores independentes, três capturas reais inspecionadas. Ver [relatório](LOD_COLISOES_RUNTIME.md). Sem homologação de desempenho.

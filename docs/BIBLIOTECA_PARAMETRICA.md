@@ -139,3 +139,8 @@ No Godot, o locator filho do joint foi promovido a osso auxiliar (bone_root, bon
 lod_selector.gd implementa seleção por distância em metros e histerese a partir dos limiares da receita. A troca é restrita ao MeshInstance3D, sem tocar na Shape3D. O [CI 45504658358](https://github.com/TPollTech/Frontline-Survival/actions/runs/45504658358) aprovou nove verificações de distância (inclusive ida/volta nas fronteiras), três níveis de 256/128/64 triângulos e raycast invariável z=0,5. O script QA inicialmente usou um preload absoluto válido só no projeto isolado; o import do projeto principal falhou. Corrigido no commit 446f31eb para referência relativa. Revalidação da main pendente. A fixture é neutra; o seletor ainda não foi conectado ao gameplay de produção. Orçamentos continuam provisórios até benchmark no Ryzen 5 7530U/8 GB. Sem homologação visual.
 
 Revalidação 446f31eb: [CI 45504785018](https://github.com/TPollTech/Frontline-Survival/actions/runs/45504785018) aprovado; nove verificações e colisor invariável, agora com preload relativo. Import do checkout principal aprovado no CI 45504785941.
+
+
+## Integração incremental LOD em produção
+
+Quatro barricadas do mapa real usam três LODs explícitos e colisores existentes independentes; CI 45534922543 aprovado (36 verificações runtime). Ver [relatório](LOD_COLISOES_RUNTIME.md). Benchmark hardware-alvo pendente.
