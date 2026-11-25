@@ -22,7 +22,7 @@ FAMILIES = {
 DISTANCES = (4, 12, 13.2, 30, 31.2, 30, 28.8, 12, 10.8)
 LEVELS = (0, 0, 1, 1, 2, 2, 1, 1, 0)
 CAPS = {"structure": ((20000, 8000, 2000), 8), "object": ((8000, 2800, 700), 4)}
-ERROR = re.compile(r"SCRIPT ERROR:|Parse Error|WORLD_LOD_FAIL")
+ERROR = re.compile(r"SCRIPT ERROR:|Parse Error|WORLD_LOD_FAIL|WORLD_LOD_BENCH_FAIL")
 
 
 def require(ok, message):
@@ -89,7 +89,7 @@ def git(root,*args):
     return subprocess.check_output(["git","-C",str(root),*args],text=True).strip()
 
 
-def run_local(root, output, godot):
+def run_local(root, output, godot, *, benchmark=False):
     require(not output.exists(), "use a new output directory")
     require(not output.is_relative_to(root), "output must be outside repository")
     require(not git(root,"status","--porcelain"), "start with a clean checkout")
@@ -116,7 +116,8 @@ def run_local(root, output, godot):
         (output / (name+".log")).write_text(data,encoding="utf-8")
         require(result.returncode==0 and not ERROR.search(data) and (marker is None or marker in data),f"{name} failed; inspect log")
     run("version",[godot,"--version"],15,"4.4.1")
-    run("budget",[sys.executable,"-m","unittest","discover","-s","tests","-p","test_world_lod_contract.py","-v"],120)
+    if not benchmark:
+        run("budget",[sys.executable,"-m","unittest","discover","-s","tests","-p","test_world_lod_contract.py","-v"],120)
     # Godot writes import metadata and UIDs beside resources, including tracked
     # files. Import a snapshot so QA never changes the source checkout.
     with tempfile.TemporaryDirectory(prefix="frontline-lod-") as temporary:
@@ -131,14 +132,26 @@ def run_local(root, output, godot):
         shutil.unpack_archive(archive, project)
         run("import", [godot, "--headless", "--editor", "--import", "--path", str(project)],
             180, cwd=project)
-        run("godot", [godot, "--path", str(project), "--rendering-driver", "opengl3",
-                      "--script", "res://tools/asset_pipeline/runtime/world_lod_qa.gd"],
-            240, "WORLD_LOD_PASS 207", cwd=project)
+        if benchmark:
+            run("benchmark", [godot, "--path", str(project), "--rendering-driver", "opengl3",
+                              "--script", "res://tools/asset_pipeline/runtime/world_lod_benchmark.gd"],
+                600, "WORLD_LOD_BENCH_PASS 960", cwd=project)
+        else:
+            run("godot", [godot, "--path", str(project), "--rendering-driver", "opengl3",
+                          "--script", "res://tools/asset_pipeline/runtime/world_lod_qa.gd"],
+                240, "WORLD_LOD_PASS 207", cwd=project)
     require(git(root,"rev-parse","HEAD")==commit and not git(root,"status","--porcelain"),"checkout changed during run")
-    summary=verify_directory(output)
+    if benchmark:
+        if __package__:
+            from .world_lod_benchmark import summarize
+        else:
+            from world_lod_benchmark import summarize
+        summary = summarize(json.loads((output / "world-lod-benchmark.json").read_text(encoding="utf-8")))
+    else:
+        summary=verify_directory(output)
     summary["commit"]=commit
     summary["provenance"]="local_runner_clean_checkout"
-    (output/"local-summary.json").write_text(json.dumps(summary,indent=2)+"\n",encoding="utf-8")
+    (output/("benchmark-summary.json" if benchmark else "local-summary.json")).write_text(json.dumps(summary,indent=2)+"\n",encoding="utf-8")
     return summary
 
 
@@ -146,11 +159,13 @@ def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument("output",type=Path)
     parser.add_argument("--godot",default="godot")
-    parser.add_argument("--verify-only",action="store_true")
+    mode=parser.add_mutually_exclusive_group()
+    mode.add_argument("--verify-only",action="store_true")
+    mode.add_argument("--benchmark",action="store_true",help="run isolated map rendering comparison")
     args=parser.parse_args()
     directory=args.output.resolve()
     try:
-        summary=verify_directory(directory) if args.verify_only else run_local(Path(__file__).resolve().parents[2],directory,args.godot)
+        summary=verify_directory(directory) if args.verify_only else run_local(Path(__file__).resolve().parents[2],directory,args.godot,benchmark=args.benchmark)
     except (ValueError,KeyError,IndexError,TypeError,OSError,subprocess.SubprocessError) as exc:
         print(f"WORLD_LOD_LOCAL_FAIL: {exc}",file=sys.stderr)
         return 1

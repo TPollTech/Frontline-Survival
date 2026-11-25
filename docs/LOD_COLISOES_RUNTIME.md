@@ -109,3 +109,19 @@ Base `4b603e425fa12f6cf035cff6d508c5449905a481`, com `56ee143d` e alterações p
 - O inventário Godot aprovou 86 amostras e capturou cinco vistas nativas. O Asset Studio foi montado com o inventário da revisão correta. Seus 19 testes de catálogo passaram. Em Node, o payload de composições conferiu com o SHA-256 do catálogo e com o inventário exportado, incluindo os 23 conjuntos e os quatro postes. O Chromium headless encerrou a página durante o carregamento e o Chromium completo não conseguiu abrir um socket local. A navegação e a inspeção WebGL seguem pendentes.
 
 A tarefa segue parcial. A cobertura das demais famílias e o benchmark de FPS, frame time e memória no Ryzen 5 7530U com GPU integrada e 8 GB continuam pendentes. A medição de triângulos é por recurso, sem inferência de ganho de desempenho.
+
+
+## Preparação do benchmark isolado — 25/11/2026
+
+Base f1ca06c05f49653b6c13b635a4a14741a2a537ff preservada. Os resultados reais anteriores de 207/207 e seis capturas de postes permanecem válidos no escopo registrado; não foram repetidos. Neste ambiente, Git falha por DNS, Godot e Blender não estão disponíveis (consultas de executáveis e git ls-remote), logo nenhuma nova renderização, cobertura geométrica ou medição de desempenho foi feita.
+
+Novo modo opcional `--benchmark` do runner existente, com snapshot Git, perfil de QA isolado e Godot 4.4.1. Não executa novamente os 207 checks. `world_lod_benchmark.gd` usa a cena real, câmera nativa, 1280 × 720, VSync desabilitado (verifica o estado retornado pela API, não o driver), sem limite de FPS; gameplay congelado, HUD/viewmodel ocultos. Percurso quadrado dentro do mapa, quatro lados de 60 passos, mesmas poses nas quatro passagens A/B/B/A (LOD0 fixo e seletor normal). Cada passagem aquece 240 frames e registra outros 240, 960 intervalos no total; delta simulado de 1/60 s para o seletor (não tempo real de gameplay). O baseline fixa malhas e estado do seletor somente no processo QA, sem alterar o jogo. Saída bruta: intervalos entre frame_post_draw (não timestamps de GPU), triângulos registrados (não triângulos enviados à GPU), CPU/GPU/SO/versão, RAM física informada pelo SO, memória estática do motor e monitor de memória de vídeo quando disponível (não RSS/VRAM medidos externamente). Relatório Python valida ordem, amostras e variação e resume FPS derivado, média, mediana, p95 e p99 de frame time. Sem aprovação automática de hardware, nem equivalência a partida completa.
+
+Teste realmente executado em Python 3.13.5 no container: 8/8 testes sintéticos novos do analisador (incluindo percentis, baseline, amostras, valores não finitos e rejeição de falsa aprovação). O teste não mede desempenho. Os blobs do analisador e seus testes são conferidos contra os hashes dos arquivos testados antes de publicar. Não houve execução do script GDScript, importação ou do runner completo nesta sessão; integração e comportamento do benchmark ainda precisam de prova real.
+
+Comando na raiz de um checkout limpo, Windows (ajustar caminho real do Godot):
+```powershell
+$destino = "$env:TEMP\frontline-lod-bench-$(Get-Date -Format yyyyMMdd-HHmmss)"
+python tools/asset_pipeline/world_lod_local.py "$destino" --godot "C:\Godot\Godot_v4.4.1-stable_win64_console.exe" --benchmark
+```
+No Linux com display: `python tools/asset_pipeline/world_lod_local.py /tmp/frontline-lod-bench-01 --godot godot --benchmark`. Usar pasta nova; não compartilhar o perfil temporário. Coletar world-lod-benchmark.json, benchmark-summary.json e logs, verificar hardware/driver, temperatura/carga e repetir em condições comparáveis. A medição no Ryzen 5 7530U/iGPU/8 GB, validação WebGL, ampliação de famílias, contato do personagem e popping durante movimento continuam pendentes. Sem CI, build ou ZIP. Estado 00-10 parcial.
