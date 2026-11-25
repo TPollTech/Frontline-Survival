@@ -22,7 +22,7 @@ def main():
     for folder in folders:
         subprocess.run([sys.executable,"-m","tools.asset_pipeline.stage_pilot",str(folder),str(qa)],check=True)
     q=json.loads(target.read_text())
-    byid={a["id"]:a for a in q["assets"]};total=0
+    byid={a["id"]:a for a in q["assets"]};total=0;posed_total=0
     for folder in folders:
         report=json.loads((folder/"pilot-report.json").read_text())
         engine=json.loads((folder/"godot-report.json").read_text())
@@ -39,12 +39,23 @@ def main():
             (qa/name).write_bytes(data)
             a["runtime_views"].append({"id":"godot-lod"+str(level),"label":"Godot QA — LOD "+str(level),"resource":name,"sha256":hashlib.sha256(data).hexdigest(),"width":w,"height":h,"fidelity":"actual_godot_frame","camera":{"path":row["camera"]},"context":{"kind":"qa_native_camera_placement","model_sha256":row["sha256"],"triangles":row["triangles"]},"approved":False})
             total+=1
-    q["runtime_views"]={"revision":q["revision"],"count":total,"approved":False}
+            if expected.get("rig"):
+                rig=row.get("rig",{})
+                require(rig.get("child_displacement_m",0)>.001,"rig pose missing")
+                posed=(folder/f"godot-pose-lod{level}.png").read_bytes()
+                require(len(posed)>1000 and posed[:8]==b"\x89PNG\r\n\x1a\n" and posed[12:16]==b"IHDR","invalid posed capture")
+                pw,ph=struct.unpack(">II",posed[16:24]);require((pw,ph)==(w,h),"posed resolution mismatch")
+                pose_name=f"qa-pilots/{slug}/godot-pose-lod{level}.png"
+                (qa/pose_name).write_bytes(posed)
+                a["runtime_views"].append({"id":"godot-pose-lod"+str(level),"label":"Godot QA — pose LOD "+str(level),"resource":pose_name,"sha256":hashlib.sha256(posed).hexdigest(),"width":pw,"height":ph,"fidelity":"actual_godot_frame","camera":{"path":row["camera"]},"context":{"kind":"qa_skeleton_pose","model_sha256":row["sha256"],"pose":rig},"approved":False})
+                posed_total+=1
+    q["runtime_views"]={"revision":q["revision"],"count":total,"posed_count":posed_total,"approved":False}
     q["assets"].sort(key=lambda a:a["id"])
     target.write_bytes(canonical(q))
     covered={a["category"] for a in q["assets"]}
     require(covered==set(BUDGETS),"geometric pilot coverage incomplete: "+str(set(BUDGETS)-covered))
     require(total==len(folders)*3,"capture coverage mismatch")
+    require(posed_total==6,"pose capture coverage mismatch")
     categories=sorted(set(BUDGETS)|set(NON_GEOMETRY_CATEGORIES)|{a["category"] for a in catalog["assets"]})
     coverage=[{"category":c,"pilots":[a["id"] for a in q["assets"] if a["category"]==c],"legacy":[a["id"] for a in catalog["assets"] if a["category"]==c],"status":"geometric_qa" if c in covered else "native_evidence_pending","approved":False} for c in categories]
     stage_native(prod,qa,catalog,args.inventory,coverage)

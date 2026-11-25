@@ -16,14 +16,14 @@ def shape(name,p,level):
     if id.startswith("boot"):return bevel_block(id,p["size"],level)
     # Radii at the mid ring establish the authored dimensional envelope.
     profiles={
-        "palm":((0,.69,.83),(.20,.80,.94),(.50,1,1),(.78,.94,.81),(1,.86,.65)),
-        "cuff":((0,.93,.95),(.2,1,1),(.5,1,1),(.8,.90,.92),(1,.86,.88)),
-        "torso":((0,.77,.86),(.23,.76,.78),(.50,.93,.96),(.66,1,1),(.85,.91,.87),(1,.48,.64)),
+        "palm":((0,.80,.88),(.20,.86,.96),(.50,1,1),(.78,.96,.84),(1,.86,.65)),
+        "cuff":((0,.94,.94),(.2,1,1),(.5,1,1),(.8,.94,.94),(1,.88,.88)),
+        "torso":((0,.77,.86),(.23,.76,.78),(.50,.93,.96),(.66,1,1),(.85,.96,.91),(.94,.84,.78),(1,.54,.64)),
         "head":((0,.49,.62),(.20,.74,.82),(.50,1,1),(.78,.95,.95),(1,.32,.39)),
         "thumb":((0,.90,.91),(.18,.98,.97),(.50,1,1),(.78,.81,.82),(1,.47,.48)),
     }
     if id.startswith("finger"):profile=((0,.88,.91),(.18,.96,.93),(.34,1,1),(.54,.90,.89),(.72,.84,.88),(.88,.72,.75),(1,.37,.40))
-    elif id.startswith("arm"):profile=((0,.53,.56),(.18,.70,.78),(.40,.72,.72),(.58,.82,.84),(.78,1,1),(1,.77,.78))
+    elif id.startswith("arm"):profile=((0,.53,.56),(.18,.70,.78),(.40,.72,.72),(.58,.82,.84),(.78,1,1),(1,.88,.86))
     elif id.startswith("leg"):profile=((0,.62,.68),(.19,.81,.89),(.42,.64,.73),(.59,.77,.80),(.82,1,1),(1,.90,.88))
     else:profile=profiles[id]
     # Keep enough axial sections at every level to support joint bending.
@@ -46,13 +46,19 @@ def make_rig(name,parts,meshes,lib,pivots):
     if name=="glove":
         joint("wrist",None,at("cuff",0),.05)
         joint("palm","wrist",at("palm",0),.075)
-        bind("cuff",[(0,"wrist"),(1,"palm")]);bind("palm",[(0,"palm")])
+        bind("cuff",[(0,"wrist"),(.36,"wrist"),(.82,"palm"),(1,"palm")]);bind("palm",[(0,"wrist"),(.22,"palm"),(1,"palm")])
         for id in [p["id"] for p in parts if p["id"].startswith("finger") or p["id"]=="thumb"]:
             length=by[id]["size"][1];fractions=(0,.44,.76) if id!="thumb" else (0,.52)
             parent="palm";keys=[]
             for i,t in enumerate(fractions):
                 k=id+"_j"+str(i);joint(k,parent,at(id,t),length*((fractions[i+1] if i+1<len(fractions) else 1)-t));keys.append((t,k));parent=k
-            bind(id,keys)
+            # Hold the phalanges mostly rigid; blend locally around each joint.
+            local=[(0,keys[0][1])]
+            for (a,k),(b,l) in zip(keys,keys[1:]):
+                w=min(.10,(b-a)*.24)
+                local.extend(((b-w,k),(b+w,l)))
+            local.append((1,keys[-1][1]))
+            bind(id,local)
         pose="finger_1_j1";tip="finger_1_j2"
     else:
         joint("pelvis",None,(0,.88,0),.20)
@@ -63,7 +69,7 @@ def make_rig(name,parts,meshes,lib,pivots):
             arm="arm_"+str(i);leg="leg_"+str(i);boot="boot_"+str(i)
             upper=joint(arm+"_upper","spine",at(arm,.94),.27)
             lower=joint(arm+"_lower",upper,at(arm,.48),.26)
-            bind(arm,[(0,lower),(.40,lower),(.65,upper),(1,upper)])
+            bind(arm,[(0,lower),(.37,lower),(.58,upper),(.82,upper),(1,"spine")])
             upper=joint(leg+"_upper","pelvis",at(leg,.96),.42)
             lower=joint(leg+"_lower",upper,at(leg,.48),.40)
             foot=joint(boot+"_foot",lower,at(boot,.85),.15)
@@ -76,6 +82,7 @@ def make_rig(name,parts,meshes,lib,pivots):
             if t<=b:
                 if k==l:return ((k,1.),)
                 v=(t-a)/(b-a)
+                v=v*v*(3-2*v) # smooth transition through the joint
                 if v<1e-8:return ((k,1.),)
                 if v>1-1e-8:return ((l,1.),)
                 return ((k,1-v),(l,v))

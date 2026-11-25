@@ -35,16 +35,16 @@ PILOTS={
  P("top_trim","chamfer",(0,.087,0),(.044,.012,.055),"brushed_metal")],
  "opaque fictional optical accessory housing; no optical function"),
  "glove":("first_person",[
- P("cuff","loft",(0,.025,0),(.085,.05,.055),"fabric"),
- P("palm","loft",(0,.078,0),(.096,.092,.040),"fabric"),
+ P("cuff","loft",(0,.028,0),(.075,.056,.041),"fabric"),
+ P("palm","loft",(0,.078,0),(.096,.092,.045),"fabric"),
  *[P("finger_"+str(i),"loft",(x,.105+h/2,0),(.018,h,.021),"rubber") for i,(x,h) in enumerate([(-.032,.058),(-.011,.076),(.011,.071),(.032,.052)])],
- P("thumb","loft",(-.047,.088,.017),(.030,.064,.031),"rubber")],
+ P("thumb","loft",(-.042,.088,.010),(.032,.064,.031),"rubber")],
  "glove anatomy study with finger-chain skeleton and blended weights; separate material shells"),
  "mannequin":("character",[
  P("torso","loft",(0,1.185,0),(.48,.69,.25),"fabric"),
  P("head","loft",(0,1.61,0),(.235,.32,.24),"rubber"),
  *[P("leg_"+str(i),"loft",(x,.45,0),(.16,.83,.16),"fabric") for i,x in enumerate([-.11,.11])],
- *[P("arm_"+str(i),"loft",(x,1.15,0),(.155,.65,.16),"fabric") for i,x in enumerate([-.265,.265])],
+ *[P("arm_"+str(i),"loft",(x,1.15,0),(.155,.65,.16),"fabric") for i,x in enumerate([-.225,.225])],
  *[P("boot_"+str(i),"chamfer",(x,.065,-.045),(.17,.13,.30),"rubber") for i,x in enumerate([-.11,.11])]],
  "clothed mannequin with arm and leg chains, blended weights and rest pose; not a production character"),
  "shelter":("structure",[

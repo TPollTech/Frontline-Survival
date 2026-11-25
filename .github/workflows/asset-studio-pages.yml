@@ -132,7 +132,7 @@ jobs:
                   assert catalog["revision"]==os.environ["GITHUB_SHA"], "published revision mismatch"
                   with urllib.request.urlopen(base+"qa/live_catalog.json?revision="+os.environ["GITHUB_SHA"],timeout=15) as response:
                       qa=json.load(response)
-                  assert qa["revision"]==catalog["revision"] and qa["scope"]=="QA_ONLY" and len(qa["assets"])==14 and qa["runtime_views"]["count"]==42 and not qa["approved"]
+                  assert qa["revision"]==catalog["revision"] and qa["scope"]=="QA_ONLY" and len(qa["assets"])==14 and qa["runtime_views"]["count"]==42 and qa["runtime_views"]["posed_count"]==6 and not qa["approved"]
                   assert not any(x["id"].startswith("qa:") for x in catalog["assets"])
                   print("PAGES_QA_DEPLOY_PASS",base+"qa/",len(qa["assets"]))
                   print("PAGES_DEPLOY_PASS",base,catalog["revision"])

@@ -112,7 +112,8 @@ func _run() -> void:
         camera.global_transform=initial_camera
         anchor.global_transform=Transform3D.IDENTITY
         var grounded: bool=report.category in ["character","structure","object","environment","terrain","map","vehicle","collision","geometry_library"]
-        var candidate: Vector3=camera.global_position+horizontal*maxf(1.6,dimensions.length()*1.55)
+        var frame_scale: float=1.15 if name=="mannequin" else 1.55
+        var candidate: Vector3=camera.global_position+horizontal*maxf(1.6,dimensions.length()*frame_scale)
         if grounded:
             var query:=PhysicsRayQueryParameters3D.create(candidate+Vector3.UP*4.0,candidate-Vector3.UP*12.0,1,[player.get_rid()])
             var hit: Dictionary=anchor.get_world_3d().direct_space_state.intersect_ray(query)
@@ -121,7 +122,8 @@ func _run() -> void:
                 return
             anchor.global_position=hit.position-Vector3.UP*float(report.bounds_min_m[1])
         else:
-            anchor.global_position=camera.global_position+forward*maxf(.38,dimensions.length()*1.55)-expected_center
+            var min_distance: float=.27 if name=="glove" else .38
+            anchor.global_position=camera.global_position+forward*maxf(min_distance,dimensions.length()*1.35)-expected_center
         # Show the authored front with a modest turn, not the opaque rear wall.
         anchor.look_at(Vector3(camera.global_position.x,anchor.global_position.y,camera.global_position.z),Vector3.UP)
         anchor.rotate_y(.32)

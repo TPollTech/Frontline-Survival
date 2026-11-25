@@ -50,6 +50,11 @@ try{
    await page.locator('#runtime-view').selectOption('godot-lod0');
    await page.waitForFunction(()=>document.querySelector('#viewport').dataset.runtimeView==='godot-lod0');
    assert(await page.locator('#viewport img.runtime-capture').isVisible());
+   if(report.rig){
+    await page.locator('#runtime-view').selectOption('godot-pose-lod0');
+    await page.waitForFunction(()=>document.querySelector('#viewport').dataset.runtimeView==='godot-pose-lod0');
+    assert(await page.locator('#viewport img.runtime-capture').isVisible());
+   }
   }
   await writeFile(folder+'/studio-report.json',JSON.stringify({revision:report.revision,rows,visual_approval:false}));
   console.log('SUITE_STUDIO_ASSET_PASS',name,rows.length);
