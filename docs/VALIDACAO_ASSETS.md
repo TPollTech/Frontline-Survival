@@ -53,3 +53,8 @@ CIs 45516709723/45516709742 aprovados: 84 exports determinísticos, 42 GLBs conf
 ## Rigging dos pilotos
 
 CIs 45518029777 e 45518280679 aprovados. Artefatos inspecionados de estação, abrigo e veículo; correções de orientação e novas cadeias de ossos skinned nos pilotos glove/mannequin. Geração estrita e importação Godot na revisão c7f4d83e passaram; validação de poses e publicação em andamento. Ver [PILOTOS_ASSETS.md](PILOTOS_ASSETS.md).
+
+
+## Publicação e poses
+
+Pages 45518280483 publicou QA 0aed750b com HTTP pós-deploy confirmado. CIs 45519485851/45519577840 aprovaram seis LODs skinned e controles de pose em Godot/Studio. Capturas inspecionadas, orientação do veículo confirmada; refinamento de encaixes e pesos em aa303b81 ainda em revalidação. Ver [PILOTOS_ASSETS.md](PILOTOS_ASSETS.md).

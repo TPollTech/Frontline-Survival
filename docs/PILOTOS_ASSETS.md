@@ -101,3 +101,25 @@ CI [45519310297](https://github.com/TPollTech/Frontline-Survival/actions/runs/45
 ### Publicação
 
 [45518280483](https://github.com/TPollTech/Frontline-Survival/actions/runs/45518280483) passou a geração isolada, permanece em teste de subrota antes do deploy; consulta pública não confirmou acesso. A geração contém o HDRI corrigido. Novo [45519577862](https://github.com/TPollTech/Frontline-Survival/actions/runs/45519577862) pendente. Não afirmar que /qa/ foi publicada. Preserve os gates. Tarefa 00-27 parcial, 00-24 e 00-25 parciais.
+
+
+## Publicação confirmada e inspeção dos rigs — revisão 00-27
+
+Preservados 2d4fe386 e 79023034 (sincronização de capturas). [Pages 45518280483](https://github.com/TPollTech/Frontline-Survival/actions/runs/45518280483) concluído com sucesso, incluindo PAGES_QA_DEPLOY_PASS https://tpolltech.github.io/Frontline-Survival/qa/ 14 e PAGES_DEPLOY_PASS da revisão 0aed750b0a910122d1ab660be4f30f89b5b4b516. Teste pós-deploy fez HTTP real no catálogo remoto, verificou 14 pilotos/42 capturas, mesma revisão, ausência de IDs QA no catálogo de produção. Tentativa independente de abrir URL com ferramenta web nesta sessão não retornou página; não afirmar navegação independente. [Pages 45519577862](https://github.com/TPollTech/Frontline-Survival/actions/runs/45519577862) ainda em teste de subrota quando registrado.
+
+CIs [45519310297](https://github.com/TPollTech/Frontline-Survival/actions/runs/45519310297), [45519485851](https://github.com/TPollTech/Frontline-Survival/actions/runs/45519485851), [45519577840](https://github.com/TPollTech/Frontline-Survival/actions/runs/45519577840) aprovados, 39 GLBs Godot/Studio em cada suíte. [45519577861](https://github.com/TPollTech/Frontline-Survival/actions/runs/45519577861) Windows aprovado, QA_ARSENAL_PASS.
+
+### Revisão efetiva de imagens e métricas
+
+Artefatos baixados e capturas abertas: [14978838985](https://github.com/TPollTech/Frontline-Survival/actions/runs/45519310297/artifacts/14978838985) (repouso c7f4d83e); [14979024517](https://github.com/TPollTech/Frontline-Survival/actions/runs/45519485851/artifacts/14979024517) (repouso e pose 16c90a73); [14980500177](https://github.com/TPollTech/Frontline-Survival/actions/runs/45519577840/artifacts/14980500177) (veículo cd3047b4). LOD0 Godot e Studio inspecionados. A mão dobra o dedo central e o braço do personagem se desloca, verificável nas capturas; a dobra do dedo é discreta no Godot devido ao enquadramento. A luva mostra junção marcada entre punho e palma e polegar separado; ombros do manequim parecem separados, especialmente na pose. Personagem ainda sem anatomia detalhada, rosto, mãos integradas e retopologia contínua. Veículo corrigido: cabine e para-brisa voltados para câmera no Godot, carga atrás; ainda aparência de brinquedo. Não homologar artisticamente.
+
+| Piloto (16c90a73) | Ossos | Triângulos LOD0/1/2 | Vértices renderizados com pesos mistos LOD0/1/2 | Deslocamento do filho em 25° |
+|---|---:|---|---|---:|
+| glove | 16 | 5056/1376/688 | 7488/2016/1008 | 0,0105276 m |
+| mannequin | 13 | 4216/1176/616 | 2688/768/384 | 0,1294309 m |
+
+Dados de godot-report.json e studio-report.json, conferidos no artefato 14979024517. Vértices renderizados podem repetir vértices fonte por UV/normais; deslocamento é do osso filho, não de toda a superfície. Seis poses (três LODs por piloto) passaram nos dois ambientes; não implica validação de todas as poses ou IK.
+
+### Correções na fonte aa303b81
+
+Punho mais estreito, sobreposição maior com palma, polegar aproximado, perfil superior do torso alargado, braços deslocados para dentro; pesos locais suavizados por smoothstep e mistura da manga superior com spine para reduzir separação aparente. As peças ainda são cascas distintas, não uma única superfície soldada. Câmera QA aproximada de glove/mannequin; não muda câmera de gameplay. Publicação inclui seis novas capturas posadas do Godot, separadas das 42 de repouso, com hash e contexto de pose; teste do Studio seleciona também captura em pose. Pós-deploy verifica posed_count=6. CI [45520645671](https://github.com/TPollTech/Frontline-Survival/actions/runs/45520645671) passou geração estrita/reprodução e estava instalando dependências do Studio; [45520645718](https://github.com/TPollTech/Frontline-Survival/actions/runs/45520645718) publicação pendente; [45520645649](https://github.com/TPollTech/Frontline-Survival/actions/runs/45520645649) Windows em validação. Sem nova inspeção visual após estas correções até os artefatos existirem. Produção não modificada por aa303b81. 00-24/25/27 permanecem parciais.
