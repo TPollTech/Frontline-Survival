@@ -230,6 +230,7 @@ func _walk(node: Node, origin: Node, rows: Array[Dictionary]) -> void:
             item["audio"] = {"path": stream.resource_path, "class": stream.get_class(), "length_s": stream.get_length()}
     if node is CanvasItem:
         var canvas := node as CanvasItem
+        item["canvas_visible_in_tree"] = canvas.is_visible_in_tree()
         if canvas.material != null:
             item["canvas_material"] = _material(canvas.material)
     # Every node, including nonvisual ancestors, is retained to preserve hierarchy.
@@ -252,6 +253,20 @@ func _snapshot(label: String, node: Node, families: Array[String], context: Dict
         "counts": counts, "nodes": rows}
     samples.append(sample)
     return sample
+
+# Keep the full sample for reconstruction, but identify the exact real nodes
+# responsible for a particular runtime asset. No additional render meshes.
+func _scope(sample: Dictionary, origin: Node, role: String, roots: Array) -> void:
+    var paths: Array[String] = []
+    for node in roots:
+        if is_instance_valid(node) and (node == origin or origin.is_ancestor_of(node)):
+            paths.append(str(origin.get_path_to(node)))
+        else:
+            _expect(false, "scope root outside sample " + role)
+    _expect(not paths.is_empty(), "empty scope " + role)
+    if not sample.has("asset_scopes"):
+        sample["asset_scopes"] = []
+    sample["asset_scopes"].append({"role": role, "roots": paths})
 
 func _screenshot(label: String) -> void:
     if DisplayServer.get_name() == "headless":
@@ -289,6 +304,9 @@ func _pose(p: Variant, id: String, optic: String, muzzle: String, pose: String) 
         ["viewmodel:assembly", "viewmodel:hands", "viewmodel:attachments", "player:collision",
         "effect:muzzle", "effect:scope_overlay", "material:weapon_overrides", "geometry:model_surface"],
         {"weapon": id, "optic": optic, "muzzle": muzzle, "pose": pose, "viewmodel_fov": p.viewmodel_fov})
+    _scope(sample, p, "player_capsule", [p.collider_node])
+    _scope(sample, p, "muzzle_mesh", [p.muzzle_flash])
+    _scope(sample, p, "scope_canvas", [p.scope_mask])
     _expect(p.weapon_id == id and is_instance_valid(p.weapon_model) and is_instance_valid(p.hand_rig),
         "missing weapon/hand rig " + id)
     _expect(int(sample["counts"]["mesh_nodes"]) > 0 and int(sample["counts"]["colliders"]) > 0, "empty player " + id)
@@ -370,7 +388,8 @@ func _query_and_effect_inventory(game: Variant, p: Variant) -> void:
         var streaks := _added_meshes(game, before)
         _expect(not streaks.is_empty(), "enemy tracer not instantiated")
         for streak in streaks:
-            _snapshot("enemy_tracer", streak, ["effect:enemy_tracer"], {"sample": "actual enemy visual callback"})
+            var tracer_sample := _snapshot("enemy_tracer", streak, ["effect:enemy_tracer"], {"sample": "actual enemy visual callback"})
+            _scope(tracer_sample, streak, "enemy_tracer", [streak])
         enemy.free()
     game.phase = "break"
     # Placement query executes the genuine game method. An INF rejection is a real result, not a crash.
@@ -388,14 +407,16 @@ func _query_and_effect_inventory(game: Variant, p: Variant) -> void:
     _expect(game.airstrike_tokens == 0 and markers.size() == 1, "airstrike marker absent")
     if markers.size() == 1:
         var marker := markers[0]
-        _snapshot("airstrike_marker", marker, ["effect:combat"], {"sample": "actual support marker"})
+        var marker_sample := _snapshot("airstrike_marker", marker, ["effect:combat"], {"sample": "actual support marker"})
+        _scope(marker_sample, marker, "airstrike_marker", [marker])
         var deadline := Time.get_ticks_msec() + 4000
         var found := false
         while Time.get_ticks_msec() < deadline and not found:
             await process_frame
             for candidate in _added_meshes(game, prior):
                 if candidate != marker and candidate.mesh is SphereMesh:
-                    _snapshot("airstrike_impact", candidate, ["effect:combat"], {"sample": "actual timed support impact"})
+                    var impact_sample := _snapshot("airstrike_impact", candidate, ["effect:combat"], {"sample": "actual timed support impact"})
+                    _scope(impact_sample, candidate, "airstrike_impact", [candidate])
                     found = true
                     break
         _expect(found, "airstrike timed impact absent")
@@ -561,35 +582,48 @@ func _run() -> void:
     turret.position = Vector3(-2, 0, -6)
     game.add_child(turret)
     turret.set_physics_process(false)
-    _snapshot("turret", turret, ["object:turret"])
+    var turret_sample := _snapshot("turret", turret, ["object:turret"])
+    _scope(turret_sample, turret, "turret", [turret])
     for id in IDS:
         var pickup: Variant = load("res://scripts/loot_pickup.gd").new()
         pickup.configure("weapon", id)
         game.add_child(pickup)
-        _snapshot("loot_weapon_" + id, pickup, ["object:loot"], {"weapon": id})
+        var loot_sample := _snapshot("loot_weapon_" + id, pickup, ["object:loot"], {"weapon": id})
+        _scope(loot_sample, pickup, "loot_weapon", [pickup])
         pickup.free()
     var ammo: Variant = load("res://scripts/loot_pickup.gd").new()
     ammo.configure("ammo", "rifle")
     game.add_child(ammo)
-    _snapshot("loot_ammo", ammo, ["object:loot"])
+    var ammo_sample := _snapshot("loot_ammo", ammo, ["object:loot"])
+    _scope(ammo_sample, ammo, "loot_ammo", [ammo])
     ammo.free()
     var grenade: Variant = load("res://scripts/frag_grenade.gd").new()
     grenade.configure(p, 1)
     grenade.position = Vector3(5, 1, -8)
     game.add_child(grenade)
     grenade.freeze = true
-    _snapshot("grenade", grenade, ["object:grenade"])
+    var grenade_sample := _snapshot("grenade", grenade, ["object:grenade"])
+    _scope(grenade_sample, grenade, "grenade_body", [grenade])
+    var previous_grenade_children: Array = grenade.get_children()
     grenade._spawn_explosion_effects()
-    _snapshot("grenade_effect", grenade, ["effect:grenade"])
+    var fx_roots: Array = []
+    for child in grenade.get_children():
+        if not previous_grenade_children.has(child):
+            fx_roots.append(child)
+    var grenade_fx_sample := _snapshot("grenade_effect", grenade, ["effect:grenade"])
+    _scope(grenade_fx_sample, grenade, "grenade_fx", fx_roots)
     var blood: Variant = load("res://scripts/blood_impact.gd").new()
     game.add_child(blood)
-    _snapshot("blood_effect", blood, ["effect:blood"])
+    var blood_sample := _snapshot("blood_effect", blood, ["effect:blood"])
+    _scope(blood_sample, blood, "blood", [blood])
     # Invoke the existing visual event only; no real shooting or gameplay changes.
     p.equip("shotgun")
+    var before_shot: Array = game.get_children()
     game._on_shot_fired(p.camera.to_global(Vector3(0, 0, -5)), false)
-    _snapshot("combat_visual_event", game, ["effect:combat"], {"sample": "shot visual callback"})
+    var shot_sample := _snapshot("combat_visual_event", game, ["effect:combat"], {"sample": "shot visual callback"})
+    _scope(shot_sample, game, "shot_fx", _added_meshes(game, before_shot))
     await _query_and_effect_inventory(game, p)
-    var report: Dictionary = {"schema_version": 1, "kind": "frontline_runtime_inventory",
+    var report: Dictionary = {"schema_version": 1, "asset_scope_schema": 1, "kind": "frontline_runtime_inventory",
         "commit": OS.get_environment("GITHUB_SHA"), "godot": Engine.get_version_info(),
         "display": DisplayServer.get_name(), "coordinate_unit": "m",
         "samples": samples, "failures": failures, "query_records": query_records,

@@ -12,8 +12,10 @@ from urllib.parse import unquote, urlsplit
 from collections import Counter, defaultdict
 try:
     from .runtime_catalog_evidence import dynamic_evidence, geometry_evidence
+    from .runtime_asset_scopes import scope_evidence, SPECS
 except ImportError:
     from runtime_catalog_evidence import dynamic_evidence, geometry_evidence
+    from runtime_asset_scopes import scope_evidence, SPECS
 
 EXT={
  ".glb":"model",".gltf":"model",".obj":"model",".fbx":"model",".dae":"model",
@@ -361,6 +363,11 @@ def build(root,paths=None,runtime=None,revision=None):
            "dependencies":{"resources":[],"assets":[],"sources":[]},"runtime_samples":[],
            "validation":{"approved":False,"runtime":"not_observed_current","studio_visual":"pending","godot_visual":"pending"}}
         assets.append(a);byid[id]=a
+    # Preserve baseline IDs and explicitly distinguish exact QA scopes from
+    # whole-scene associations. No ownership inferred from legacy inventories.
+    for aid in sorted({spec[0] for spec in SPECS.values()} & set(byid)):
+        byid[aid]["runtime_scope_status"]="not_observed_current"
+        byid[aid]["runtime_scopes"]=[]
     runtime_summary=None
     runtime_samples={}
     dynamic_resolution=[]; geometry_index={}; runtime_compositions={}
@@ -413,6 +420,10 @@ def build(root,paths=None,runtime=None,revision=None):
                     resources[path].setdefault("library_material_uses",[]).append({"material":material_id,"slot":key,"scope":"library_loaded_not_mesh_assignment"})
         dynamic_resolution=dynamic_evidence(dynamic,runtime,resources,{s["id"]:set(runtime_resource_paths(s)) for s in runtime["samples"]})
         geometry_index,runtime_compositions=geometry_evidence(runtime)
+        for aid,scopes in scope_evidence(runtime).items():
+            require(aid in byid,"unregistered scoped runtime family: "+aid)
+            byid[aid]["runtime_scopes"]=scopes
+            byid[aid]["runtime_scope_status"]="qa_scoped_nodes"
         for id,comp in runtime_compositions.items():
             runtime_samples[id]["procedural_buffer_count"]=len({h for n in comp["nodes"] for h in n["buffer_sha256"]})
             runtime_samples[id]["composition_available"]=True

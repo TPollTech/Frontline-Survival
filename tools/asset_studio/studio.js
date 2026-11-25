@@ -39,6 +39,13 @@ function resources(a){return [...new Set([a.preview?.resource,...(a.outputs||[])
 function renderList(){const q=$('search').value.trim().toLowerCase(),cat=$('category').value;const list=catalog.assets.filter(a=>(!cat||a.category===cat)&&(!q||[a.id,a.category,a.source?.path,...resources(a)].join(' ').toLowerCase().includes(q)));$('count').textContent=list.length+' de '+catalog.assets.length+' registros';$('assets').replaceChildren(...list.map(a=>{const b=document.createElement('button');b.type='button';b.dataset.asset=a.id;b.setAttribute('aria-current',String(a===selected));b.textContent=a.id;const sm=document.createElement('small');sm.textContent=a.category+' · '+(a.runtime_views?.length?'captura Godot disponível':resources(a).length?'arquivo real':a.runtime_samples?.length&&catalog.surface_payload?'composição 3D disponível':'captura pendente');b.append(sm);b.addEventListener('click',()=>select(a));return b;}));}
 function sampleDetails(){
  const id=$('runtime-sample').value,m=catalog.runtime_samples?.[id];
+ const scopes=(selected?.runtime_scopes||[]).filter(s=>s.sample===id);
+ const scopedDetails=scopes.flatMap(s=>[
+  'Escopo específico: '+s.role+' · '+s.mesh_nodes+' malhas ('+s.visible_mesh_nodes+' visíveis) · '+s.collisions.length+' colisores · '+s.lights+' luzes',
+  'Nós reais: '+s.roots.join(', '),
+  ...s.collisions.map(c=>'Colisor '+c.path+' · '+c.shape.class+' · camada '+c.layer+' · máscara '+c.mask),
+  ...(s.canvas_visible===null?[]:['Sobreposição visível: '+String(s.canvas_visible)]),
+ ]);
  $('runtime-sample-info').textContent=m?[
  'Escopo: subárvore inteira da amostra, não orçamento individual.',
  'Nós: '+m.nodes+' · malhas: '+m.mesh_nodes+' · superfícies: '+m.surfaces,
@@ -49,7 +56,9 @@ function sampleDetails(){
  'LOD bias: '+JSON.stringify(m.lod_bias_counts)+' · índices LOD não medidos',
  'Buffers procedurais reais: '+(m.procedural_buffer_count??'não capturados'),
  'Composição: '+(m.composition_available?'hierarquia e referências de malha registradas (inspeção de dados)':'pendente'),
- 'Famílias: '+m.families.join(', ')
+ 'Famílias: '+m.families.join(', '),
+ ...scopedDetails,
+ ...(selected?.runtime_scope_status&&!scopes.length?['Escopo específico não observado nesta amostra.']:[])
  ].join('\n'):'Nenhuma amostra reconciliada nesta revisão.';
 }
 function selectSamples(a){
