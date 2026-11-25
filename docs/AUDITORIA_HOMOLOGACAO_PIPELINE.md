@@ -63,3 +63,7 @@ A regressão existente conferia hashes dos payloads e cobertura de composições
 ## Continuidade
 
 Executar o roteiro integrado do guia num checkout limpo com perfil isolado, capturar inventário/vistas da mesma revisão e gerar catálogo/Studio. Conferir 24 famílias por amostra/consulta, dependências e recursos atuais, escopos e hashes, casos de cobertura e exceções; executar browser_test.mjs com REQUIRE_RUNTIME_VIEWS=1, guardar logs e capturas reais, abrir/inspecionar Godot e Studio; tratar falhas e repetir. Registrar diferenças visuais e benchmarks reais, inclusive movimento e hardware-alvo. Não usar os dados históricos como aprovação automática. A auditoria não encerra as lacunas de implementação de outras tarefas. 00-34 permanece parcial.
+
+## Coleta unificada Windows
+
+Preparado [QA All-in-One](QA_ALL_IN_ONE.md) para executar os runners existentes sem comandos manuais no Godot. Somente inicializador, dependente de internet; não há bundle offline ou homologação nesta entrega. Aguardar resultados reais e solucionar todas as lacunas da etapa 00 antes de avançar.

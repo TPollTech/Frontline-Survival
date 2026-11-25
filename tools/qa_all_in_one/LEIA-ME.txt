@@ -1,0 +1,19 @@
+FRONTLINE SURVIVAL - QA ALL-IN-ONE (PREVIEW)
+
+1. Extraia o ZIP em uma pasta gravavel no Windows 10/11 x64.
+2. Execute TESTAR_TUDO.bat. Mantenha a janela aberta.
+3. Envie o arquivo RESULTADOS-*.zip criado ao lado do BAT pelo ChatGPT.
+
+Primeira execucao requer internet, espaco livre (planeje 10 GB ou mais),
+acesso ao GitHub e permissao para instalar Git/Python 3.11 via winget se ausentes.
+Se o repositorio exigir autenticacao, use a janela oficial do Git; nao envie senhas.
+Godot 4.4.1, Node 22.16.0, Blender 3.0.1 e Chromium sao baixados automaticamente.
+Projeto e dependencias ficam isolados em %LOCALAPPDATA%\FrontlineQA.
+Nao use o Godot manualmente. Janelas da engine podem abrir durante os testes.
+Nao feche o processo antes de terminar. O ZIP inclui evidencias e setup.log;
+se o preparo falhar, o ZIP contem apenas o log de preparo.
+Nao inclua senhas nem perfis pessoais. O log pode conter caminhos locais.
+
+Este e um inicializador, nao um ZIP offline do jogo. O fluxo Windows completo
+nao foi testado neste ambiente. Falhas sao registradas, nao mascaradas.
+Aprovacao automatica nao equivale a inspecao visual ou etapa 00 concluida.
