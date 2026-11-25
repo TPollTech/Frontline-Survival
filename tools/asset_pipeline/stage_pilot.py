@@ -11,15 +11,18 @@ def main():
     report=json.loads((source/"pilot-report.json").read_text())
     if catalog["revision"]!=report["revision"]:raise ValueError("revision mismatch")
     if any(x["id"]==report["id"] for x in catalog["assets"]):raise ValueError("duplicate pilot")
+    slug=report.get("slug","industrial-bollard")
+    if not slug or not all(c.isalnum() or c in "-_" for c in slug):raise ValueError("invalid pilot slug")
+    category=report["category"]
     outputs=[]
     for row in report["exports"]:
         if row["path"]!="asset.glb":continue
-        name=f'lod{row["level"]}/asset.glb';target="qa-pilots/industrial-bollard/"+name
+        name=f'lod{row["level"]}/asset.glb';target="qa-pilots/"+slug+"/"+name
         f=stage/target;f.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(source/name,f)
         if digest(f.read_bytes())!=row["sha256"]:raise ValueError("pilot bytes differ")
-        catalog["resources"][target]={"sha256":row["sha256"],"bytes":f.stat().st_size,"status":"new","category":"object","gltf_dependencies":[]}
+        catalog["resources"][target]={"sha256":row["sha256"],"bytes":f.stat().st_size,"status":"new","category":category,"gltf_dependencies":[]}
         outputs.append({"path":target,"role":"lod"+str(row["level"])})
-    catalog["assets"].append({"id":report["id"],"category":"object","usage":"QA_ONLY — not integrated into production gameplay",
+    catalog["assets"].append({"id":report["id"],"category":category,"usage":"QA_ONLY — not integrated into production gameplay",
         "source":{"path":report["source"],"editable":True},"outputs":outputs,
         "preview":{"resource":outputs[0]["path"],"mode":"glb","fidelity":"exact_generated_bytes"},
         "collision":report["collision"],"lods":{"distances_m":report["lod_distances_m"],"levels":[{"path":o["path"],"role":o["role"]} for o in outputs]},

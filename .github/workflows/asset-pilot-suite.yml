@@ -1,0 +1,69 @@
+name: Canonical pilot suite QA
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'tools/asset_pipeline/parametric/pilot_suite.py'
+      - 'tools/asset_pipeline/runtime/pilot_suite_qa.gd'
+      - 'tools/asset_pipeline/stage_pilot.py'
+      - 'tools/asset_studio/pilot_suite_test.mjs'
+      - '.github/workflows/asset-pilot-suite.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  suite:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Set isolated output directory
+        run: echo "FRONTLINE_PILOT_DIR=$RUNNER_TEMP/pilot-suite" >> "$GITHUB_ENV"
+      - name: Generate strict exports and compare byte reproducibility
+        run: |
+          python -m tools.asset_pipeline.parametric.pilot_suite "$FRONTLINE_PILOT_DIR" "$GITHUB_SHA"
+          python -m tools.asset_pipeline.parametric.pilot_suite "$RUNNER_TEMP/suite-repeat" "$GITHUB_SHA"
+          diff -r "$FRONTLINE_PILOT_DIR" "$RUNNER_TEMP/suite-repeat"
+      - name: Install local Studio dependencies
+        working-directory: tools/asset_studio
+        run: |
+          npm install --ignore-scripts
+          npx playwright install --with-deps chromium
+      - uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.4.1
+          use-dotnet: false
+          include-templates: false
+      - name: Render all original generated GLBs in game QA
+        env:
+          XDG_DATA_HOME: ${{ runner.temp }}/suite-profile
+        run: |
+          set -o pipefail
+          timeout 120s godot --headless --editor --import --path . 2>&1 | tee "$FRONTLINE_PILOT_DIR/import.log"
+          if grep -E 'SCRIPT ERROR:|Parse Error' "$FRONTLINE_PILOT_DIR/import.log"; then exit 1; fi
+          timeout 240s xvfb-run -a -s '-screen 0 1280x720x24' godot --path . --rendering-driver opengl3 --script res://tools/asset_pipeline/runtime/pilot_suite_qa.gd 2>&1 | tee "$FRONTLINE_PILOT_DIR/godot.log"
+          grep -q 'SUITE_GODOT_PASS 27' "$FRONTLINE_PILOT_DIR/godot.log"
+          if grep -E 'SCRIPT ERROR:|Parse Error|SUITE_GODOT_FAIL' "$FRONTLINE_PILOT_DIR/godot.log"; then exit 1; fi
+      - name: Stage identical GLBs and render in isolated Studio
+        run: |
+          python tools/asset_studio/prepare.py "$RUNNER_TEMP/suite-studio"
+          for folder in "$FRONTLINE_PILOT_DIR"/*/; do
+            python -m tools.asset_pipeline.stage_pilot "$folder" "$RUNNER_TEMP/suite-studio"
+          done
+          python -m http.server 8765 --bind 127.0.0.1 --directory "$RUNNER_TEMP/suite-studio" > "$FRONTLINE_PILOT_DIR/studio-server.log" 2>&1 &
+          server=$!
+          trap 'kill "$server" || true' EXIT
+          for n in $(seq 1 30); do curl -fsS http://127.0.0.1:8765/live_catalog.json >/dev/null && break; sleep 1; done
+          node tools/asset_studio/pilot_suite_test.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Canonical-suite-${{ github.sha }}
+          path: ${{ runner.temp }}/pilot-suite/
+          if-no-files-found: warn
