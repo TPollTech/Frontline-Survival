@@ -136,3 +136,19 @@ Base remota `b6f1d43d6541dda192cd314786333541e9f39900` conferida, com `f1ca06c` 
 - Python: 21/21 testes de LOD e benchmark, 19/19 de catálogo. No Godot, inventário reconciliado de 86 amostras e cinco vistas nativas capturadas na revisão `b6f1d43`. O Studio local foi montado com 225 buffers e 86 composições. Chromium inicializou WebGL2 em um smoke test mínimo, mas encerrou a aba ao carregar módulos do Studio. A suíte de reconstrução no browser continua bloqueada neste ambiente.
 
 A 00-10 permanece parcial. A cobertura física aumentou para os bloqueadores registrados. Novas famílias e geometrias, popping durante movimento, WebGL no Asset Studio e benchmark no Ryzen 5 7530U/iGPU/8 GB permanecem em aberto. Execução local sem GitHub Actions.
+
+
+## Preparação da captura de transições em movimento — 25/11/2026
+
+Base e11c2be9147fbab9d147960db886fa471bff6154 preservada (inclui 00-32). Sem repetir 207/207 transições, 24/24 contatos, benchmark A/B/B/A ou inventário anteriores. Neste container Python 3.13.5, Chromium e Xvfb disponíveis; Godot ausente no PATH, git ls-remote falhou por DNS. Sem checkout integral, inventário/Studio atuais, nova renderização ou hardware-alvo.
+
+Novo modo independente `--motion` no runner: usa o mesmo snapshot e perfil isolado do benchmark, sem disparar workflows. Cena real, câmera nativa à altura de 1,65 m, gameplay congelado e HUD/viewmodel ocultos. Reaproveita o percurso quadrado do benchmark, agora com 110 passos por lado (44 m), delta simulado 0,1 s, 4 m/s equivalentes e 441 amostras incluindo fechamento. O seletor de produção é chamado pelo tick normal na posição real da câmera, sem forçar distância de seleção; as capturas ocorrem fora da janela de medição A/B. Registra caminhos de 23 assemblies, posição da câmera, níveis e nome de PNG por frame. Verificador Python exige 441 imagens (cabeçalhos PNG 1280x720, não decodificação), trajetória, famílias e caminhos únicos, níveis válidos e mudanças adjacentes em ambos sentidos de ambos limiares na sequência agregada. Não garante visibilidade de todos os objetos, ausência de popping entre frames, fidelidade visual, navegação do jogador ou FPS. A velocidade e a cadência são simuladas, não tempo real. Não alterar meshes, colisores, LOD de produção ou benchmark existente.
+
+10/10 testes sintéticos novos executados em Python 3.13.5, inclusive percurso fechado, amostra ausente, posição incorreta, caminho inválido, salto de nível, falta de transições, duplicidade, PNG inválido e falsa aprovação. Os PNGs das fixtures são somente cabeçalhos; não são imagens reais. Hashes dos dois arquivos Python testados conferidos antes da publicação. GDScript e runner integrado ainda não executados; coleta/inspeção de frames reais continua pendente.
+
+Windows, na raiz de checkout limpo e atualizado, ajuste o executável:
+```powershell
+$destino = "$env:TEMP\frontline-lod-motion-$(Get-Date -Format yyyyMMdd-HHmmss)"
+python tools/asset_pipeline/world_lod_local.py "$destino" --godot "C:\Godot\Godot_v4.4.1-stable_win64_console.exe" --motion
+```
+Linux com display: `python tools/asset_pipeline/world_lod_local.py /tmp/frontline-lod-motion-01 --godot godot --motion`. A pasta nova deve ter espaço para 441 PNGs. Revisar world-lod-motion.json, motion-summary.json, logs e a sequência real; por exemplo, com FFmpeg instalado, executar dentro da pasta de evidências: `ffmpeg -framerate 10 -i motion-%04d.png -c:v libx264 -pix_fmt yuv420p motion.mp4`. A reprodução em 10 FPS representa o delta simulado, não a taxa de renderização. Se houver oclusão, complementar com trajetórias específicas antes de julgar a qualidade. WebGL do Studio, ampliação de famílias aplicáveis, inspeção de popping e benchmark no Ryzen 5 7530U/iGPU/8 GB continuam pendentes. Sem release ou ZIP; 00-10 parcial.

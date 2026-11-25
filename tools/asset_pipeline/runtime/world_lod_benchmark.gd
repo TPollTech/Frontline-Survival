@@ -16,9 +16,9 @@ func fail(msg: String) -> void:
     push_error("WORLD_LOD_BENCH_FAIL " + msg)
     quit(1)
 
-func pose(camera: Camera3D, index: int) -> void:
-    var segment := int(index / 60.0)
-    var weight := float(index % 60) / 60.0
+func pose(camera: Camera3D, index: int, steps_per_side: int = 60) -> void:
+    var segment := int(index / float(steps_per_side))
+    var weight := float(index % steps_per_side) / float(steps_per_side)
     camera.global_position = ROUTE[segment].lerp(ROUTE[(segment + 1) % 4], weight)
     camera.look_at(Vector3(0, 1.3, 0), Vector3.UP)
 
@@ -39,6 +39,45 @@ func memory_sample() -> Dictionary:
     var video := Performance.get_monitor(Performance.RENDER_VIDEO_MEM_USED)
     return {"engine_static_bytes": Performance.get_monitor(Performance.MEMORY_STATIC),
         "render_video_memory_bytes": video if video > 0 else null}
+
+# Separate visual evidence pass: no image readback inside the timed benchmark.
+func capture_motion(camera: Camera3D, registry: Variant, output: String) -> void:
+    const STEPS_PER_SIDE := 110
+    const MOTION_STEPS := STEPS_PER_SIDE * 4
+    reset_registry(registry)
+    if triangle_count(registry) != 49248:
+        fail("motion baseline geometry")
+        return
+    var assemblies: Array = []
+    for entry in registry.entries:
+        assemblies.append({"path": str(entry.anchor.get_path()), "family": entry.family})
+    var frames: Array = []
+    for step in range(MOTION_STEPS + 1):
+        await process_frame
+        pose(camera, step % MOTION_STEPS, STEPS_PER_SIDE)
+        registry.tick(0.1, camera)
+        await RenderingServer.frame_post_draw
+        var image := root.get_texture().get_image()
+        var filename := "motion-%04d.png" % step
+        if image == null or image.is_empty() or image.save_png(output.path_join(filename)) != OK:
+            fail("motion capture " + str(step))
+            return
+        var levels: Array[int] = []
+        for entry in registry.entries:
+            levels.append(entry.selector.current)
+        var p := camera.global_position
+        frames.append({"index": step, "file": filename, "camera_m": [p.x, p.y, p.z], "levels": levels})
+    var report := {"kind": "world_lod_motion", "schema_version": 1, "resolution": [1280, 720],
+        "simulated_delta_s": 0.1, "visual_reviewed": false, "hardware_validated": false,
+        "assemblies": assemblies, "frames": frames}
+    var file := FileAccess.open(output.path_join("world-lod-motion.json"), FileAccess.WRITE)
+    if file == null:
+        fail("motion report could not be written")
+        return
+    file.store_string(JSON.stringify(report, "  "))
+    file.close()
+    print("WORLD_LOD_MOTION_PASS ", frames.size())
+    quit(0)
 
 func _run() -> void:
     var output := OS.get_environment("FRONTLINE_LOD_DIR")
@@ -67,6 +106,9 @@ func _run() -> void:
     var registry: Variant = game.world_lod
     if registry.entries.size() != 23:
         fail("expected 23 registered assemblies")
+        return
+    if OS.get_environment("FRONTLINE_LOD_MOTION") == "1":
+        await capture_motion(camera, registry, output)
         return
     var runs: Array = []
     for mode in ORDER:
