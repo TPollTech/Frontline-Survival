@@ -38,3 +38,8 @@ CI anterior [45504785180](https://github.com/TPollTech/Frontline-Survival/action
 ## Expansão 00-27
 
 O CI 45514843046 concluiu balizador 3/3 Godot/Studio, colisor invariável e equivalência de hashes, triângulos e dimensões. Nove novos conceitos em piloto_suite.py validaram seis exports estritos por asset, com contrato físico baseado em envelopes autorais e budget por LOD no CI 45516214029; Godot/Studio ainda em validação. Ver [PILOTOS_ASSETS.md](PILOTOS_ASSETS.md). Sem alteração dos modelos de produção.
+
+
+## Revisão de acabamento e cobertura
+
+CIs 45516709723/45516709742 aprovados: 84 exports determinísticos, 42 GLBs conferidos Godot/Studio, 14 pilotos em 13 categorias geométricas. Inspeção real de capturas LOD0 revelou sobreposição, encaixes e posicionamento inadequados; correções posteriores em revalidação. Ver [PILOTOS_ASSETS.md](PILOTOS_ASSETS.md). Sem homologação artística.
