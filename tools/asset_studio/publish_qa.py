@@ -9,8 +9,8 @@ def require(value,message):
     if not value:raise ValueError(message)
 
 def main():
-    p=argparse.ArgumentParser();p.add_argument("production");p.add_argument("suite");p.add_argument("bollard");p.add_argument("inventory");a=p.parse_args()
-    prod,suite,bollard=map(Path,(a.production,a.suite,a.bollard))
+    p=argparse.ArgumentParser();p.add_argument("production");p.add_argument("suite");p.add_argument("bollard");p.add_argument("inventory");args=p.parse_args()
+    prod,suite,bollard=map(Path,(args.production,args.suite,args.bollard))
     catalog=json.loads((prod/"live_catalog.json").read_text());qa=prod/"qa";qa.mkdir()
     for name in ("index.html","studio.css","studio.js","lighting.js","camera-navigation.js","inspection.js","serve_offline.py","studio-light.hdr"):
         shutil.copyfile(prod/name,qa/name)
@@ -47,7 +47,7 @@ def main():
     require(total==len(folders)*3,"capture coverage mismatch")
     categories=sorted(set(BUDGETS)|set(NON_GEOMETRY_CATEGORIES)|{a["category"] for a in catalog["assets"]})
     coverage=[{"category":c,"pilots":[a["id"] for a in q["assets"] if a["category"]==c],"legacy":[a["id"] for a in catalog["assets"] if a["category"]==c],"status":"geometric_qa" if c in covered else "native_evidence_pending","approved":False} for c in categories]
-    stage_native(prod,qa,catalog,a.inventory,coverage)
+    stage_native(prod,qa,catalog,args.inventory,coverage)
     (qa/"coverage.json").write_bytes(canonical({"revision":q["revision"],"categories":coverage,"approved":False}))
     page=qa/"index.html"
     page.write_text(page.read_text().replace("ASSET STUDIO / INSPEÇÃO TÉCNICA","ASSET STUDIO / QA — NÃO HOMOLOGADO").replace('<div id="revision">','<a href="../" style="color:inherit">Voltar ao Studio de produção</a><div id="revision">').replace('<h1>Biblioteca</h1>','<h1>Pilotos QA</h1><p class="muted">Modelos experimentais, não integrados à produção. <a href="coverage.html">Cobertura por categoria</a>.</p>'),encoding="utf-8")
