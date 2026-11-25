@@ -88,3 +88,8 @@ CI 45534922543 aprovado, 36 transições/rays, quatro bloqueadores independentes
 ## Reconstrução runtime do Studio — 00-13
 
 45536901798 aprovado: seis composições reais reconstruídas, contagens/matrizes conciliadas, capturas abertas e mapa comparado ao Godot. 45537702060 aprovado: 201 buffers, todos os 167 procedurais, 942 atributos e 12 níveis LOD verificados. Materiais/renderização final e publicação em validação. Ver [ASSET_STUDIO.md](ASSET_STUDIO.md).
+
+
+### Confirmação posterior da revisão 0ac2a853
+
+[CI 45537701973](https://github.com/TPollTech/Frontline-Survival/actions/runs/45537701973) aprovado: STUDIO_SURFACE_STAGE_PASS 201 6 86, seis STUDIO_COMPOSITION_PASS com mesmas contagens/matrizes, STUDIO_OFFLINE_COMPOSITION_PASS 139656. Artefato [14988131278](https://github.com/TPollTech/Frontline-Survival/actions/runs/45537701973/artifacts/14988131278) baixado, seis capturas corrigidas abertas. Títulos/seleção de famílias coerentes; textura de concreto agora perceptível nas paredes, sem equivalência exata de iluminação ou triplanar; geometria e posições preservadas, personagem experimental em repouso. A prova de reconstrução estática offline é real, não equivalência à partida. Não promover homologação ou cobertura visual das outras 80 amostras. Pages 45536901686 ainda em teste de subrota na última consulta, revisão 0ac2a853 45537701896 não confirmada. 00-13 parcial.
