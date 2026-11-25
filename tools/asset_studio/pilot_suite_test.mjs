@@ -28,7 +28,22 @@ try{
    assert(info.normalMeshes>0&&info.uvMeshes>0);
    info.dimensions.forEach((x,i)=>assert(Math.abs(x-report.contract.dimensions_m[i])<.001));
    await page.screenshot({path:folder+'/studio-lod'+level+'.png'});
-   rows.push({level,sha256:sha,triangles:info.triangles,dimensions_m:info.dimensions,visual_approval:false});
+   let pose=null;
+   if(expected.rig){
+    const key=x=>x.toLowerCase().replace(/[:_\/ ]/g,'');
+    const options=await page.locator('#node-select option').evaluateAll(o=>o.map(x=>({value:x.value,text:x.textContent})));
+    const bone=options.find(o=>key(o.text).includes(key('bone'+expected.rig.pose_bone)));
+    assert(bone,'authored bone must be selectable in Studio');
+    await page.locator('#node-select').selectOption(bone.value);
+    await page.locator('#pose-x').evaluate((el,degrees)=>{el.value=String(degrees);el.dispatchEvent(new Event('input',{bubbles:true}));},expected.rig.pose_degrees);
+    await page.waitForFunction(deg=>Math.abs(JSON.parse(document.querySelector('#viewport').dataset.inspection).pose?.[0]-deg)<1,expected.rig.pose_degrees);
+    await page.screenshot({path:folder+'/studio-pose-lod'+level+'.png'});
+    assert(godot.rows[level].rig.child_displacement_m>.001);
+    pose={bone:expected.rig.pose_bone,degrees:expected.rig.pose_degrees,godot_displacement_m:godot.rows[level].rig.child_displacement_m};
+    await page.locator('#pose-reset').click();
+    console.log('SUITE_STUDIO_RIG_PASS',name,level);
+   }
+   rows.push({level,sha256:sha,triangles:info.triangles,dimensions_m:info.dimensions,pose,visual_approval:false});
    total++;
   }
   if(process.env.REQUIRE_QA_CAPTURE==='1'){

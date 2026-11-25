@@ -16,6 +16,62 @@ func meshes(n: Node, result: Array[MeshInstance3D]) -> void:
     for child in n.get_children():
         meshes(child,result)
 
+func bone_key(id: String) -> String:
+    return id.to_lower().replace(":","").replace("_","").replace("/","").replace(" ","")
+
+func check_rig(visual: Node, all: Array[MeshInstance3D], rig: Dictionary) -> Dictionary:
+    var skeletons := visual.find_children("*","Skeleton3D",true,false)
+    if skeletons.size()!=1:
+        return {"error":"expected one skeleton"}
+    var sk: Skeleton3D=skeletons[0]
+    var names: Dictionary={}
+    for i in range(sk.get_bone_count()):
+        names[bone_key(String(sk.get_bone_name(i)))]=i
+    for id in rig.parents:
+        var index: int=names.get(bone_key("bone:"+str(id)),-1)
+        if index<0:
+            return {"error":"missing bone "+str(id)}
+        var parent: Variant=rig.parents[id]
+        var expected: int=-1 if parent==null else names.get(bone_key("bone:"+str(parent)),-2)
+        if sk.get_bone_parent(index)!=expected:
+            return {"error":"bone parent mismatch "+str(id)}
+    var blended:=0
+    for m in all:
+        if m.skin==null:
+            return {"error":"missing skin"}
+        for i in range(m.mesh.get_surface_count()):
+            var a:=m.mesh.surface_get_arrays(i)
+            var indices: PackedInt32Array=a[Mesh.ARRAY_BONES]
+            var weights: PackedFloat32Array=a[Mesh.ARRAY_WEIGHTS]
+            if weights.size()!=indices.size() or weights.size()!=a[Mesh.ARRAY_VERTEX].size()*4:
+                return {"error":"invalid skin arrays"}
+            for j in range(0,weights.size(),4):
+                var count:=0
+                var total:=0.0
+                for k in range(j,j+4):
+                    total+=weights[k]
+                    if weights[k]>0.00001:
+                        count+=1
+                        if indices[k]<0 or indices[k]>=m.skin.get_bind_count():
+                            return {"error":"invalid bind"}
+                if absf(total-1.0)>.0001:
+                    return {"error":"weights not normalized"}
+                if count>1:
+                    blended+=1
+    if blended==0:
+        return {"error":"no blended vertices"}
+    var bone: int=names[bone_key("bone:"+str(rig.pose_bone))]
+    var child: int=names[bone_key("bone:"+str(rig.pose_child))]
+    sk.force_update_all_bone_transforms()
+    var before:=sk.get_bone_global_pose(child).origin
+    var rest:=sk.get_bone_pose_rotation(bone)
+    sk.set_bone_pose_rotation(bone,rest*Quaternion(Vector3.RIGHT,deg_to_rad(float(rig.pose_degrees))))
+    sk.force_update_all_bone_transforms()
+    var displacement:=before.distance_to(sk.get_bone_global_pose(child).origin)
+    if displacement<.001:
+        return {"error":"child did not move"}
+    return {"bone_count":sk.get_bone_count(),"mixed_render_vertices":blended,"child_displacement_m":displacement,"posed_bone":rig.pose_bone}
+
 func _run() -> void:
     var directory := OS.get_environment("FRONTLINE_PILOT_DIR")
     var suite: Variant=JSON.parse_string(FileAccess.get_file_as_string(directory.path_join("suite.json")))
@@ -140,7 +196,20 @@ func _run() -> void:
             if image.is_empty() or image.save_png(folder.path_join("godot-lod"+str(level)+".png"))!=OK:
                 fail("capture "+str(name))
                 return
-            rows.append({"level":level,"sha256":FileAccess.get_sha256(path),"triangles":count,"dimensions_m":[local_bounds.size.x,local_bounds.size.y,local_bounds.size.z],"camera":"native_player_qa_placement","ground_contact_sampled":grounded,"visual_approval":false,"independent_collision_checked":collider!=null})
+            var rig_check: Dictionary={}
+            if expected.get("rig")!=null:
+                rig_check=check_rig(visual,all,expected.rig)
+                if rig_check.has("error"):
+                    fail("rig "+str(name)+" "+str(rig_check))
+                    return
+                await process_frame
+                await RenderingServer.frame_post_draw
+                var posed_image:=root.get_texture().get_image()
+                if posed_image.is_empty() or posed_image.save_png(folder.path_join("godot-pose-lod"+str(level)+".png"))!=OK:
+                    fail("posed capture "+str(name))
+                    return
+                print("SUITE_RIG_PASS ",name," LOD",level," ",rig_check)
+            rows.append({"rig":rig_check,"level":level,"sha256":FileAccess.get_sha256(path),"triangles":count,"dimensions_m":[local_bounds.size.x,local_bounds.size.y,local_bounds.size.z],"camera":"native_player_qa_placement","ground_contact_sampled":grounded,"visual_approval":false,"independent_collision_checked":collider!=null})
             visual.free()
             total+=1
         if body!=null:
