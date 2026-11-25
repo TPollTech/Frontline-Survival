@@ -83,3 +83,8 @@ CI 45520645718 confirmou 42 capturas em repouso e seis posadas publicadas. Revis
 ## LOD real de barricadas — 00-10
 
 CI 45534922543 aprovado, 36 transições/rays, quatro bloqueadores independentes, três capturas reais inspecionadas. Ver [relatório](LOD_COLISOES_RUNTIME.md). Sem homologação de desempenho.
+
+
+## Reconstrução runtime do Studio — 00-13
+
+45536901798 aprovado: seis composições reais reconstruídas, contagens/matrizes conciliadas, capturas abertas e mapa comparado ao Godot. 45537702060 aprovado: 201 buffers, todos os 167 procedurais, 942 atributos e 12 níveis LOD verificados. Materiais/renderização final e publicação em validação. Ver [ASSET_STUDIO.md](ASSET_STUDIO.md).
