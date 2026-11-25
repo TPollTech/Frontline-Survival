@@ -84,6 +84,38 @@ class CatalogTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,"missing shared world recipe"):
             self.catalog(paths)
 
+
+    def test_canonical_map_layout_dependency(self):
+        layout="scripts/campo_de_testes_layout.gd"
+        consumer="scripts/main.gd"
+        scene="scenes/main.tscn"
+        groups=["GROUND","WALLS","CONTAINERS","BARRICADES","SHOPS","BARREL_CENTERS","BARREL_OFFSET","BARREL_FIRST_COLOR","BARREL_SECOND_COLOR","LIGHT_X","LIGHT_Z","SIGN_POSITION"]
+        self.put(layout,"\n".join("const "+name+" := []" for name in groups)+"\nstatic func decorative_boxes():\n    return []")
+        caller='const MapLayout = preload("res://'+layout+'")\n'+"\n".join("MapLayout."+name for name in groups)+"\nMapLayout.decorative_boxes()"
+        self.put(consumer,caller)
+        self.put(scene,'[ext_resource type="Script" path="res://'+consumer+'"]')
+        asset={"id":"map:campo_de_testes","category":"map","source":{"path":consumer,"kind":"godot_recipe"},"outputs":[],"dependencies":{"sources":[],"assets":[],"resources":[]},"preview":{"resource":None},"validation":{}}
+        self.put("assets/catalog/manifest.json",json.dumps({"assets":[asset],"resources":{},"source_registry":{},"known_dynamic_gaps":[]}))
+        paths=[layout,consumer,scene]
+        c=self.catalog(paths)
+        a=next(a for a in c["assets"] if a["id"]==asset["id"])
+        self.assertEqual(a["canonical_composition"]["groups"],groups+["decorative_boxes"])
+        self.assertEqual(a["canonical_composition"]["runtime_sample"],"map_briefing")
+        self.assertFalse(a["canonical_composition"]["approved"])
+        self.assertEqual(a["canonical_composition"]["layout"]["fingerprint"],c["sources"][layout])
+        self.assertEqual(a["canonical_composition"]["assembler"]["fingerprint"],c["sources"][consumer])
+        self.assertEqual(a["canonical_composition"]["scene"]["fingerprint"],c["sources"][scene])
+        self.assertIn(layout,a["dependencies"]["sources"])
+        self.assertFalse(any(a["id"]=="candidate:"+layout for a in c["assets"]))
+        self.assertEqual(canonical(c),canonical(self.catalog(paths)))
+        self.put(consumer,caller.replace("MapLayout.GROUND",""))
+        with self.assertRaisesRegex(ValueError,"missing composition group: GROUND"):
+            self.catalog(paths)
+        self.put(consumer,caller)
+        self.put(scene,'[gd_scene format=3]')
+        with self.assertRaisesRegex(ValueError,"scene does not reference map assembler"):
+            self.catalog(paths)
+
     def test_discovery_and_reference(self):
         self.put("assets/new.glb","model bytes")
         self.put("scenes/map.tscn",'[ext_resource path="res://assets/new.glb"]')

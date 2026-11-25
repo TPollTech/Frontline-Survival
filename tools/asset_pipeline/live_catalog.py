@@ -329,6 +329,28 @@ def build(root,paths=None,runtime=None,revision=None):
             asset["dependencies"]["sources"]=sorted(set(asset["dependencies"]["sources"])|{world_helper,"scripts/model_surface.gd"})
             asset["canonical_shared_recipes"]={"path":world_helper,"functions":list(functions),"fingerprint":record,"approved":False}
         shared_procedural.add(world_helper)
+    # Composition recipe is consumed by the game; actual mesh payload still
+    # comes exclusively from the map_briefing runtime capture.
+    layout_path="scripts/campo_de_testes_layout.gd"
+    if layout_path in sources:
+        aid="map:campo_de_testes"
+        require(aid in byid,"missing canonical map family")
+        asset=byid[aid]
+        consumer=asset["source"]["path"]
+        scene_path="scenes/main.tscn"
+        layout_record=source_records.get(layout_path)
+        require(layout_record is not None and source_records.get(consumer) is not None and source_records.get(scene_path) is not None,"missing composition source")
+        layout_text=safe(root,layout_path).read_text(encoding="utf-8")
+        consumer_text=safe(root,consumer).read_text(encoding="utf-8")
+        require('preload("res://'+layout_path+'")' in consumer_text,"missing canonical layout reference")
+        require('path="res://'+consumer+'"' in safe(root,scene_path).read_text(encoding="utf-8"),"scene does not reference map assembler")
+        groups=["GROUND","WALLS","CONTAINERS","BARRICADES","SHOPS","BARREL_CENTERS","BARREL_OFFSET","BARREL_FIRST_COLOR","BARREL_SECOND_COLOR","LIGHT_X","LIGHT_Z","SIGN_POSITION"]
+        for name in groups:
+            require(re.search(r"^const "+name+r"\s*:=",layout_text,re.M) and re.search(r"\bMapLayout\."+name+r"\b",consumer_text),"missing composition group: "+name)
+        require("static func decorative_boxes(" in layout_text and "MapLayout.decorative_boxes(" in consumer_text,"missing decorative composition")
+        asset["dependencies"]["sources"]=sorted(set(asset["dependencies"]["sources"])|{layout_path,scene_path})
+        asset["canonical_composition"]={"layout":{"path":layout_path,"fingerprint":layout_record},"assembler":{"path":consumer,"fingerprint":source_records[consumer]},"scene":{"path":scene_path,"fingerprint":source_records[scene_path]},"groups":groups+["decorative_boxes"],"runtime_sample":"map_briefing","approved":False}
+        shared_procedural.add(layout_path)
     known_procedural={a["source"]["path"] for a in assets if a["source"].get("kind")=="godot_recipe"}|shared_procedural
     runtime_candidates=sorted(set(possible)-known_procedural)
     for p in runtime_candidates:

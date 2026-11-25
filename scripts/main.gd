@@ -1,6 +1,7 @@
 extends Node3D
 
 const WorldAssetGeometry = preload("res://scripts/world_asset_geometry.gd")
+const MapLayout = preload("res://scripts/campo_de_testes_layout.gd")
 
 const ModelSurface = preload("res://scripts/model_surface.gd")
 const WorldLOD = preload("res://scripts/world_lod.gd")
@@ -405,31 +406,24 @@ func _create_world() -> void:
     add_child(world_env)
     var sun := WorldAssetGeometry.depot_sun()
     add_child(sun)
-    var ground := _add_box(Vector3(0, -0.5, 0), Vector3(52, 1, 52), Color(0.83, 0.87, 0.83))
+    var ground := _add_box(MapLayout.GROUND[0], MapLayout.GROUND[1], MapLayout.GROUND[2])
     ground.add_to_group("deployment_ground")
     var floor_mesh := ground.get_child(0) as MeshInstance3D
     var floor_material := floor_mesh.material_override as StandardMaterial3D
     floor_material.albedo_texture = load("res://assets/textures/asphalt.png")
     floor_material.uv1_scale = Vector3(16, 16, 1)
     floor_material.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
-    _add_box(Vector3(0, 2.2, -26), Vector3(52, 4.4, 1), Color(0.33, 0.37, 0.41))
-    _add_box(Vector3(0, 2.2, 26), Vector3(52, 4.4, 1), Color(0.34, 0.37, 0.40))
-    _add_box(Vector3(-26, 2.2, 0), Vector3(1, 4.4, 52), Color(0.35, 0.39, 0.41))
-    _add_box(Vector3(26, 2.2, 0), Vector3(1, 4.4, 52), Color(0.34, 0.37, 0.39))
+    for row in MapLayout.WALLS:
+        _add_box(row[0], row[1], row[2])
     # Deposito militar: containers com nervuras, sacos de areia, tambores e iluminacao.
-    _add_container(Vector3(-9, 1.20, -6), Vector3(5.2, 2.4, 2.0), Color(0.33, 0.40, 0.33))
-    _add_container(Vector3(9, 1.00, 6), Vector3(5.5, 2.0, 2.0), Color(0.47, 0.34, 0.24))
-    _add_container(Vector3(-9, 1.10, 8), Vector3(2.2, 2.2, 4.3), Color(0.26, 0.39, 0.42))
-    _add_container(Vector3(10, 0.80, -9), Vector3(2.5, 1.6, 4.0), Color(0.32, 0.36, 0.33))
-    _add_sandbags(Vector3(-2, 0.0, -13), 4, 2)
-    _add_sandbags(Vector3(2, 0.0, 13), 4, 2)
-    _add_sandbags(Vector3(-15, 0.0, 1), 3, 2)
-    _add_sandbags(Vector3(16, 0.0, -1), 3, 2)
+    for row in MapLayout.CONTAINERS:
+        _add_container(row[0], row[1], row[2])
+    for row in MapLayout.BARRICADES:
+        _add_sandbags(row[0], row[1], row[2])
     _add_depot_decor()
     # Areas de compra distantes entre si: e preciso correr riscos para reabastecer.
-    _add_shop("weapons", "ARMAS", Vector3(-19, 0, -19), Color(0.83, 0.30, 0.22))
-    _add_shop("gear", "EQUIPAMENTOS", Vector3(19, 0, -19), Color(0.24, 0.67, 0.36))
-    _add_shop("support", "SUPORTE", Vector3(0, 0, 21), Color(0.22, 0.62, 0.84))
+    for row in MapLayout.SHOPS:
+        _add_shop(row[0], row[1], row[2], row[3])
 
 func _add_cylinder(at: Vector3, radius: float, height: float, color: Color, rot: Vector3 = Vector3.ZERO) -> MeshInstance3D:
     var mesh := WorldAssetGeometry.cylinder(radius, radius, height)
@@ -509,29 +503,19 @@ func _add_barrel(center: Vector3, color: Color) -> void:
         push_warning("Barrel LOD rejected; keeping decorative nonblocking policy")
 
 func _add_depot_decor() -> void:
-    # Linhas de pista e faixas de seguranca no patio.
-    var paint := Color(0.72, 0.68, 0.47)
-    for i in range(8):
-        _add_box(Vector3(-13 + float(i) * 3.5, 0.02, -16.7), Vector3(1.5, 0.025, 0.11), paint, false)
-    _add_box(Vector3(0, 0.015, -2.2), Vector3(0.10, 0.022, 29.0), Color(0.64, 0.64, 0.53), false)
-    # Fachadas do complexo no limite do mapa.
-    for x in [-18.0, 0.0, 18.0]:
-        _add_box(Vector3(x, 2.3, -25.4), Vector3(7.5, 3.7, 0.18), Color(0.21, 0.26, 0.30), false)
-        _add_box(Vector3(x, 4.3, -25.0), Vector3(8.0, 0.12, 1.6), Color(0.13, 0.16, 0.18), false)
-        _add_box(Vector3(x, 3.7, -25.25), Vector3(6.4, 0.14, 0.20), Color(0.57, 0.51, 0.31), false)
-        for j in range(5):
-            _add_box(Vector3(x - 2.7 + float(j) * 1.35, 2.2, -25.29), Vector3(0.045, 3.0, 0.04), Color(0.33, 0.40, 0.43), false)
-    for where in [Vector3(-18, 0, -8), Vector3(18, 0, 10), Vector3(-5, 0, 18), Vector3(15, 0, -19)]:
-        _add_barrel(where, Color(0.31, 0.44, 0.46))
-        _add_barrel(where + Vector3(0.83, 0, 0.25), Color(0.43, 0.34, 0.25))
-    for x in [-23.0, 23.0]:
-        for z in [-23.0, 23.0]:
+    for row in MapLayout.decorative_boxes():
+        _add_box(row[0], row[1], row[2], false)
+    for where in MapLayout.BARREL_CENTERS:
+        _add_barrel(where, MapLayout.BARREL_FIRST_COLOR)
+        _add_barrel(where + MapLayout.BARREL_OFFSET, MapLayout.BARREL_SECOND_COLOR)
+    for x in MapLayout.LIGHT_X:
+        for z in MapLayout.LIGHT_Z:
             _add_light_post(x, z)
     var badge := Label3D.new()
     badge.text = "SETOR 07  /  ZONA DE CONFLITO"
     badge.font_size = 72
     badge.pixel_size = 0.009
-    badge.position = Vector3(0, 3.45, -25.1)
+    badge.position = MapLayout.SIGN_POSITION
     badge.modulate = Color(0.98, 0.89, 0.56)
     add_child(badge)
 
