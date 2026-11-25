@@ -65,7 +65,36 @@ if(process.env.REQUIRE_RUNTIME_VIEWS==='1'){
      assert.equal(await page.locator('#title').textContent(),'Composição · '+id);assert(await page.locator('#pose-x').isDisabled());
      await page.screenshot({path:dir+'/composition-'+id+'.png'});
      console.log('STUDIO_COMPOSITION_PASS',JSON.stringify(stats));
+     if(id==='map_briefing'){
+       assert.equal(catalog.composition_views?.length,1);
+       await page.locator('#compare-composition').click();
+       await page.waitForFunction(()=>document.querySelector('#viewport').dataset.comparison||document.querySelector('#state').dataset.kind==='error',null,{timeout:30000});
+       const comparison=JSON.parse(await page.locator('#viewport').getAttribute('data-comparison'));
+       assert(comparison.landmarks>=4&&comparison.maxProjectionErrorPx<=1);
+       await page.screenshot({path:dir+'/composition-camera-comparison.png'});
+       const png=await page.locator('.composition-comparison img').nth(1).getAttribute('src');
+       await writeFile(dir+'/composition-map-native-camera.png',Buffer.from(png.split(',')[1],'base64'));
+       console.log('STUDIO_CAMERA_COMPARISON_PASS',JSON.stringify(comparison));
+       await page.locator('#compare-composition').click();
+     }
    }
+   const all=await page.evaluate(async ids=>{
+     const {createRuntimeComposition}=await import('./runtime-composition.js');
+     const catalog=await fetch('./live_catalog.json').then(r=>r.json());
+     const build=createRuntimeComposition(catalog),rows=[];
+     for(const id of ids){
+       const {scene,stats}=await build(id);
+       rows.push({id,surfaces:stats.surfaces,triangles:stats.triangles,maxMatrixError:stats.maxMatrixError});
+       const geos=new Set(),mats=new Set(),textures=new Set();
+       scene.traverse(o=>{if(o.geometry)geos.add(o.geometry);if(o.material){mats.add(o.material);for(const t of Object.values(o.material))if(t?.isTexture)textures.add(t);}});
+       geos.forEach(g=>g.dispose());mats.forEach(m=>m.dispose());textures.forEach(t=>t.dispose());
+     }
+     return rows;
+   },catalog.surface_coverage.map(s=>s.id));
+   assert.equal(all.length,catalog.runtime.samples);
+   for(const row of all){const x=catalog.surface_coverage.find(s=>s.id===row.id);assert.equal(row.surfaces,x.surfaces);assert.equal(row.triangles,x.visible_triangles);assert(row.maxMatrixError<1e-5);}
+   await writeFile(dir+'/composition-coverage.json',JSON.stringify(all,null,2));
+   console.log('STUDIO_COMPOSITION_COVERAGE_PASS',all.length);
  }
  console.log('STUDIO_RECONCILED_RUNTIME_PASS',catalog.runtime.samples,'samples');
 }

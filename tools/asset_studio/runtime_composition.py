@@ -61,3 +61,21 @@ def stage(runtime,catalog,out):
     (out/"runtime_surfaces.json").write_bytes(payload)
     catalog.update({"surface_payload":"runtime_surfaces.json","surface_payload_sha256":sha(payload),"surface_coverage":coverage})
     print("STUDIO_SURFACE_STAGE_PASS",len(buffers),len(textures),len(coverage))
+
+
+def stage_comparison(runtime,catalog,out,source):
+    rows=[]
+    for r in runtime.get("composition_views",[]):
+        require(r["sample"]=="map_briefing" and r["file"]=="composition-map_briefing.png","unexpected comparison capture")
+        require(r["approved"] is False and len(r["landmarks"])>=4,"invalid comparison scope")
+        require(all(len(r[k])==16 and all(math.isfinite(v) for v in r[k]) for k in ("camera_world","projection")),"invalid native camera")
+        b=(source/r["file"]).read_bytes()
+        require(b[:8]==b"\x89PNG\r\n\x1a\n" and b[12:16]==b"IHDR","comparison PNG")
+        w,h=struct.unpack(">II",b[16:24])
+        require([w,h]==r["viewport"],"camera viewport mismatch")
+        require(all(len(p["world"])==3 and len(p["pixel"])==2 and all(math.isfinite(x) for x in p["world"]+p["pixel"]) for p in r["landmarks"]),"invalid landmarks")
+        folder=out/"composition-views";folder.mkdir(exist_ok=True)
+        (folder/r["file"]).write_bytes(b)
+        rows.append({**r,"resource":"composition-views/"+r["file"],"sha256":sha(b),"width":w,"height":h})
+    catalog["composition_views"]=rows
+    print("STUDIO_COMPARISON_STAGE_PASS",len(rows))

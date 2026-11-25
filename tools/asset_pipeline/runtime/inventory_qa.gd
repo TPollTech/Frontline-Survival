@@ -11,6 +11,7 @@ var geometry_buffers: Dictionary = {}
 var studio_buffers: Dictionary = {}
 var studio_textures: Dictionary = {}
 var studio_texture_cache: Dictionary = {}
+var composition_views: Array[Dictionary] = []
 
 func _initialize() -> void:
     call_deferred("_run")
@@ -440,6 +441,38 @@ func _registered_world_lods(game: Node3D, registry: Variant) -> Array[Dictionary
             "active_index":entry.selector.current})
     return result
 
+func _capture_composition_map(game: Node3D, camera: Camera3D, sample: Dictionary) -> void:
+    if DisplayServer.get_name() == "headless":
+        return
+    var projection: Projection = camera.get_camera_projection()
+    var matrix: Array = []
+    for col in [projection.x,projection.y,projection.z,projection.w]:
+        matrix.append_array([col.x,col.y,col.z,col.w])
+    var points: Array[Dictionary] = []
+    for node in sample.nodes:
+        if not node.get("visible_in_tree",false) or not node.has("mesh") or node.mesh.get("missing",false):
+            continue
+        var n := game.get_node_or_null(NodePath(node.path)) as MeshInstance3D
+        if n == null:
+            continue
+        var center: Vector3 = n.global_transform * n.mesh.get_aabb().get_center()
+        if not camera.is_position_in_frustum(center):
+            continue
+        var px := camera.unproject_position(center)
+        points.append({"path":node.path,"world":_vec(center),"pixel":[px.x,px.y]})
+        if points.size() >= 12:
+            break
+    _expect(points.size() >= 4,"composition camera landmarks")
+    var menu: CanvasLayer = game.get("game_menu")
+    var was_visible := menu.visible
+    menu.hide()
+    await _screenshot("composition-map_briefing")
+    menu.visible = was_visible
+    composition_views.append({"sample":"map_briefing","file":"composition-map_briefing.png",
+        "camera_world":_matrix(camera.get_camera_transform()),"projection":matrix,
+        "viewport":[root.get_visible_rect().size.x,root.get_visible_rect().size.y],
+        "landmarks":points,"scope":"native_briefing_camera_menu_hidden","approved":false})
+
 func _run() -> void:
     output_dir = OS.get_environment("FRONTLINE_INVENTORY_DIR")
     if output_dir.is_empty():
@@ -466,6 +499,7 @@ func _run() -> void:
         {"scene": "res://scenes/main.tscn", "shops": game.shops.size()})
     _expect(game.shops.size() == 3 and int(map_sample["counts"]["mesh_nodes"]) > 30 and int(map_sample["counts"]["colliders"]) > 4, "map composition incomplete")
     await _screenshot("map_briefing")
+    await _capture_composition_map(game,game.briefing_camera,map_sample)
     game.game_menu._start()
     game.combat_hud_root.hide()
     p.camera.rotation = Vector3.ZERO
@@ -551,7 +585,7 @@ func _run() -> void:
         "commit": OS.get_environment("GITHUB_SHA"), "godot": Engine.get_version_info(),
         "display": DisplayServer.get_name(), "coordinate_unit": "m",
         "samples": samples, "failures": failures, "query_records": query_records,
-        "geometry_buffers":geometry_buffers,"studio_buffers":studio_buffers,"studio_textures":studio_textures,"dynamic_probes":_dynamic_probes(),
+        "composition_views":composition_views,"geometry_buffers":geometry_buffers,"studio_buffers":studio_buffers,"studio_textures":studio_textures,"dynamic_probes":_dynamic_probes(),
         "registered_world_lods":_registered_world_lods(game,game.world_lod),
         "physical_resources": physical_resources, "library_materials": library_materials,
         "limitations": ["finite sampled states, not exhaustive live instances", "procedural base surface buffers captured as Godot Variant; native LOD indices and blend shapes not serialized",

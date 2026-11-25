@@ -33,7 +33,7 @@ async function initRenderer(){
  loop();
 }
 function dispose(root){const geos=new Set(),mats=new Set(),textures=new Set();root.traverse(o=>{if(o.geometry)geos.add(o.geometry);for(const m of [].concat(o.material||[])){mats.add(m);for(const v of Object.values(m))if(v?.isTexture)textures.add(v);}if(o.isSkinnedMesh&&o.skeleton)o.skeleton.dispose();});textures.forEach(t=>t.dispose());mats.forEach(m=>m.dispose());geos.forEach(g=>g.dispose());}
-function clear(){inspection?.clear();navigation?.clear();$('view').disabled=true;$('zoom-in').disabled=true;$('zoom-out').disabled=true;lighting?.clear();$('grid-scale').textContent='—';if(lighting)viewport.dataset.lighting=JSON.stringify(lighting.diagnostics());if(model){scene.remove(model);dispose(model);model=null;}viewport.querySelectorAll('img,audio').forEach(x=>x.remove());$('reset').disabled=true;delete viewport.dataset.resource;delete viewport.dataset.sha256;delete viewport.dataset.runtimeView;delete viewport.dataset.composition;}
+function clear(){$('compare-composition').disabled=true;$('compare-composition').textContent='Comparar câmera Godot';viewport.querySelector('.composition-comparison')?.remove();delete viewport.dataset.comparison;inspection?.clear();navigation?.clear();$('view').disabled=true;$('zoom-in').disabled=true;$('zoom-out').disabled=true;lighting?.clear();$('grid-scale').textContent='—';if(lighting)viewport.dataset.lighting=JSON.stringify(lighting.diagnostics());if(model){scene.remove(model);dispose(model);model=null;}viewport.querySelectorAll('img,audio').forEach(x=>x.remove());$('reset').disabled=true;delete viewport.dataset.resource;delete viewport.dataset.sha256;delete viewport.dataset.runtimeView;delete viewport.dataset.composition;}
 function fit(){if(model)navigation.reset();}
 function resources(a){return [...new Set([a.preview?.resource,...(a.outputs||[]).map(x=>x.path)].filter(p=>p&&catalog.resources[p]?.status!=='missing'&&catalog.resources[p]))];}
 function renderList(){const q=$('search').value.trim().toLowerCase(),cat=$('category').value;const list=catalog.assets.filter(a=>(!cat||a.category===cat)&&(!q||[a.id,a.category,a.source?.path,...resources(a)].join(' ').toLowerCase().includes(q)));$('count').textContent=list.length+' de '+catalog.assets.length+' registros';$('assets').replaceChildren(...list.map(a=>{const b=document.createElement('button');b.type='button';b.dataset.asset=a.id;b.setAttribute('aria-current',String(a===selected));b.textContent=a.id;const sm=document.createElement('small');sm.textContent=a.category+' · '+(a.runtime_views?.length?'captura Godot disponível':resources(a).length?'arquivo real':a.runtime_samples?.length&&catalog.surface_payload?'composição 3D disponível':'captura pendente');b.append(sm);b.addEventListener('click',()=>select(a));return b;}));}
@@ -69,9 +69,49 @@ $('open-composition').addEventListener('click',async()=>{
   model=data.scene;scene.add(model);const step=lighting.place(model,box);inspection.attach(data,selected);navigation.setBounds(box);
   for(const k of ['pose-x','pose-y','pose-z','pose-reset'])$(k).disabled=true;row('Pose','Captura estática; articulação desabilitada nesta composição');
   $('grid-scale').textContent=Number(step.toPrecision(4))+' m / célula';for(const k of ['view','reset','zoom-in','zoom-out'])$(k).disabled=false;
-  viewport.dataset.composition=JSON.stringify(data.stats);row('Amostra',id);row('Superfícies visíveis',data.stats.visibleSurfaces);row('Triângulos visíveis',data.stats.triangles);row('Limitações',data.stats.warnings.join(' · '));
+  viewport.dataset.composition=JSON.stringify(data.stats);$('compare-composition').disabled=!(catalog.composition_views||[]).some(v=>v.sample===id);row('Amostra',id);row('Superfícies visíveis',data.stats.visibleSurfaces);row('Triângulos visíveis',data.stats.triangles);row('Limitações',data.stats.warnings.join(' · '));
   state('Composição reconstruída dos buffers Godot','ready');
  }catch(e){if(token===request){clear();state('Falha na composição: '+e.message,'error');}}
+});
+$('compare-composition').addEventListener('click',async()=>{
+ const panel=viewport.querySelector('.composition-comparison');
+ if(panel){panel.remove();delete viewport.dataset.comparison;$('compare-composition').textContent='Comparar câmera Godot';return;}
+ const stats=JSON.parse(viewport.dataset.composition||'{}'),ref=catalog.composition_views?.find(v=>v.sample===stats.id),token=request;
+ if(!ref||!model)return;
+ let url;
+ try{
+  const resp=await fetch(safePath(ref.resource),{cache:'no-store'});if(!resp.ok)throw Error('HTTP '+resp.status);
+  const bytes=await resp.arrayBuffer(),hash=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',bytes)),x=>x.toString(16).padStart(2,'0')).join('');
+  if(hash!==ref.sha256)throw Error('Hash da referência divergente');
+  if(token!==request)return;
+  const nativeCamera=new THREE.Camera();
+  nativeCamera.matrixAutoUpdate=false;nativeCamera.matrix.fromArray(ref.camera_world);
+  nativeCamera.updateMatrixWorld(true);nativeCamera.projectionMatrix.fromArray(ref.projection);
+  nativeCamera.projectionMatrixInverse.copy(nativeCamera.projectionMatrix).invert();
+  let error=0;
+  for(const p of ref.landmarks){
+   const v=new THREE.Vector3(...p.world).project(nativeCamera);
+   error=Math.max(error,Math.abs((v.x+1)*ref.width/2-p.pixel[0]),Math.abs((1-v.y)*ref.height/2-p.pixel[1]));
+  }
+  if(error>1)throw Error('Projeção divergente: '+error+' px');
+  const oldSize=renderer.getSize(new THREE.Vector2()),oldRatio=renderer.getPixelRatio();
+  let render;
+  try{
+   renderer.setPixelRatio(1);renderer.setSize(ref.width,ref.height,false);
+   renderer.render(scene,nativeCamera);render=renderer.domElement.toDataURL('image/png');
+  }finally{renderer.setPixelRatio(oldRatio);renderer.setSize(oldSize.x,oldSize.y,false);}
+  const overlay=document.createElement('div');overlay.className='composition-comparison';
+  url=URL.createObjectURL(new Blob([bytes],{type:'image/png'}));
+  for(const [label,src] of [['Godot — captura original, menu oculto',url],['Studio — mesma câmera, iluminação de inspeção',render]]){
+   const f=document.createElement('figure'),img=document.createElement('img'),caption=document.createElement('figcaption');
+   img.alt=label;img.src=src;caption.textContent=label;f.append(img,caption);overlay.append(f);
+   await img.decode();
+  }
+  if(token!==request)return;
+  viewport.append(overlay);viewport.dataset.comparison=JSON.stringify({sample:ref.sample,landmarks:ref.landmarks.length,maxProjectionErrorPx:error,width:ref.width,height:ref.height,referenceSHA256:hash});
+  $('compare-composition').textContent='Voltar à composição 3D';
+ }catch(e){if(token===request)state('Falha na comparação: '+e.message,'error');}
+ finally{if(url)URL.revokeObjectURL(url);}
 });
 function details(a,p){$('details').replaceChildren();row('ID',a.id);row('Categoria',a.category);row('Uso',a.usage);row('Fonte',a.source?.path);row('Arquivo',p);row('SHA-256',catalog.resources[p]?.sha256);row('Runtime',a.validation?.runtime);row('Homologação','Não homologado');row('Procedência',a.provenance);textList($('deps'),[...new Set([...(a.dependencies?.resources||[]),...(a.dependencies?.assets||[]),...(a.dependencies?.sources||[]),...(catalog.resources[p]?.gltf_dependencies||[]).map(d=>d.path)])]);textList($('gaps'),[...(a.gaps||[]),'Prévia não certifica materiais ou poses efetivos do Godot.']);}
 function select(a){selected=a;selectSamples(a);$('title').textContent=a.id;renderList();const paths=resources(a);$('variant').replaceChildren(...paths.map(p=>{const o=document.createElement('option');o.value=p;o.textContent=p.split('/').pop();return o;}));$('variant').disabled=!paths.length;

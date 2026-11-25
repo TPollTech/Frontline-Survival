@@ -42,6 +42,8 @@ def main():
     if runtime and runtime.get("studio_buffers"):
         from tools.asset_studio.runtime_composition import stage
         stage(runtime,catalog,out)
+        from tools.asset_studio.runtime_composition import stage_comparison
+        stage_comparison(runtime,catalog,out,Path(args.runtime).parent)
     (out/"live_catalog.json").write_bytes(canonical(catalog))
     print("STUDIO_STAGE_PASS",json.dumps(catalog["counts"],sort_keys=True))
 if __name__=="__main__":main()
