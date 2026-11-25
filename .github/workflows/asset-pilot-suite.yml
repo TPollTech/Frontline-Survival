@@ -6,6 +6,8 @@ on:
       - 'tools/asset_pipeline/parametric/pilot_suite.py'
       - 'tools/asset_pipeline/parametric/pilot_finish.py'
       - 'tools/asset_pipeline/parametric/pilot_art.py'
+      - 'tools/asset_pipeline/parametric/pilot_anatomy.py'
+      - 'tests/test_pilot_anatomy.py'
       - 'tests/test_pilot_art.py'
       - 'tools/asset_pipeline/runtime/pilot_suite_qa.gd'
       - 'tools/asset_pipeline/stage_pilot.py'
@@ -39,6 +41,7 @@ jobs:
         run: |
           python -m unittest discover -s tests -p 'test_pilot_finish.py' -v
           python -m unittest discover -s tests -p 'test_pilot_art.py' -v
+          python -m unittest discover -s tests -p 'test_pilot_anatomy.py' -v
       - name: Generate strict exports and compare byte reproducibility
         run: |
           python -m tools.asset_pipeline.parametric.pilot_suite "$FRONTLINE_PILOT_DIR" "$GITHUB_SHA"

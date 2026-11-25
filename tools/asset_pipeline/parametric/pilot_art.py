@@ -36,8 +36,8 @@ def detailed(name,p,level):
         if name=="supply_station":
             # Outer shell has exact envelope; door and raised louvers sit in
             # the reserved front thickness, not coincident with the shell.
-            add("enclosure",(x,y,z*.82),(0,0,z*.09),True)
-            add("door",(x*.89,y*.90,z*.10),(0,y*.05,-z*.38))
+            add("enclosure",(x,y,z*.78),(0,0,z*.11),True)
+            add("door",(x*.89,y*.90,z*.13),(0,y*.05,-z*.345))
             add("vent_surround",(x*.52,y*.27,z*.045),(0,y*.13,-z*.435))
             for i in range((7,4,2)[level]):
                 add("louver_"+str(i),(x*.46,y*.018,z*.07),(0,y*(.145+i*.22/(7,4,2)[level]),-z*.465))
@@ -76,6 +76,8 @@ def detailed(name,p,level):
         # Independent dark door handle and ventilation backing, positioned
         # relative to the console node but within the assembly envelope.
         items.append((panel("door_handle",(.035,.14,.035),level),(.30,-.45,-.22)))
+        # Dark recessed grille face (visible contrasting louvers are on cabinet).
+        items.append((panel("vent_backing",(.39,.22,.012),level),(0,-.80,-.208)))
         items.append((panel("display_bezel",(.48,.10,.016),level),(-.10,.045,-z/2+.008)))
         return combine(id,items)
     if name=="utility_cart" and id.startswith("wheel_"):

@@ -7,6 +7,7 @@ from .organic import OrganicLoft,LoftSection
 from .shading import build_render_mesh
 from .pilot_finish import bevel_block,finished_library
 from .pilot_art import ART_NAMES,detailed
+from .pilot_anatomy import RIG_NAMES,shape,make_rig
 from .blender_backend import BlenderBackend
 import subprocess
 from .exporter import source_manifest,export_bundle,write_bundle
@@ -37,15 +38,15 @@ PILOTS={
  P("cuff","loft",(0,.025,0),(.085,.05,.055),"fabric"),
  P("palm","loft",(0,.078,0),(.096,.092,.040),"fabric"),
  *[P("finger_"+str(i),"loft",(x,.105+h/2,0),(.018,h,.021),"rubber") for i,(x,h) in enumerate([(-.032,.058),(-.011,.076),(.011,.071),(.032,.052)])],
- P("thumb","loft",(-.052,.095,.008),(.024,.055,.028),"rubber")],
- "gloved hand study with five separate poseable nodes; not anatomical skinning"),
+ P("thumb","loft",(-.047,.088,.017),(.030,.064,.031),"rubber")],
+ "glove anatomy study with finger-chain skeleton and blended weights; separate material shells"),
  "mannequin":("character",[
  P("torso","loft",(0,1.185,0),(.48,.69,.25),"fabric"),
- P("head","loft",(0,1.63,0),(.22,.28,.22),"rubber"),
+ P("head","loft",(0,1.61,0),(.235,.32,.24),"rubber"),
  *[P("leg_"+str(i),"loft",(x,.45,0),(.16,.83,.16),"fabric") for i,x in enumerate([-.11,.11])],
- *[P("arm_"+str(i),"loft",(x,1.15,0),(.13,.52,.14),"fabric") for i,x in enumerate([-.265,.265])],
+ *[P("arm_"+str(i),"loft",(x,1.15,0),(.155,.65,.16),"fabric") for i,x in enumerate([-.265,.265])],
  *[P("boot_"+str(i),"chamfer",(x,.065,-.045),(.17,.13,.30),"rubber") for i,x in enumerate([-.11,.11])]],
- "static clothed mannequin with independent limb pivots; no skeleton or animation homologation"),
+ "clothed mannequin with arm and leg chains, blended weights and rest pose; not a production character"),
  "shelter":("structure",[
  P("slab","chamfer",(0,.10,0),(2.8,.20,2.2),"concrete"),
  *[P("post_"+str(i),"loft",(x,1.30,z),(.18,2.2,.18),"painted_steel") for i,(x,z) in enumerate([(-1.2,-.9),(1.2,-.9),(-1.2,.9),(1.2,.9)])],
@@ -102,8 +103,8 @@ SEGMENTS=(48,24,8)
 PALETTE={
  "training_prop":{"shell":"cool_steel","fore_shell":"graphite","rear_pad":"graphite","top_shell":"brushed_metal"},
  "optic_shell":{"housing":"graphite","mount_shell":"cool_steel","top_trim":"signal_blue"},
- "glove":{"cuff":"olive_textile","palm":"sand_textile"},
- "mannequin":{"torso":"olive_textile","leg_0":"sand_textile","leg_1":"sand_textile","head":"graphite"},
+ "glove":{"cuff":"olive_textile","palm":"olive_textile"},
+ "mannequin":{"torso":"olive_textile","arm_0":"olive_textile","arm_1":"olive_textile","leg_0":"sand_textile","leg_1":"sand_textile","head":"graphite"},
  "shelter":{"roof":"cool_steel","back":"cool_steel","post_0":"safety_amber","post_1":"safety_amber"},
  "supply_station":{"cabinet":"signal_blue","console":"graphite","knob":"safety_amber"},
  "planter":{"soil":"earth","plant_0":"foliage","plant_1":"foliage","plant_2":"foliage"},
@@ -126,6 +127,7 @@ def authored_contract(parts):
             "tolerance_m":.001},lo,hi
 
 def mesh_for(p,level,name=None):
+    if name in RIG_NAMES:return shape(name,p,level)
     if name in ART_NAMES:
         art=detailed(name,p,level)
         if art is not None:return art
@@ -151,22 +153,27 @@ def generate(name,root,out,revision,lib,sources):
     category,parts,reference=PILOTS[name]
     contract,lo,hi=authored_contract(parts)
     folder=out/name;folder.mkdir(parents=True)
-    rows=[]
+    rows=[];rig_meta=None
     for level in range(3):
         meshes=tuple(mesh_for(p,level,name) for p in parts)
         nodes=(NodeSpec("anchor"),)+tuple(NodeSpec(p["id"],p["id"],"anchor",p["material"],Transform.translation(contract["pivots_local_m"][p["id"]])) for p in parts)
         scene=SceneSpec("pilot_"+name,meshes,tuple(lib.material(k) for k in sorted({p["material"] for p in parts})),nodes)
+        rig=None;level_contract=contract
+        if name in RIG_NAMES:
+            scene,rig,rig_meta=make_rig(name,parts,meshes,lib,contract["pivots_local_m"])
+            meshes=scene.meshes
+            level_contract={**contract,"pivots_local_m":{"anchor":[0,0,0],**{p["id"]:[0,0,0] for p in parts},**{"bone:"+b.id:list(b.rest_local.matrix[12:15]) for b in rig.skeleton.bones}}}
         target=folder/f"lod{level}"
-        write_bundle(target,export_bundle(scene,tuple(build_render_mesh(m) for m in meshes),lib,sources=sources))
+        write_bundle(target,export_bundle(scene,tuple(build_render_mesh(m) for m in meshes),lib,sources=sources,rig=rig))
         for filename in ("asset.glb","asset.gltf"):
-            row=Audit(target,filename,category,True,root,contract).run()
+            row=Audit(target,filename,category,True,root,level_contract).run()
             if row["errors"]:raise ValueError((name,level,row["errors"]))
             if row["metrics"]["triangles"]>BUDGETS[category].triangles[level]:raise ValueError((name,level,"triangle budget exceeded"))
-            row["level"]=level;rows.append(row)
+            row["level"]=level;row["rig"]=rig_meta;rows.append(row)
     tris=[r["metrics"]["triangles"] for r in rows if r["path"]=="asset.glb"]
     if category!="collision" and not tris[0]>tris[1]>tris[2]:raise ValueError((name,"LOD reduction missing",tris))
     if category=="collision" and len(set(tris))!=1:raise ValueError("collision proxy must stay invariant")
-    result={"id":"qa:"+name,"slug":name,"category":category,"revision":revision,"contract":contract,
+    result={"id":"qa:"+name,"slug":name,"category":category,"revision":revision,"contract":level_contract,"rig":rig_meta,
         "bounds_min_m":lo,"bounds_max_m":hi,"reference":reference,"source":"tools/asset_pipeline/parametric/pilot_suite.py",
         "art_backend":"Blender angle-limited bevel at LOD0" if name in ART_NAMES else "Python parametric","exports":rows,"collision":{"type":"box","size_m":[.60,1.0,.60],"center_m":[0,.50,0],"independent":True} if category=="collision" else None,"lod_distances_m":None,
         "budget_scope":"assembled individual QA asset; provisional; no distance integration","visual_approval":False,"production_integrated":False}
