@@ -29,8 +29,24 @@ func _run() -> void:
     game.combat_hud_root.hide()
     var camera: Camera3D = p.camera
     camera.make_current()
-    if game.world_lod.entries.size()!=19:
-        fail("expected 19 assemblies")
+    if game.world_lod.entries.size()!=23:
+        fail("expected 23 assemblies")
+        return
+    var families: Dictionary = {}
+    var blocker_count := 0
+    for entry in game.world_lod.entries:
+        families[entry.family] = int(families.get(entry.family, 0)) + 1
+        if entry.blocker != null:
+            blocker_count += 1
+        if entry.family == "light_post":
+            if entry.category != "object" or entry.blocker != null or entry.shape != null or entry.collision_policy != "nonblocking" or entry.parts.size() != 3:
+                fail("light post collision or part contract")
+                return
+            if entry.triangles[0] != 1632 or entry.triangles[1] != 360 or entry.triangles[2] != 144:
+                fail("light post triangle contract")
+                return
+    if families.size() != 5 or families.get("barricade",0) != 4 or families.get("container_corners",0) != 4 or families.get("barrel",0) != 8 or families.get("shop",0) != 3 or families.get("light_post",0) != 4 or blocker_count != 8:
+        fail("world family or blocker coverage")
         return
     var transitions := [4.,12.,13.2,30.,31.2,30.,28.8,12.,10.8]
     var wanted := [0,0,1,1,2,2,1,1,0]
@@ -125,11 +141,14 @@ func _run() -> void:
                     return
             game.world_lod.update_at(center+Vector3(0,0,4.0))
         index+=1
+    if rows.size() != 207 or captured.size() != 15 or comparison_families.size() != 5:
+        fail("incomplete transition or capture coverage")
+        return
     var file:=FileAccess.open(output.path_join("world-lod-report.json"),FileAccess.WRITE)
     if file==null:
         fail("report")
         return
     file.store_string(JSON.stringify({"checks":rows,"assemblies":game.world_lod.snapshot(),"hardware_validated":false}, "  "))
     file.close()
-    print("WORLD_LOD_PASS ",rows.size()," real map transitions/rays, 8 independent blockers and 11 nonblocking assemblies")
+    print("WORLD_LOD_PASS ",rows.size()," real map transitions/rays, 8 independent blockers and 15 nonblocking assemblies")
     quit(0)

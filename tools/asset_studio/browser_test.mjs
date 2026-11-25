@@ -45,7 +45,15 @@ if(process.env.REQUIRE_RUNTIME_VIEWS==='1'){
      }
    }else{
      assert.equal(payload.samples.length,catalog.runtime.samples);
-     assert.equal(payload.registered_world_lods.length,19);
+     assert.equal(payload.registered_world_lods.length,23);
+     const posts=payload.registered_world_lods.filter(a=>a.family==='light_post');
+     assert.equal(posts.length,4);
+     for(const p of posts){
+       assert.equal(p.collision_policy,'nonblocking');
+       assert.equal(p.blocker,null);assert.equal(p.shape,null);
+       assert.equal(p.parts.length,3);
+       assert.deepEqual(p.levels.map(l=>l.assembly_triangles),[1632,360,144]);
+     }
    }
  }
  console.log('STUDIO_RUNTIME_PAYLOAD_PASS',Object.keys(catalog.geometry_index).length,'buffers');

@@ -545,9 +545,7 @@ func _add_depot_decor() -> void:
         _add_barrel(where + Vector3(0.83, 0, 0.25), Color(0.43, 0.34, 0.25))
     for x in [-23.0, 23.0]:
         for z in [-23.0, 23.0]:
-            _add_cylinder(Vector3(x, 2.3, z), 0.09, 4.6, Color(0.25, 0.28, 0.28))
-            _add_box(Vector3(x, 4.6, z), Vector3(0.8, 0.27, 0.55), Color(0.18, 0.21, 0.21), false)
-            _add_box(Vector3(x, 4.5, z - 0.24), Vector3(0.58, 0.13, 0.08), Color(0.88, 0.78, 0.44), false)
+            _add_light_post(x, z)
     var badge := Label3D.new()
     badge.text = "SETOR 07  /  ZONA DE CONFLITO"
     badge.font_size = 72
@@ -555,6 +553,28 @@ func _add_depot_decor() -> void:
     badge.position = Vector3(0, 3.45, -25.1)
     badge.modulate = Color(0.98, 0.89, 0.56)
     add_child(badge)
+
+# Preserve the three original visual pieces and the existing nonblocking
+# policy. The pole is the distance anchor; no new body or shape is created.
+func _add_light_post(x: float, z: float) -> void:
+    var pole := _add_cylinder(Vector3(x, 2.3, z), 0.09, 4.6, Color(0.25, 0.28, 0.28))
+    var housing_size := Vector3(0.8, 0.27, 0.55)
+    var lens_size := Vector3(0.58, 0.13, 0.08)
+    var housing := _add_box(Vector3(x, 4.6, z), housing_size, Color(0.18, 0.21, 0.21), false)
+    var lens := _add_box(Vector3(x, 4.5, z - 0.24), lens_size, Color(0.88, 0.78, 0.44), false)
+    var parts: Array[MeshInstance3D] = [pole, housing.get_child(0) as MeshInstance3D, lens.get_child(0) as MeshInstance3D]
+    var per_part: Array = [
+        ModelSurface.cylinder_lods(pole.mesh as CylinderMesh),
+        ModelSurface.body_lods(housing_size, ModelSurface.Profile.MACHINED),
+        ModelSurface.body_lods(lens_size, ModelSurface.Profile.MACHINED)]
+    var original_meshes: Array[Mesh] = []
+    for i in range(parts.size()):
+        original_meshes.append(parts[i].mesh)
+        parts[i].mesh = per_part[i][0]
+    if not world_lod.register_assembly(parts, per_part, pole, "object", "light_post"):
+        for i in range(parts.size()):
+            parts[i].mesh = original_meshes[i]
+        push_warning("Light post LOD rejected; restored original decorative meshes")
 
 func _add_box(pos: Vector3, dimensions: Vector3, tint: Color, solid: bool = true) -> Node3D:
     var root: Node3D
