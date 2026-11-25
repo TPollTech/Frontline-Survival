@@ -87,3 +87,14 @@ python tools/asset_pipeline/world_lod_local.py /tmp/frontline-lod-qa-01 --godot 
 ```
 
 Usar pasta nova a cada execução; se Linux sem display, executar sob xvfb-run. Para conferir arquivos coletados sem executar engine, acrescentar --verify-only ao comando. Enviar local-summary.json, world-lod-report.json, logs e PNGs reais para inspeção; o perfil temporário não é necessário. Depois validar inventário/Studio e benchmark no Ryzen 5 7530U/iGPU/8GB. Sem homologação, build ou ZIP. Estado 00-10 parcial; não alterar outros IDs.
+
+
+## Validação local renderizada no Windows — 25/11/2026
+
+Revisão de referência `56ee143d0fb039bc5357776282e0c8d9eec87fa2`. O clone da main não ficou disponível via Git devido ao DNS. O teste usou uma cópia isolada do baseline ancestral 62c8837 com os recursos de jogo e dependências do QA atualizados pelo comparativo do GitHub. Os blobs recuperados foram conferidos pelos respectivos hashes. Esta cópia de QA não corresponde a um checkout integral da revisão.
+
+Godot 4.7.2 stable no Windows, Compatibility/OpenGL 3.3, AMD Radeon integrada no Ryzen 5 7520U. Foi usado o QA renderizado existente diretamente após a importação, pois o runner completo exige Godot 4.4.1. Testes de orçamento Python: 2/2 aprovados. Godot: `WORLD_LOD_PASS 207`. O modo `--verify-only` do runner aceitou o relatório e os 30 PNGs. O ensaio percorreu 23 conjuntos, 86 peças, oito bloqueadores independentes e 15 conjuntos não bloqueantes. Os totais medidos foram 49.248 / 10.584 / 4.128 triângulos nos três níveis. Os quatro postes passaram nas nove transições cada e nos limites de 1.632 / 360 / 144 triângulos por conjunto.
+
+Foram abertas as seis imagens dos postes. No comparativo com câmera fixa, a haste e a luminária permanecem visíveis nos três níveis, com mudança discreta no contorno da carcaça no LOD2. A captura distante sofre oclusão parcial e serve para conferir a luminária, com visibilidade limitada da haste. A sequência fixa usa o seletor com distâncias sintéticas e não cobre popping em movimento.
+
+Sem alteração funcional e sem disparo de Actions. A tarefa permanece parcial: falta verificar Godot 4.4.1 e Asset Studio para esta revisão, ampliar a cobertura a outras famílias e medir desempenho no Ryzen 5 7530U com 8 GB. Sem novo executável ou ZIP de distribuição nesta atualização documental.
