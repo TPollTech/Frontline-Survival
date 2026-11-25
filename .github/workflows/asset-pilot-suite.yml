@@ -26,6 +26,8 @@ jobs:
           node-version: '22'
       - name: Set isolated output directory
         run: echo "FRONTLINE_PILOT_DIR=$RUNNER_TEMP/pilot-suite" >> "$GITHUB_ENV"
+      - name: Test authored finishing and category contracts
+        run: python -m unittest discover -s tests -p 'test_pilot_finish.py' -v
       - name: Generate strict exports and compare byte reproducibility
         run: |
           python -m tools.asset_pipeline.parametric.pilot_suite "$FRONTLINE_PILOT_DIR" "$GITHUB_SHA"

@@ -75,7 +75,7 @@ jobs:
           FRONTLINE_PILOT_DIR="$bollard" timeout 120s xvfb-run -a -s '-screen 0 1280x720x24' godot --path . --rendering-driver opengl3 --script res://tools/asset_pipeline/runtime/pilot_object_qa.gd 2>&1 | tee "$bollard/godot.log"
           grep -q PILOT_GODOT_PASS "$bollard/godot.log"
           if grep -E 'SCRIPT ERROR:|Parse Error|PILOT_GODOT_FAIL' "$bollard/godot.log"; then exit 1; fi
-          python -m tools.asset_studio.publish_qa "$RUNNER_TEMP/pages/Frontline-Survival" "$suite" "$bollard"
+          python -m tools.asset_studio.publish_qa "$RUNNER_TEMP/pages/Frontline-Survival" "$suite" "$bollard" "$RUNNER_TEMP/studio-runtime-inventory/runtime_inventory.json"
       - name: Test project subpath before publication
         run: |
           python -m http.server 8765 --bind 127.0.0.1 --directory "$RUNNER_TEMP/pages" > "$RUNNER_TEMP/pages-server.log" 2>&1 &

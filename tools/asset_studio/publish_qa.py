@@ -3,12 +3,13 @@ import argparse,json,hashlib,shutil,struct,subprocess,sys
 from pathlib import Path
 from tools.asset_pipeline.live_catalog import canonical
 from tools.asset_pipeline.parametric.lod import BUDGETS,NON_GEOMETRY_CATEGORIES
+from tools.asset_studio.native_evidence import stage_native
 
 def require(value,message):
     if not value:raise ValueError(message)
 
 def main():
-    p=argparse.ArgumentParser();p.add_argument("production");p.add_argument("suite");p.add_argument("bollard");a=p.parse_args()
+    p=argparse.ArgumentParser();p.add_argument("production");p.add_argument("suite");p.add_argument("bollard");p.add_argument("inventory");a=p.parse_args()
     prod,suite,bollard=map(Path,(a.production,a.suite,a.bollard))
     catalog=json.loads((prod/"live_catalog.json").read_text());qa=prod/"qa";qa.mkdir()
     for name in ("index.html","studio.css","studio.js","lighting.js","camera-navigation.js","inspection.js","serve_offline.py","studio-light.hdr"):
@@ -46,9 +47,10 @@ def main():
     require(total==len(folders)*3,"capture coverage mismatch")
     categories=sorted(set(BUDGETS)|set(NON_GEOMETRY_CATEGORIES)|{a["category"] for a in catalog["assets"]})
     coverage=[{"category":c,"pilots":[a["id"] for a in q["assets"] if a["category"]==c],"legacy":[a["id"] for a in catalog["assets"] if a["category"]==c],"status":"geometric_qa" if c in covered else "native_evidence_pending","approved":False} for c in categories]
+    stage_native(prod,qa,catalog,a.inventory,coverage)
     (qa/"coverage.json").write_bytes(canonical({"revision":q["revision"],"categories":coverage,"approved":False}))
     page=qa/"index.html"
-    page.write_text(page.read_text().replace("ASSET STUDIO / INSPEÇÃO TÉCNICA","ASSET STUDIO / QA — NÃO HOMOLOGADO").replace('<div id="revision">','<a href="../" style="color:inherit">Voltar ao Studio de produção</a><div id="revision">').replace('<h1>Biblioteca</h1>','<h1>Pilotos QA</h1><p class="muted">Modelos experimentais, não integrados à produção. <a href="coverage.json">Cobertura por categoria</a>.</p>'),encoding="utf-8")
+    page.write_text(page.read_text().replace("ASSET STUDIO / INSPEÇÃO TÉCNICA","ASSET STUDIO / QA — NÃO HOMOLOGADO").replace('<div id="revision">','<a href="../" style="color:inherit">Voltar ao Studio de produção</a><div id="revision">').replace('<h1>Biblioteca</h1>','<h1>Pilotos QA</h1><p class="muted">Modelos experimentais, não integrados à produção. <a href="coverage.html">Cobertura por categoria</a>.</p>'),encoding="utf-8")
     page=prod/"index.html"
     page.write_text(page.read_text().replace('<div id="revision">','<a href="qa/" style="color:inherit">Pilotos QA · não homologados</a><div id="revision">'),encoding="utf-8")
     print("QA_SECTION_STAGE_PASS",len(q["assets"]),total,len(covered),flush=True)
