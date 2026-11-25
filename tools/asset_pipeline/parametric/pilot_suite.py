@@ -8,6 +8,7 @@ from .shading import build_render_mesh
 from .pilot_finish import bevel_block,finished_library
 from .pilot_art import ART_NAMES,detailed
 from .pilot_anatomy import RIG_NAMES,shape,make_rig
+from .continuous_glove import build_glove,glove_library,LOW,HIGH
 from .blender_backend import BlenderBackend
 import subprocess
 from .exporter import source_manifest,export_bundle,write_bundle
@@ -154,6 +155,9 @@ def generate(name,root,out,revision,lib,sources):
     contract,lo,hi=authored_contract(parts)
     folder=out/name;folder.mkdir(parents=True)
     rows=[];rig_meta=None
+    if name=="glove":
+        lo,hi=LOW,HIGH
+        reference="continuous authored quad-patch work glove; one closed connected skin with custom PBR atlas; not production approved"
     for level in range(3):
         meshes=tuple(mesh_for(p,level,name) for p in parts)
         nodes=(NodeSpec("anchor"),)+tuple(NodeSpec(p["id"],p["id"],"anchor",p["material"],Transform.translation(contract["pivots_local_m"][p["id"]])) for p in parts)
@@ -163,8 +167,12 @@ def generate(name,root,out,revision,lib,sources):
             scene,rig,rig_meta=make_rig(name,parts,meshes,lib,contract["pivots_local_m"])
             meshes=scene.meshes
             level_contract={**contract,"pivots_local_m":{"anchor":[0,0,0],**{p["id"]:[0,0,0] for p in parts},**{"bone:"+b.id:list(b.rest_local.matrix[12:15]) for b in rig.skeleton.bones}}}
+        if name=="glove":
+            scene,render,rig,rig_meta,level_contract=build_glove(level,lib)
+            renders=(render,)
+        else:renders=tuple(build_render_mesh(m) for m in meshes)
         target=folder/f"lod{level}"
-        write_bundle(target,export_bundle(scene,tuple(build_render_mesh(m) for m in meshes),lib,sources=sources,rig=rig))
+        write_bundle(target,export_bundle(scene,renders,lib,sources=sources,rig=rig))
         for filename in ("asset.glb","asset.gltf"):
             row=Audit(target,filename,category,True,root,level_contract).run()
             if row["errors"]:raise ValueError((name,level,row["errors"]))
@@ -175,7 +183,7 @@ def generate(name,root,out,revision,lib,sources):
     if category=="collision" and len(set(tris))!=1:raise ValueError("collision proxy must stay invariant")
     result={"id":"qa:"+name,"slug":name,"category":category,"revision":revision,"contract":level_contract,"rig":rig_meta,
         "bounds_min_m":lo,"bounds_max_m":hi,"reference":reference,"source":"tools/asset_pipeline/parametric/pilot_suite.py",
-        "art_backend":"Blender angle-limited bevel at LOD0" if name in ART_NAMES else "Python parametric","exports":rows,"collision":{"type":"box","size_m":[.60,1.0,.60],"center_m":[0,.50,0],"independent":True} if category=="collision" else None,"lod_distances_m":None,
+        "art_backend":"authored continuous quad-patch surface" if name=="glove" else "Blender angle-limited bevel at LOD0" if name in ART_NAMES else "Python parametric","exports":rows,"collision":{"type":"box","size_m":[.60,1.0,.60],"center_m":[0,.50,0],"independent":True} if category=="collision" else None,"lod_distances_m":None,
         "budget_scope":"assembled individual QA asset; provisional; no distance integration","visual_approval":False,"production_integrated":False}
     (folder/"pilot-report.json").write_bytes(canonical(result))
     print("SUITE_EXPORT_PASS",name,tris,flush=True)
@@ -189,7 +197,7 @@ def main():
     backend=BlenderBackend()
     if not backend.available:raise RuntimeError('Blender required for canonical artistic pilots; no fallback')
     print('ART_BLENDER_VERSION',subprocess.check_output([backend.executable,'--version'],text=True).splitlines()[0],flush=True)
-    lib=finished_library(256,9133)
+    lib=glove_library(finished_library(256,9133))
     names=[generate(name,root,out,a.revision,lib,sources) for name in sorted(PILOTS)]
     (out/"suite.json").write_bytes(canonical({"revision":a.revision,"pilots":names,"approved":False}))
 if __name__=="__main__":main()
