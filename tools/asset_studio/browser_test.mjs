@@ -29,6 +29,7 @@ if(process.env.REQUIRE_RUNTIME_VIEWS==='1'){
  assert.match(await page.locator('#runtime-sample-info').textContent(),/subárvore inteira/);
  assert((await page.locator('#runtime-sample-info').textContent()).includes('Colisões ativas: '+catalog.runtime_samples[id].enabled_colliders));
  assert(catalog.geometry_payload&&catalog.composition_payload);
+ let compositionSamples=null;
  for(const [name,hash] of [[catalog.geometry_payload,catalog.geometry_payload_sha256],[catalog.composition_payload,catalog.composition_payload_sha256]]){
    const resp=await page.request.get(new URL(name,url.endsWith('/')?url:url+'/').href);
    assert.equal(resp.status(),200);
@@ -45,6 +46,7 @@ if(process.env.REQUIRE_RUNTIME_VIEWS==='1'){
      }
    }else{
      assert.equal(payload.samples.length,catalog.runtime.samples);
+     compositionSamples=payload.samples;
      assert.equal(payload.registered_world_lods.length,23);
      const posts=payload.registered_world_lods.filter(a=>a.family==='light_post');
      assert.equal(posts.length,4);
@@ -57,6 +59,55 @@ if(process.env.REQUIRE_RUNTIME_VIEWS==='1'){
    }
  }
  console.log('STUDIO_RUNTIME_PAYLOAD_PASS',Object.keys(catalog.geometry_index).length,'buffers');
+ // 00-34: exact QA scopes must reconcile with the original sample payload.
+ // Older captures are not sufficient for the current integrated browser gate.
+ const expectedScopes={"player_capsule":"player:collision","muzzle_mesh":"effect:muzzle","scope_canvas":"effect:scope_overlay","turret":"object:turret","loot_weapon":"object:loot","loot_ammo":"object:loot","grenade_body":"object:grenade","grenade_fx":"effect:grenade","blood":"effect:blood","shot_fx":"effect:combat","enemy_tracer":"effect:enemy_tracer","airstrike_marker":"effect:combat","airstrike_impact":"effect:combat"};
+ const seenRoles=new Set(),scopeExamples=new Map();
+ assert.equal(catalog.approved,false);
+ const scopedAssets=catalog.assets.filter(a=>a.runtime_scope_status==='qa_scoped_nodes');
+ assert.deepEqual(scopedAssets.map(a=>a.id).sort(),[...new Set(Object.values(expectedScopes))].sort());
+ assert(compositionSamples,'missing composition samples for scope reconciliation');
+ const sampleById=new Map(compositionSamples.map(s=>[s.id,s]));
+ let scopeCount=0;
+ for(const a of scopedAssets){
+   assert.equal(a.validation.approved,false);
+   assert(a.runtime_scopes?.length,a.id);
+   const pairs=new Set();
+   for(const scope of a.runtime_scopes){
+     assert.equal(expectedScopes[scope.role],a.id);
+     assert.equal(scope.family,a.id);
+     assert.equal(scope.scope,'qa_selected_actual_nodes');
+     assert.equal(scope.approved,false);
+     assert(a.runtime_samples.includes(scope.sample));
+     const pair=JSON.stringify([scope.sample,scope.role]);assert(!pairs.has(pair));pairs.add(pair);
+     const sample=sampleById.get(scope.sample);assert(sample,scope.sample);
+     const source=sample.asset_scopes?.find(s=>s.role===scope.role);
+     assert(source,scope.role);
+     assert.deepEqual(scope.roots,source.roots);
+     const paths=new Set(sample.nodes.map(n=>n.path));
+     assert(scope.roots.length&&scope.roots.every(p=>paths.has(p)));
+     assert(scope.node_paths.length&&scope.node_paths.every(p=>paths.has(p)));
+     seenRoles.add(scope.role);
+     if(!scopeExamples.has(scope.role))scopeExamples.set(scope.role,{asset:a,scope});
+     scopeCount++;
+   }
+ }
+ const expectedCount=compositionSamples.reduce((n,s)=>n+(s.asset_scopes?.length||0),0);
+ assert.equal(scopeCount,expectedCount);
+ assert.deepEqual([...seenRoles].sort(),Object.keys(expectedScopes).sort());
+ // Check one real sample of every role through the same UI used by reviewers.
+ for(const {asset,scope} of scopeExamples.values()){
+   await page.locator('#assets button').filter({hasText:asset.id}).first().click();
+   await page.locator('#runtime-sample').selectOption(scope.sample);
+   const info=await page.locator('#runtime-sample-info').textContent();
+   assert(info.includes('Escopo específico: '+scope.role+' · '+scope.mesh_nodes+' malhas ('+scope.visible_mesh_nodes+' visíveis) · '+scope.collisions.length+' colisores · '+scope.lights+' luzes'),scope.role);
+   assert(info.includes('Nós reais: '+scope.roots.join(', ')),scope.role);
+   assert(info.includes('subárvore inteira'),scope.role);
+   for(const c of scope.collisions)assert(info.includes('Colisor '+c.path+' · '+c.shape.class+' · camada '+c.layer+' · máscara '+c.mask),scope.role);
+   if(scope.canvas_visible!==null)assert(info.includes('Sobreposição visível: '+String(scope.canvas_visible)),scope.role);
+ }
+ console.log('STUDIO_RUNTIME_SCOPES_PASS',seenRoles.size,'roles',scopedAssets.length,'families',scopeCount,'scopes');
+ assert(catalog.surface_payload&&catalog.surface_payload_sha256,'missing portable runtime surface payload');
  if(catalog.surface_payload){
    const raw=await page.request.get(new URL(catalog.surface_payload,url.endsWith('/')?url:url+'/').href);assert.equal(raw.status(),200);const bytes=await raw.body();assert.equal(createHash('sha256').update(bytes).digest('hex'),catalog.surface_payload_sha256);const native=JSON.parse(bytes.toString('utf8'));assert.equal(native.coverage.length,86);assert(Object.keys(catalog.geometry_index).every(h=>native.buffers[h]));
    const scenarios=[['map_briefing','map:campo_de_testes'],['fps_rifle___hip','viewmodel:assembly'],['enemy_soldier_rifle','enemy:legacy'],['enemy_quaternius_experimental','character:quaternius_equipment'],['loot_ammo','object:loot'],['turret','object:turret']];
