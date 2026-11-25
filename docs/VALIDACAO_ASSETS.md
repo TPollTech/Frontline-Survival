@@ -63,3 +63,8 @@ Pages 45518280483 publicou QA 0aed750b com HTTP pós-deploy confirmado. CIs 4551
 ## Superfície contínua QA
 
 CI 45520645718 confirmou 42 capturas em repouso e seis posadas publicadas. Revisão real de imagens aa303b81; nova luva com superfície fechada única, atlas UV/PBR e testes de deformação em 73596b74, CI 45525440788 em execução. Ver [PILOTOS_ASSETS.md](PILOTOS_ASSETS.md). Sem homologação artística.
+
+
+## Contatos e personagem contínuo
+
+45525440788 passou geração e Godot, Studio pendente; 45525440883 Windows aprovado. f9b972da cria personagem contínuo e auditoria determinística de contatos não adjacentes em repouso e poses nos dois rigs. Testes unitários passaram; exportação e resultados de contatos em 45526099663 pendentes. Sem aprovação visual. Ver [PILOTOS_ASSETS.md](PILOTOS_ASSETS.md).
