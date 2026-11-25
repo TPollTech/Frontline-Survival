@@ -43,3 +43,8 @@ O CI 45514843046 concluiu balizador 3/3 Godot/Studio, colisor invariável e equi
 ## Revisão de acabamento e cobertura
 
 CIs 45516709723/45516709742 aprovados: 84 exports determinísticos, 42 GLBs conferidos Godot/Studio, 14 pilotos em 13 categorias geométricas. Inspeção real de capturas LOD0 revelou sobreposição, encaixes e posicionamento inadequados; correções posteriores em revalidação. Ver [PILOTOS_ASSETS.md](PILOTOS_ASSETS.md). Sem homologação artística.
+
+
+## Revisão artística Blender
+
+14 pilotos / 13 categorias geométricas, 42 GLBs aprovados na revisão bfc367a8; nova arte de três pilotos via BlenderBackend, contratos e reprodução em revalidação. Publicação QA corrigida após HTTP 404 de metadados HDRI. Evidências, referências e limites em [PILOTOS_ASSETS.md](PILOTOS_ASSETS.md).
