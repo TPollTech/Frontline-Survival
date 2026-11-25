@@ -1,5 +1,7 @@
 # Arquitetura modular e contrato canônico 3D — v1
 
+> Consulte o [guia operacional atualizado](GUIA_PIPELINE_3D.md) para comandos, categorias e QA. Este documento preserva o contrato v1 e histórico de implantação.
+
 Data: 24/11/2026. Complementa ASSET_STUDIO_SPEC.md, AUDITORIA_ARQUITETURA_3D.md e INVENTARIO_ASSETS.md. Esta entrega define e implementa a camada de contrato, não o motor geométrico, Studio ou extrator Godot.
 
 ## Decisão de arquitetura

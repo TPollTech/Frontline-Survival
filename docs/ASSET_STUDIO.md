@@ -1,5 +1,7 @@
 # Asset Studio — versão inicial
 
+> Consulte o [guia operacional atualizado](GUIA_PIPELINE_3D.md) para o roteiro integrado de captura, catálogo, browser QA e limites atuais.
+
 ## Executar localmente
 
 Requisitos: Git, Python 3.10+ (3.11 recomendado), Node 22/npm, navegador WebGL2. Na raiz do repo:
