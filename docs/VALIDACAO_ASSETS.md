@@ -33,3 +33,8 @@ CI anterior [45504785180](https://github.com/TPollTech/Frontline-Survival/action
 ## Primeiro piloto canônico
 
 [Windows 45511716282](https://github.com/TPollTech/Frontline-Survival/actions/runs/45511716282) e [Studio 45511716406](https://github.com/TPollTech/Frontline-Survival/actions/runs/45511716406) concluídos com sucesso. O primeiro piloto autoral, com contrato físico e orçamento agregado por instância/LOD, foi acrescentado; consulte [PILOTOS_ASSETS.md](PILOTOS_ASSETS.md). A validação estrita das seis exportações e a reprodução byte a byte passaram no CI 45514843046; execução Godot/Studio pendente ao registrar.
+
+
+## Expansão 00-27
+
+O CI 45514843046 concluiu balizador 3/3 Godot/Studio, colisor invariável e equivalência de hashes, triângulos e dimensões. Nove novos conceitos em piloto_suite.py validaram seis exports estritos por asset, com contrato físico baseado em envelopes autorais e budget por LOD no CI 45516214029; Godot/Studio ainda em validação. Ver [PILOTOS_ASSETS.md](PILOTOS_ASSETS.md). Sem alteração dos modelos de produção.
