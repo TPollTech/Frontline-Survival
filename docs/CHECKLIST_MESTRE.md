@@ -64,7 +64,7 @@ A matriz normativa [Critérios de aceite 1.0](CRITERIOS_ACEITE_1_0.md) define o 
 
 ## 02 — Modelagem 3D
 
-- [ ] Desenvolver um padrão híbrido de modelagem 3D — Parcial: [padrão artístico híbrido](PADRAO_ARTISTICO_3D.md) definido, com escala, detalhes, materiais, fontes e portões de aprovação. Rifle de produção escolhido a partir da fonte canônica; referências específicas e demonstração visual no Studio/Godot pendentes. Nenhuma alteração de asset ou homologação.
+- [ ] Desenvolver um padrão híbrido de modelagem 3D — Parcial: [padrão artístico híbrido](PADRAO_ARTISTICO_3D.md) definido, com escala, detalhes, materiais, fontes e portões de aprovação. Rifle de produção escolhido a partir da fonte canônica; referências específicas e demonstração visual no Studio/Godot pendentes. Nenhuma alteração de asset ou homologação. Auditoria focal 26/11: quatro GLBs reais, 4634 triângulos no merged, sem falhas nos testes de atributos/índices/degeneração/alpha; materiais e AABB local documentados. Renderização integrada bloqueada neste ambiente.
 - [ ] Remodelar completamente o arsenal
 - [ ] Melhorar proporções e silhuetas das armas
 - [ ] Implementar materiais PBR realistas
