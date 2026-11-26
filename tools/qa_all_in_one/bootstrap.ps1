@@ -33,22 +33,26 @@ function Find-Git {
     if ($cmd) { return $cmd.Source }
     foreach ($p in @("$env:ProgramFiles\Git\cmd\git.exe", "$env:LOCALAPPDATA\Programs\Git\cmd\git.exe")) { if (Test-Path $p) { return $p } }
 }
+function Test-Python([string]$exe,[string]$mode) {
+    if (-not $exe -or -not (Test-Path -LiteralPath $exe -PathType Leaf)) { return $false }
+    $p = Probe $exe @($pythonProbe,$mode)
+    Write-Host "Python probe ($mode) : $exe : exit=$($p.Code)"
+    Write-Host $p.Text
+    return ($p.Code -eq 0 -and $p.Text -match '(?m)^QA_PYTHON_READY\s*$')
+}
 function Find-Python {
-    # On Windows PowerShell 5.1, native stderr can become a terminating
-    # error under Stop, even with 2>$null. A missing runtime is expected
-    # during this optional probe; it must not abort dependency setup.
-    $ErrorActionPreference = 'Continue'
-    foreach ($candidate in @("$env:LOCALAPPDATA\Programs\Python\Python311\python.exe", "$env:ProgramFiles\Python311\python.exe")) {
-        if (Test-Path -LiteralPath $candidate -PathType Leaf) { return $candidate }
-    }
+    $candidates = @("$env:LOCALAPPDATA\Programs\Python\Python311\python.exe", "$env:ProgramFiles\Python311\python.exe")
+    $cmd = Get-Command python.exe -ErrorAction SilentlyContinue
+    if ($cmd -and $cmd.Source -notlike '*\WindowsApps\*') { $candidates += $cmd.Source }
     $launcher = Get-Command py.exe -ErrorAction SilentlyContinue
     if ($launcher) {
-        try {
-            $p = & $launcher.Source -3.11 -c 'import sys; print(sys.executable)' 2>$null
-            if ($LASTEXITCODE -eq 0 -and $p -and (Test-Path -LiteralPath $p -PathType Leaf)) { return $p }
-        } catch {
-            Write-Host "Python 3.11 probe unavailable: $($_.Exception.Message)"
-        }
+        # No embedded double quotes in native -c arguments.
+        $p = Probe $launcher.Source @('-3.11','-c','import sys; print(sys.executable)')
+        if ($p.Code -eq 0) { $candidates += $p.Text }
+        else { Write-Host "Python launcher probe: $($p.Text)" }
+    }
+    foreach ($f in ($candidates | Select-Object -Unique)) {
+        if (Test-Python $f 'base') { return $f }
     }
     return $null
 }
@@ -105,8 +109,7 @@ function Find-Venv {
     foreach ($d in $oldRuns) {
         $py = Join-Path $d.FullName 'venv\Scripts\python.exe'
         if (-not (Test-Path -LiteralPath $py -PathType Leaf)) { continue }
-        $p = Probe $py @('-c','import sys,struct,numpy,trimesh,scipy; print("QA_READY" if sys.version_info[:2]==(3,11) and struct.calcsize("P")==8 and (numpy.__version__,trimesh.__version__,scipy.__version__)==("2.2.6","4.11.1","1.15.3") else "wrong")')
-        if ($p.Code -eq 0 -and $p.Text -eq 'QA_READY') { return $py }
+        if (Test-Python $py 'venv') { return $py }
     }
 }
 function Find-ReviewedSummary {
@@ -119,6 +122,23 @@ function Find-ReviewedSummary {
 Start-Transcript -Path $setup | Out-Null
 try {
     if (-not [Environment]::Is64BitOperatingSystem) { throw 'Windows x64 required.' }
+    # Write a local probe file; PowerShell 5.1 cannot strip Python string quotes from it.
+    $pythonProbe = Join-Path $run 'probe-python.py'
+    @'
+import sys, struct
+print(sys.executable)
+print(sys.version)
+print('Pointer bits:', struct.calcsize('P') * 8)
+if sys.version_info[:2] != (3, 11) or struct.calcsize('P') != 8:
+    sys.exit(1)
+if len(sys.argv) > 1 and sys.argv[1] == 'venv':
+    import numpy, trimesh, scipy
+    versions = (numpy.__version__, trimesh.__version__, scipy.__version__)
+    print('Dependency versions:', versions)
+    if versions != ('2.2.6', '4.11.1', '1.15.3'):
+        sys.exit(2)
+print('QA_PYTHON_READY')
+'@ | Set-Content -LiteralPath $pythonProbe -Encoding ASCII
     Refresh-Path
     $git = Find-Git
     if (-not $git) { Install-Dependency 'Git.Git'; $git = Find-Git }
@@ -128,13 +148,12 @@ try {
     if (-not $py) {
         $python = Find-Python
         if (-not $python) { Install-Dependency 'Python.Python.3.11'; $python = Find-Python }
-        if (-not $python) { throw 'Python 3.11 not found after installation' }
-        $p = Probe $python @('-c','import sys,struct; print("QA311" if sys.version_info[:2]==(3,11) and struct.calcsize("P")==8 else "wrong")')
-        if ($p.Code -ne 0 -or $p.Text -ne 'QA311') { throw 'Python 3.11 x64 required' }
+        if (-not $python) { throw 'No compatible Python 3.11 x64 found after installation; see probe output above.' }
         $venv = Join-Path $run 'venv'
         Native $python @('-m','venv',$venv)
         $py = Join-Path $venv 'Scripts\python.exe'
         Native $py @('-m','pip','install','numpy==2.2.6','trimesh==4.11.1','scipy==1.15.3')
+        if (-not (Test-Python $py 'venv')) { throw 'Python dependency probe failed; see diagnostics above.' }
     }
     Write-Host "Using Python: $py"
     $store = Find-Repo $git
