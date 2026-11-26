@@ -11,6 +11,7 @@ Usage:
     python tools/build_weapons.py --only pistol    # one weapon into assets/models
     python tools/build_weapons.py --only pistol --out TMPDIR   # reproducible check
 """
+import json
 from pathlib import Path
 import numpy as np
 import trimesh
@@ -28,24 +29,18 @@ MAT = {
     'glass':(48, 93, 92, 255), 'recess':(18, 24, 27, 255),
 }
 
-def export_surface(mesh):
-    # Triplanar shading uses local axes instead of a UV seam. Supply a stable
-    # orthonormal frame even where a surface normal is parallel to an axis.
-    normals = mesh.vertex_normals
-    axes = np.eye(3)[np.argmin(np.abs(normals), axis=1)]
-    tangents = np.cross(axes, normals)
-    tangents /= np.linalg.norm(tangents, axis=1)[:, None]
-    mesh.vertex_attributes['_TANGENT'] = np.column_stack(
-        (tangents, np.ones(len(normals)))).astype(np.float32)
+if __package__:
+    from .asset_pipeline.parametric.production_surfaces import export_profiled_surface
+else:
+    from asset_pipeline.parametric.production_surfaces import export_profiled_surface
 
-    def standard_semantic(tree):
-        for model in tree['meshes']:
-            for primitive in model['primitives']:
-                attributes = primitive['attributes']
-                attributes['TANGENT'] = attributes.pop('_TANGENT')
+PROFILES = json.loads((ROOT / "tools/asset_pipeline/parametric/production_surface_profiles.json")
+                      .read_text(encoding="utf-8"))["profiles"]
 
-    return trimesh.Scene(mesh).export(file_type='glb', include_normals=True,
-                                      tree_postprocessor=standard_semantic)
+
+def export_surface(meshes):
+    return export_profiled_surface(
+        ((mesh.metadata["surface_profile"], mesh) for mesh in meshes), PROFILES)
 
 
 class Gun:
@@ -63,12 +58,13 @@ class Gun:
                             'pump_action', 'pump_rib', 'charging_handle')):
             return 'action'
         return 'body'
-    def add(self, mesh, color, name='part'):
+    def add(self, mesh, color, name='part', profile='painted_metal'):
+        mesh.metadata["surface_profile"] = profile
         mesh.visual.face_colors = np.array(MAT.get(color, color), dtype=np.uint8)
         self.count += 1
         self.scene.add_geometry(mesh, geom_name=f'{name}_{self.count:03d}', node_name=f'{name}_{self.count:03d}')
         self.groups[self._group_for(name)].append(mesh)
-    def add_parametric(self, spec, color, name='part', matrix=None, offset=None):
+    def add_parametric(self, spec, color, name='part', matrix=None, offset=None, profile='painted_metal'):
         """Add a mesh produced by the central parametric library.
 
         The IR mesh owns the surface definition; conversion here preserves every
@@ -84,10 +80,10 @@ class Gun:
             mesh.apply_transform(matrix)
         if offset is not None:
             mesh.apply_translation(offset)
-        self.add(mesh, color, name)
+        self.add(mesh, color, name, profile)
         return mesh
 
-    def chamfer(self, pos, dims, color, bevel=0.012, angles=(0,0,0), name='shell'):
+    def chamfer(self, pos, dims, color, bevel=0.012, angles=(0,0,0), name='shell', profile='painted_metal'):
         # Octagonal XZ outline with slightly inset top/bottom rings, so edges catch light.
         w,h,d = dims; b = min(bevel,w*.20,h*.22,d*.20)
         x,z = w/2,d/2
@@ -127,18 +123,18 @@ class Gun:
             raise ValueError('Invalid chamfer orientation (expected outward normals)')
         if angles!=(0,0,0): mesh.apply_transform(euler_matrix(*angles))
         mesh.apply_translation(pos)
-        self.add(mesh,color,name)
-    def cylinder(self, pos, radius, length, color, sections=12, angles=(0,0,0), name='cylinder'):
+        self.add(mesh,color,name,profile)
+    def cylinder(self, pos, radius, length, color, sections=12, angles=(0,0,0), name='cylinder', profile='painted_metal'):
         m=trimesh.creation.cylinder(radius=radius,height=length,sections=sections)
         if angles!=(0,0,0):m.apply_transform(euler_matrix(*angles))
-        m.apply_translation(pos);self.add(m,color,name)
-    def rod(self, a,b,radius,color,sections=9,name='rod'):
+        m.apply_translation(pos);self.add(m,color,name,profile)
+    def rod(self, a,b,radius,color,sections=9,name='rod', profile='painted_metal'):
         a=np.array(a,dtype=float);b=np.array(b,dtype=float); vec=b-a
         mesh=trimesh.creation.cylinder(radius=radius,height=float(np.linalg.norm(vec)),sections=sections)
         mesh.apply_transform(trimesh.geometry.align_vectors([0,0,1],vec/np.linalg.norm(vec)))
         mesh.apply_translation((a+b)/2)
-        self.add(mesh,color,name)
-    def ring(self, pos, outer, inner, length, color, name='muzzle'):
+        self.add(mesh,color,name,profile)
+    def ring(self, pos, outer, inner, length, color, name='muzzle', profile='painted_metal'):
         rings=[]; faces=[]; num=20
         for r,z in [(outer,-length/2),(outer,length/2),(inner,-length/2),(inner,length/2)]:
             rings.extend([(np.cos(i*2*np.pi/num)*r,np.sin(i*2*np.pi/num)*r,z) for i in range(num)])
@@ -154,7 +150,7 @@ class Gun:
         m=trimesh.Trimesh(vertices=np.array(rings)+np.array(pos),faces=np.array(faces),process=False)
         if m.volume <= 0:
             raise ValueError('Invalid muzzle ring orientation')
-        self.add(m,color,name)
+        self.add(m,color,name,profile)
     def curved_magazine(self):
         outline = [(-.038,-.063),(-.027,-.074),(.027,-.074),(.038,-.063),
                    (.038,.063),(.027,.074),(-.027,.074),(-.038,.063)]
@@ -240,13 +236,12 @@ class Gun:
 
     def save(self,name):
         self.validate_geometry()
-        # Concatena geometrias em 1 mesh colorida: 1 draw call aproximada por arma.
-        merged = trimesh.util.concatenate(list(self.scene.geometry.values()))
+        merged = self.scene.geometry.values()
         (OUT/f'{name}.glb').write_bytes(export_surface(merged))
         for key, meshes in self.groups.items():
             target = OUT / f'{name}_{key}.glb'
             if meshes:
-                target.write_bytes(export_surface(trimesh.util.concatenate(meshes)))
+                target.write_bytes(export_surface(meshes))
             elif target.exists():
                 target.unlink()
         print(name, self.count, len((OUT/f'{name}.glb').read_bytes()),
@@ -263,7 +258,7 @@ def _loft_library():
 
 
 def hybrid_loft(g, name, color, length, sections, axis='y', angles=(0, 0, 0),
-                pos=(0, 0, 0), radial=24, steps=4, power=2.0):
+                pos=(0, 0, 0), radial=24, steps=4, power=2.0, profile='painted_metal'):
     """Closed sculpted surface from the central library.
 
     ``sections`` are (t, rx, rz, cx, cz) with t in [0, 1]; radii and centres are
@@ -280,10 +275,10 @@ def hybrid_loft(g, name, color, length, sections, axis='y', angles=(0, 0, 0),
     g.add_parametric(build_organic(OrganicLoft(name, loft, radial_segments=radial,
                                               steps_per_interval=steps,
                                               section_power=power)),
-                     color, name, matrix=transform, offset=pos)
+                     color, name, matrix=transform, offset=pos, profile=profile)
 
 
-def hybrid_grip(g, name, color, dims, angles=(0, 0, 0), pos=(0, 0, 0), power=3.2):
+def hybrid_grip(g, name, color, dims, angles=(0, 0, 0), pos=(0, 0, 0), power=3.2, profile='painted_metal'):
     """Sculpted pistol/vertical grip inside the replaced chamfer envelope."""
     w, h, d = dims
     hybrid_loft(g, name, color, h, (
@@ -294,10 +289,10 @@ def hybrid_grip(g, name, color, dims, angles=(0, 0, 0), pos=(0, 0, 0), power=3.2
         (0.70, w * .500, d * .470, 0.0, -d * .035),
         (0.88, w * .500, d * .480, 0.0, -d * .010),
         (1.00, w * .500, d * .500, 0.0, d * .020),
-    ), angles=angles, pos=pos)
+    ), angles=angles, pos=pos, profile=profile)
 
 
-def hybrid_stock(g, name, color, dims, pos, angles=(0, 0, 0), waist=0.86, shoulder=0.99, power=3.6):
+def hybrid_stock(g, name, color, dims, pos, angles=(0, 0, 0), waist=0.86, shoulder=0.99, power=3.6, profile='painted_metal'):
     """Rounded stock surface inscribed in the replaced chamfer envelope.
 
     The section radii stay at or below half the original width/height, so the
@@ -318,7 +313,7 @@ def hybrid_stock(g, name, color, dims, pos, angles=(0, 0, 0), waist=0.86, should
         (0.85, w * .50, h * .50 * .98, 0.0, h * .130),
         (0.96, w * .50 * .97, h * .50 * .94, 0.0, h * .150),
         (1.00, w * .50 * .93, h * .50 * .88, 0.0, h * .160),
-    ), axis='z', angles=angles, pos=pos, power=power)
+    ), axis='z', angles=angles, pos=pos, power=power, profile=profile)
 
 
 
@@ -356,7 +351,7 @@ def hybrid_pistol_grip(g):
     loft = OrganicLoft('weapon_pistol_grip', sections, radial_segments=24,
                        steps_per_interval=4, section_power=3.0)
     g.add_parametric(build_organic(loft), 'polymer', 'grip',
-                     matrix=euler_matrix(-.28, 0, 0), offset=(0, -.123, .012))
+                     matrix=euler_matrix(-.28, 0, 0), offset=(0, -.123, .012), profile="polymer")
 
 
 def hardware(g,zfront):
@@ -400,7 +395,7 @@ def common_receiver(g,back,front,main_color='receiver',body=(.20,.16)):
         z=back-.065-i*(length-.13)/8
         g.chamfer((0,body[1]*.5+.027,z),(.105,.013,.014),'edge',.003,name='rail_tooth')
     # Trigger and guard, folding stock, receiver fasteners.
-    hybrid_grip(g,'pistol_grip','polymer',(.095,.25,.13),angles=(-.23,0,0),pos=(0,-.18,back-.085))
+    hybrid_grip(g,'pistol_grip','polymer',(.095,.25,.13),angles=(-.23,0,0),pos=(0,-.18,back-.085), profile='polymer')
     g.rod((-.075,-.07,back-.18),(-.075,-.22,back-.18),.008,'black',name='guard')
     g.rod((-.075,-.22,back-.18),(.075,-.22,back-.18),.008,'black',name='guard')
     for i in [-1,1]:
@@ -411,7 +406,7 @@ def optic(g,z):
     g.ring((0,.232,z),.073,.045,.07,'black',name='holo_sight')
     # The previous fully opaque glass disk hid the aiming point. Use an
     # open aperture and a narrow real 3D post instead of a 2D crosshair.
-    g.chamfer((0,.2035,z-.028),(.008,.057,.018),'brass',.003,name='aiming_post')
+    g.chamfer((0,.2035,z-.028),(.008,.057,.018),'brass',.003,name='aiming_post', profile='brass')
     g.fixed_sight_bridge('top_rail', ('optic_mount',), 'fixed_optic_bridge')
     g.chamfer((0,.27,z),(.026,.024,.06),'edge',.004,name='adjust_knob')
 
@@ -424,12 +419,12 @@ def smg():
     for x in [-.094,.094]:
         for j in range(4):
             g.chamfer((x,.035,-.305-j*.06),(.012,.021,.028),'recess',.006,name='vent')
-    g.rod((-.095,.015,.25),(-.125,.0,.52),.015,'steel',name='folding_stock')
-    g.rod((.095,.015,.25),(.125,.0,.52),.015,'steel',name='folding_stock')
-    g.chamfer((0,-.025,.53),(.28,.18,.038),'polymer',.015,name='stock_pad')
-    g.cylinder((0,.018,-.59),.023,.20,'steel',name='barrel')
-    g.chamfer((.102,.062,.07),(.022,.025,.078),'steel',.005,name='charging_handle')
-    hybrid_grip(g,'foregrip','polymer',(.08,.16,.09),pos=(0,-.01,-.43),power=4.0)
+    g.rod((-.095,.015,.25),(-.125,.0,.52),.015,'steel',name='folding_stock', profile='exposed_metal')
+    g.rod((.095,.015,.25),(.125,.0,.52),.015,'steel',name='folding_stock', profile='exposed_metal')
+    g.chamfer((0,-.025,.53),(.28,.18,.038),'polymer',.015,name='stock_pad', profile='rubber')
+    g.cylinder((0,.018,-.59),.023,.20,'steel',name='barrel', profile='exposed_metal')
+    g.chamfer((.102,.062,.07),(.022,.025,.078),'steel',.005,name='charging_handle', profile='exposed_metal')
+    hybrid_grip(g,'foregrip','polymer',(.08,.16,.09),pos=(0,-.01,-.43),power=4.0, profile='polymer')
     g.chamfer((0,.081,-.53),(.13,.034,.14),'steel',.006,name='sight_bridge')
     optic(g,-.07); hardware(g,-.69); g.save('smg')
 
@@ -459,15 +454,15 @@ def rifle():
     if cover.volume < 0:
         cover.invert()
     g.add(cover,'receiver','top_cover')
-    g.chamfer((0,.019,.399),(.105,.096,.299),'walnut_dark',.013,name='stock_wrist')
-    hybrid_stock(g,'wood_stock','walnut',(.136,.175,.353),pos=(0,-.004,.589),angles=(.13,0,0),shoulder=.83,power=4.0)
+    g.chamfer((0,.019,.399),(.105,.096,.299),'walnut_dark',.013,name='stock_wrist', profile='wood')
+    hybrid_stock(g,'wood_stock','walnut',(.136,.175,.353),pos=(0,-.004,.589),angles=(.13,0,0),shoulder=.83,power=4.0, profile='wood')
     g.chamfer((0,-.035,.769),(.139,.174,.031),'steel',.006,name='butt_plate')
-    hybrid_grip(g,'grip','walnut_dark',(.092,.216,.111),angles=(-.26,0,0),pos=(0,-.188,.184))
+    hybrid_grip(g,'grip','walnut_dark',(.092,.216,.111),angles=(-.26,0,0),pos=(0,-.188,.184), profile='wood')
     for x in (-.078,.078):
         for z in (-.169,.144,.213):
             g.cylinder((x,.011,z),.010,.009,'steel',angles=(0,np.pi/2,0),name='receiver_rivet')
     g.chamfer((.077,.056,-.067),(.009,.034,.234),'recess',.003,name='bolt_track')
-    g.chamfer((.091,.058,.004),(.026,.023,.069),'steel',.005,name='charging_handle')
+    g.chamfer((.091,.058,.004),(.026,.023,.069),'steel',.005,name='charging_handle', profile='exposed_metal')
     g.chamfer((.081,.008,.058),(.009,.026,.215),'black',.005,angles=(-.19,0,0),name='selector')
     g.rod((0,-.063,.099),(0,-.164,.069),.009,'steel',name='guard')
     g.rod((0,-.164,.069),(0,-.164,-.078),.009,'steel',name='guard')
@@ -475,12 +470,12 @@ def rifle():
     g.rod((0,-.072,.016),(0,-.132,.029),.008,'black',name='trigger')
     # Sweep the full magazine cross-section along an arc, avoiding stacked-box seams.
     g.curved_magazine()
-    g.chamfer((0,.005,-.419),(.148,.121,.334),'walnut',.022,name='lower_handguard')
-    g.chamfer((0,.104,-.438),(.108,.071,.272),'walnut_dark',.014,name='upper_handguard')
+    g.chamfer((0,.005,-.419),(.148,.121,.334),'walnut',.022,name='lower_handguard', profile='wood')
+    g.chamfer((0,.104,-.438),(.108,.071,.272),'walnut_dark',.014,name='upper_handguard', profile='wood')
     for x in (-.073,.073):
         for z in (-.35,-.41,-.47,-.53):
-            g.chamfer((x,.021,z),(.009,.021,.041),'walnut_dark',.004,name='wood_relief')
-    g.cylinder((0,.039,-.690),.023,.454,'steel',name='barrel')
+            g.chamfer((x,.021,z),(.009,.021,.041),'walnut_dark',.004,name='wood_relief', profile='wood')
+    g.cylinder((0,.039,-.690),.023,.454,'steel',name='barrel', profile='exposed_metal')
     g.cylinder((0,.105,-.552),.025,.234,'black',name='gas_tube')
     g.chamfer((0,.075,-.663),(.076,.118,.064),'steel',.009,name='gas_block')
     g.chamfer((0,.093,-.797),(.059,.109,.066),'black',.008,name='front_block')
@@ -508,8 +503,8 @@ def shotgun():
     g.cylinder((0,.065,-.62),.036,.82,'steel',name='upper_barrel')
     g.cylinder((0,-.045,-.58),.029,.68,'black',name='magazine_tube')
     hybrid_stock(g,'solid_stock','tan',(.15,.20,.65),pos=(0,-.04,.55),shoulder=.79,power=3.2)
-    g.chamfer((0,-.055,.88),(.19,.24,.05),'black',.022,name='rubber_butt')
-    g.chamfer((0,.14,-1.01),(.033,.033,.020),'brass',.004,name='bead_sight')
+    g.chamfer((0,-.055,.88),(.19,.24,.05),'black',.022,name='rubber_butt', profile='rubber')
+    g.chamfer((0,.14,-1.01),(.033,.033,.020),'brass',.004,name='bead_sight', profile='brass')
     g.fixed_sight_bridge('upper_barrel', ('bead_sight',), 'fixed_bead_base')
     hybrid_grip(g,'vertical_grip','tan',(.07,.14,.10),pos=(0,.015,-.44))
     g.chamfer((.114,.01,.04),(.018,.042,.12),'recess',.004,name='shell_gate')
@@ -534,7 +529,7 @@ def lmg():
     g.rod((-.174,.275,.12),(-.127,.14,.16),.013,'steel',name='carry_handle')
     g.rod((-.08,-.07,-.735),(-.20,-.43,-.83),.016,'black',name='bipod')
     g.rod((.08,-.07,-.735),(.20,-.43,-.83),.016,'black',name='bipod')
-    g.chamfer((.146,.035,.18),(.038,.035,.10),'steel',.006,name='charging_handle')
+    g.chamfer((.146,.035,.18),(.038,.035,.10),'steel',.006,name='charging_handle', profile='exposed_metal')
     g.chamfer((0,-.18,-.11),(.28,.18,.18),'darktan',.022,name='ammo_box')
     g.chamfer((0,.09,-.16),(.16,.05,.14),'steel',.008,name='feed_cover')
     optic(g,.12); g.save('lmg')
@@ -544,10 +539,10 @@ def sniper():
     # MRS-7: original lightweight bolt-action precision rifle; forward is -Z.
     g.chamfer((0.0, 0.0, -0.095), (.188, .172, .57), 'receiver', .020, name='receiver')
     g.chamfer((0.0, .094, -.12), (.145, .045, .51), 'black', .012, name='receiver_rail')
-    g.chamfer((0.0, -.040, .35), (.108, .135, .54), 'polymer', .023, name='stock_wrist')
+    g.chamfer((0.0, -.040, .35), (.108, .135, .54), 'polymer', .023, name='stock_wrist', profile='wood')
     hybrid_stock(g,'precision_stock','black',(.17,.22,.29),pos=(0.0,-.055,.66),shoulder=.81,power=4.5)
     g.chamfer((0.0, -.058, .815), (.19, .235, .055), 'polymer', .015, name='butt_pad')
-    hybrid_grip(g,'pistol_grip','polymer',(.100,.23,.13),angles=(-.22,0,0),pos=(0.0,-.174,.135))
+    hybrid_grip(g,'pistol_grip','polymer',(.100,.23,.13),angles=(-.22,0,0),pos=(0.0,-.174,.135), profile='polymer')
     g.chamfer((0.0, -.22, -.165), (.108, .20, .136), 'black', .015, name='magazine_box')
     g.chamfer((0.0, -.326, -.16), (.111, .027, .144), 'steel', .007, name='magazine_heel')
     g.chamfer((0.0, -.01, -.47), (.245, .17, .50), 'polymer', .026, name='freefloat_handguard')
@@ -557,7 +552,7 @@ def sniper():
     g.cylinder((0.0, .037, -.91), .025, 1.12, 'steel', sections=16, name='precision_barrel')
     g.cylinder((0.0, .037, -1.35), .042, .14, 'black', sections=16, name='barrel_brake')
     g.ring((0.0, .037, -1.425), .040, .020, .06, 'steel', name='muzzle_ring')
-    g.chamfer((.112, .053, -.018), (.030, .023, .10), 'steel', .006, name='charging_handle')
+    g.chamfer((.112, .053, -.018), (.030, .023, .10), 'steel', .006, name='charging_handle', profile='exposed_metal')
     g.chamfer((.078, .063, -.10), (.014, .027, .19), 'recess', .004, name='bolt_slot')
     g.chamfer((0.0, .15, -.20), (.095, .024, .08), 'black', .008, name='iron_rear_base')
     for side in (-.037, .037):
@@ -575,16 +570,16 @@ def bolt_sniper():
     g=Gun()
     # VLR-8: traditional walnut-stock rifle, open bolt/ejection assembly.
     # Distinct silhouette from the MRS-7's modern freefloat polymer chassis.
-    hybrid_stock(g,'stock_body','walnut',(.158,.165,1.16),pos=(0.0,-.044,.23),waist=.88,shoulder=.92,power=3.0)
-    hybrid_stock(g,'cheek_rest','walnut_dark',(.155,.20,.20),pos=(0.0,-.050,.73),waist=.92)
-    g.chamfer((0.0, -.048, .86), (.18, .20, .047), 'black', .012, name='stock_pad')
-    g.chamfer((0.0, -.03, -.185), (.177, .155, .50), 'walnut_dark', .018, name='forearm_wood')
+    hybrid_stock(g,'stock_body','walnut',(.158,.165,1.16),pos=(0.0,-.044,.23),waist=.88,shoulder=.92,power=3.0, profile='wood')
+    hybrid_stock(g,'cheek_rest','walnut_dark',(.155,.20,.20),pos=(0.0,-.050,.73),waist=.92, profile='wood')
+    g.chamfer((0.0, -.048, .86), (.18, .20, .047), 'black', .012, name='stock_pad', profile='rubber')
+    g.chamfer((0.0, -.03, -.185), (.177, .155, .50), 'walnut_dark', .018, name='forearm_wood', profile='wood')
     for side in (-.076,.076):
         for z in (-.22,-.32,-.43):
-            g.chamfer((side,-.075,z),(.007,.017,.07),'walnut',.003,name='wood_grip_rib')
+            g.chamfer((side,-.075,z),(.007,.017,.07),'walnut',.003,name='wood_grip_rib', profile='wood')
     g.chamfer((0.0, .043, -.04), (.145, .145, .37), 'steel', .018, name='steel_receiver')
     g.chamfer((0.0, .122, -.04), (.102, .022, .34), 'recess', .006, name='receiver_sight_rail')
-    hybrid_grip(g,'grip_stock','walnut',(.084,.25,.106),angles=(-.29,0,0),pos=(0.0,-.17,.03))
+    hybrid_grip(g,'grip_stock','walnut',(.084,.25,.106),angles=(-.29,0,0),pos=(0.0,-.17,.03), profile='wood')
     g.chamfer((0.0, -.225, -.06), (.101, .177, .142), 'black', .012, name='magazine_box')
     g.chamfer((0.0, -.31, -.065), (.11, .025, .15), 'steel', .006, name='magazine_heel')
     g.cylinder((0.0, .050, -.85), .023, 1.20, 'steel', sections=16, name='long_barrel')
@@ -611,10 +606,10 @@ def sentinela():
     hybrid_stock(g,'lower_handguard','darktan',(.13,.12,.56),pos=(0,-.02,-.30),shoulder=.90,power=5.0)
     hybrid_grip(g,'grip','polymer',(.084,.17,.10),angles=(-.25,0,0),pos=(0,-.12,.14))
     g.cylinder((0,.055,-.02),.054,.47,'receiver',sections=20,name='receiver')
-    g.cylinder((0,.055,-.68),.025,.88,'steel',sections=20,name='barrel')
+    g.cylinder((0,.055,-.68),.025,.88,'steel',sections=20,name='barrel', profile='exposed_metal')
     g.ring((0,.055,-1.12),.032,.015,.075,'black')
     g.chamfer((0,-.13,-.12),(.08,.16,.12),'black',.01,name='magazine')
-    g.rod((.035,.065,.12),(.09,.015,.15),.012,'steel',name='charging_handle')
+    g.rod((.035,.065,.12),(.09,.015,.15),.012,'steel',name='charging_handle', profile='exposed_metal')
     g.chamfer((0,.13,-.99),(.01,.08,.014),'black',.002,name='sight_post')
     for x in (-.024,.024):
         g.chamfer((x,.133,.12),(.014,.074,.025),'black',.003,name='sight_notch')

@@ -1,8 +1,12 @@
 extends RefCounted
 ## Subtle procedural metal/polymer surfaces, multiplied by glTF COLOR_0.
 ## Three-plane UV projection means existing GLBs need no UV unwrapping.
+const PROFILES := {
+    "painted_metal": false, "exposed_metal": false, "brass": false,
+    "polymer": true, "rubber": true, "wood": true,
+}
+static var profiled_materials: Dictionary = {}
 static var metal_material: StandardMaterial3D
-static var polymer_material: StandardMaterial3D
 
 static func _build_surface(polymer: bool) -> StandardMaterial3D:
     var material := StandardMaterial3D.new()
@@ -30,17 +34,24 @@ static func _build_surface(polymer: bool) -> StandardMaterial3D:
 static func apply_colors(root: Node) -> void:
     if metal_material == null:
         metal_material = _build_surface(false)
-        polymer_material = _build_surface(true)
     _paint_recursive(root)
 
 static func _paint_recursive(node: Node) -> void:
     if node is MeshInstance3D:
         var part := node as MeshInstance3D
-        var name_lower := part.name.to_lower()
-        # Grouped viewmodel magazines/grips read differently from metal.
-        var polymer := name_lower.contains("mag") or name_lower.contains("grip") \
-            or name_lower.contains("polymer") or name_lower.contains("stock")
-        part.material_override = polymer_material if polymer else metal_material
+        if part.mesh != null:
+            for i in range(part.mesh.get_surface_count()):
+                var source := part.mesh.surface_get_material(i) as StandardMaterial3D
+                if source != null and PROFILES.has(source.resource_name):
+                    if not profiled_materials.has(source):
+                        var material := _build_surface(PROFILES[source.resource_name])
+                        material.resource_name = source.resource_name
+                        material.metallic = source.metallic
+                        material.roughness = source.roughness
+                        profiled_materials[source] = material
+                    part.set_surface_override_material(i, profiled_materials[source])
+                elif source == null or source.vertex_color_use_as_albedo:
+                    part.set_surface_override_material(i, metal_material)
         part.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
     for child in node.get_children():
         _paint_recursive(child)

@@ -1,4 +1,4 @@
-import {readFileSync,writeFileSync,mkdtempSync,rmSync,mkdirSync,copyFileSync,readdirSync,lstatSync} from "node:fs";
+import {readFileSync,writeFileSync,mkdtempSync,rmSync,mkdirSync,cpSync,copyFileSync,readdirSync,lstatSync} from "node:fs";
 import {resolve,dirname,join,relative,isAbsolute,sep} from "node:path";
 import {fileURLToPath} from "node:url";
 import {tmpdir} from "node:os";
@@ -76,6 +76,7 @@ function main(){
         const dir=join(work,label);
         mkdirSync(join(dir,"tools"),{recursive:true});
         copyFileSync(join(root,"tools/build_weapons.py"),join(dir,"tools/build_weapons.py"));
+        cpSync(join(root,"tools/asset_pipeline/parametric"),join(dir,"tools/asset_pipeline/parametric"),{recursive:true});
         execFileSync(args[2],[join(dir,"tools/build_weapons.py")],{cwd:dir,stdio:"inherit",timeout:180000});
         const folder=join(dir,"assets/models");
         return Object.fromEntries(readdirSync(folder).filter(p=>p.endsWith(".glb")).sort().map(p=>["assets/models/"+p,blob(readFileSync(join(folder,p)))]));

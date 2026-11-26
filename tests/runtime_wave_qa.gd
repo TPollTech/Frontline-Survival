@@ -915,9 +915,10 @@ func _run_tests() -> void:
             var part: Node = pending.pop_back()
             if part is MeshInstance3D:
                 var mi: MeshInstance3D = part as MeshInstance3D
-                if mi.material_override is StandardMaterial3D:
-                    var material: StandardMaterial3D = mi.material_override
-                    found_palette = found_palette or material.vertex_color_use_as_albedo
+                if mi.mesh != null:
+                    for surface in range(mi.mesh.get_surface_count()):
+                        var material := mi.get_active_material(surface) as StandardMaterial3D
+                        found_palette = found_palette or (material != null and material.vertex_color_use_as_albedo)
             for child in part.get_children():
                 pending.append(child)
         _expect(found_palette, "weapon GLB palette was not applied on runtime mesh")
