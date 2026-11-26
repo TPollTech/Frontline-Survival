@@ -1,6 +1,6 @@
 # Padrão artístico híbrido 3D — 02-01
 
-26/11/2026. Estado: definição documental, demonstração de produção pendente. Base técnica: 98e1390059d7d1d30c26fcc480015e59ca7de9af. Complementa [especificação](ASSET_STUDIO_SPEC.md), [contrato v1](ARQUITETURA_ASSET_PIPELINE.md), [guia operacional](GUIA_PIPELINE_3D.md) e [critério de aceite](CRITERIOS_ACEITE_1_0.md). Não substitui o portão de 13 passos nem promove homologação artística.
+26/11/2026. Estado: definição normativa **e** demonstração executada em um asset de produção (pistol), com inspeção real no Asset Studio e no Godot 4.4.1 Compatibility. A definição abaixo não foi reescrita; a execução e os limites estão no fim do documento. Base técnica: 98e1390059d7d1d30c26fcc480015e59ca7de9af; execução na revisão 4f3eefcec318acc5c1145ca14cefeb64d6e5385f. Complementa [especificação](ASSET_STUDIO_SPEC.md), [contrato v1](ARQUITETURA_ASSET_PIPELINE.md), [guia operacional](GUIA_PIPELINE_3D.md) e [critério de aceite](CRITERIOS_ACEITE_1_0.md). Não substitui o portão de 13 passos nem promove homologação artística.
 
 ## Direção artística
 
@@ -83,3 +83,86 @@ Base 725e43de597f576b8ba55e26cc98be8bf6cb2ef6. Os quatro PNGs de produção fora
 As imagens são mapas neutros modulados pela cor dos vértices no shader atual; não inferir a aparência final da cor a partir dos PNGs isolados. Como direção de produção, distinguir metal pintado, metal exposto, polímero e madeira por resposta de material, escala de detalhe e desgaste localizado; avaliar a contribuição na câmera de jogo. A execução dos materiais completos cabe aos IDs 02-04/05. Não houve mudança em textura, malha, shader ou gameplay.
 
 Rechecagem de execução: /mnt/data sem checkout; git ls-remote do repositório falhou por resolução DNS; Godot e Blender ausentes do PATH, Chromium e Xvfb presentes. Tentativa de abrir o Studio publicado em tpolltech.github.io/Frontline-Survival/ e seu catálogo pela ferramenta web não retornou conteúdo acessível. Não houve nova execução Studio/Godot ou CI. A inspeção dos PNGs é evidência nova, mas não substitui as referências externas, a escala física ou a demonstração integrada. Mantido 02-01 parcial.
+
+## Execução do piloto de produção — pistol híbrido (26/11/2026)
+
+Esta seção registra a demonstração exigida pelo 02-01. Ela preserva integralmente as auditorias anteriores e o padrão definido acima; apenas executa o portão em um asset de produção real. Base: 4f3eefcec318acc5c1145ca14cefeb64d6e5385f, com árvore de trabalho limpa antes das alterações deste ID.
+
+### Troca justificada do piloto: rifle → pistol
+
+O rifle continua sendo um alvo válido e sua auditoria binária permanece registrada. Ele não foi usado como primeiro piloto porque seu punho é gerado por `common_receiver()`, compartilhado por smg, rifle, shotgun e lmg: alterar só o rifle exigiria duplicar geometria ou remodelar cinco armas de uma vez, o que pertence ao 02-02. O `pistol()` possui punho próprio e isolado, com contrato de grupos (body/action/mag) e contato com frame e base do carregador. Assim o padrão híbrido foi demonstrado sem ampliar o escopo nem tocar outras armas. Nenhum dado da auditoria do rifle foi apagado ou reinterpretado; referências e proporções do rifle seguem para 02-02/02-03.
+
+### Referências efetivamente consultadas
+
+| Referência | Dados | Uso nesta execução |
+|---|---|---|
+| GLOCK G19 Gen5, dados técnicos oficiais ([us.glock.com](https://us.glock.com/en/products/law-enforcement/pistols/g19-gen5), consultado em 26/11/2026) | 185 mm comprimento total; 174 mm slide; 34 mm largura da armação; 25,5 mm largura do slide; 128 mm altura com carregador; 153 mm linha de mira; 70 mm distância do gatilho; cano 102 mm | Linguagem de seções do punho (largura de armação, distância do gatilho, altura com carregador) e ordem silhueta→volumes→material |
+| Produção atual `weapon:pistol` (GLB merged, HEAD 4f3eefc) | AABB 0,393 × 0,3875 × 0,1188 m (Z × Y × X); 2812 triângulos; 1498 vértices; 47 peças; grupos 23/22/2 | Envelope e interfaces preservados; comparação antes/depois |
+| `scripts/player.gd` | `viewmodel_scale` do pistol 0,95 em `VIEWMODEL_PROFILE`; poses de repouso/ADS por `get_viewmodel_rest_pose()` | Escala de apresentação do viewmodel, separada da dimensão física |
+| `scripts/weapon_materials.gd` + 4 PNGs de produção | metal 0,48 metallic/0,59 roughness/normal 0,38; polímero 0,06/0,86/0,24; `COLOR_0` × projeção triplanar | Camada de material exigida pelo padrão, sem trocar texturas neste ID |
+
+Não foi usada geometria, textura ou marca das referências. Nenhuma referência licenciada de foto de superfície foi necessária porque a demonstração usa as texturas de produção já existentes; acabamento PBR autoral permanece em 02-04/02-05.
+
+### Escala e proporções
+
+- Unidade canônica: metro, +Y para cima, frente −Z (contrato v1).
+- Escala física × apresentação: o GLB é um viewmodel com escala de apresentação 0,95 aplicada em `player.gd`; a razão comprimento fonte/referência é 0,393/0,185 ≈ 2,12 e a de altura 0,3875/0,128 ≈ 3,03. A silhueta é, portanto, estilizada para a câmera FPS e **não** atende à tolerância de 5% do padrão. Corrigir proporções e silhuetas é o ID 02-03; este ID não redimensiona o modelo porque isso quebraria os encaixes, as poses e o enquadramento pendente em 01-03.
+- Punho: envelope mundial 0,0874 × 0,2604 × 0,1627 m (X × Y × Z, incluindo a inclinação de −0,28 rad), seção de palm swell de 0,087 × 0,110 m. Permanece dentro do envelope anterior (desvio máximo de 3,5 mm no limite traseiro, tolerância declarada de 5 mm para interfaces).
+
+### Regra híbrida aplicada
+
+| Camada | Rota | Peças desta demonstração |
+|---|---|---|
+| Volumes maquinados | Primitivas paramétricas legadas (`chamfer`, `ring`, `cylinder`, `rod`) | slide, slide_top, frame, dust_cover, grip_heel, magazine_heel, sights, serrilhas, ejeção, guarda do gatilho, boca |
+| Superfície esculpida | Biblioteca central `tools/asset_pipeline/parametric/organic.py`: `OrganicLoft` + `LoftSection` + `build_organic`, convertidos sem reprocessar vértices | punho (`grip`), 1200 triângulos, 602 vértices, malha fechada com volume positivo |
+| Detalhe secundário | Serrilhas do slide e painéis do punho existentes | mantidos, sem peças soltas |
+| Material | `COLOR_0` + material triplanar de produção (metal/polímero) | punho com cor de polímero; nenhuma textura nova |
+
+O `OrganicLoft` fornece seções com raio, centro e twist; a inclinação e a translação são aplicadas uma única vez antes da montagem, mantendo a fonte editável única. `Gun.add_parametric()` recusa malha aberta ou de volume não positivo.
+
+### Resultados medidos (fonte → export)
+
+| Métrica | Antes (HEAD) | Depois | Limite |
+|---|---:|---:|---|
+| Peças / grupos | 47 (23 body, 22 action, 2 mag) | 47 (23/22/2) | contrato preservado |
+| Vértices / triângulos do merged | 1498 / 2812 | 2068 / 3952 | 18000 LOD0 |
+| Triângulos do punho | 60 | 1200 | — |
+| AABB (X × Y × Z) | 0,1188 × 0,3875 × 0,3965 | 0,1188 × 0,3875 × 0,3930 | interface ±0,005 m |
+| Contato punho↔frame / punho↔heel | sim / sim | sim / sim | obrigatório |
+| Validação `validate_gltf` (weapon) | — | `pass_with_unknowns`, 0 erros, 0 avisos, 1 slot | sem falha impeditiva |
+| Duas gerações independentes | — | 4/4 GLBs byte a byte idênticos | determinístico |
+| Atributos do GLB | POSITION, COLOR_0, NORMAL, TANGENT | idem | sem NORMAL_MISSING |
+
+Hashes SHA-256 entregues: `pistol.glb` a9823dd41d4adc91206d2cd3d3f2cbfa90ffd4651b032ea8ec535ef9d1a3bcdd (139884 bytes), `pistol_body.glb` 5a6a10c7bf26f0cdcf20ff9d07e0f3c362d4ab8f342fa0914cb5cdc689bbee07 (85500), `pistol_action.glb` 93c65fdadc609586cea42f56f06bc8a894e752ac0eb525e877094278feb8f914 (51680), `pistol_mag.glb` 107364505cd8c6b51cecdaba5f47027ff06f2daef941d803a4c276bd3f099d48 (5792). O action/mag não contêm o punho; foram reexportados pelo mesmo pipeline e diferem do HEAD apenas no ruído de arredondamento de normais (≤ 1,2e-17), sem mudança de posições, índices ou cores.
+
+### Inspeção visual realizada
+
+Asset Studio (WebGL real, Playwright/SwiftShader, 1280×800) com o GLB original de produção: perspectiva, frontal, direita, superior, wireframe e sólido, antes e depois. O HUD do Studio confirmou `assets/models/pistol.glb`, SHA-256 a9823dd4…, 2068 vértices / 3952 triângulos, 1 material/slot, AABB 0,1188 × 0,3875 × 0,393; zero requisições externas e zero erros de página. Observação: o punho passou de caixa octogonal facetada para superfície contínua com palm swell, backstrap arredondado e afunilamento na base; serrilhas continuam assentadas na superfície.
+
+Godot 4.4.1 Compatibility (OpenGL 3.3, AMD Radeon iGPU, 1280×720) com `scenes/main.tscn` real, câmera do jogador e poses repouso, ADS e recarga a 50%, antes e depois. Observação: sem fresta entre punho e frame ou base do carregador, sem peça flutuante, sem transparência indevida e sem recorte relevante da arma; a empunhadura e a mira permanecem nas poses originais. A comparação está em `docs/qa/02-01/godot.html`.
+
+### Portão de 13 passos
+
+1. Referências: tabela acima, consultadas em 26/11/2026.
+2. Proporções/dimensões: envelope, seções e tolerância declarados; desvio de silhueta atribuído a 02-03.
+3. Silhueta: loft substitui a caixa facetada; contatos preservados.
+4. Detalhes: serrilhas/painéis mantidos; nenhuma peça nova solta.
+5. Materiais: `COLOR_0` + triplanar de produção; sem textura nova.
+6. Exportação: `python tools/build_weapons.py --only pistol`, dois destinos temporários idênticos.
+7. Verificações: `test_hybrid_grip` (6), `test_weapon_surface_integrity` (7), `test_sniper_sight_geometry` (3), `test_validate_gltf` (17) e `validate_gltf --category weapon`.
+8. Studio aberto: sim, arquivo real.
+9–10. Inspeção e correção na fonte: revisão visual acima; nenhum defeito impeditivo encontrado, nenhuma correção adicional necessária nesta rodada.
+11. Integração: GLBs de produção substituídos somente para o pistol.
+12. Godot aberto e testado: sim, três poses.
+13. Evidências: esta seção, `docs/VALIDACAO_02_01_PADRAO_HIBRIDO.md` e `docs/qa/02-01/`.
+
+### Limites e débitos
+
+- 02-01 demonstra o padrão em **um** asset; remodelar as oito armas continua em 02-02 e proporções/silhuetas em 02-03.
+- Não há aprovação de materiais PBR autorais (02-04) nem texturas/normal maps próprios (02-05); a demonstração usa os mapas de produção existentes.
+- Nenhuma meta de FPS ou benchmark: o merged usa 24,7% do teto provisório LOD0. LOD1/LOD2 e colisores não foram produzidos para o punho.
+- O viewmodel é estilizado (escala de apresentação 0,95) e não representa a escala física da referência; não confundir com homologação dimensional.
+- A revisão visual cobre repouso, ADS e recarga do pistol; não cobre as demais armas, troca de arma, acessórios, mãos/rig ou ações de gameplay.
+- Não houve execução de novo CI (GitHub Actions sem cota); nenhum instalador ou runner redundante foi criado.
+
+Aceite técnico e visual do 02-01 registrado nesta revisão; a homologação artística de produção das demais armas permanece nos IDs seguintes.

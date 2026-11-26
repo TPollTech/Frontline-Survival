@@ -1,0 +1,69 @@
+{
+  "tag": "before",
+  "studio": "http://127.0.0.1:8812",
+  "variant": "assets/models/pistol.glb",
+  "resource": "assets/models/pistol.glb",
+  "sha256": "cfcb490278f29b1268269405162b722c554969e2ecaef2f12978423502135f6b",
+  "external": [],
+  "errors": [],
+  "captures": [
+    {
+      "path": "C:/Users/enzot/AppData/Local/Temp/studio-hybrid/before-perspective.png",
+      "sha256": "c6fe7203da8062757a8beaebb61662aff7acdd3c3e146f12c4b5d9a46f1b1a5c",
+      "bytes": 89401
+    },
+    {
+      "path": "C:/Users/enzot/AppData/Local/Temp/studio-hybrid/before-right.png",
+      "sha256": "b11a1b8ae7fa689a4e65b004c202f720f5af00a334cfe955e24aca00b7ebdd3e",
+      "bytes": 63538
+    },
+    {
+      "path": "C:/Users/enzot/AppData/Local/Temp/studio-hybrid/before-front.png",
+      "sha256": "fe1af166dc3eb78f191500532cc9fc02e91808aa4b7bc94c1b6d9884f86fdc15",
+      "bytes": 43846
+    },
+    {
+      "path": "C:/Users/enzot/AppData/Local/Temp/studio-hybrid/before-top.png",
+      "sha256": "7ca951e20354c41641965f6701d952d7b596d8e47feb409f787b8c3aa0224cd0",
+      "bytes": 34971
+    },
+    {
+      "path": "C:/Users/enzot/AppData/Local/Temp/studio-hybrid/before-wireframe-right.png",
+      "sha256": "a3cafc7c0b148d6f28bd35d7e2863b0f92fe5450ac8bc285099051da77104fe9",
+      "bytes": 33840
+    },
+    {
+      "path": "C:/Users/enzot/AppData/Local/Temp/studio-hybrid/before-solid-right.png",
+      "sha256": "2c15de2ad7a11ac7dccbfbe20e97fcaf0d594cd2899a7a5aef19c4a1465d4561",
+      "bytes": 66875
+    }
+  ],
+  "details": [
+    "ID",
+    "weapon:pistol",
+    "Categoria",
+    "weapon",
+    "Uso",
+    "legacy_active",
+    "Fonte",
+    "tools/build_weapons.py",
+    "Arquivo",
+    "assets/models/pistol.glb",
+    "SHA-256",
+    "cfcb490278f29b1268269405162b722c554969e2ecaef2f12978423502135f6b",
+    "Runtime",
+    "not_observed_current",
+    "Homologação",
+    "Não homologado",
+    "Procedência",
+    "original project generator; explicit license file not found"
+  ],
+  "metrics": [
+    "Instâncias de malha: 1",
+    "Vértices / triângulos instanciados: 1498 / 2812",
+    "Vértices / triângulos únicos: 1498 / 2812",
+    "Materiais / slots: 1 / 1",
+    "Texturas: 0",
+    "AABB atual (m, X × Y × Z): 0.1188 × 0.3875 × 0.39651"
+  ]
+}

@@ -1,0 +1,77 @@
+{
+  "task": "02-01",
+  "asset": "weapon:pistol",
+  "source": "tools/build_weapons.py#pistol+hybrid_pistol_grip",
+  "library": "tools/asset_pipeline/parametric/organic.py#OrganicLoft",
+  "before": {
+    "vertices": 1498,
+    "triangles": 2812,
+    "aabb_m": [
+      0.1188,
+      0.3875,
+      0.3965
+    ],
+    "grip_triangles": 60
+  },
+  "after": {
+    "vertices": 2068,
+    "triangles": 3952,
+    "aabb_m": [
+      0.1188,
+      0.3875,
+      0.393
+    ],
+    "grip_triangles": 1200,
+    "grip_vertices": 602,
+    "grip_volume_m3": 0.001692,
+    "parts": 47,
+    "groups": {
+      "body": 23,
+      "action": 22,
+      "mag": 2
+    },
+    "weapon_lod0_budget": 18000,
+    "budget_ratio": 0.2196,
+    "contacts": {
+      "grip_frame": true,
+      "grip_heel": true
+    }
+  },
+  "outputs": {
+    "pistol": {
+      "bytes": 139884,
+      "sha256": "a9823dd41d4adc91206d2cd3d3f2cbfa90ffd4651b032ea8ec535ef9d1a3bcdd"
+    },
+    "pistol_body": {
+      "bytes": 85500,
+      "sha256": "5a6a10c7bf26f0cdcf20ff9d07e0f3c362d4ab8f342fa0914cb5cdc689bbee07"
+    },
+    "pistol_action": {
+      "bytes": 51680,
+      "sha256": "93c65fdadc609586cea42f56f06bc8a894e752ac0eb525e877094278feb8f914"
+    },
+    "pistol_mag": {
+      "bytes": 5792,
+      "sha256": "107364505cd8c6b51cecdaba5f47027ff06f2daef941d803a4c276bd3f099d48"
+    }
+  },
+  "determinism": "two independent generations byte-identical for 4/4 GLBs",
+  "validation": "pass_with_unknowns, 0 errors, 0 warnings, 1 material slot",
+  "inspections": {
+    "asset_studio": "docs/qa/02-01/comparativa.html",
+    "godot": "docs/qa/02-01/godot.html",
+    "studio_engine": "Chromium/SwiftShader WebGL",
+    "godot_engine": "4.4.1-stable Compatibility OpenGL 3.3 AMD Radeon iGPU",
+    "resolutions": [
+      "1280x800 Studio viewport",
+      "1280x720 Godot"
+    ]
+  },
+  "limits": [
+    "one asset only",
+    "no LOD1/LOD2 or colliders authored",
+    "viewmodel presentation scale 0.95 not physical scale",
+    "no PBR/textures authored",
+    "no CI dispatched (quota)"
+  ]
+}

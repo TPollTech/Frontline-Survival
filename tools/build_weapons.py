@@ -1,6 +1,15 @@
 """Generate original lightweight 3D weapon viewmodels (CC0 not required: project original).
 Requires trimesh + numpy. Dimensions in metres, forward direction -Z.
 Visual design is stylized tactical and deliberately NOT a copy of MW3 meshes.
+
+Hybrid authoring (02-01): machined volumes come from the legacy chamfer/ring
+primitives, while sculpted surfaces are built by the central parametric library
+(tools/asset_pipeline/parametric) and only converted to trimesh for assembly.
+
+Usage:
+    python tools/build_weapons.py                  # all eight production weapons
+    python tools/build_weapons.py --only pistol    # one weapon into assets/models
+    python tools/build_weapons.py --only pistol --out TMPDIR   # reproducible check
 """
 from pathlib import Path
 import numpy as np
@@ -59,6 +68,25 @@ class Gun:
         self.count += 1
         self.scene.add_geometry(mesh, geom_name=f'{name}_{self.count:03d}', node_name=f'{name}_{self.count:03d}')
         self.groups[self._group_for(name)].append(mesh)
+    def add_parametric(self, spec, color, name='part', matrix=None, offset=None):
+        """Add a mesh produced by the central parametric library.
+
+        The IR mesh owns the surface definition; conversion here preserves every
+        vertex and triangle index exactly, so the source of the geometry remains
+        the library recipe instead of a second, preview-only model.
+        """
+        mesh = trimesh.Trimesh(vertices=np.array(spec.vertices, dtype=float),
+                               faces=np.array(spec.triangles, dtype=np.int64),
+                               process=False)
+        if not mesh.is_watertight or mesh.volume <= 0:
+            raise ValueError(f'{name}: parametric mesh is not a closed outward solid')
+        if matrix is not None:
+            mesh.apply_transform(matrix)
+        if offset is not None:
+            mesh.apply_translation(offset)
+        self.add(mesh, color, name)
+        return mesh
+
     def chamfer(self, pos, dims, color, bevel=0.012, angles=(0,0,0), name='shell'):
         # Octagonal XZ outline with slightly inset top/bottom rings, so edges catch light.
         w,h,d = dims; b = min(bevel,w*.20,h*.22,d*.20)
@@ -224,6 +252,43 @@ class Gun:
         print(name, self.count, len((OUT/f'{name}.glb').read_bytes()),
               {group: len(parts) for group, parts in self.groups.items()})
 
+def hybrid_pistol_grip(g):
+    """Sculpt ergonomic pistol grip with the central parametric library.
+
+    Reference for the section language: published compact 9 mm pistol data
+    (185 mm overall, 128 mm height with magazine, 34 mm frame width, 70 mm
+    trigger distance) in docs/PADRAO_ARTISTICO_3D.md. The absolute envelope is
+    inherited from the production part, not rescaled here, so frame, heel and
+    viewmodel contracts stay fixed; the reference guides the palm swell,
+    backstrap rake and section count. Proportion targets belong to 02-03. The
+    loft replaces the former octagonal chamfer box while the machined slide,
+    frame and furniture keep their original recipes: that split is the hybrid
+    rule of the standard.
+    """
+    try:
+        from asset_pipeline.parametric.organic import (OrganicLoft, LoftSection,
+                                                      build_organic)
+    except ModuleNotFoundError:  # imported as tools.build_weapons
+        from tools.asset_pipeline.parametric.organic import (OrganicLoft, LoftSection,
+                                                             build_organic)
+    # Local +Y runs from the magazine heel to the beavertail. Sections bulge at
+    # the palm swell and taper at the butt; the centre offset adds the rake
+    # that a moulded polymer grip carries into the frame.
+    sections = (
+        LoftSection(-0.1225, (0.0, 0.0060), (0.0300, 0.0380)),
+        LoftSection(-0.0950, (0.0, 0.0030), (0.0400, 0.0490)),
+        LoftSection(-0.0550, (0.0, 0.0000), (0.0435, 0.0550)),
+        LoftSection(-0.0150, (0.0, -0.0020), (0.0435, 0.0540)),
+        LoftSection(0.0300, (0.0, -0.0040), (0.0435, 0.0520)),
+        LoftSection(0.0800, (0.0, -0.0010), (0.0435, 0.0540)),
+        LoftSection(0.1225, (0.0, 0.0020), (0.0437, 0.0560)),
+    )
+    loft = OrganicLoft('weapon_pistol_grip', sections, radial_segments=24,
+                       steps_per_interval=4)
+    g.add_parametric(build_organic(loft), 'polymer', 'grip',
+                     matrix=euler_matrix(-.28, 0, 0), offset=(0, -.123, .012))
+
+
 def hardware(g,zfront):
     # Open bore and minimal flash hider at forward end.
     g.ring((0,.018,zfront), .034,.019,.065,'steel','front_muzzle')
@@ -236,7 +301,7 @@ def pistol():
     g.chamfer((0,.096,-.105),(.082,.022,.315),'steel',.009,name='slide_top')
     g.chamfer((0,.008,-.095),(.105,.050,.30),'black',.009,name='frame')
     g.chamfer((0,-.012,-.207),(.092,.045,.122),'polymer',.010,name='dust_cover')
-    g.chamfer((0,-.123,.012),(.087,.245,.112),'polymer',.019,angles=(-.28,0,0),name='grip')
+    hybrid_pistol_grip(g)
     g.chamfer((0,-.227,.047),(.087,.037,.111),'black',.009,name='grip_heel')
     g.chamfer((0,-.154,.040),(.066,.179,.076),'black',.006,angles=(-.28,0,0),name='pistol_magazine')
     g.chamfer((0,-.257,.049),(.088,.018,.104),'polymer',.005,name='magazine_heel')
@@ -480,5 +545,19 @@ def sentinela():
     g.fixed_sight_bridge('barrel', ('sight_post',), 'fixed_front_bridge')
     g.save('sentinela')
 
+RECIPES = {'pistol': pistol, 'smg': smg, 'rifle': rifle, 'shotgun': shotgun,
+           'lmg': lmg, 'sniper': sniper, 'bolt_sniper': bolt_sniper,
+           'sentinela': sentinela}
+
 if __name__=='__main__':
-    pistol();smg();rifle();shotgun();lmg();sniper();bolt_sniper();sentinela()
+    import argparse
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--only', choices=sorted(RECIPES),
+                        help='rebuild a single weapon instead of the whole arsenal')
+    parser.add_argument('--out', help='write GLBs to this directory instead of assets/models')
+    args = parser.parse_args()
+    if args.out:
+        OUT = Path(args.out).resolve()
+        OUT.mkdir(parents=True, exist_ok=True)
+    for key in ([args.only] if args.only else RECIPES):
+        RECIPES[key]()
