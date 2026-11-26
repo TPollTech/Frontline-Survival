@@ -14,7 +14,7 @@ def main():
         raise ValueError("stage outside repository")
     out.mkdir(parents=True,exist_ok=True)
     if any(out.iterdir()):raise ValueError("stage must be empty")
-    runtime=json.loads(Path(args.runtime).read_text()) if args.runtime else None
+    runtime=json.loads(Path(args.runtime).read_text(encoding="utf-8")) if args.runtime else None
     catalog=build(root,runtime=runtime)
     for name,rec in catalog["resources"].items():
         if rec["status"]=="missing":continue
@@ -24,7 +24,7 @@ def main():
         shutil.copyfile(src,dst)
         if fingerprint(out,name)["sha256"]!=rec["sha256"]:raise ValueError("copy mismatch "+name)
     studio=root/"tools/asset_studio"
-    for name in ("index.html","studio.css","studio.js","lighting.js","camera-navigation.js","inspection.js","runtime-composition.js","serve_offline.py"):shutil.copyfile(studio/name,out/name)
+    for name in ("index.html","studio.css","studio.js","lighting.js","camera-navigation.js","inspection.js","runtime-composition.js","serve_offline.py","ABRIR_STUDIO.bat"):shutil.copyfile(studio/name,out/name)
     from generate_hdri import write
     write(out)
     three=studio/"node_modules/three"
