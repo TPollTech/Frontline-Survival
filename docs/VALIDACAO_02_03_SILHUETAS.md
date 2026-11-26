@@ -75,3 +75,22 @@ Comparados os 31 GLBs reais de `3461e5ba191fa46f861d17a34690a7816465d3ef` (refin
 31/31 multiconjuntos de triângulos orientados exatamente iguais, 31/31 contagens de vértices iguais. A integração PBR não alterou os contornos e grupos geométricos homologados anteriormente. Os 41.422 triângulos das oito versões merged foram comparados, além das variantes de grupos (representações alternativas; não somar como carga simultânea). Isso permite reutilizar a evidência de geometria de 3461e5b, não equivale a nova renderização nem a equivalência de materiais, normais, tangentes, cores ou poses em execução. Não foram verificadas dimensões contra novas referências, nem alteradas fontes ou GLBs nesta sessão.
 
 Ambiente verificado: Chromium presente; Godot, Godot4, Blender e Firefox ausentes do PATH; /mnt/data sem checkout; git ls-remote falhou por DNS. Não foi possível executar o portão de renderização. Permanecem abertas as referências dimensionais e a divergência da pistola já registrada; 02-03 continua parcial. Nenhuma alteração no 02-04 ou 02-05, nenhuma Action ou instalador.
+
+## Comparação dimensional externa
+
+Base ec99f6f. A AABB local dos oito GLBs completos foi medida pela união dos limites POSITION de suas primitivas, em milímetros. Os modelos do jogo são autorais. As referências abaixo servem para conferir ordens de grandeza e orientar proporções externas. As configurações foram escolhidas por classe e pela silhueta geral. Para as sete armas longas, a comparação externa se limita ao comprimento total. Ela não define tolerância para altura ou largura, que continuam registradas para acompanhamento.
+
+| Asset | Modelo digital Z × Y × X (mm) | Referência de comprimento | Razão digital/referência |
+|---|---|---|---:|
+| pistol | 393 × 387,5 × 118,8 | [G19 Gen5](https://us.glock.com/en/products/law-enforcement/pistols/g19-gen5), 185 mm | 2,12 |
+| smg | 1.278,5 × 641,5 × 280 | [SCAR-SC](https://fnherstal.com/app/uploads/technical-data-fn-scar-sc-2.pdf), 653 mm com coronha estendida, proxy para silhueta compacta | 1,96 |
+| rifle | 1.733,5 × 641,66 × 186,5 | [SCAR-L Mk2 STD](https://fnherstal.com/app/uploads/technical-data-fn-scar-l-mk2-2.pdf), 903 mm com coronha estendida | 1,92 |
+| shotgun | 1.977,5 × 466,51 × 234 | [Mossberg 590A1 50774](https://resources.mossberg.com/hubfs/press_releases/Mossberg-Introduces-7-Shot-Versions-of-590A1-and-590-PR-1-4-2016-FINAL.pdf), 39,5 pol. = 1.003,3 mm | 1,97 |
+| lmg | 1.985,5 × 780 × 429,87 | [MINIMI 5.56 Mk3](https://fnherstal.com/app/uploads/sites/2/technical-data-fn-minimi-556-mk3.pdf), 939 mm com coronha estendida | 2,11 |
+| sniper | 2.312,5 × 622,34 × 353,25 | [Springfield M1A Loaded MA9222](https://www.springfield-armory.com/m1a-series-rifles/m1a-loaded-rifles/m1a-loaded-308-rifle/), 44,33 pol. = 1.125,98 mm | 2,05 |
+| bolt_sniper | 2.386 × 518,5 × 290,5 | [Sako TRG 42 A1](https://media.sako.global/image/upload/v1691732877/TRG_22_42_A1_instruction_manual_v1.9_gc6vrx.pdf), 1.204 mm, extremo superior do intervalo publicado | 1,98 |
+| sentinela | 1.787,5 × 380 × 168,25 | [Auto-Ordnance M1 Carbine](https://www.auto-ordnance.com/PDF/Guns-CLASSIC2020.pdf), 35,75 pol. = 908,05 mm | 1,97 |
+
+Na pistola, os 387,5 mm de altura correspondem a 3,03 vezes os 128 mm da referência com carregador. A razão altura/comprimento é 98,6% no GLB e 69,2% na referência. Logo, a escala uniforme conservaria a divergência de proporção. A largura externa total do GLB e a largura de armação de 34 mm da referência têm pontos de medição diferentes.
+
+O ajuste de geometria segue aberto. O envelope é consumido pelo enquadramento, pelas poses e pelo encaixe das mãos. A correção precisa validar a pistola na fonte e reavaliar seus pontos de referência visuais no jogador, inimigos e itens coletáveis, com novas capturas antes de promover a 02-03. Esta comparação não alterou modelos ou arquivos de jogo.
