@@ -75,3 +75,33 @@ Ver [QA_RETESTE_WINDOWS.md](QA_RETESTE_WINDOWS.md): 26/47 passos, 7 falhas, 14 b
 ## Delimitação de aceite revisada (25/11/2026)
 
 A [matriz por ID](CRITERIOS_ACEITE_1_0.md) distingue auditoria da fundação (00-34) de homologação artística de todos os modelos e benchmark de release (02/10-08). Manter cobertura do inventário real, pilotos por categoria, WebGL real, comparação técnica/visual representativa e Godot renderizado na integração. As evidências históricas acima não mudam; falhas impeditivas seguem abertas, débitos não impeditivos têm ID responsável e evidência. Nenhum instalador é gate. Executar apenas testes afetados e integração necessária; não promover ID nesta revisão documental.
+
+
+## Auditoria do portão 00-34 — revisão 9784e4e8f1a5c678080fc2a0ce82a7ae825b7663 (25/11/2026)
+
+Escopo exclusivo 00-34. Comparação remota confirma que a revisão do reteste integrado `7a1d0f05a6c313826ad718b58ddd51f91e154ab6` é ancestral da main consultada e o diff contém apenas docs/CHECKLIST_MESTRE.md e docs/PILOTOS_ASSETS.md. O código, assets, configuração e testes não mudaram nesse intervalo. Portanto os resultados registrados para aquele reteste permanecem pertinentes ao mesmo escopo técnico, não são novas execuções. Consultados AGENTS.md, matriz normativa, checklist, especificação, ASSET_STUDIO.md, PILOTOS_ASSETS.md, LOD_COLISOES_RUNTIME.md, MAPAS_FONTES_CANONICAS.md, RUNTIME_FONTES_CANONICAS.md e QA_RETESTE_WINDOWS.md. As 131 linhas do checklist correspondem em ordem aos 131 IDs da matriz.
+
+### Evidência consolidada (resultados anteriores, não repetidos)
+
+- Godot 4.4.1 Compatibility e Firefox 135/WebGL por software: catálogo com 52 registros e 100 recursos, SHA-256 conferidos, 32 GLBs, 86 árvores reconciliadas e seis composições renderizadas; seis vistas nativas na revisão posterior; diferenças de céu, sombras e shaders documentadas. O erro máximo dos 12 landmarks da câmera de mapa foi 0,0000379106108994165 px. O ensaio focado omitiu o bloco fullscreen que expirou no Xorg virtual; não declarar esse bloco aprovado nessa rodada. Evidências em ASSET_STUDIO.md.
+- 13/13 categorias geométricas de pilotos: 39 GLBs e 39 glTFs, duas gerações equivalentes, 39 importações/renderizações Godot e conciliação Studio, inspeção de 26 vistas LOD0, testes negativos 17/17 e contrato de caminhos/bytes 2/2 em Linux. Não equivale a reteste Windows nem a aprovação artística. Evidência em PILOTOS_ASSETS.md.
+- LOD: 207 transições/raios, 24 contatos e captura posterior de 441 quadros/84 transições, amostragem visual e auditoria de peças estáticas; benchmark representativo Windows Ryzen 7520U já registrado. Hardware-alvo 7530U/iGPU/8 GB e otimização global são 10-01/08, não gate de release nesta fundação.
+- Histórico Windows 95c7ac8: 26/47 passos, 7 falhos, 14 bloqueados. Preservar o relatório bruto; o reteste Linux posterior demonstrou geração de catálogo/pilotos/arsenal com os contratos intactos, mas não reclassifica os 47 passos daquela execução. O instalador universal não é gate da 00-34.
+
+### Dependências obrigatórias
+
+29 de 33 IDs predecessores aceitos no checklist, 4 parciais; 00-34 não pode ser homologada antes de todos os 33.
+
+| ID | Evidência já existente | Falta para o critério revisado |
+|---|---|---|
+| 00-28 | Índice 8 armas/31 GLBs/7 acessórios, 10/10 testes Node, duas reconstruções idênticas à produção, amostras repouso/ADS/recarga. | Corrigir normal/tangente de produção que impede paridade do normal map, reconstruir fonte e inspecionar no Studio/Godot sem alterar gameplay. |
+| 00-29 | Malhas, transforms e estados representativos conciliados; rota editável CC0 no Blender com 65 ossos. | Demonstrar equivalência da deformação/pose skinned capturada, não somente pose de repouso; preservar a fonte e GLB de referência. Não exigir anatomia/IK definitivos. |
+| 00-31 | Layout real 49/49 no Windows, composição mapa real no Firefox, métricas e câmera documentadas. | Reunir evidência por critério de layout/transforms/materiais/colisão/referências e vistas representativas do mapa atual. Verificar equivalência de revisões e preencher apenas lacunas reais. Novos mapas, navegação e benchmark final não bloqueiam este ID por si. |
+| 00-32 | Inventário 86 amostras/24 famílias/188 escopos na captura Windows; catálogo e Studio posteriores funcionaram. | Confirmar registros e escopos atuais dos 13 papéis/10 famílias, estados representativos dos efeitos, nós/hashes/materiais/colisores no Studio/Godot e limites de shader/consulta. Não presumir que abrir seis composições valida todos os papéis. |
+| 00-34 | Fluxo técnico integrado já demonstrado em partes/reteste anterior; cobertura e rastreabilidade documentadas. | Aceite dos quatro IDs acima, conferir fluxo integrado na revisão identificada após as correções, com equivalência dos resultados reutilizados e reteste somente dos pontos afetados. Sem falhas impeditivas ou lacunas silenciosas. |
+
+Débitos posteriores: arte final de armas e mãos (01/02), animações definitivas (04/06), melhorias dos mapas (09), popping amplo e desempenho final (10-01/08), ciclo de vida prolongado/recursos (10-02/05). Duas alocações de 349.524 bytes no shutdown da sonda isolada, registradas em PILOTOS_ASSETS.md, permanecem abertas para investigação de recursos, sem evidência de vazamento durante partida. Se impedirem o fluxo técnico ou forem reproduzidas como erro de produção, tratar como bloqueador; não ocultar warning.
+
+### Validação e decisão desta entrega
+
+Auditoria documental/remota: 131 IDs e 131 critérios na mesma ordem, 29/33 predecessores concluídos, quatro parciais, 00-34 parcial, 31/131 concluídas, 11 parciais e 89 pendentes. Diff do reteste integrado até main verificado (somente dois documentos). Não executados novos testes de Godot, Blender, WebGL ou benchmark, nem repetido QA integral: o portão de dependências ainda não foi satisfeito, e executar outros IDs está fora do escopo solicitado. Sem mudança de código/assets, instalador, runner ou workflow. Nenhum estado promovido. Priorizar 00-28, 00-29, 00-31 e 00-32; depois voltar exclusivamente à 00-34. Etapas 01–10 permanecem bloqueadas até 34/34.
