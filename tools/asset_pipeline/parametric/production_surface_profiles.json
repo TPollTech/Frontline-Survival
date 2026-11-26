@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "status": "candidate_not_applied",
+  "workflow": "metallic_roughness",
+  "color_space": "linear",
+  "base_color_source": "existing_vertex_color",
+  "profiles": {
+    "exposed_metal": {"metallic": 1.0, "roughness": 0.42},
+    "painted_metal": {"metallic": 0.0, "roughness": 0.58},
+    "polymer": {"metallic": 0.0, "roughness": 0.72},
+    "rubber": {"metallic": 0.0, "roughness": 0.88},
+    "wood": {"metallic": 0.0, "roughness": 0.66},
+    "brass": {"metallic": 1.0, "roughness": 0.48}
+  },
+  "alpha_mode": "OPAQUE",
+  "texture_policy": "preserve_existing_until_02_05",
+  "assignment_policy": "explicit_surface_id_not_color_or_node_name"
+}
