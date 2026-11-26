@@ -3,6 +3,7 @@ import argparse, hashlib, json, struct, shutil
 from pathlib import Path
 
 EXPECTED={"fps":("viewmodel:assembly","Primeira pessoa — câmera real"),
+          "player_tps":("viewmodel:assembly","Terceira pessoa — jogador em inspeção"),
           "map_top":("map:campo_de_testes","Mapa completo — superior"),
           "map_overview":("map:campo_de_testes","Mapa completo — perspectiva"),
           "map_collision":("map:campo_de_testes","Colisões reais Godot — diagnóstico"),
@@ -41,6 +42,10 @@ def attach(stage,capture):
             require(sum(context["collision_shape_counts"].values())==context["debug_mesh_count"] and all(len(c["world_basis_origin"])==4 and c["path"] for c in context["collision_shapes"]),"invalid collision transforms")
         if id=="external_character":
             require(context["native_player_tps"] is False and context["visible_mesh_nodes"]>0,"incorrect third person claim")
+        if id=="player_tps":
+            require(context["kind"]=="third_person_player_inspection" and context["camera_is_qa"] is True and
+                    context["native_player_tps"] is False and context["visible_mesh_nodes"]>0 and
+                    bool(context["player_path"]) and context["body_parent"]==context["player_path"],"invalid TPS evidence")
         records.append({**r,"label":label,"resource":"runtime-views/"+r["file"],"sha256":hashlib.sha256(data).hexdigest(),"bytes":len(data),"fidelity":"actual_godot_frame","approved":False})
     out.mkdir()
     for r in records:

@@ -196,6 +196,26 @@ func _run() -> void:
     if not ok:
         quit(1)
         return
+    # QA body uses the existing skinned humanoid attached to the real player.
+    # The production player continues to use the first-person rig.
+    ally.hide()
+    var player_visual: Node3D = load("res://scripts/quaternius_soldier_visual.gd").new()
+    p.add_child(player_visual)
+    var player_meshes: Array[MeshInstance3D] = []
+    _meshes(player_visual, null, player_meshes)
+    if not player_visual.get("valid") or player_meshes.is_empty():
+        push_error("RUNTIME_VIEW_FAIL missing skinned player inspection body")
+        quit(1)
+        return
+    inspect.global_position = p.to_global(Vector3(1.35, 1.25, 3.9))
+    inspect.look_at(p.to_global(Vector3(0, -0.35, -1.8)), Vector3.UP)
+    ok = await _capture("player_tps", "viewmodel:assembly", inspect,
+        {"kind":"third_person_player_inspection", "camera_is_qa":true, "native_player_tps":false,
+         "player_path":str(p.get_path()), "body_parent":str(player_visual.get_parent().get_path()),
+         "visible_mesh_nodes":player_meshes.size()})
+    if not ok:
+        quit(1)
+        return
     var report := FileAccess.open(output.path_join("views.json"),FileAccess.WRITE)
     if report == null:
         quit(1)

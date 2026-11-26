@@ -25,6 +25,15 @@ export function measureModel(root){
  return {meshes,vertices,triangles,uniqueVertices,uniqueTriangles,materials:materials.size,materialSlots:slotsCount,textures:textures.size,uvMeshes,normalMeshes,dimensions:box.isEmpty()?null:xyz(box.getSize(new THREE.Vector3())),min:box.isEmpty()?null:xyz(box.min),max:box.isEmpty()?null:xyz(box.max)};
 }
 
+// Authored inspection motion around the original local joint orientation.
+export function jointInspectionClip(name, joint, axis, radians){
+ const values=[0,radians,0].flatMap(angle=>joint.quaternion.clone()
+  .multiply(new THREE.Quaternion().setFromAxisAngle(axis,angle)).toArray());
+ return new THREE.AnimationClip(name,1,[
+  new THREE.QuaternionKeyframeTrack(joint.uuid+'.quaternion',[0,.5,1],values)
+ ]);
+}
+
 export function createInspection({scene,renderer,camera,viewport}){
  let root=null,asset=null,baseMetrics=null,meshes=[],nodes=[],mats=[],originals=new Map(),rest=new Map(),temporary=new Set(),helpers=[],mixer=null,action=null,clips=[],playing=false,span=1;
  const clock=new THREE.Clock();let reportElapsed=0;
@@ -128,7 +137,7 @@ export function createInspection({scene,renderer,camera,viewport}){
   mats=[...set];mixer=new THREE.AnimationMixer(root);
   fill('material-select',mats.map((m,i)=>[(m.name||m.type)+' #'+(i+1),i]));
   fill('clip-select',[['Sem animação','-1'],...clips.map((c,i)=>[(c.name||'Clip '+i)+' · '+fmt(c.duration)+' s',i])]);
-  fill('node-select',nodes.map((n,i)=>[(n.name||n.type)+' ['+i+']',i]));
+  fill('node-select',nodes.flatMap((n,i)=>!data.poseNodes||data.poseNodes.includes(n)?[[(n.name||n.type)+' ['+i+']',i]]:[]));
   $('inspection-mode').value='textured';$('normals-toggle').checked=false;$('pivots-toggle').checked=false;
   controls.forEach(id=>$(id).disabled=false);$('material-select').disabled=!mats.length;$('clip-play').disabled=true;$('clip-time').disabled=true;$('screenshot').disabled=false;panel.hidden=false;
   showMaterial();drawUV();syncPose();rebuildHelpers();
@@ -159,5 +168,5 @@ export function createInspection({scene,renderer,camera,viewport}){
   },'image/png');
  });
  clear();
- return {attach,clear,tick};
+ return {attach,clear,tick,refreshGeometry(){baseMetrics=measureModel(root);drawUV();rebuildHelpers();}};
 }

@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import {jointInspectionClip} from './inspection.js';
 const require=(ok,msg)=>{if(!ok)throw Error(msg);};
 const hex=async b=>Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',b)),x=>x.toString(16).padStart(2,'0')).join('');
 const decode=s=>Uint8Array.from(atob(s),x=>x.charCodeAt(0));
@@ -99,7 +100,52 @@ export function createRuntimeComposition(catalog){
    }
    require(stats.surfaces===expected.surfaces&&stats.visibleSurfaces===expected.visible_surfaces&&stats.triangles===expected.visible_triangles&&stats.unsupported===expected.unsupported_visible&&stats.skinned===expected.skinned_visible,'Cobertura divergente');
    require(stats.maxMatrixError<1e-5,'Transform divergente');
-   stats.warnings=[...warnings];stats.fidelity='native_surface_arrays_static';return {scene:root,animations:[],stats};
+   const lods=(compositions.registered_world_lods||[]).filter(entry=>entry.sample===id);
+   async function applyLOD(assemblyIndex, levelIndex){
+    const entry=lods[assemblyIndex],level=entry?.levels[levelIndex];
+    require(level&&level.index===levelIndex&&level.part_buffers.length===entry.parts.length,'LOD inválido');
+    const swaps=[];
+    for(const [i,path] of entry.parts.entries()){
+     const meshes=groups.get(path)?.children.filter(child=>child.isMesh);
+     require(meshes?.length===level.part_buffers[i].length,'Peças do LOD divergentes');
+     for(const [j,hash] of level.part_buffers[i].entries())swaps.push([meshes[j],await geo(hash)]);
+    }
+    const triangles=swaps.reduce((sum,[,g])=>sum+g.index.count/3,0);
+    require(triangles===level.assembly_triangles,'Triângulos do LOD divergentes');
+    for(const [mesh,g] of swaps)mesh.geometry=g;
+    return triangles;
+   }
+   const animations=[],poseNodes=[];
+   if(id==='ally'){
+    const elbow=groups.get('AllyVisual/LeftShoulder/Elbow');
+    require(elbow,'Cotovelo real do aliado indisponível');
+    elbow.matrix.decompose(elbow.position,elbow.quaternion,elbow.scale);
+    elbow.matrixAutoUpdate=true;
+    poseNodes.push(elbow);
+    animations.push(jointInspectionClip('Flexão de inspeção · cotovelo do aliado',elbow,new THREE.Vector3(1,0,0),0.55));
+   }
+   const colliders=sample.nodes.filter(n=>n.world&&n.collision&&!n.collision.disabled&&!n.collision.missing);
+   function collisionOverlay(){
+    const overlay=new THREE.Group();
+    const material=new THREE.LineBasicMaterial({color:0x5de5ff,depthTest:false});
+    for(const n of colliders){
+     const shape=n.collision;
+     let solid;
+     if(shape.class==='BoxShape3D')solid=new THREE.BoxGeometry(...shape.size_m);
+     else if(shape.class==='CapsuleShape3D')solid=new THREE.CapsuleGeometry(shape.radius_m,Math.max(0,shape.height_m-2*shape.radius_m));
+     else if(shape.class==='CylinderShape3D')solid=new THREE.CylinderGeometry(shape.radius_m,shape.radius_m,shape.height_m);
+     else if(shape.class==='SphereShape3D')solid=new THREE.SphereGeometry(shape.radius_m);
+     else continue;
+     const outline=new THREE.LineSegments(new THREE.WireframeGeometry(solid),material);
+     solid.dispose();
+     outline.matrix.fromArray(n.world);outline.matrixAutoUpdate=false;outline.renderOrder=100;
+     overlay.add(outline);
+    }
+    if(!overlay.children.length)material.dispose();
+    return overlay;
+   }
+   stats.warnings=[...warnings];stats.fidelity='native_surface_arrays_static';
+   return {scene:root,animations,poseNodes,stats,lods,applyLOD,colliders,collisionOverlay,disposeGeometry:()=>geometry.forEach(g=>g.dispose())};
   }catch(e){geometry.forEach(g=>g.dispose());materials.forEach(m=>m.dispose());textures.forEach(t=>t.dispose());throw e;}
  };
 }

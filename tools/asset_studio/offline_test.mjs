@@ -16,7 +16,7 @@ try{
  assert.equal(await page.locator('#inspection').isVisible(),true);
  assert(JSON.parse(await page.locator('#viewport').getAttribute('data-inspection')).triangles>0);
  const catalog=await (await page.request.get(origin+'/live_catalog.json')).json();
- assert.equal(catalog.runtime_views.count,5);
+ assert.equal(catalog.runtime_views.count,6);
  const map=catalog.assets.find(a=>a.id==='map:campo_de_testes');
  await page.locator('#assets button').filter({hasText:map.id}).first().click();
  await page.locator('#runtime-view').selectOption('map_collision');

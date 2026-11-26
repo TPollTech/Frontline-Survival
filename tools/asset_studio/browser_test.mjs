@@ -157,6 +157,66 @@ if(process.env.REQUIRE_RUNTIME_VIEWS==='1'){
  }
  console.log('STUDIO_RECONCILED_RUNTIME_PASS',catalog.runtime.samples,'samples');
 }
+if(process.env.REQUIRE_RUNTIME_VIEWS==='1'){
+ const selectAsset=id=>page.locator('#assets button[data-asset="'+id+'"]').click();
+ const selectComposition=async id=>{
+  await page.locator('#runtime-sample').selectOption(id);
+  await page.locator('#open-composition').click();
+  await page.waitForFunction(id=>JSON.parse(document.querySelector('#viewport').dataset.composition||'{}').id===id,id);
+ };
+ const viewport=page.locator('#viewport');
+ const inspect=()=>viewport.getAttribute('data-inspection').then(JSON.parse);
+ await selectAsset('viewmodel:assembly');
+ await page.locator('#runtime-view').selectOption('player_tps');
+ await page.waitForFunction(()=>document.querySelector('#viewport').dataset.runtimeView==='player_tps');
+ const tps=catalog.assets.find(a=>a.id==='viewmodel:assembly').runtime_views.find(v=>v.id==='player_tps');
+ assert.equal(tps.context.body_parent,tps.context.player_path);
+ assert.equal(await viewport.getAttribute('data-sha256'),tps.sha256);
+ await page.screenshot({path:dir+'/player-tps.png'});
+
+ await selectAsset('map:campo_de_testes');
+ await selectComposition('map_briefing');
+ await page.locator('#runtime-shapes').check();
+ assert.equal(Number(await viewport.getAttribute('data-collision-shapes')),catalog.runtime_samples.map_briefing.enabled_colliders);
+ const initial=(await inspect()).triangles;
+ const levels=[];
+ for(const index of [1,2,0]){
+  await page.locator('#lod-level').selectOption(String(index));
+  await page.waitForFunction(index=>JSON.parse(document.querySelector('#viewport').dataset.registeredLod||'{}').level===index,index);
+  const row=JSON.parse(await viewport.getAttribute('data-registered-lod'));
+  assert(row.shape);
+  levels.push(row);
+  assert.equal(Number(await viewport.getAttribute('data-collision-shapes')),catalog.runtime_samples.map_briefing.enabled_colliders);
+  await page.screenshot({path:dir+'/registered-lod-'+index+'.png'});
+ }
+ assert(levels[0].triangles>levels[1].triangles&&levels[2].triangles>levels[0].triangles);
+ assert(levels.every(row=>row.shape===levels[0].shape));
+ assert.equal((await inspect()).triangles,initial);
+ await page.locator('#runtime-shapes').uncheck();
+ assert.equal(await viewport.getAttribute('data-collision-shapes'),null);
+ console.log('STUDIO_REGISTERED_LOD_PASS',levels.map(row=>row.triangles));
+
+ async function assertClip(jointName){
+  const node=page.locator('#node-select option').filter({hasText:jointName}).first();
+  await page.locator('#node-select').selectOption(await node.getAttribute('value'));
+  const rest=(await inspect()).pose;
+  await page.locator('#clip-select').selectOption('0');
+  await page.locator('#clip-time').fill('0.5');
+  assert.notDeepEqual((await inspect()).pose,rest);
+  await page.screenshot({path:dir+'/clip-'+jointName.split('/').at(-1)+'.png'});
+  await page.locator('#clip-play').click();
+  await page.waitForFunction(()=>JSON.parse(document.querySelector('#viewport').dataset.inspection).clipTime!==.5);
+  await page.locator('#pose-reset').click();
+  assert.deepEqual((await inspect()).pose,rest);
+ }
+ await selectAsset('character:quaternius_base_male');
+ await page.locator('#state[data-kind=ready]').waitFor();
+ await assertClip('lowerarm_l');
+ await selectAsset('ally:legacy');
+ await selectComposition('ally');
+ await assertClip('LeftShoulder/Elbow');
+ console.log('STUDIO_AUTHORED_INSPECTION_CLIPS_PASS pilot bone and runtime joint');
+}
 const observed=[];
 let lightingEvidence=null,cameraEvidence=null;
 const cameraState=()=>page.locator('#viewport').getAttribute('data-camera').then(JSON.parse);
@@ -303,7 +363,8 @@ if(catalog.runtime_views){
    captures.push(v.id);
   }
  }
- assert.equal(captures.length,5);
+ assert.equal(captures.length,6);
+ assert(captures.includes('player_tps'));
  assert(captures.includes('map_collision'));
  const collision=catalog.assets.flatMap(a=>a.runtime_views||[]).find(v=>v.id==='map_collision');
  assert(collision.context.debug_mesh_count>0&&collision.context.collision_shapes.length===collision.context.debug_mesh_count);

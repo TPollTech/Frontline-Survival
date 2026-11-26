@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 import {createCameraNavigation} from './camera-navigation.js';
 import {createLighting} from './lighting.js';
-import {createInspection} from './inspection.js';
+import {createInspection,jointInspectionClip} from './inspection.js';
 import {createRuntimeComposition} from './runtime-composition.js';
 let compositionBuilder;
 const $=id=>document.getElementById(id);
@@ -33,7 +33,58 @@ async function initRenderer(){
  loop();
 }
 function dispose(root){const geos=new Set(),mats=new Set(),textures=new Set();root.traverse(o=>{if(o.geometry)geos.add(o.geometry);for(const m of [].concat(o.material||[])){mats.add(m);for(const v of Object.values(m))if(v?.isTexture)textures.add(v);}if(o.isSkinnedMesh&&o.skeleton)o.skeleton.dispose();});textures.forEach(t=>t.dispose());mats.forEach(m=>m.dispose());geos.forEach(g=>g.dispose());}
-function clear(){$('compare-composition').disabled=true;$('compare-composition').textContent='Comparar câmera Godot';viewport.querySelector('.composition-comparison')?.remove();delete viewport.dataset.comparison;inspection?.clear();navigation?.clear();$('view').disabled=true;$('zoom-in').disabled=true;$('zoom-out').disabled=true;lighting?.clear();$('grid-scale').textContent='—';if(lighting)viewport.dataset.lighting=JSON.stringify(lighting.diagnostics());if(model){scene.remove(model);dispose(model);model=null;}viewport.querySelectorAll('img,audio').forEach(x=>x.remove());$('reset').disabled=true;delete viewport.dataset.resource;delete viewport.dataset.sha256;delete viewport.dataset.runtimeView;delete viewport.dataset.composition;}
+let activeComposition=null,shapeOverlay=null;
+function clearShapeOverlay(){
+ if(!shapeOverlay)return;
+ scene.remove(shapeOverlay);dispose(shapeOverlay);shapeOverlay=null;
+}
+function showCollisionControls(data){
+ const control=$('runtime-shapes-control'),toggle=$('runtime-shapes'),info=$('runtime-shapes-info');
+ control.hidden=info.hidden=!data.colliders.length;
+ toggle.checked=false;
+ const summary=data.colliders.reduce((counts,n)=>({...counts,[n.collision.class]:(counts[n.collision.class]||0)+1}),{});
+ info.textContent=Object.entries(summary).map(([kind,count])=>kind+': '+count).join(' · ')+' · Shapes ativas da captura, sem consultas físicas.';
+ toggle.onchange=()=>{
+  clearShapeOverlay();
+  if(toggle.checked){
+   shapeOverlay=data.collisionOverlay();
+   scene.add(shapeOverlay);
+   viewport.dataset.collisionShapes=String(shapeOverlay.children.length);
+  }else delete viewport.dataset.collisionShapes;
+ };
+}
+function showRegisteredLOD(data){
+ activeComposition=data;
+ const levels=data.lods.map(row=>row.active_index);
+ const panel=$('registered-lod'),assembly=$('lod-assembly'),level=$('lod-level');
+ panel.hidden=!data.lods.length;
+ assembly.replaceChildren(...data.lods.map((row,index)=>new Option(row.family+' · '+(index+1),index)));
+ function chooseAssembly(){
+  const entry=data.lods[Number(assembly.value)];
+  if(!entry)return;
+  level.replaceChildren(...entry.levels.map(row=>new Option('LOD '+row.index+' · '+row.assembly_triangles+' triângulos',row.index)));
+  level.value=levels[Number(assembly.value)];
+  delete viewport.dataset.registeredLod;
+  $('lod-details').textContent='Distâncias: '+entry.starts_m.join(' / ')+' m · histerese: '+entry.hysteresis_m+' m · colisão: '+(entry.shape?'shape independente existente':'sem bloqueador');
+ }
+ assembly.onchange=chooseAssembly;
+ level.onchange=async()=>{
+  const entry=data.lods[Number(assembly.value)];
+  level.disabled=true;assembly.disabled=true;
+  try{
+   const triangles=await data.applyLOD(Number(assembly.value),Number(level.value));
+   if(activeComposition!==data)return;
+   levels[Number(assembly.value)]=Number(level.value);
+   inspection.refreshGeometry();
+   $('lod-details').textContent='LOD '+level.value+' aplicado · '+triangles+' triângulos · '+(entry.shape?'shape independente: '+entry.shape:'sem bloqueador');
+   viewport.dataset.registeredLod=JSON.stringify({anchor:entry.anchor,level:Number(level.value),triangles,shape:entry.shape});
+   renderer.shadowMap.needsUpdate=true;
+  }catch(e){if(activeComposition===data)$('lod-details').textContent=e.message;}
+  finally{if(activeComposition===data){level.disabled=false;assembly.disabled=false;}else data.disposeGeometry();}
+ };
+ assembly.disabled=false;level.disabled=false;chooseAssembly();
+}
+function clear(){clearShapeOverlay();$('runtime-shapes-control').hidden=$('runtime-shapes-info').hidden=true;delete viewport.dataset.collisionShapes;activeComposition?.disposeGeometry();activeComposition=null;$('registered-lod').hidden=true;delete viewport.dataset.registeredLod;$('compare-composition').disabled=true;$('compare-composition').textContent='Comparar câmera Godot';viewport.querySelector('.composition-comparison')?.remove();delete viewport.dataset.comparison;inspection?.clear();navigation?.clear();$('view').disabled=true;$('zoom-in').disabled=true;$('zoom-out').disabled=true;lighting?.clear();$('grid-scale').textContent='—';if(lighting)viewport.dataset.lighting=JSON.stringify(lighting.diagnostics());if(model){scene.remove(model);dispose(model);model=null;}viewport.querySelectorAll('img,audio').forEach(x=>x.remove());$('reset').disabled=true;delete viewport.dataset.resource;delete viewport.dataset.sha256;delete viewport.dataset.runtimeView;delete viewport.dataset.composition;}
 function fit(){if(model)navigation.reset();}
 function resources(a){return [...new Set([a.preview?.resource,...(a.outputs||[]).map(x=>x.path)].filter(p=>p&&catalog.resources[p]?.status!=='missing'&&catalog.resources[p]))];}
 function renderList(){const q=$('search').value.trim().toLowerCase(),cat=$('category').value;const list=catalog.assets.filter(a=>(!cat||a.category===cat)&&(!q||[a.id,a.category,a.source?.path,...resources(a)].join(' ').toLowerCase().includes(q)));$('count').textContent=list.length+' de '+catalog.assets.length+' registros';$('assets').replaceChildren(...list.map(a=>{const b=document.createElement('button');b.type='button';b.dataset.asset=a.id;b.setAttribute('aria-current',String(a===selected));b.textContent=a.id;const sm=document.createElement('small');sm.textContent=a.category+' · '+(a.runtime_views?.length?'captura Godot disponível':resources(a).length?'arquivo real':a.runtime_samples?.length&&catalog.surface_payload?'composição 3D disponível':'captura pendente');b.append(sm);b.addEventListener('click',()=>select(a));return b;}));}
@@ -75,8 +126,8 @@ $('open-composition').addEventListener('click',async()=>{
   compositionBuilder??=createRuntimeComposition(catalog);
   const data=await compositionBuilder(id);if(token!==request){dispose(data.scene);return;}
   const box=new THREE.Box3();data.scene.updateMatrixWorld(true);data.scene.traverseVisible(n=>{if(n.isMesh&&n.geometry.boundingBox)box.union(n.geometry.boundingBox.clone().applyMatrix4(n.matrixWorld));});if(box.isEmpty()){dispose(data.scene);throw Error('Composição sem geometria visível');}
-  model=data.scene;scene.add(model);const step=lighting.place(model,box);inspection.attach(data,selected);navigation.setBounds(box);
-  for(const k of ['pose-x','pose-y','pose-z','pose-reset'])$(k).disabled=true;row('Pose','Captura estática; articulação desabilitada nesta composição');
+  model=data.scene;scene.add(model);const step=lighting.place(model,box);inspection.attach(data,selected);showRegisteredLOD(data);showCollisionControls(data);navigation.setBounds(box);
+  if(!data.poseNodes.length){for(const k of ['pose-x','pose-y','pose-z','pose-reset'])$(k).disabled=true;row('Pose','Captura estática; articulação desabilitada nesta composição');}
   $('grid-scale').textContent=Number(step.toPrecision(4))+' m / célula';for(const k of ['view','reset','zoom-in','zoom-out'])$(k).disabled=false;
   viewport.dataset.composition=JSON.stringify(data.stats);$('compare-composition').disabled=!(catalog.composition_views||[]).some(v=>v.sample===id);row('Amostra',id);row('Superfícies visíveis',data.stats.visibleSurfaces);row('Triângulos visíveis',data.stats.triangles);row('Limitações',data.stats.warnings.join(' · '));
   state('Composição reconstruída dos buffers Godot','ready');
@@ -160,6 +211,11 @@ async function load(p){
        return dependencyURLs.get(resolved);
      });
      data=await loader.parseAsync(bytes,base);
+     if(p==='assets/characters/quaternius_base_male.glb'){
+      const joint=data.scene.getObjectByName('lowerarm_l');
+      if(!joint?.isBone)throw Error('Osso do piloto indisponível');
+      data.animations.push(jointInspectionClip('Flexão de inspeção · piloto Quaternius',joint,new THREE.Vector3(1,0,0),0.55));
+     }
    } finally {for(const url of objectURLs)URL.revokeObjectURL(url);}
    if(token!==request){dispose(data.scene);return;}
    const box=new THREE.Box3().setFromObject(data.scene,true);if(box.isEmpty()) {dispose(data.scene);throw Error('Modelo vazio');}
