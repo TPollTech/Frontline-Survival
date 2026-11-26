@@ -53,7 +53,7 @@ A matriz normativa [Critérios de aceite 1.0](CRITERIOS_ACEITE_1_0.md) define o 
 
 ## 01 — Correções urgentes
 
-- [ ] Corrigir as iron sights flutuantes das snipers — Código e CI da v0.9.28 aprovados; revisão visual manual pendente.
+- [ ] Corrigir as iron sights flutuantes das snipers — Código e CI da v0.9.28 aprovados; revisão visual manual pendente. Validação 26/11: 6/6 GLBs com geometria/hierarquia preservadas frente a 95c7ac8; 15/15 contatos positivos dos suportes; seis poses históricas Godot com corpo fixo e carregador móvel na recarga. Falta inspeção visual atual e recarga completa em execução; engine indisponível. [Evidências](VALIDACAO_01_01_SNIPERS.md).
 - [ ] Restaurar e validar o ajuste de FOV — Código e release v0.9.29 publicados; revalidar na main atual.
 - [ ] Padronizar o enquadramento de todas as armas — Código e release v0.9.30 publicados; revisão visual manual pendente.
 - [ ] Separar o FOV da câmera do enquadramento das armas — Código e release v0.9.31 publicados; revisão visual manual pendente.
