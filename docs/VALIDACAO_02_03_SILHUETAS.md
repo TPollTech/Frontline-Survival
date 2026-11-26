@@ -56,3 +56,22 @@ A fonte canônica `tools/build_weapons.py` regenerou 31 variantes, 19 com hashes
 - Godot 4.7.2 Compatibility, Mesa llvmpipe em Linux, abriu a cena real com 24 poses por revisão. A lista de poses, os FOVs e as posições dos viewmodels coincidiram antes e depois. A inspeção da folha mostrou as miras nas mesmas posições em ADS e preservou a leitura do conjunto durante as poses de recarga. Na folha estão repouso, ADS e recarga em cada metade, antes à esquerda e depois à direita. [Comparação no Godot](qa/02-03/godot-comparacao.jpg).
 
 Estado parcial. O refinamento local preserva o envelope de apresentação. Ainda falta sanar a divergência da pistola com a referência dimensional do padrão artístico e validar alvos dimensionais específicos para as demais famílias.
+
+## Conciliação geométrica após integração PBR — 26/11/2026
+
+Comparados os 31 GLBs reais de `3461e5ba191fa46f861d17a34690a7816465d3ef` (refinamento de contornos 02-03) e `d47784b905ccb3422a7a251f402e8e320fd6caf1` (main atual). Os 62 arquivos foram recuperados por SHA de revisão via GitHub, decodificados e lidos em memória. Verificados cabeçalho GLB 2.0, tamanho, malha única, ausência de transformações locais explícitas e accessors de posições e índices. Para cada triângulo, os três vértices float32 foram canonicalizados por rotação cíclica, sem inverter winding; ordenação do multiconjunto preserva multiplicidade e ignora a reorganização das primitivas por material. Comparação exata, sem tolerância ou arredondamento das coordenadas.
+
+| Família | Triângulos merged | Triângulos body/action/mag | Slots merged antes/depois | Geometria exata |
+|---|---:|---|---|---|
+| pistol | 3952 | 2412 / 1420 / 120 | 1 / 2 | 4/4 |
+| smg | 4796 | 4616 / 60 / 120 | 1 / 5 | 4/4 |
+| rifle | 6914 | 4854 / 60 / 2000 | 1 / 3 | 4/4 |
+| shotgun | 6472 | 4924 / 1548 / inexistente | 1 / 4 | 3/3 |
+| lmg | 5244 | 5024 / 60 / 160 | 1 / 4 | 4/4 |
+| sniper | 4500 | 4320 / 60 / 120 | 1 / 4 | 4/4 |
+| bolt_sniper | 5228 | 4964 / 144 / 120 | 1 / 3 | 4/4 |
+| sentinela | 4316 | 4220 / 36 / 60 | 1 / 2 | 4/4 |
+
+31/31 multiconjuntos de triângulos orientados exatamente iguais, 31/31 contagens de vértices iguais. A integração PBR não alterou os contornos e grupos geométricos homologados anteriormente. Os 41.422 triângulos das oito versões merged foram comparados, além das variantes de grupos (representações alternativas; não somar como carga simultânea). Isso permite reutilizar a evidência de geometria de 3461e5b, não equivale a nova renderização nem a equivalência de materiais, normais, tangentes, cores ou poses em execução. Não foram verificadas dimensões contra novas referências, nem alteradas fontes ou GLBs nesta sessão.
+
+Ambiente verificado: Chromium presente; Godot, Godot4, Blender e Firefox ausentes do PATH; /mnt/data sem checkout; git ls-remote falhou por DNS. Não foi possível executar o portão de renderização. Permanecem abertas as referências dimensionais e a divergência da pistola já registrada; 02-03 continua parcial. Nenhuma alteração no 02-04 ou 02-05, nenhuma Action ou instalador.
