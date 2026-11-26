@@ -71,3 +71,7 @@ Preparado [QA All-in-One](QA_ALL_IN_ONE.md) para executar os runners existentes 
 ## Evidência Windows recebida — 95c7ac8
 
 Ver [QA_RETESTE_WINDOWS.md](QA_RETESTE_WINDOWS.md): 26/47 passos, 7 falhas, 14 bloqueados; inventário, vistas, LOD, objetos/mapa e importação reais aprovados nos gates executados. Catálogo e WebGL ainda bloqueados. Corrigidos caminhos canônicos, preservação dos bytes e preparado reteste incremental; warnings de normais/tangentes e teste de limpeza permanecem abertos. Nenhum ID promovido.
+
+## Delimitação de aceite revisada (25/11/2026)
+
+A [matriz por ID](CRITERIOS_ACEITE_1_0.md) distingue auditoria da fundação (00-34) de homologação artística de todos os modelos e benchmark de release (02/10-08). Manter cobertura do inventário real, pilotos por categoria, WebGL real, comparação técnica/visual representativa e Godot renderizado na integração. As evidências históricas acima não mudam; falhas impeditivas seguem abertas, débitos não impeditivos têm ID responsável e evidência. Nenhum instalador é gate. Executar apenas testes afetados e integração necessária; não promover ID nesta revisão documental.

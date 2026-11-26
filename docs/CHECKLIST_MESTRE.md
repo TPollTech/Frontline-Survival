@@ -10,6 +10,10 @@ Em cada conversa, consulte a main e reconstrua o painel completo a partir deste 
 
 Antes de alterar o projeto, siga AGENTS.md, confira critérios de aceite e integre a main atual. Registre os testes executados, resultados, limitações e bloqueios. Mantenha em parcial o que ainda requer implementação, validação ou homologação. Atualize apenas os estados sustentados por evidência e verifique o commit remoto. Enquanto o GitHub Actions estiver sem cota, use testes locais e `[skip ci]`. Após cada execução, reenvie o painel integral com todos os IDs e a próxima tarefa recomendada.
 
+### Critérios revisados em 25/11/2026
+
+A matriz normativa [Critérios de aceite 1.0](CRITERIOS_ACEITE_1_0.md) define o aceite verificável de cada um dos 131 IDs, separando fundação operacional (00), correções urgentes (01), produção artística (02), gameplay (03–09) e otimização/lançamento (10). As linhas abaixo preservam evidências e estados históricos literalmente; seus relatos de lacunas não são novos critérios nem transferem aprovação. Quando um relato histórico exigir acabamento de produção ou benchmark final para a fundação, aplicar a matriz: o requisito permanece no ID posterior indicado. Nenhuma tarefa promovida nesta revisão. Priorizar 00-13, 00-17 a 00-21, 00-24/25/27, 00-28 a 00-32 e 00-10, por fim 00-34. O QA Universal é auxiliar opcional. O painel completo deve exibir a matriz por ID e preservar o bloqueio até 34/34.
+
 ## 00 — Fundação do sistema 3D e Asset Studio
 
 - [x] Auditar SNC Energies e SNC Adventures e arquitetura atual do Frontline Survival — Auditoria estática concluída e evidências em [AUDITORIA_ARQUITETURA_3D.md](AUDITORIA_ARQUITETURA_3D.md); não equivale a aprovação visual.

@@ -2,6 +2,10 @@
 
 Solicitação do responsável pelo projeto em 24/11/2026. Estado: requisitos aprovados para planejamento; implementação e homologação pendentes. Aplica-se a **todo o conteúdo tridimensional**, sem exceção: armas e acessórios, personagens, mãos, roupas, equipamentos, NPCs, aliados, objetos, vegetação, veículos, construções, estações, terreno, mapas completos, cenas compostas e geometria criada em runtime. Preservar a jogabilidade atual e migrar por lotes verificáveis.
 
+## Delimitação de aceite por etapa (25/11/2026)
+
+A [matriz revisada de aceite](CRITERIOS_ACEITE_1_0.md) é normativa para encerramento dos IDs. Os requisitos funcionais desta especificação permanecem: na 00 demonstrar biblioteca/contratos, Studio utilizável com recursos reais, pilotos, migração técnica e paridade no Godot; perfeição artística, rigs/IK definitivos e novas animações de produção nas etapas 01/02/04/06/09; otimização integral e benchmark final no hardware-alvo em 10-01 a 10-08. Orçamentos da 00 são provisórios, com verificação técnica e medição representativa, não aprovação de desempenho de release. Não reduzir cobertura do catálogo ou ocultar falhas impeditivas. A revisão visual de cada modelo alterado continua obrigatória; evidência histórica só vale no escopo comprovadamente equivalente. QA All-in-One é ferramenta opcional, não produto a homologar. 00-34 exige fluxo integrado real e 00-01 a 00-33 aceitos.
+
 ## Objetivo e referências
 
 Criar uma biblioteca profissional, centralizada, reutilizável e extensível de modelagem procedural paramétrica, inspirada nos projetos [SNC Energies](https://github.com/TPollTech/snc-energies) e [SNC Adventures](https://github.com/TPollTech/SNC-Adventures), evoluída para um FPS com gráficos realistas, sem copiar limitações geométricas ou estética Minecraft.

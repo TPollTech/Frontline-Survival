@@ -2,6 +2,10 @@
 
 Base 3d323a44e008c49489a8f79966bba120865a4b49. Escopo de entrega: preparar execução local unificada, não homologar os assets. Bloqueio confirmado nesta sessão: git ls-remote falhou por DNS, Godot, Blender e PowerShell ausentes; Python 3.13.5 e Node 22 disponíveis. Não é possível montar e executar aqui um bundle integral Windows.
 
+## Política de uso revisada (25/11/2026)
+
+O inicializador é auxiliar opcional; não é critério de aceite da etapa 00 e não constitui produto independente. Consulte [critérios por ID](CRITERIOS_ACEITE_1_0.md). Reutilize runners existentes, evidências equivalentes e testes focados; execute integração real quando exigida. Não repetir o pacote completo por rotina nem desenvolver outro instalador para encerrar a fundação. Bloqueios do ambiente precisam ser relatados; não equivalem a falhas do gameplay nem autorizam aprovação sem teste. O histórico abaixo permanece inalterado.
+
 ## Uso
 
 Gerar o inicializador na raiz do checkout limpo integrado: `python tools/qa_all_in_one/make_zip.py CAMINHO_EXTERNO.zip`. ZIP contém BAT, PowerShell, instruções e SHA fixado. Extrair em pasta gravável e executar TESTAR_TUDO.bat. O bootstrap busca main, verifica que o SHA fixado é ancestral de origin/main, usa checkout detached, baixa ferramentas portáteis de URLs oficiais e prepara venv. Git/Python 3.11, se ausentes, via winget com os termos aceitos pelo instalador; pode exigir permissões/autenticação no Git. Node 22.16.0, Godot 4.4.1, Blender 3.0.1, Chromium Playwright, Three.js e dependências do arsenal (numpy 2.2.6, trimesh 4.11.1, scipy 1.15.3, versões candidatas). A primeira execução requer internet e espaço livre; não é pacote offline nem executável de lançamento. Não foram verificados downloads nem checksums dos distribuidores nesta sessão. O BAT usa ExecutionPolicy Bypass apenas no processo filho, não altera política persistente.

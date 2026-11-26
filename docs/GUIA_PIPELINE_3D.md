@@ -2,6 +2,8 @@
 
 25/11/2026. Referência: a7342f5198395ad4ba7dede0768c67ded7c98d65. Este guia consolida a operação atual; complementa [AGENTS.md](../AGENTS.md), [especificação obrigatória](ASSET_STUDIO_SPEC.md), [contrato v1](ARQUITETURA_ASSET_PIPELINE.md) e [Checklist Mestre](CHECKLIST_MESTRE.md). Os demais documentos mantêm histórico por revisão. Não confundir evidência histórica, código implementado e homologação da revisão atual. Actions sem cota nesta entrega: não disparar workflows; alterações justificadas na main com [skip ci], sem force push.
 
+> Política de aceite de 25/11/2026: [matriz por ID](CRITERIOS_ACEITE_1_0.md). Os comandos são ferramentas reutilizáveis, não roteiro obrigatório completo para toda tarefa. Fundamento técnico e piloto exigem medições representativas; benchmark final no hardware-alvo e otimização integral pertencem à etapa 10. Manter inspeção real e rastreabilidade dos modelos alterados. Evidência histórica não é nova execução.
+
 ## 1. Arquitetura e fontes
 
 Existem duas rotas de produção, com uma única fonte verdadeira por asset:
