@@ -51,3 +51,20 @@ Aceite 02-01 requer todos os portões demonstrados em um asset de produção, al
 ## Evidências e limites desta revisão
 
 Leitura remota de AGENTS.md, checklist, critérios, especificação, guia, arquitetura, auditoria integrada, tools/build_weapons.py, arsenal_sources.mjs e lod.py. Conferência documental de caminhos, critérios e preservação dos IDs. Sem execução nova de Godot, WebGL, Blender ou exportação; nenhuma alteração de malha, material, gameplay ou catálogo. Sem aprovação visual ou nova captura. Estado 02-01 permanece parcial; a demonstração no rifle de produção é o próximo passo obrigatório.
+
+## Auditoria binária focal do piloto — 26/11/2026
+
+Revisão consultada: 0b223d0bcb304a45d5f0dfdca7bd45168756fde0. ID estável weapon:rifle, conciliado com o manifesto histórico apenas para identificação de caminhos e fonte; não usar seus hashes históricos como hashes atuais. Leitura direta dos quatro GLBs por GitHub em base64 e decodificação dos chunks JSON/BIN no ambiente V8. Inspeção de dados, não renderização.
+
+| Arquivo em assets/models/ | Blob Git atual | Vértices | Triângulos | AABB local XYZ (unidades do arquivo) |
+|---|---|---:|---:|---|
+| rifle.glb | 20497430e50b2a1333377a4443a60128d83d110b | 2459 | 4634 | 0.186500 × 0.641658 × 1.733500 |
+| rifle_body.glb | f390bb59cadba80bddfc96adc89de8788f72ff65 | 1363 | 2574 | 0.168000 × 0.477707 × 1.733500 |
+| rifle_action.glb | f71a87e666462ea8a391ce6076b868baf8cfcf23 | 32 | 60 | 0.026000 × 0.023000 × 0.069000 |
+| rifle_mag.glb | 92d72af7d3b79e8cbb9bf6ace4d1450f2d5561c2 | 1064 | 2000 | 0.083000 × 0.408658 × 0.280873 |
+
+Quatro cabeçalhos glTF 2.0 e comprimentos válidos; índices dentro dos buffers de posições; zero valores não finitos nos atributos POSITION/NORMAL/TANGENT; zero desvios de norma unitária ou de ortogonalidade normal/tangente acima de 1e-4; zero tangentes com handedness diferente de ±1; zero alpha de COLOR_0 diferente de 255; zero triângulos com norma do produto vetorial <= 1e-12. Cada GLB possui zero materiais explícitos. As três partes somam 2459 vértices e 4634 triângulos, iguais às contagens do merged; não somar representações alternativas como se fossem simultâneas. O merged ocupa 25,74% do teto provisório LOD0 weapon de 18000 triângulos. Não foram verificadas equivalência byte a byte da composição, orientação de todas as faces, reexportação, importação, slots efetivos, LOD ou poses nesta sessão. AABB local não comprova dimensão física em jogo; player.gd possui escalonamento do viewmodel, que não foi medido em execução. Sem referência dimensional licenciada efetivamente inspecionada, não aplicar tolerância percentual ou declarar escala aprovada.
+
+Leitura de scripts/weapon_materials.gd confirma dois StandardMaterial3D compartilhados, uso de COLOR_0 e projeção triplanar de albedo/normal. Valores metallic 0.48/0.06, roughness 0.59/0.86, normal_scale 0.38/0.24 (metal/polímero). O código seleciona polímero por nomes de MeshInstance3D; não oferece material dedicado para madeira nessa implementação. Os quatro PNGs referenciados em assets/textures/ (weapon_metal_albedo.png, weapon_metal_normal.png, weapon_polymer_albedo.png, weapon_polymer_normal.png) foram recuperados e apresentam assinatura PNG; não houve decodificação ou avaliação visual dos pixels. A aparência final precisa ser demonstrada em execução; produção PBR integral permanece em 02-04/02-05. Não alterar geometria ou material sem o portão visual.
+
+Bloqueio verificado: neste ambiente, git ls-remote para github.com falhou por resolução DNS; não existe checkout local; executáveis Godot/Godot4 e Blender não encontrados no PATH. Chromium e xvfb-run encontrados, mas isso não fornece a execução integrada do Studio e Godot. Não houve nova renderização, captura ou inspeção real, nem execução de CI. Evidências históricas de fundação permanecem históricas. 02-01 continua parcial. Próximo passo: executar o piloto em ambiente com checkout, Godot e Studio, reunir referências visuais e confrontar dimensões e materiais; não avançar 02-02 nesta entrega.
