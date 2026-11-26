@@ -115,3 +115,11 @@ Base 6c75b25, árvore técnica `c66d75220f4c04fd8682007b397d6d578ccc1886`. Execu
 - **00-31 aceito.** Layout 49/49 no Godot, incluindo material do terreno, colisões e os 23 conjuntos LOD. A composição real do Campo de Testes exibiu 543 nós, 234 superfícies visíveis e 139.656 triângulos. A visualização lado a lado conciliou 12 pontos da câmera com erro máximo de 0,000038 px. Foram inspecionadas as vistas abertas do mapa. A iluminação e o material triplanar têm aproximações documentadas no Studio.
 - **00-32 aceito.** O inventário e o catálogo reconciliaram 86 amostras e 191 buffers procedurais. O Firefox conferiu na interface 188 escopos de dez famílias, um exemplo de cada um dos 13 papéis, caminhos reais, colisores e visibilidade do overlay. O Studio renderizou os estados capturados de granada, sangue, traçante, marcador, impacto e disparo. Os shaders e consultas mantêm os limites registrados em RUNTIME_FONTES_CANONICAS.md.
 - **00-34 parcial.** O reteste conciliou as 86 composições e verificou seis vistas nativas geradas. O aceite permanece em 32/33 predecessores até a paridade visual de 00-28. Renderização e inspeção conduzidas em Linux.
+
+### Encerramento de 00-28 e 00-34
+
+O Studio foi atualizado para usar as mesmas três projeções locais, escala, offset, ponderação por eixo, textura capturada e intensidade do material triplanar do Godot. A prévia usa o próprio modelo de iluminação do Three.js. Normais triplanares em coordenadas globais continuam identificadas como indisponíveis quando presentes.
+
+O reteste do Firefox completou 32 GLBs, 86 composições, 13 papéis, seis vistas capturadas, níveis de LOD, inspeção, câmera, tela cheia e verificação de dependências locais. O rifle foi aberto em repouso, ADS e recarga. A inspeção comparou quadros com o mapa de normais habilitado e desabilitado em cada renderizador, mantendo câmera e luz por par. O mapa alterou 4.100 pixels na inspeção isolada WebGL e 19.244 na vista ADS do Godot. As vistas entre engines usam câmeras e iluminação diferentes. A comparação demonstra contribuição do canal e paridade funcional representativa.
+
+Com 33/33 predecessores aceitos, a execução de geração, importação, captura, catálogo, Studio e inspeção representativa encerra o 00-34. Otimização no hardware-alvo e produção artística seguem nos IDs correspondentes.

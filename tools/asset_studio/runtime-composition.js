@@ -5,20 +5,52 @@ const hex=async b=>Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256
 const decode=s=>Uint8Array.from(atob(s),x=>x.charCodeAt(0));
 async function checked(row){const b=decode(row.data);require(b.byteLength===row.bytes&&await hex(b)===row.sha256,'Buffer divergente');return b;}
 async function payload(name,hash,revision){require(name&&hash,'Payload ausente');const r=await fetch('./'+name,{cache:'no-store'});require(r.ok,'HTTP '+r.status);const b=await r.arrayBuffer();require(await hex(b)===hash,'Payload divergente');const data=JSON.parse(new TextDecoder().decode(b));require(data.revision===revision,'Revisão divergente');return data;}
-// Project the captured albedo texture on the same three local/world axes.
-// This is an approximation of Godot's blend, not its complete material shader.
-function triplanarAlbedo(material,source){
- const scale=new THREE.Vector3(...(source.uv_scale||[1,1,1]));
- const offset=new THREE.Vector3(...(source.uv_offset||[0,0,0]));
- const sharp=Math.max(.01,source.triplanar_sharpness??1);
- const world=!!source.triplanar_world;
- material.customProgramCacheKey=()=> 'frontline-runtime-triplanar-v1-'+world;
- material.onBeforeCompile=shader=>{
-  shader.uniforms.fsTriScale={value:scale};shader.uniforms.fsTriOffset={value:offset};shader.uniforms.fsTriSharp={value:sharp};
-  shader.vertexShader=shader.vertexShader.replace('#include <common>','#include <common>\nvarying vec3 fsTriPos;\nvarying vec3 fsTriNormal;')
-   .replace('#include <begin_vertex>','#include <begin_vertex>\n'+(world?'fsTriPos=(modelMatrix*vec4(position,1.0)).xyz; fsTriNormal=mat3(modelMatrix)*normal;':'fsTriPos=position; fsTriNormal=normal;'));
-  shader.fragmentShader=shader.fragmentShader.replace('#include <common>','#include <common>\nvarying vec3 fsTriPos;\nvarying vec3 fsTriNormal;\nuniform vec3 fsTriScale;\nuniform vec3 fsTriOffset;\nuniform float fsTriSharp;')
-   .replace('#include <map_fragment>','\n#ifdef USE_MAP\nvec3 p=fsTriPos*fsTriScale+fsTriOffset;\nvec3 w=pow(max(abs(normalize(fsTriNormal)),vec3(0.00001)),vec3(fsTriSharp));\nw/=max(w.x+w.y+w.z,0.00001);\nvec4 fsAlbedo=texture2D(map,p.zy)*w.x+texture2D(map,p.xz)*w.y+texture2D(map,p.xy)*w.z;\ndiffuseColor*=fsAlbedo;\n#endif\n');
+// Apply the captured local projection and blend used by StandardMaterial3D.
+function triplanarMaterial(material, source, normalTexture) {
+ const scale = new THREE.Vector3(...(source.uv_scale || [1,1,1]));
+ const offset = new THREE.Vector3(...(source.uv_offset || [0,0,0]));
+ const sharpness = Math.max(.01, source.triplanar_sharpness ?? 1);
+ const world = !!source.triplanar_world;
+ const varyings = 'varying vec3 fsPosition, fsWeights, fsTangent, fsBinormal;';
+ material.triplanarNormal = normalTexture;
+ material.customProgramCacheKey = () => 'frontline-triplanar-v2-' + world + '-' + !!normalTexture;
+ material.onBeforeCompile = shader => {
+  shader.uniforms.fsScale = {value: scale};
+  shader.uniforms.fsOffset = {value: offset};
+  shader.uniforms.fsSharpness = {value: sharpness};
+  shader.uniforms.fsNormalTexture = {value: normalTexture};
+  shader.uniforms.fsNormalStrength = {value: source.normal_scale ?? 1};
+  shader.vertexShader = shader.vertexShader
+   .replace('#include <common>', '#include <common>\n' + varyings + '\nuniform vec3 fsScale, fsOffset; uniform float fsSharpness;')
+   .replace('#include <begin_vertex>', `#include <begin_vertex>
+    vec3 projectionNormal = ${world ? 'normalize(mat3(modelMatrix) * objectNormal)' : 'objectNormal'};
+    vec3 axis = abs(projectionNormal);
+    fsWeights = pow(max(axis, vec3(0.00001)), vec3(fsSharpness));
+    fsWeights /= dot(fsWeights, vec3(1.0));
+    fsPosition = (${world ? '(modelMatrix * vec4(position, 1.0)).xyz' : 'position'} * fsScale + fsOffset) * vec3(1.0,-1.0,1.0);
+    fsTangent = normalMatrix * normalize(vec3(axis.y + axis.z, 0.0, -axis.x));
+    fsBinormal = normalMatrix * normalize(vec3(0.0, axis.x + axis.z, -axis.y));
+   `);
+  shader.fragmentShader = shader.fragmentShader
+   .replace('#include <common>', `#include <common>
+    ${varyings}
+    uniform sampler2D fsNormalTexture;
+    uniform float fsNormalStrength;
+    vec4 fsSample(sampler2D tex) {
+     return texture2D(tex, fsPosition.zy * vec2(-1.0,1.0)) * fsWeights.x +
+            texture2D(tex, fsPosition.xz) * fsWeights.y +
+            texture2D(tex, fsPosition.xy) * fsWeights.z;
+    }
+   `)
+   .replace('#include <map_fragment>', '#ifdef USE_MAP\n diffuseColor *= fsSample(map);\n#endif');
+  if (normalTexture) {
+   shader.fragmentShader = shader.fragmentShader.replace('#include <normal_fragment_maps>', `
+    vec2 xy = fsSample(fsNormalTexture).rg * 2.0 - 1.0;
+    vec3 sampled = normalize(normalize(fsTangent) * xy.x + normalize(fsBinormal) * xy.y +
+        normal * sqrt(max(0.0, 1.0 - dot(xy, xy))));
+    normal = normalize(mix(normal, sampled, fsNormalStrength));
+   `);
+  }
  };
 }
 export function createRuntimeComposition(catalog){
@@ -45,13 +77,18 @@ export function createRuntimeComposition(catalog){
   async function material(m,hasColor){
    const key=JSON.stringify([m,hasColor]);if(materials.has(key))return materials.get(key);
    if(m&&m.class!=='StandardMaterial3D')warnings.add('Material não reproduzido integralmente: '+m.class);
-   if(m?.triplanar)warnings.add('Albedo triplanar aproximado; shader/normal triplanar do Godot não reproduzido integralmente');
+
    const a=m?.albedo||[.7,.7,.7,1],color=new THREE.Color().setRGB(...a.slice(0,3),THREE.SRGBColorSpace);
    const opts={color,opacity:a[3],transparent:!!m?.transparency&&m.transparency!==2,side:m?.cull_mode===2?THREE.DoubleSide:m?.cull_mode===1?THREE.BackSide:THREE.FrontSide,vertexColors:!!m?.vertex_color_as_albedo&&hasColor};
    if(m?.transparency===2)opts.alphaTest=m.alpha_scissor_threshold??.5;
    const mat=m?.shading_mode===0?new THREE.MeshBasicMaterial(opts):new THREE.MeshStandardMaterial({...opts,metalness:m?.metallic??0,roughness:m?.roughness??.8});
    mat.map=await texture(m?.albedo_texture,'map',m||{});
-   if(m?.triplanar&&mat.map)triplanarAlbedo(mat,m);
+   if(m?.triplanar){
+    const projectedNormal=m.normal_enabled&&!m.triplanar_world
+      ? await texture(m.normal_texture,'normalMap',m) : null;
+    if(m.normal_enabled&&!projectedNormal)warnings.add('Normal triplanar indisponível para este material');
+    if(mat.map||projectedNormal)triplanarMaterial(mat,m,projectedNormal);
+   }
    if(mat.isMeshStandardMaterial){
     mat.normalMap=m?.normal_enabled&&!m?.triplanar?await texture(m.normal_texture,'normalMap',m):null;
     mat.normalScale.set(m?.normal_scale??1,m?.normal_scale??1);
