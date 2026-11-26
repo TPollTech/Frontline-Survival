@@ -119,6 +119,12 @@ func _mesh(node: MeshInstance3D) -> Dictionary:
     if node.mesh == null:
         return {"missing": true}
     var mesh: Mesh = node.mesh
+    # The renderer supplies the deformed positions and shading frame of this
+    # exact snapshot. Keep the original surface and its provenance separately.
+    var posed: ArrayMesh
+    if node.skin != null and DisplayServer.get_name() != "headless":
+        posed = node.bake_mesh_from_current_skeleton_pose()
+        _expect(posed != null and posed.get_surface_count() == mesh.get_surface_count(), "skinned pose bake")
     var bounds: AABB = mesh.get_aabb()
     var surfaces: Array[Dictionary] = []
     for i in range(mesh.get_surface_count()):
@@ -152,6 +158,14 @@ func _mesh(node: MeshInstance3D) -> Dictionary:
             "triangles": int((indices if indices > 0 else vertices) / 3.0) if primitive == Mesh.PRIMITIVE_TRIANGLES else null,
             "buffer_sha256": _buffer(mesh,i,arrays,primitive) if mesh.resource_path.is_empty() else null,
             "effective_material": _material(node.get_active_material(i))})
+        if posed != null:
+            var deformed := posed.surface_get_arrays(i)
+            var snapshot := arrays.duplicate()
+            for channel in [Mesh.ARRAY_VERTEX, Mesh.ARRAY_NORMAL, Mesh.ARRAY_TANGENT]:
+                if deformed[channel] != null:
+                    snapshot[channel] = deformed[channel]
+            var posed_hash := _digest(var_to_bytes({"primitive":primitive,"arrays":snapshot}))
+            surfaces.back()["posed_sha256"] = _studio_buffer(snapshot, primitive, posed_hash)
     return {"class": mesh.get_class(), "path": mesh.resource_path,
         "bounds_local_m": {"origin": _vec(bounds.position), "size": _vec(bounds.size)},
         "surfaces": surfaces, "lod_bias": node.lod_bias,
@@ -567,6 +581,9 @@ func _run() -> void:
     experimental.position = Vector3(0, 0.9, -6)
     game.add_child(experimental)
     experimental.set_physics_process(false)
+    await process_frame
+    if DisplayServer.get_name() != "headless":
+        await RenderingServer.frame_post_draw
     var exp := _snapshot("enemy_quaternius_experimental", experimental, ["character:quaternius_equipment"],
         {"experimental": true, "active_in_default_game": false})
     _expect(int(exp["counts"]["skeletons"]) > 0 and is_instance_valid(experimental.humanoid_visual), "experimental rig fallback")

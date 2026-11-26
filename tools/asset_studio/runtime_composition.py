@@ -49,6 +49,9 @@ def stage(runtime,catalog,out):
                 require(digest in measured,"missing surface")
                 n,i,p=measured[digest]
                 require((n,i,p)==(surface["vertices"],surface["indices"],surface["primitive"]),"native metrics mismatch")
+                if "posed_sha256" in surface:
+                    require(mesh.get("has_skin") and measured.get(surface["posed_sha256"]) == (n,i,p),
+                            "invalid posed surface")
                 if surface.get("buffer_sha256"):
                     require(surface["buffer_sha256"]==digest and digest in runtime["geometry_buffers"],"procedural source linkage")
                 total+=1

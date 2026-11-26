@@ -93,9 +93,9 @@ export function createRuntimeComposition(catalog){
      stats.surfaces++;if(n.visible_in_tree)stats.visibleSurfaces++;
      const buffer=surfaces.buffers[s.studio_sha256];require(buffer,'Buffer não encontrado');
      if(buffer.primitive!==3){if(n.visible_in_tree)stats.unsupported++;continue;}
-     const g=await geo(s.studio_sha256);require(g.attributes.position.count===s.vertices&&g.index.count/3===s.triangles,'Métrica diverge da engine');
+     const g=await geo(s.posed_sha256||s.studio_sha256);require(g.attributes.position.count===s.vertices&&g.index.count/3===s.triangles,'Métrica diverge da engine');
      const mesh=new THREE.Mesh(g,await material(s.effective_material,!!g.attributes.color));mesh.name=n.path+'::'+s.index;group.add(mesh);
-     if(n.visible_in_tree){stats.triangles+=s.triangles;if(n.mesh.has_skin){stats.skinned++;warnings.add('Malha skinned em repouso; pose da engine não aplicada');}}
+     if(n.visible_in_tree){stats.triangles+=s.triangles;if(n.mesh.has_skin){stats.skinned++;if(!s.posed_sha256)warnings.add('Malha skinned em repouso; pose da engine não aplicada');}}
     }
    }
    require(stats.surfaces===expected.surfaces&&stats.visibleSurfaces===expected.visible_surfaces&&stats.triangles===expected.visible_triangles&&stats.unsupported===expected.unsupported_visible&&stats.skinned===expected.skinned_visible,'Cobertura divergente');
