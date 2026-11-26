@@ -3,6 +3,7 @@ Requires trimesh + numpy. Dimensions in metres, forward direction -Z.
 Visual design is stylized tactical and deliberately NOT a copy of MW3 meshes.
 """
 from pathlib import Path
+import argparse
 import numpy as np
 import trimesh
 from trimesh.transformations import euler_matrix
@@ -10,6 +11,7 @@ from trimesh.transformations import euler_matrix
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'assets' / 'models'
 OUT.mkdir(parents=True, exist_ok=True)
+EXPORT_CANDIDATE_NORMALS = False
 MAT = {
     'black': (38, 43, 46, 255), 'polymer':(54, 61, 61, 255),
     'receiver':(73, 81, 84, 255), 'steel':(103, 111, 112, 255),
@@ -18,6 +20,23 @@ MAT = {
     'walnut':(126,73,40,255), 'walnut_dark':(86,49,29,255),
     'glass':(48, 93, 92, 255), 'recess':(18, 24, 27, 255),
 }
+
+def export_scene(scene):
+    """Keep legacy output unchanged unless explicitly generating a review candidate."""
+    if not EXPORT_CANDIDATE_NORMALS:
+        return scene.export(file_type='glb')
+    # Production uses local triplanar albedo/normal textures. Do not invent
+    # a UV atlas simply to satisfy the tangent input requirement.
+    # Godot 4.4.1 can derive auxiliary tangents from NORMAL without TEXCOORD_0
+    # when ensure_tangents is enabled; its triplanar shader replaces that basis.
+    for name, mesh in scene.geometry.items():
+        normals = np.asarray(mesh.vertex_normals)
+        if normals.shape != mesh.vertices.shape or not np.isfinite(normals).all():
+            raise ValueError(f'{name}: invalid candidate normals')
+        if not np.allclose(np.linalg.norm(normals, axis=1), 1.0, rtol=0, atol=1e-5):
+            raise ValueError(f'{name}: non-unit candidate normals')
+    return scene.export(file_type='glb', include_normals=True)
+
 
 class Gun:
     def __init__(self):
@@ -195,12 +214,12 @@ class Gun:
         # Concatena geometrias em 1 mesh colorida: 1 draw call aproximada por arma.
         merged = trimesh.util.concatenate(list(self.scene.geometry.values()))
         scene = trimesh.Scene(merged)
-        (OUT/f'{name}.glb').write_bytes(scene.export(file_type='glb'))
+        (OUT/f'{name}.glb').write_bytes(export_scene(scene))
         for key, meshes in self.groups.items():
             target = OUT / f'{name}_{key}.glb'
             if meshes:
                 group_scene = trimesh.Scene(trimesh.util.concatenate(meshes))
-                target.write_bytes(group_scene.export(file_type='glb'))
+                target.write_bytes(export_scene(group_scene))
             elif target.exists():
                 target.unlink()
         print(name, self.count, len((OUT/f'{name}.glb').read_bytes()),
@@ -463,4 +482,18 @@ def sentinela():
     g.save('sentinela')
 
 if __name__=='__main__':
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--candidate-normals', type=Path, metavar='EMPTY_DIRECTORY',
+                        help='Export review-only GLBs with explicit normals outside the project; do not replace production models')
+    args = parser.parse_args()
+    if args.candidate_normals is not None:
+        candidate = args.candidate_normals.expanduser().resolve()
+        if candidate == ROOT or candidate.is_relative_to(ROOT):
+            parser.error('Candidate directory must be outside the project')
+        if candidate.exists() and (not candidate.is_dir() or any(candidate.iterdir())):
+            parser.error('Candidate directory must be empty')
+        candidate.mkdir(parents=True, exist_ok=True)
+        OUT = candidate
+        EXPORT_CANDIDATE_NORMALS = True
+        print('REVIEW CANDIDATE ONLY: explicit normals; Godot import and visual comparison pending')
     pistol();smg();rifle();shotgun();lmg();sniper();bolt_sniper();sentinela()
