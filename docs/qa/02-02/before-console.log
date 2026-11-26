@@ -1,0 +1,39 @@
+{
+  "tag": "before",
+  "external": 0,
+  "errors": [],
+  "weapons": {
+    "pistol": {
+      "sha256": "a9823dd41d4adc91206d2cd3d3f2cbfa90ffd4651b032ea8ec535ef9d1a3bcdd",
+      "shots": 2
+    },
+    "smg": {
+      "sha256": "47ddd91c0ed749f5455e272e88f94ad48c7fcf3454b268dfe2e6eb02d08e985b",
+      "shots": 2
+    },
+    "rifle": {
+      "sha256": "59591299c00e359643547b32f9accf0011790e88c6bd8868f62d8478b253bd94",
+      "shots": 2
+    },
+    "shotgun": {
+      "sha256": "8cf7f07543e05d5a96ccb47bc3c7d46c26b06ec72360424fb78e57d34b64c144",
+      "shots": 2
+    },
+    "lmg": {
+      "sha256": "c3fc602c3f9db6b677201e576312caf0a9902cb849c1c99eb1e156ddfa5ac32a",
+      "shots": 2
+    },
+    "sniper": {
+      "sha256": "8806950135d9b9f08ba457a3ba9f4853c877feca5ebb8a498a78f5d7dce56302",
+      "shots": 2
+    },
+    "bolt_sniper": {
+      "sha256": "7845f7196af034de260efa1c11b5631ac7697a5043f69fe37c1dbaf3b58d0b56",
+      "shots": 2
+    },
+    "sentinela": {
+      "sha256": "cbb2c41006389855e52597b023dd1e3350bfdcaf82324e3de253471dfb9042af",
+      "shots": 2
+    }
+  }
+}

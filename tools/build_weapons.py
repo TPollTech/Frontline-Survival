@@ -252,6 +252,76 @@ class Gun:
         print(name, self.count, len((OUT/f'{name}.glb').read_bytes()),
               {group: len(parts) for group, parts in self.groups.items()})
 
+def _loft_library():
+    try:
+        from asset_pipeline.parametric.organic import (OrganicLoft, LoftSection,
+                                                      build_organic)
+    except ModuleNotFoundError:  # imported as tools.build_weapons
+        from tools.asset_pipeline.parametric.organic import (OrganicLoft, LoftSection,
+                                                             build_organic)
+    return OrganicLoft, LoftSection, build_organic
+
+
+def hybrid_loft(g, name, color, length, sections, axis='y', angles=(0, 0, 0),
+                pos=(0, 0, 0), radial=24, steps=4, power=2.0):
+    """Closed sculpted surface from the central library.
+
+    ``sections`` are (t, rx, rz, cx, cz) with t in [0, 1]; radii and centres are
+    metres in the part's local frame. ``axis='z'`` rotates the loft so its length
+    runs from the receiver towards +Z (stocks, pump, handguards) while the part
+    keeps the same origin and attachment planes as the replaced chamfer.
+    """
+    OrganicLoft, LoftSection, build_organic = _loft_library()
+    loft = tuple(LoftSection((t - 0.5) * length, (cx, cz), (rx, rz))
+                 for t, rx, rz, cx, cz in sections)
+    transform = euler_matrix(*angles)
+    if axis == 'z':
+        transform = transform @ euler_matrix(np.pi / 2.0, 0, 0)
+    g.add_parametric(build_organic(OrganicLoft(name, loft, radial_segments=radial,
+                                              steps_per_interval=steps,
+                                              section_power=power)),
+                     color, name, matrix=transform, offset=pos)
+
+
+def hybrid_grip(g, name, color, dims, angles=(0, 0, 0), pos=(0, 0, 0)):
+    """Sculpted pistol/vertical grip inside the replaced chamfer envelope."""
+    w, h, d = dims
+    hybrid_loft(g, name, color, h, (
+        (0.00, w * .330, d * .330, 0.0, d * .050),
+        (0.12, w * .450, d * .440, 0.0, d * .020),
+        (0.30, w * .500, d * .490, 0.0, 0.0),
+        (0.50, w * .500, d * .480, 0.0, -d * .020),
+        (0.70, w * .500, d * .470, 0.0, -d * .035),
+        (0.88, w * .500, d * .480, 0.0, -d * .010),
+        (1.00, w * .500, d * .500, 0.0, d * .020),
+    ), angles=angles, pos=pos)
+
+
+def hybrid_stock(g, name, color, dims, pos, angles=(0, 0, 0), waist=0.86):
+    """Rounded stock surface inscribed in the replaced chamfer envelope.
+
+    The section radii stay at or below half the original width/height, so the
+    butt pad, recoil plate and receiver interfaces keep meeting the surface
+    they were modelled against: the loft round the corners instead of
+    shrinking the part into a cone. ``waist`` is the width factor at the wrist
+    and at the butt (0.80 has been enough for every production stock); the
+    centre offset drops the comb towards the butt as the chamfer did.
+    """
+    w, h, d = dims
+    # Centre offsets reproduce the comb drop of the replaced profile (+X local
+    # becomes -Y after the axis rotation): high at the wrist, low at the butt.
+    hybrid_loft(g, name, color, d, (
+        (0.00, w * .50 * waist, h * .50 * (waist - .02), 0.0, -h * .120),
+        (0.10, w * .50 * .94, h * .50 * .92, 0.0, -h * .090),
+        (0.30, w * .50 * .99, h * .50 * .97, 0.0, -h * .020),
+        (0.60, w * .50, h * .50 * .99, 0.0, h * .070),
+        (0.85, w * .50, h * .50 * .98, 0.0, h * .130),
+        (0.96, w * .50 * .97, h * .50 * .94, 0.0, h * .150),
+        (1.00, w * .50 * .93, h * .50 * .88, 0.0, h * .160),
+    ), axis='z', angles=angles, pos=pos, power=3.6)
+
+
+
 def hybrid_pistol_grip(g):
     """Sculpt ergonomic pistol grip with the central parametric library.
 
@@ -330,7 +400,7 @@ def common_receiver(g,back,front,main_color='receiver',body=(.20,.16)):
         z=back-.065-i*(length-.13)/8
         g.chamfer((0,body[1]*.5+.027,z),(.105,.013,.014),'edge',.003,name='rail_tooth')
     # Trigger and guard, folding stock, receiver fasteners.
-    g.chamfer((0,-.18,back-.085),(.095,.25,.13),'polymer',.014,angles=(-.23,0,0),name='pistol_grip')
+    hybrid_grip(g,'pistol_grip','polymer',(.095,.25,.13),angles=(-.23,0,0),pos=(0,-.18,back-.085))
     g.rod((-.075,-.07,back-.18),(-.075,-.22,back-.18),.008,'black',name='guard')
     g.rod((-.075,-.22,back-.18),(.075,-.22,back-.18),.008,'black',name='guard')
     for i in [-1,1]:
@@ -359,7 +429,7 @@ def smg():
     g.chamfer((0,-.025,.53),(.28,.18,.038),'polymer',.015,name='stock_pad')
     g.cylinder((0,.018,-.59),.023,.20,'steel',name='barrel')
     g.chamfer((.102,.062,.07),(.022,.025,.078),'steel',.005,name='charging_handle')
-    g.chamfer((0,-.01,-.43),(.08,.16,.09),'polymer',.018,name='foregrip')
+    hybrid_grip(g,'foregrip','polymer',(.08,.16,.09),pos=(0,-.01,-.43))
     g.chamfer((0,.081,-.53),(.13,.034,.14),'steel',.006,name='sight_bridge')
     optic(g,-.07); hardware(g,-.69); g.save('smg')
 
@@ -390,9 +460,9 @@ def rifle():
         cover.invert()
     g.add(cover,'receiver','top_cover')
     g.chamfer((0,.019,.399),(.105,.096,.299),'walnut_dark',.013,name='stock_wrist')
-    g.chamfer((0,-.004,.589),(.136,.175,.353),'walnut',.024,angles=(.13,0,0),name='wood_stock')
+    hybrid_stock(g,'wood_stock','walnut',(.136,.175,.353),pos=(0,-.004,.589),angles=(.13,0,0))
     g.chamfer((0,-.035,.769),(.139,.174,.031),'steel',.006,name='butt_plate')
-    g.chamfer((0,-.188,.184),(.092,.216,.111),'walnut_dark',.013,angles=(-.26,0,0),name='grip')
+    hybrid_grip(g,'grip','walnut_dark',(.092,.216,.111),angles=(-.26,0,0),pos=(0,-.188,.184))
     for x in (-.078,.078):
         for z in (-.169,.144,.213):
             g.cylinder((x,.011,z),.010,.009,'steel',angles=(0,np.pi/2,0),name='receiver_rivet')
@@ -425,16 +495,23 @@ def rifle():
 def shotgun():
     g=Gun()
     common_receiver(g,.26,-.24,'receiver',(.205,.20))
-    g.chamfer((0,.00,-.42),(.22,.165,.42),'darktan',.032,name='pump_action')
+    hybrid_loft(g,'pump_action','darktan',.42,(
+        (0.00, .22*.50*.80, .165*.50*.78, 0.0, 0.0),
+        (0.08, .22*.50*.93, .165*.50*.92, 0.0, 0.0),
+        (0.35, .22*.50, .165*.50, 0.0, 0.0),
+        (0.65, .22*.50, .165*.50, 0.0, 0.0),
+        (0.92, .22*.50*.93, .165*.50*.92, 0.0, 0.0),
+        (1.00, .22*.50*.80, .165*.50*.78, 0.0, 0.0),
+    ), axis='z', pos=(0,0,-.42), power=3.2)
     for z in np.linspace(-.62,-.22,9):
         g.chamfer((0,-.086,z),(.185,.013,.018),'tan',.003,name='pump_rib')
     g.cylinder((0,.065,-.62),.036,.82,'steel',name='upper_barrel')
     g.cylinder((0,-.045,-.58),.029,.68,'black',name='magazine_tube')
-    g.chamfer((0,-.04,.55),(.15,.20,.65),'tan',.03,name='solid_stock')
+    hybrid_stock(g,'solid_stock','tan',(.15,.20,.65),pos=(0,-.04,.55))
     g.chamfer((0,-.055,.88),(.19,.24,.05),'black',.022,name='rubber_butt')
     g.chamfer((0,.14,-1.01),(.033,.033,.020),'brass',.004,name='bead_sight')
     g.fixed_sight_bridge('upper_barrel', ('bead_sight',), 'fixed_bead_base')
-    g.chamfer((0,.015,-.44),(.07,.14,.10),'tan',.016,name='vertical_grip')
+    hybrid_grip(g,'vertical_grip','tan',(.07,.14,.10),pos=(0,.015,-.44))
     g.chamfer((.114,.01,.04),(.018,.042,.12),'recess',.004,name='shell_gate')
     g.ring((0,.065,-1.04),.041,.026,.065,'steel');g.save('shotgun')
 
@@ -449,7 +526,7 @@ def lmg():
     hardware(g,-1.13)
     g.cylinder((0,-.27,-.035),.205,.21,'darktan',sections=24,angles=(0,np.pi/2,0),name='drum')
     g.cylinder((.11,-.27,-.035),.12,.009,'black',sections=16,angles=(0,np.pi/2,0),name='drum_hub')
-    g.chamfer((0,.00,.52),(.24,.21,.48),'polymer',.035,name='heavy_stock')
+    hybrid_stock(g,'heavy_stock','polymer',(.24,.21,.48),pos=(0,.00,.52))
     g.chamfer((0,-.015,.79),(.265,.245,.052),'recess',.018,name='butt_pad')
     # Offset the carry handle so it never crosses the optic's viewing axis.
     g.rod((-.128,.14,-.17),(-.174,.275,-.12),.013,'steel',name='carry_handle')
@@ -468,9 +545,9 @@ def sniper():
     g.chamfer((0.0, 0.0, -0.095), (.188, .172, .57), 'receiver', .020, name='receiver')
     g.chamfer((0.0, .094, -.12), (.145, .045, .51), 'black', .012, name='receiver_rail')
     g.chamfer((0.0, -.040, .35), (.108, .135, .54), 'polymer', .023, name='stock_wrist')
-    g.chamfer((0.0, -.055, .66), (.17, .22, .29), 'black', .03, name='precision_stock')
+    hybrid_stock(g,'precision_stock','black',(.17,.22,.29),pos=(0.0,-.055,.66))
     g.chamfer((0.0, -.058, .815), (.19, .235, .055), 'polymer', .015, name='butt_pad')
-    g.chamfer((0.0, -.174, .135), (.100, .23, .13), 'polymer', .02, angles=(-.22,0,0), name='pistol_grip')
+    hybrid_grip(g,'pistol_grip','polymer',(.100,.23,.13),angles=(-.22,0,0),pos=(0.0,-.174,.135))
     g.chamfer((0.0, -.22, -.165), (.108, .20, .136), 'black', .015, name='magazine_box')
     g.chamfer((0.0, -.326, -.16), (.111, .027, .144), 'steel', .007, name='magazine_heel')
     g.chamfer((0.0, -.01, -.47), (.245, .17, .50), 'polymer', .026, name='freefloat_handguard')
@@ -498,8 +575,8 @@ def bolt_sniper():
     g=Gun()
     # VLR-8: traditional walnut-stock rifle, open bolt/ejection assembly.
     # Distinct silhouette from the MRS-7's modern freefloat polymer chassis.
-    g.chamfer((0.0, -.044, .23), (.158, .165, 1.16), 'walnut', .026, name='stock_body')
-    g.chamfer((0.0, -.050, .73), (.155, .20, .20), 'walnut_dark', .02, name='cheek_rest')
+    hybrid_stock(g,'stock_body','walnut',(.158,.165,1.16),pos=(0.0,-.044,.23),waist=.88)
+    hybrid_stock(g,'cheek_rest','walnut_dark',(.155,.20,.20),pos=(0.0,-.050,.73),waist=.92)
     g.chamfer((0.0, -.048, .86), (.18, .20, .047), 'black', .012, name='stock_pad')
     g.chamfer((0.0, -.03, -.185), (.177, .155, .50), 'walnut_dark', .018, name='forearm_wood')
     for side in (-.076,.076):
@@ -507,7 +584,7 @@ def bolt_sniper():
             g.chamfer((side,-.075,z),(.007,.017,.07),'walnut',.003,name='wood_grip_rib')
     g.chamfer((0.0, .043, -.04), (.145, .145, .37), 'steel', .018, name='steel_receiver')
     g.chamfer((0.0, .122, -.04), (.102, .022, .34), 'recess', .006, name='receiver_sight_rail')
-    g.chamfer((0.0, -.17, .03), (.084, .25, .106), 'walnut', .017, angles=(-.29,0,0), name='grip_stock')
+    hybrid_grip(g,'grip_stock','walnut',(.084,.25,.106),angles=(-.29,0,0),pos=(0.0,-.17,.03))
     g.chamfer((0.0, -.225, -.06), (.101, .177, .142), 'black', .012, name='magazine_box')
     g.chamfer((0.0, -.31, -.065), (.11, .025, .15), 'steel', .006, name='magazine_heel')
     g.cylinder((0.0, .050, -.85), .023, 1.20, 'steel', sections=16, name='long_barrel')
@@ -530,9 +607,9 @@ def bolt_sniper():
 
 def sentinela():
     g = Gun()
-    g.chamfer((0,-.045,.32),(.14,.16,.62),'darktan',.03,name='heavy_stock')
-    g.chamfer((0,-.02,-.30),(.13,.12,.56),'darktan',.022,name='lower_handguard')
-    g.chamfer((0,-.12,.14),(.084,.17,.10),'polymer',.016,angles=(-.25,0,0),name='grip')
+    hybrid_stock(g,'heavy_stock','darktan',(.14,.16,.62),pos=(0,-.045,.32))
+    hybrid_stock(g,'lower_handguard','darktan',(.13,.12,.56),pos=(0,-.02,-.30))
+    hybrid_grip(g,'grip','polymer',(.084,.17,.10),angles=(-.25,0,0),pos=(0,-.12,.14))
     g.cylinder((0,.055,-.02),.054,.47,'receiver',sections=20,name='receiver')
     g.cylinder((0,.055,-.68),.025,.88,'steel',sections=20,name='barrel')
     g.ring((0,.055,-1.12),.032,.015,.075,'black')

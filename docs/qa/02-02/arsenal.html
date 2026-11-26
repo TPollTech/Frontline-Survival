@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>02-02 — arsenal remodelado na fonte canônica (Asset Studio WebGL)</title>
+<style>
+  :root { color-scheme: dark; }
+  body { margin: 0; padding: 24px; background: #0e1218; color: #e6edf3;
+         font: 14px/1.5 "Segoe UI", system-ui, sans-serif; }
+  h1 { font-size: 20px; margin: 0 0 4px; }
+  h2 { font-size: 16px; margin: 32px 0 8px; border-bottom: 1px solid #24303d; padding-bottom: 6px; }
+  p.muted { color: #94a3b8; margin: 0 0 16px; }
+  .weapon { margin: 0 0 24px; }
+  .weapon h3 { font-size: 15px; margin: 0 0 8px; color: #d8e2ec; }
+  .row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  figure { margin: 0 0 10px; background: #131a23; border: 1px solid #1f2a36; border-radius: 6px; overflow: hidden; }
+  figure img { display: block; width: 100%; height: auto; }
+  figcaption { padding: 6px 8px; font-size: 12px; color: #9fb0c3; }
+  table { border-collapse: collapse; font-size: 13px; margin: 8px 0 0; }
+  th, td { border: 1px solid #24303d; padding: 5px 9px; text-align: right; }
+  th:first-child, td:first-child { text-align: left; }
+  th { background: #16202b; font-weight: 600; }
+  code { color: #b8e0c0; }
+</style>
+</head>
+<body>
+<h1>02-02 — arsenal remodelado na fonte canônica</h1>
+<p class="muted">Asset Studio WebGL real · GLBs originais de produção · antes = <code>403fc35</code>,
+depois = fonte híbrida rebuildada · vistas ortográficas e perspectiva 1280×800 · zero requisição
+externa, zero erro de console (<code>before-report.json</code> / <code>after-report.json</code>).</p>
+
+<h2>Comparação lado a lado (vista direita +X)</h2>
+<p class="muted">Cada célula é o GLB servido pelo Studio, com o mesmo enquadramento e iluminação sintética.</p>
+<div id="compare"></div>
+
+<h2>Inspeção de silhueta — 6 vistas por arma (revisão entregue)</h2>
+<div id="sheets"></div>
+
+<h2>Godot 4.7.2 real — viewmodel do jogo em repouso, ADS e recarga</h2>
+<p class="muted">24 poses capturadas da viewport OpenGL do jogo real (AMD Radeon iGPU, Compatibility,
+1280×720). Uma linha por arma; colunas repouso, ADS e recarga. Não é aprovação de playtest Windows.</p>
+<figure><img src="godot-arsenal.png" alt="24 poses reais do viewmodel no Godot">
+<figcaption>godot-arsenal.png · renderer e driver medidos em <code>godot-arsenal.json</code></figcaption></figure>
+
+<h2>Métricas medidas dos GLBs entregues</h2>
+<table id="metrics">
+  <thead><tr><th>Arma</th><th>Triângulos antes</th><th>Triângulos depois</th><th>AABB medida (X × Y × Z, m)</th><th>Desvio de envelope</th></tr></thead>
+  <tbody></tbody>
+</table>
+<p class="muted">Teto provisório LOD0 = 18 000 triângulos. AABB é a do arquivo mesclado; a escala do
+viewmodel não é compensada na geometria.</p>
+
+<script>
+const weapons = [["pistol","Pistola"],["smg","SMG"],["rifle","Rifle"],["shotgun","Shotgun"],
+                 ["lmg","LMG"],["sniper","Sniper MRS-7"],["bolt_sniper","VLR-8"],["sentinela","Sentinela"]];
+const metrics = {
+  pistol:  [3952, 3952, "0,1188 × 0,3875 × 0,3930", "0,0 mm"],
+  smg:     [2516, 4796, "0,2800 × 0,6415 × 1,2785", "0,0 mm"],
+  rifle:   [4634, 6914, "0,1865 × 0,6417 × 1,7335", "0,0 mm"],
+  shotgun: [2104, 6472, "0,2340 × 0,4665 × 1,9775", "0,6 mm"],
+  lmg:     [2964, 5244, "0,4299 × 0,7800 × 1,9855", "0,0 mm"],
+  sniper:  [2220, 4500, "0,3532 × 0,6223 × 2,3125", "0,0 mm"],
+  bolt_sniper:[1808, 5228, "0,2905 × 0,5185 × 2,3860", "0,0 mm"],
+  sentinela: [896, 4316, "0,1683 × 0,3800 × 1,7875", "1,1 mm"],
+};
+const tbody = document.querySelector('#metrics tbody');
+for (const [id, label] of weapons) {
+  const [before, after, aabb, dev] = metrics[id];
+  const tr = document.createElement('tr');
+  tr.innerHTML = `<td>${label} <code>weapon:${id}</code></td><td>${before}</td><td>${after}</td><td>${aabb}</td><td>${dev}</td>`;
+  tbody.appendChild(tr);
+}
+function figure(src, caption) {
+  return `<figure><img loading="lazy" src="${src}" alt="${caption}"><figcaption>${caption}</figcaption></figure>`;
+}
+const compare = document.querySelector('#compare');
+for (const [id, label] of weapons) {
+  const block = document.createElement('div');
+  block.className = 'weapon';
+  block.innerHTML = `<h3>${label} · <code>weapon:${id}</code></h3><div class="row">` +
+    figure(`before-${id}-right.png`, `${label} — antes`) +
+    figure(`after-${id}-perspective.png`, `${label} — depois (perspectiva)`) +
+    figure(`after-${id}-right.png`, `${label} — depois`) + `</div>`;
+  compare.appendChild(block);
+}
+document.querySelector('#sheets').innerHTML =
+  figure('sheet-after-1.png', 'Vistas medidas: pistol, smg, rifle, shotgun') +
+  figure('sheet-after-2.png', 'Vistas medidas: lmg, sniper, bolt_sniper, sentinela') +
+  figure('sheet-detail.png', 'Recortes 2× do punho/coronha antes e depois');
+</script>
+</body>
+</html>

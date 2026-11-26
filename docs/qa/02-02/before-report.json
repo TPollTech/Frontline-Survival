@@ -1,0 +1,416 @@
+{
+  "tag": "before",
+  "studio": "http://127.0.0.1:8822",
+  "external": [],
+  "errors": [],
+  "weapons": {
+    "pistol": {
+      "variant": "assets/models/pistol.glb",
+      "resource": "assets/models/pistol.glb",
+      "sha256": "a9823dd41d4adc91206d2cd3d3f2cbfa90ffd4651b032ea8ec535ef9d1a3bcdd",
+      "metrics": [
+        "Instâncias de malha: 1",
+        "Vértices / triângulos instanciados: 2068 / 3952",
+        "Vértices / triângulos únicos: 2068 / 3952",
+        "Materiais / slots: 1 / 1",
+        "Texturas: 0",
+        "AABB atual (m, X × Y × Z): 0.1188 × 0.3875 × 0.393"
+      ],
+      "shots": [
+        {
+          "view": "perspective",
+          "path": "C:/Users/enzot/AppData/Local/Temp/studio-arsenal-before/before-pistol-perspective.png",
+          "bytes": 91618,
+          "sha256": "639ef0b20eccae88f8a9e6189194a261b4f8b5fb40d33ebd451f16ec1127dc50"
+        },
+        {
+          "view": "right",
+          "path": "C:/Users/enzot/AppData/Local/Temp/studio-arsenal-before/before-pistol-right.png",
+          "bytes": 63807,
+          "sha256": "f76dfc2c0bdca737ae6da2366e44d3956cd48b0375eb848f569017c513056b3f"
+        },
+        {
+          "view": "left",
+          "path": "C:/Users/enzot/AppData/Local/Temp/studio-arsenal-before/before-pistol-left.png",
+          "bytes": 54811,
+          "sha256": "e424bd1612a9d732d407657b751bb9d49652a91fde27d8f6293a193902accf1d"
+        },
+        {
+          "view": "top",
+          "path": "C:/Users/enzot/AppData/Local/Temp/studio-arsenal-before/before-pistol-top.png",
+          "bytes": 35171,
+          "sha256": "328be04e7e5141f5db3dd52e89b91b7ee56267ddbfce0af43af570c8ad332df3"
+        },
+        {
+          "view": "front",
+          "path": "C:/Users/enzot/AppData/Local/Temp/studio-arsenal-before/before-pistol-front.png",
+          "bytes": 41741,
+          "sha256": "78d04e8938163f501e3d1bc4fc9e26c615d3366cde5036b3f3c9e3b81f1bd919"
+        },
+        {
+          "view": "back",
+          "path": "C:/Users/enzot/AppData/Local/Temp/studio-arsenal-before/before-pistol-back.png",
+          "bytes": 35034,
+          "sha256": "ade95f2e49537a52224f7b1e4d95835f1bfeab1eeca77ff8b4c3fb3dc3bd46ca"
+        }
+      ]
+    },
+    "smg": {
+      "variant": "assets/models/smg.glb",
+      "resource": "assets/models/smg.glb",
+      "sha256": "47ddd91c0ed749f5455e272e88f94ad48c7fcf3454b268dfe2e6eb02d08e985b",
+      "metrics": [
+        "Instâncias de malha: 1",
+        "Vértices / triângulos instanciados: 1336 / 2516",
+        "Vértices / triângulos únicos: 1336 / 2516",
+        "Materiais / slots: 1 / 1",
+        "Texturas: 0",
+        "AABB atual (m, X × Y × Z): 0.28 × 0.6415 × 1.2785"
+      ],
+      "shots": [
+        {
+          "view": "perspective",
+          "path": "C:/Users/enzot/AppData/Local/Temp/studio-arsenal-before/before-smg-perspective.png",
+          "bytes": 80438,
+          "sha256": "2eeac8204a101bf0c143185031cdd38c0cd6c1b4f80129badd507cb2eab26c2d"
+        },
+        {
+          "view": "right",
+          "path": "C:/Users/enzot/AppData/Local/Temp/studio-arsenal-before/before-smg-right.png",
+          "bytes": 39958,
+          "sha256": "b9a48ff13b91c63854f1615e286efd7cf40eba93b43565f721aa875dcfef8c5c"
+        },
+        {
+          "view": "left",
+          "path": "C:/Users/enzot/AppData/Local/Temp/studio-arsenal-before/before-smg-left.png",
+          "bytes": 36273,
+          "sha256": "76521517737872c3fbc1cf26f77cbf439b512fd0cab68e65f6ffec2ced2cce61"
+        },
+        {
+          "view": "top",
+          "path": "C:/Users/enzot/AppData/Local/Temp/studio-arsenal-before/before-smg-top.png",
+          "bytes": 30545,
+          "sha256": "6af033200d5e23c391ec2da4fc3212a2c4f1f0cd900b41db84494e4113527fd9"
+        },
+        {
+          "view": "front",
+          "path": "C:/Users/enzot/AppData/Local/Temp/studio-arsenal-before/before-smg-front.png",
+          "bytes": 44479,
+          "sha256": "7f9eba36513cd704305bb2d1e1c43f42cbeb8bccd069fb45616b9e432299828b"
+        },
+        {
+          "view": "back",
+          "path": "C:/Users/enzot/AppData/Local/Temp/studio-arsenal-before/before-smg-back.png",
+          "bytes": 32087,
+          "sha256": "d6572c82fd78e11bd6c1656b70a447c4ad8a1b40ae3c7b58c1f72a11b535cde9"
+        }
+      ]
+    },
+    "rifle": {
+      "variant": "assets/models/rifle.glb",
+      "resource": "assets/models/rifle.glb",
+      "sha256": "59591299c00e359643547b32f9accf0011790e88c6bd8868f62d8478b253bd94",
+      "metrics": [
+        "Instâncias de malha: 1",
+        "Vértices / triângulos instanciados: 2459 / 4634",
+        "Vértices / triângulos únicos: 2459 / 4634",
+        "Materiais / slots: 1 / 1",
+        "Texturas: 0",
+        "AABB atual (m, X × Y × Z): 0.1865 × 0.64166 × 1.7335"
+      ],
+      "shots": [
+        {
+          "view": "perspective",
+          "path": "C:/Users/enzot/AppData/Local/Temp/studio-arsenal-before/before-rifle-perspective.png",
+          "bytes": 59682,
+          "sha256": "0e3b8fb2a2ee9fc15ab297dce336355529fd51c07c7325bd67a8481ee1aec9f4"
+        },
+        {
+          "view": "right",
+          "path": "C:/Users/enzot/AppData/Local/Temp/studio-arsenal-before/before-rifle-right.png",
+          "bytes": 43189,
+          "sha256": "1e7eebe5d3f47d1a622828a98ae3ea2c4f29269f6e28fad1bfa618cd086eba9e"
+        },
+        {
+          "view": "left",
+          "path": "C:/Users/enzot/AppData/Local/Temp/studio-arsenal-before/before-rifle-left.png",
+          "bytes": 40898,
+          "sha256": "15c3870d362bd5d510b74922224557804b6d724e584db2e4bc1dbae01fad8ce9"
+        },
+        {
+          "view": "top",
+          "path": "C:/Users/enzot/AppData/Local/Temp/studio-arsenal-before/before-rifle-top.png",
+          "bytes": 24442,
+          "sha256": "e0addc3d4a0aca55c5a3bf03bf42aa0e5316eb4c645106fcc6c8a901d93b7e52"
+        },
+        {
+          "view": "front",
+          "path": "C:/Users/enzot/AppData/Local/Temp/studio-arsenal-before/before-rifle-front.png",
+          "bytes": 36689,
+          "sha256": "c29427b26d765ef18c2d4cdb0b2f4b938847ccaf0268c594e38821ee9b99c575"
+        },
+        {
+          "view": "back",
+          "path": "C:/Users/enzot/AppData/Local/Temp/studio-arsenal-before/before-rifle-back.png",
+          "bytes": 27845,
+          "sha256": "c80fee3e2907418045fa9332b3718b4cdf15158b57f822f506a988bb87529c1f"
+        }
+      ]
+    },
+    "shotgun": {
+      "variant": "assets/models/shotgun.glb",
+      "resource": "assets/models/shotgun.glb",
+      "sha256": "8cf7f07543e05d5a96ccb47bc3c7d46c26b06ec72360424fb78e57d34b64c144",
+      "metrics": [
+        "Instâncias de malha: 1",
+        "Vértices / triângulos instanciados: 1120 / 2104",
+        "Vértices / triângulos únicos: 1120 / 2104",
+        "Materiais / slots: 1 / 1",
+        "Texturas: 0",
+        "AABB atual (m, X × Y × Z): 0.234 × 0.46708 × 1.9775"
+      ],
+      "shots": [
+        {
+          "view": "perspective",
+          "path": "C:/Users/enzot/AppData/Local/Temp/studio-arsenal-before/before-shotgun-perspective.png",
+          "bytes": 53624,
+          "sha256": "ff037592ff87e9e943549b824110f6fe86e93977f4553c1cef0e0dfdd35dfb33"
+        },
+        {
+          "view": "right",
+          "path": "C:/Users/enzot/AppData/Local/Temp/studio-arsenal-before/before-shotgun-right.png",
+          "bytes": 26457,
+          "sha256": "bf621a0ee3cd01144632c1e2ee5a94f6048d966c8b3868858127f1dcc0f2ef71"
+        },
+        {
+          "view": "left",
+          "path": "C:/Users/enzot/AppData/Local/Temp/studio-arsenal-before/before-shotgun-left.png",
+          "bytes": 24690,
+          "sha256": "8d76f6645ea75bf8153fd7b09ddd32b36175b66b86461ebe354ddd4646dea5f9"
+        },
+        {
+          "view": "top",
+          "path": "C:/Users/enzot/AppData/Local/Temp/studio-arsenal-before/before-shotgun-top.png",
+          "bytes": 20400,
+          "sha256": "53ccb2db671c9a5d24154d005a70bb5162b73b4dc7c05b686a25edfbaf14cf99"
+        },
+        {
+          "view": "front",
+          "path": "C:/Users/enzot/AppData/Local/Temp/studio-arsenal-before/before-shotgun-front.png",
+          "bytes": 50286,
+          "sha256": "5bb22b6dc7fc37781f081d2dec61ab8be6a60fea9d52f2a0c6e23d261c772c40"
+        },
+        {
+          "view": "back",
+          "path": "C:/Users/enzot/AppData/Local/Temp/studio-arsenal-before/before-shotgun-back.png",
+          "bytes": 32661,
+          "sha256": "acaca8557402b82f3a5416c9ddd92a41ebe112755b55c73f0ec75f58c3f39971"
+        }
+      ]
+    },
+    "lmg": {
+      "variant": "assets/models/lmg.glb",
+      "resource": "assets/models/lmg.glb",
+      "sha256": "c3fc602c3f9db6b677201e576312caf0a9902cb849c1c99eb1e156ddfa5ac32a",
+      "metrics": [
+        "Instâncias de malha: 1",
+        "Vértices / triângulos instanciados: 1576 / 2964",
+        "Vértices / triângulos únicos: 1576 / 2964",
+        "Materiais / slots: 1 / 1",
+        "Texturas: 0",
+        "AABB atual (m, X × Y × Z): 0.42987 × 0.78 × 1.9855"
+      ],
+      "shots": [
+        {
+          "view": "perspective",
+          "path": "C:/Users/enzot/AppData/Local/Temp/studio-arsenal-before/before-lmg-perspective.png",
+          "bytes": 66040,
+          "sha256": "033bb9206d63cc36f7b363137c7e1bb1339d4777f1fa31447e2deecf1b915ab8"
+        },
+        {
+          "view": "right",
+          "path": "C:/Users/enzot/AppData/Local/Temp/studio-arsenal-before/before-lmg-right.png",
+          "bytes": 42997,
+          "sha256": "152e27cf33092b829988c187ba0c5c933b5203c15e2ba78171e7d0b8d83cb666"
+        },
+        {
+          "view": "left",
+          "path": "C:/Users/enzot/AppData/Local/Temp/studio-arsenal-before/before-lmg-left.png",
+          "bytes": 39058,
+          "sha256": "01e34f05431593aac8d785d82a0e127be357dd38ca7a1d351b9466fd7a920650"
+        },
+        {
+          "view": "top",
+          "path": "C:/Users/enzot/AppData/Local/Temp/studio-arsenal-before/before-lmg-top.png",
+          "bytes": 29832,
+          "sha256": "0b43c8abf10d7c03d799a373833d7d889250f269cf1a2b6f900e98dfbaa5b94b"
+        },
+        {
+          "view": "front",
+          "path": "C:/Users/enzot/AppData/Local/Temp/studio-arsenal-before/before-lmg-front.png",
+          "bytes": 53722,
+          "sha256": "e776578f61e6d5a7572c6921f6e62753a0fb0ac8ce50aa20e5114d363b0dc6dc"
+        },
+        {
+          "view": "back",
+          "path": "C:/Users/enzot/AppData/Local/Temp/studio-arsenal-before/before-lmg-back.png",
+          "bytes": 44495,
+          "sha256": "fa297f92385795ee40f77c9bdec6fd9745a25c9e71486c914ae9a7e350e3af47"
+        }
+      ]
+    },
+    "sniper": {
+      "variant": "assets/models/sniper.glb",
+      "resource": "assets/models/sniper.glb",
+      "sha256": "8806950135d9b9f08ba457a3ba9f4853c877feca5ebb8a498a78f5d7dce56302",
+      "metrics": [
+        "Instâncias de malha: 1",
+        "Vértices / triângulos instanciados: 1180 / 2220",
+        "Vértices / triângulos únicos: 1180 / 2220",
+        "Materiais / slots: 1 / 1",
+        "Texturas: 0",
+        "AABB atual (m, X × Y × Z): 0.35325 × 0.62234 × 2.3125"
+      ],
+      "shots": [
+        {
+          "view": "perspective",
+          "path": "C:/Users/enzot/AppData/Local/Temp/studio-arsenal-before/before-sniper-perspective.png",
+          "bytes": 57245,
+          "sha256": "84f4332ce2546ec82c4d6b97dc13cbc6a80deb5704cacfe8bf16cea402e409f5"
+        },
+        {
+          "view": "right",
+          "path": "C:/Users/enzot/AppData/Local/Temp/studio-arsenal-before/before-sniper-right.png",
+          "bytes": 25692,
+          "sha256": "f89369485eb98f072c47aa20f722b9a6e525049adc67c3e59f64d10beb9a3826"
+        },
+        {
+          "view": "left",
+          "path": "C:/Users/enzot/AppData/Local/Temp/studio-arsenal-before/before-sniper-left.png",
+          "bytes": 23650,
+          "sha256": "ff997066ff297f31df191c5101921ef8d016505de3e420be2be7e88b1a575bc6"
+        },
+        {
+          "view": "top",
+          "path": "C:/Users/enzot/AppData/Local/Temp/studio-arsenal-before/before-sniper-top.png",
+          "bytes": 22379,
+          "sha256": "3eed46844510dd0c24159844f8b9799d79b7fd2399ad118996f7e88199f1842d"
+        },
+        {
+          "view": "front",
+          "path": "C:/Users/enzot/AppData/Local/Temp/studio-arsenal-before/before-sniper-front.png",
+          "bytes": 47328,
+          "sha256": "37894b54a9f41b1a051f3542b8addc96c3074229451168187bd2ff512255760f"
+        },
+        {
+          "view": "back",
+          "path": "C:/Users/enzot/AppData/Local/Temp/studio-arsenal-before/before-sniper-back.png",
+          "bytes": 39185,
+          "sha256": "aa1c195f47f7ba798c094dc12b800b7260ccdc12c49ceac7a2872fd285138bfe"
+        }
+      ]
+    },
+    "bolt_sniper": {
+      "variant": "assets/models/bolt_sniper.glb",
+      "resource": "assets/models/bolt_sniper.glb",
+      "sha256": "7845f7196af034de260efa1c11b5631ac7697a5043f69fe37c1dbaf3b58d0b56",
+      "metrics": [
+        "Instâncias de malha: 1",
+        "Vértices / triângulos instanciados: 960 / 1808",
+        "Vértices / triângulos únicos: 960 / 1808",
+        "Materiais / slots: 1 / 1",
+        "Texturas: 0",
+        "AABB atual (m, X × Y × Z): 0.2905 × 0.5185 × 2.386"
+      ],
+      "shots": [
+        {
+          "view": "perspective",
+          "path": "C:/Users/enzot/AppData/Local/Temp/studio-arsenal-before/before-bolt_sniper-perspective.png",
+          "bytes": 51966,
+          "sha256": "799d4fdd8871773c97afc9d2ef2cccbd4b45fccc677d5779964fc705fa969115"
+        },
+        {
+          "view": "right",
+          "path": "C:/Users/enzot/AppData/Local/Temp/studio-arsenal-before/before-bolt_sniper-right.png",
+          "bytes": 20537,
+          "sha256": "a5be2e1b92540f9cf883e28e50b98f1202db20912c39f8f9acdad40e383a23c5"
+        },
+        {
+          "view": "left",
+          "path": "C:/Users/enzot/AppData/Local/Temp/studio-arsenal-before/before-bolt_sniper-left.png",
+          "bytes": 19134,
+          "sha256": "05185b06b2e6f5262eb61fe015943695241637467a7b1228b599a50b9b4a806a"
+        },
+        {
+          "view": "top",
+          "path": "C:/Users/enzot/AppData/Local/Temp/studio-arsenal-before/before-bolt_sniper-top.png",
+          "bytes": 17818,
+          "sha256": "806f250a37249ea15b9e4a10ebb48ec4a442c838177fc11863c102e5c8860507"
+        },
+        {
+          "view": "front",
+          "path": "C:/Users/enzot/AppData/Local/Temp/studio-arsenal-before/before-bolt_sniper-front.png",
+          "bytes": 43863,
+          "sha256": "800d5fa782f8792af8322efd4c2405a1a4ed4421ead7950651e6ac6ca3c4017c"
+        },
+        {
+          "view": "back",
+          "path": "C:/Users/enzot/AppData/Local/Temp/studio-arsenal-before/before-bolt_sniper-back.png",
+          "bytes": 33783,
+          "sha256": "bc103ba2111155285454c8b9c0f115985d7d028dcf8891e6b7f1a233dc867488"
+        }
+      ]
+    },
+    "sentinela": {
+      "variant": "assets/models/sentinela.glb",
+      "resource": "assets/models/sentinela.glb",
+      "sha256": "cbb2c41006389855e52597b023dd1e3350bfdcaf82324e3de253471dfb9042af",
+      "metrics": [
+        "Instâncias de malha: 1",
+        "Vértices / triângulos instanciados: 472 / 896",
+        "Vértices / triângulos únicos: 472 / 896",
+        "Materiais / slots: 1 / 1",
+        "Texturas: 0",
+        "AABB atual (m, X × Y × Z): 0.16718 × 0.38 × 1.7875"
+      ],
+      "shots": [
+        {
+          "view": "perspective",
+          "path": "C:/Users/enzot/AppData/Local/Temp/studio-arsenal-before/before-sentinela-perspective.png",
+          "bytes": 43448,
+          "sha256": "e0625b2ce61f7ac7a37b20a7b0884e8ab26993be3615aa1375bc3805cfeacbc0"
+        },
+        {
+          "view": "right",
+          "path": "C:/Users/enzot/AppData/Local/Temp/studio-arsenal-before/before-sentinela-right.png",
+          "bytes": 22512,
+          "sha256": "ce4c87d3da5c1adbab6531bf15a42088807f82b91724bea2adb2e1099297808c"
+        },
+        {
+          "view": "left",
+          "path": "C:/Users/enzot/AppData/Local/Temp/studio-arsenal-before/before-sentinela-left.png",
+          "bytes": 21497,
+          "sha256": "39e4d4c5de9f213aac694c4077534e67b74aef230eb9b9a1ab30e0cd3c12b9c8"
+        },
+        {
+          "view": "top",
+          "path": "C:/Users/enzot/AppData/Local/Temp/studio-arsenal-before/before-sentinela-top.png",
+          "bytes": 17480,
+          "sha256": "f363b5463c2ffc76c8f5615b26a0a48fb2c297d07d861b20f09f5fd966b06001"
+        },
+        {
+          "view": "front",
+          "path": "C:/Users/enzot/AppData/Local/Temp/studio-arsenal-before/before-sentinela-front.png",
+          "bytes": 44263,
+          "sha256": "b8f484f6b91a1f16fb499b7384b0345493ca07acb258a201e2c6d55f46d2c127"
+        },
+        {
+          "view": "back",
+          "path": "C:/Users/enzot/AppData/Local/Temp/studio-arsenal-before/before-sentinela-back.png",
+          "bytes": 37061,
+          "sha256": "24c544222c77766f74b2e25a85330052014e4d410b1d94a7b62bef90496111cb"
+        }
+      ]
+    }
+  }
+}

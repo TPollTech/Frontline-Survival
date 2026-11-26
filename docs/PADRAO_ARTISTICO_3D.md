@@ -1,6 +1,6 @@
 # Padrão artístico híbrido 3D — 02-01
 
-26/11/2026. Estado: definição normativa **e** demonstração executada em um asset de produção (pistol), com inspeção real no Asset Studio e no Godot 4.4.1 Compatibility. A definição abaixo não foi reescrita; a execução e os limites estão no fim do documento. Base técnica: 98e1390059d7d1d30c26fcc480015e59ca7de9af; execução na revisão 4f3eefcec318acc5c1145ca14cefeb64d6e5385f. Complementa [especificação](ASSET_STUDIO_SPEC.md), [contrato v1](ARQUITETURA_ASSET_PIPELINE.md), [guia operacional](GUIA_PIPELINE_3D.md) e [critério de aceite](CRITERIOS_ACEITE_1_0.md). Não substitui o portão de 13 passos nem promove homologação artística.
+26/11/2026. Estado: definição normativa, demonstração executada em asset de produção (pistol, 02-01) e aplicação às oito armas (02-02), com inspeção real no Asset Studio e no Godot (4.4.1 em 02-01, 4.7.2 em 02-02). A definição abaixo não foi reescrita; a execução e os limites estão no fim do documento. Base técnica: 98e1390059d7d1d30c26fcc480015e59ca7de9af; execução na revisão 4f3eefcec318acc5c1145ca14cefeb64d6e5385f. Complementa [especificação](ASSET_STUDIO_SPEC.md), [contrato v1](ARQUITETURA_ASSET_PIPELINE.md), [guia operacional](GUIA_PIPELINE_3D.md) e [critério de aceite](CRITERIOS_ACEITE_1_0.md). Não substitui o portão de 13 passos nem promove homologação artística.
 
 ## Direção artística
 
@@ -51,6 +51,31 @@ Aceite 02-01 requer todos os portões demonstrados em um asset de produção, al
 ## Evidências e limites desta revisão
 
 Leitura remota de AGENTS.md, checklist, critérios, especificação, guia, arquitetura, auditoria integrada, tools/build_weapons.py, arsenal_sources.mjs e lod.py. Conferência documental de caminhos, critérios e preservação dos IDs. Sem execução nova de Godot, WebGL, Blender ou exportação; nenhuma alteração de malha, material, gameplay ou catálogo. Sem aprovação visual ou nova captura. Estado 02-01 permanece parcial; a demonstração no rifle de produção é o próximo passo obrigatório.
+
+## Execução do padrão no arsenal inteiro — 02-02, 26/11/2026
+
+A regra híbrida foi aplicada às oito armas de produção em `tools/build_weapons.py`. Superfícies
+orgânicas/esculpidas (punhos, coronhas, pump, guarda-mão inferior) vêm de `OrganicLoft`; tudo o que é
+maquinado continua nas primitivas paramétricas. Helpers: `hybrid_loft` (loft com eixo Y ou Z, mesmo
+`pos`/`angles` da peça substituída), `hybrid_grip` e `hybrid_stock`.
+
+Duas regras de execução passaram a ser obrigatórias:
+
+- **Seções inscritas no envelope.** Raio de seção `≤ 0,5 × largura/altura` da peça substituída. Um loft que
+  ultrapassa o envelope engole canos e tubos (visto no pump da escopeta) e um loft que encolhe a culatra
+  cria efeito cogumelo contra sola/chapa de recuo (visto na LMG e nas precisas).
+- **Perfil, não tubo.** Coronha precisa de *drop*: o centro da seção desce do punho para a culatra. Sem essa
+  curva a peça lê como tubo, mesmo com a silhueta correta.
+
+`OrganicLoft` ganhou `section_power` (superelipse, `2 ≤ p ≤ 16`, padrão 2.0 idêntico ao comportamento
+anterior). Elipse serve para punhos (p ≈ 2), retângulo arredondado serve para coronhas e mobília moldada
+(p ≈ 3,2–3,6): lados planos, cantos com filete, sem facetas de caixa. Nenhuma peça pode ser aproximada por
+caixa octogonal nem por elipse quando a leitura de material/fabricação depende da seção.
+
+Consequência para o portão: toda alteração de mobília exige rebuild determinístico, medição de envelope
+contra a revisão anterior, verificação de contato com as peças vizinhas e inspeção nas seis vistas do Studio
+**e** no viewmodel real do Godot em repouso, ADS e recarga. Envelope e triângulos das oito armas estão
+fixados em `tests/test_hybrid_arsenal.py`. Evidências: [validação 02-02](VALIDACAO_02_02_ARSENAL_HIBRIDO.md).
 
 ## Auditoria binária focal do piloto — 26/11/2026
 

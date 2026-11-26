@@ -80,6 +80,22 @@ class OrganicTests(unittest.TestCase):
         self.assertAlmostEqual(m.signed_volume(),n*0.5*2*math.sin(math.tau/n)*3)
         self.assertTrue(m.closed_oriented())
 
+    def test_loft_superellipse_section(self):
+        # Furniture needs flat sides with filleted corners: the superellipse
+        # fills the ring's bounding box diagonally but never exceeds it, and
+        # the default power keeps the historical elliptical ring intact.
+        s0,s1=LoftSection(0,(0,0),(2,1)),LoftSection(3,(0,0),(2,1))
+        ellipse=self.b.build(OrganicLoft("ellipse",(s0,s1),16,2))
+        squircle=self.b.build(OrganicLoft("squircle",(s0,s1),16,2,4.0))
+        self.assertEqual(ellipse,self.b.build(OrganicLoft("ellipse",(s0,s1),16,2)))
+        self.assertTrue(squircle.closed_oriented())
+        self.assertGreater(squircle.signed_volume(),ellipse.signed_volume())
+        diagonal=lambda m: max(math.hypot(v[0]/2,v[2]/1) for v in m.vertices)
+        self.assertGreater(diagonal(squircle),diagonal(ellipse))
+        for v in squircle.vertices:
+            self.assertLessEqual(abs(v[0]),2+1e-9)
+            self.assertLessEqual(abs(v[2]),1+1e-9)
+
     def test_loft_invalid_parameters(self):
         with self.assertRaises(ValueError):
             LoftSection(0,(0,0),(0,1))
@@ -88,6 +104,10 @@ class OrganicTests(unittest.TestCase):
             OrganicLoft("bad",(s,s))
         with self.assertRaises(ValueError):
             OrganicLoft("bad",(s,LoftSection(1,(0,0),(1,1))),512,256)
+        with self.assertRaises(ValueError):
+            OrganicLoft("bad",(s,LoftSection(1,(0,0),(1,1))),8,4,1.0)
+        with self.assertRaises(ValueError):
+            OrganicLoft("bad",(s,LoftSection(1,(0,0),(1,1))),8,4,17.0)
 
     def test_custom_quad(self):
         m=self.b.build(CustomTopology("quad",((0,0,0),(1,0,0),(1,0,1),(0,0,1)),((0,1,2,3),)))

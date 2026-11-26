@@ -119,7 +119,7 @@ def render(items, stages):
 </style>
 <header class="top">
  <h1>Frontline Survival — Checklist mestre interativo</h1>
- <p class="sub">131 IDs · padrão híbrido 02-01 demonstrado no pistol de produção · atualizado 26/11/2026</p>
+ <p class="sub">131 IDs · padrão híbrido aplicado às oito armas (02-01/02-02) · atualizado 26/11/2026</p>
  <div class="progress" aria-label="progresso"><i></i></div>
  <div class="stats"><span><b>{done}</b> concluídos</span><span><b>{len(items) - done}</b> pendentes/parciais</span><span><b>{done / len(items) * 100:.1f}%</b> oficial</span><span>Próxima recomendada: <b>{first_pending}</b></span></div>
 </header>

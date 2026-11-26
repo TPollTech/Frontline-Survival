@@ -95,15 +95,19 @@ class LoftSection:
 
 @dataclass(frozen=True)
 class OrganicLoft:
-    """Closed loft of elliptical rings with strictly increasing height.
+    """Closed loft of superelliptical rings with strictly increasing height.
 
     Interpolates radii/centres/twist using smoothstep, height linearly.
-    Seam shares vertex indices; end caps are explicit.
+    Seam shares vertex indices; end caps are explicit. ``section_power`` is the
+    superellipse exponent: 2 is a true ellipse (organic forms) and values up to
+    16 approach a rounded rectangle with flat sides and filleted corners, which
+    is what machined or moulded furniture needs without faking it per part.
     """
     id: str
     sections: tuple
     radial_segments: int=32
     steps_per_interval: int=8
+    section_power: float=2.0
 
     def __post_init__(self):
         stable_id(self.id)
@@ -112,6 +116,9 @@ class OrganicLoft:
         require(all(b.y_m>a.y_m for a,b in zip(s,s[1:])),"height must increase strictly")
         _count(self.radial_segments,3,512)
         _count(self.steps_per_interval,1,256)
+        power=number(self.section_power)
+        require(2<=power<=16,"section power outside [2,16]")
+        object.__setattr__(self,"section_power",power)
         require(((len(s)-1)*self.steps_per_interval+1)*self.radial_segments+2<=65536,"loft vertex budget")
         object.__setattr__(self,"sections",s)
 
@@ -190,11 +197,15 @@ def build_organic(recipe):
                     a.twist_rad+(b.twist_rad-a.twist_rad)*s))
         rings.append(sections[-1])
         vs=[]
+        # Superellipse exponent: 2 keeps the historical elliptical ring exactly.
+        e=2.0/recipe.section_power
         for ring in rings:
             c,s=math.cos(ring.twist_rad),math.sin(ring.twist_rad)
             for i in range(n):
                 a=math.tau*i/n
-                x,z=ring.radii_xz[0]*math.cos(a),ring.radii_xz[1]*math.sin(a)
+                ca,sa=math.cos(a),math.sin(a)
+                x=ring.radii_xz[0]*math.copysign(abs(ca)**e,ca)
+                z=ring.radii_xz[1]*math.copysign(abs(sa)**e,sa)
                 vs.append((ring.center_xz[0]+c*x-s*z,ring.y_m,ring.center_xz[1]+s*x+c*z))
         fs=[]
         for j in range(len(rings)-1):
