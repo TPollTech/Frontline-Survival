@@ -79,6 +79,20 @@ Inspeção: agente Buffy, 26/11/2026, sobre as capturas desta revisão (não sob
 - **ZIP Windows não gerado**: o binário de exportação 4.4.1 não está instalado no perfil (erro “No export template found”) e o CI está sem cota. A entrega não afirma executável validado; isso permanece no 10-10.
 - Nenhuma execução de CI, benchmark ou Blender nesta sessão.
 
+## Verificações pós-commit (`edc903b`)
+
+| Verificação | Resultado |
+|---|---|
+| `node --test tests/test_arsenal_sources.mjs` | 9/10 — cobertura 8/31/7, índice determinístico e rejeições OK; a CLI de proveniência falhou |
+| `python -m unittest tests/test_live_catalog.py` | 19/19 OK |
+| `validate_gltf` em produção (32 GLBs) | 32/32 `pass_with_unknowns`, 0 erros; pistol sem avisos, 3952 triângulos |
+| Regeração do painel (`tools/generate_checklist_panel.py`) | idêntica; arquivo sem diff após o commit |
+| `git rev-parse origin/main` | `edc903b32cfb1a2eb12246982df9eb8c6de3634c`, igual ao HEAD local |
+
+A CLI `arsenal_sources.mjs` falha neste checkout Windows ao comparar blobs: `core.autocrlf=true` faz arquivos de texto do worktree (por exemplo `scripts/weapon_materials.gd`) terem CRLF, enquanto o blob do HEAD é LF; o erro é “Source/output drift from HEAD”. O mesmo efeito já impede `build_manifest.mjs` de comparar o manifesto nesse checkout. As nove verificações de `collectArsenal` passam e o problema é de ambiente, não do asset; a execução canônica permanece em Linux/CI. Nenhum ajuste de EOL ou do repositório foi feito neste ID.
+
+O script de captura Godot (`res://tests/tmp_pistol_capture.gd`) foi uma sonda temporária na worktree isolada e não foi integrado, para não criar runner redundante; o script de captura do Studio foi integrado por ser reutilizável. A worktree foi removida após as capturas.
+
 ## Decisão
 
 Os portões do 02-01 (referências, escala declarada, silhueta, detalhes, materiais, exportação determinística, verificações focadas, Studio real, inspeção, Godot real, registro de evidências) foram demonstrados no pistol de produção. **02-01 aceito** com os débitos acima atribuídos a IDs posteriores. Nenhum outro ID promovido.
