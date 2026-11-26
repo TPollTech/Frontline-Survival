@@ -51,7 +51,7 @@ def _byte(value):
 
 def surface_pixels(profile, factors, size=256, seed=205):
     """Return three RGB8 buffers; size must be a power of two in [64, 512]."""
-    if profile not in STYLE or size not in (64, 128, 256, 512):
+    if profile not in STYLE or type(size) is not int or size not in (64, 128, 256, 512):
         raise ValueError("unknown profile or unsupported size")
     if type(seed) is not int or not 0 <= seed <= 0xffffffff:
         raise ValueError("invalid seed")
@@ -80,6 +80,8 @@ def surface_pixels(profile, factors, size=256, seed=205):
 def build_library(profiles, size=256, seed=205):
     """Adapt candidates to canonical PBR objects; does not alter game assets."""
     from .pbr import MaterialLibrary, PBRMaterial, TextureData
+    if type(seed) is not int or not 0 <= seed <= 0xffffffff:
+        raise ValueError("invalid seed")
     if set(profiles) != set(STYLE):
         raise ValueError("profile coverage mismatch")
     mats, textures = [], []
