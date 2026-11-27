@@ -34,9 +34,9 @@ def palm(right=True):
 
 def dorsal_panel():
     """Low padded dorsal panel, not a round sphere."""
-    return _mesh("fps_dorsal_panel", [(-.047,0,0,.023,.005),
+    return _mesh("fps_dorsal_panel", [(-.047,0,0,.018,.003),
         (-.033,0,0,.042,.011), (0,0,0,.047,.013),
-        (.033,0,0,.043,.010), (.047,0,0,.024,.004)], 20, 2, 4.0)
+        (.033,0,0,.043,.010), (.047,0,0,.019,.003)], 20, 2, 3.1)
 
 
 def finger_segment(digit, distal, axis_length):
@@ -54,9 +54,9 @@ def finger_segment(digit, distal, axis_length):
     rows = [(-h-r*.70,0,0,r*.35,r*.32),
             (-h,0,0,r*.95,r*.83), (-h*.35,0,0,r,r*.86),
             (h*.30,0,0,r*.92,r*.80), (h,0,0,r*.81,r*.70),
-            (h+r*.55,0,0,r*.23,r*.21)]
+            (h+r*.55,0,0,r*.14,r*.13)]
     return _mesh(f"fps_digit_{digit}_{'distal' if distal else 'proximal'}",
-                 rows, 16, 1, 2.6)
+                 rows, 16, 1, 2.2)
 
 
 def sleeve(id, axis_length, top_radius, bottom_radius):
