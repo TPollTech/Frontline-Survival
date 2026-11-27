@@ -44,3 +44,9 @@ Antes da solicitação de usar somente a página publicada para a inspeção vis
 A comparação FPS é composta de seis quadros por família e por revisão, em repouso, mira, dois momentos da recarga e duas fases da troca. A escopeta mantém a mão junto ao guarda-mão nas poses observadas. Em várias famílias, o carregador e os dedos saem do enquadramento durante a recarga. Na troca, a arma sai pelo limite inferior da câmera e a seguinte reaparece. A sequência confirma o fluxo de troca amostrado e não resolve a inspeção dos dedos ocultos. [Oito famílias no Godot](qa/02-08/fps-oito-familias.jpg) · [Escopeta antes e depois](qa/02-08/pump-antes-depois.jpg).
 
 O [Asset Studio publicado](https://tpolltech.github.io/Frontline-Survival/) identificou a revisão `828426a`, anterior a esta alteração. O catálogo público tem 24 poses estáticas das oito famílias, em repouso, mira e recarga, sem amostras de troca. O 02-08 permanece parcial. A página pública não demonstra contato dos dedos e deformações em movimento na revisão entregue.
+
+## Alinhamento entre antebraço e punho — 27/11/2026
+
+A captura do usuário mostrou uma junção irregular entre a luva e a manga da mão de apoio. O antebraço era construído até o ponto anterior à compensação da rotação do punho. Para a rotação de repouso de −1,25 rad, a diferença entre os dois pontos era de 52,66 mm. O antebraço e o nó do punho passam a usar a mesma âncora compensada. A verificação algébrica confirma distância zero entre esses pontos e posição de repouso da palma preservada. Isso mede âncoras, sem avaliar interseção dos volumes ou curvatura dos dedos.
+
+O 02-08 permanece parcial. O Asset Studio público ainda serve a revisão anterior. A inspeção da junção e dos dedos em movimento na revisão atual segue aberta.

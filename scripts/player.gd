@@ -1449,6 +1449,9 @@ func _add_first_person_arm(elbow: Vector3, wrist: Vector3, trigger_hand: bool) -
     var cuff := Color(0.16, 0.21, 0.18)
     var glove := Color(0.095, 0.11, 0.12)
     var old_parent := active_arm_parent
+    var wrist_roll := 0.0 if trigger_hand else -1.25
+    # Build the sleeve and wrist to the same endpoint while keeping the palm on its socket.
+    var wrist_anchor := wrist + FPS_PALM_CENTER - FPS_PALM_CENTER.rotated(Vector3.BACK, wrist_roll)
     # Anchor both joints near their actual wrists: the previous fixed Z
     # shoulders stretched forearms across the entire FPS viewport.
     var shoulder: Vector3 = (
@@ -1466,17 +1469,14 @@ func _add_first_person_arm(elbow: Vector3, wrist: Vector3, trigger_hand: bool) -
     elbow_joint.position = elbow - shoulder
     shoulder_joint.add_child(elbow_joint)
     active_arm_parent = elbow_joint
-    _arm_link(Vector3.ZERO, wrist - elbow, "forearm", uniform)
+    _arm_link(Vector3.ZERO, wrist_anchor - elbow, "forearm", uniform)
     var wrist_joint := Node3D.new()
     wrist_joint.name = "Wrist"
-    wrist_joint.position = wrist - elbow
+    wrist_joint.position = wrist_anchor - elbow
+    wrist_joint.rotation.z = wrist_roll
     elbow_joint.add_child(wrist_joint)
     active_arm_parent = wrist_joint
     _arm_link(Vector3(0, -0.045, 0.025), Vector3(0, 0.043, -0.032), "cuff", cuff)
-    if not trigger_hand:
-        wrist_joint.rotation.z = -1.25
-        # Keep the glove center on its socket when turning the fingers around the fore-end.
-        wrist_joint.position += FPS_PALM_CENTER - wrist_joint.basis * FPS_PALM_CENTER
     var palm_location := FPS_PALM_CENTER
     var organic := preload("res://scripts/fps_hand_mesh.gd")
     var palm := organic.mesh("palm_right" if trigger_hand else "palm_left")
