@@ -100,3 +100,11 @@ Godot 4.7.2 Compatibility, AMD Radeon, Windows, na cópia de teste isolada da ex
 ## Refinamento dos contornos das luvas
 
 Extremidades do painel dorsal e dos dedos arredondadas na fonte, com templates regenerados. Seis testes passaram e a comparação visual no Godot 4.7.2 incluiu dez quadros aproximados e 15 poses FPS de recarga. Homologação no Asset Studio aberta. Foram reduzidas as tampas planas do painel e das pontas distais e suavizadas as seções superelípticas. Os pivôs, as animações, o orçamento de triângulos e a montagem do runtime foram preservados. Comparação em Windows/AMD Radeon, com o mesmo cenário e a mesma câmera de diagnóstico da execução anterior, em cópia isolada. [Captura após ajuste](<https://chatgpt.com/library?file_id=libfile_371923d8420c8191835fe33909f8438f&account_id=personal>).
+
+## Inspeção da composição atual no Asset Studio — 27/11/2026
+
+O catálogo vivo passa a vincular `viewmodel:hands` ao gerador, à receita paramétrica, ao carregador Godot e ao JSON de templates realmente consumido. A entrada histórica do manifesto foi preservada. O carregador e o template são verificados na descoberta e a captura é confrontada com os hashes do commit. A regressão de catálogo passou em 20/20 testes.
+
+O inventário do Godot 4.5.2 em Windows capturou 86 composições no commit `d9a55c5`. O Studio WebGL reconstruiu e conciliou os buffers reais. Foram abertas e inspecionadas nove composições de pistola, rifle e escopeta em repouso, mira e recarga no Chromium com SwiftShader. A pistola apresentou 20 superfícies, e o rifle e a escopeta apresentaram 36 cada. A revisão excluiu a comparação opcional da câmera do mapa, cuja imagem divergiu do tamanho reportado do viewport nesse ambiente. [Captura do Studio](qa/02-06/studio-maos.jpg).
+
+Na vista externa, a mão de apoio acompanha o guarda-mão da escopeta e se desloca ao carregador do rifle. Há serrilhado escuro nos contornos dos dedos e em junções das mangas no Studio. A causa precisa ser isolada entre iluminação, interseção e acabamento geométrico. O 02-06 continua parcial com revisão de detalhe e deformações em movimento abertas.

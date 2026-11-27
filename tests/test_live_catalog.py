@@ -24,7 +24,6 @@ class CatalogTests(unittest.TestCase):
     def test_shared_character_recipes_are_linked_not_preview_assets(self):
         helper="scripts/character_geometry.gd"
         families={
-            "viewmodel:hands":("scripts/player.gd",["sleeve"]),
             "enemy:legacy":("scripts/enemy.gd",["joint","padded","capsule"]),
             "ally:legacy":("scripts/ally.gd",["joint","padded","capsule"]),
             "character:quaternius_equipment":("scripts/quaternius_soldier_visual.gd",["capsule","box"]),
@@ -38,7 +37,7 @@ class CatalogTests(unittest.TestCase):
         self.put("assets/catalog/manifest.json",json.dumps({"assets":assets,"resources":{},"source_registry":{},"known_dynamic_gaps":[]}))
         paths=[helper,"scripts/model_surface.gd"]+[p for p,_ in families.values()]
         c=self.catalog(paths)
-        self.assertEqual(len(c["assets"]),4)
+        self.assertEqual(len(c["assets"]),3)
         self.assertNotIn(helper,c["runtime_candidates"])
         for a in c["assets"]:
             self.assertIn(helper,a["dependencies"]["sources"])
@@ -48,6 +47,36 @@ class CatalogTests(unittest.TestCase):
         self.assertEqual(canonical(c),canonical(self.catalog(paths)))
         self.put("scripts/ally.gd",'const CharacterGeometry = preload("res://'+helper+'")')
         with self.assertRaisesRegex(ValueError,"missing shared character recipe"):
+            self.catalog(paths)
+
+    def test_fps_hand_dependencies_follow_the_runtime_templates(self):
+        recipe = "tools/asset_pipeline/parametric/fps_hand_geometry.py"
+        baker = "tools/asset_pipeline/bake_fps_hands.py"
+        loader = "scripts/fps_hand_mesh.gd"
+        templates = "assets/models/fps_hand_templates.json"
+        player = "scripts/player.gd"
+        asset = {
+            "id": "viewmodel:hands", "category": "viewmodel",
+            "source": {"path": player, "kind": "godot_recipe"},
+            "outputs": [], "dependencies": {"sources": [], "assets": [], "resources": []},
+            "preview": {"resource": None}, "validation": {},
+        }
+        self.put("assets/catalog/manifest.json", json.dumps({
+            "assets": [asset], "resources": {}, "source_registry": {}, "known_dynamic_gaps": [],
+        }))
+        self.put(player, f'const HandMesh = preload("res://{loader}")')
+        self.put(loader, f'const TEMPLATES = "res://{templates}"')
+        self.put(templates, "{}")
+        self.put(recipe, "")
+        self.put(baker, "")
+        paths = [player, loader, templates, recipe, baker]
+        catalog = self.catalog(paths)
+        hands = next(item for item in catalog["assets"] if item["id"] == "viewmodel:hands")
+        self.assertEqual(hands["dependencies"]["sources"], sorted([recipe, baker, loader]))
+        self.assertEqual(hands["dependencies"]["resources"], [templates])
+        self.assertEqual(catalog["resources"][templates]["sha256"], sha(b"{}"))
+        (self.root / templates).unlink()
+        with self.assertRaisesRegex(ValueError, "missing FPS hand templates"):
             self.catalog(paths)
 
 

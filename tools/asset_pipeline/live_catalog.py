@@ -165,6 +165,10 @@ def build(root,paths=None,runtime=None,revision=None):
     candidates|={p for p in paths if p.startswith("scripts/") and Path(p).suffix in (".gdshader",".gdshaderinc")}
     sources={p for p in paths if p.startswith(("scripts/","scenes/","assets/")) and Path(p).suffix in (".gd",".gdshader",".gdshaderinc",".tscn",".tres")}
     sources|={p for p in baseline["source_registry"] if p in paths}
+    hand_recipe = "tools/asset_pipeline/parametric/fps_hand_geometry.py"
+    hand_baker = "tools/asset_pipeline/bake_fps_hands.py"
+    if "viewmodel:hands" in byid:
+        sources.update((hand_recipe, hand_baker))
     if "project.godot" in paths: sources.add("project.godot")
     refs=defaultdict(list)
     missing=[]
@@ -287,7 +291,6 @@ def build(root,paths=None,runtime=None,revision=None):
     # never independent preview models. Baseline IDs and sources stay intact.
     character_helper="scripts/character_geometry.gd"
     character_families={
-        "viewmodel:hands": ("sleeve",),
         "enemy:legacy": ("joint","padded","capsule"),
         "ally:legacy": ("joint","padded","capsule"),
         "character:quaternius_equipment": ("capsule","box"),
@@ -308,6 +311,21 @@ def build(root,paths=None,runtime=None,revision=None):
             asset["dependencies"]["sources"]=sorted(set(asset["dependencies"]["sources"])|{character_helper,"scripts/model_surface.gd"})
             asset["canonical_shared_recipes"]={"path":character_helper,"functions":list(functions),"fingerprint":record,"approved":False}
         shared_procedural.add(character_helper)
+    if "viewmodel:hands" in byid:
+        hands = byid["viewmodel:hands"]
+        mesh_loader = "scripts/fps_hand_mesh.gd"
+        templates = "assets/models/fps_hand_templates.json"
+        require(all(source_records.get(p) for p in (hand_recipe, hand_baker, mesh_loader)),
+                "missing FPS hand source or loader")
+        require(resources.get(templates, {}).get("sha256"), "missing FPS hand templates")
+        consumer = safe(root, hands["source"]["path"]).read_text(encoding="utf-8")
+        loader = safe(root, mesh_loader).read_text(encoding="utf-8")
+        require(f'preload("res://{mesh_loader}")' in consumer and f'"res://{templates}"' in loader,
+                "missing FPS hand template dependency")
+        dependencies = hands["dependencies"]
+        dependencies["sources"] = sorted(set(dependencies["sources"]) | {hand_recipe, hand_baker, mesh_loader})
+        dependencies["resources"] = sorted(set(dependencies["resources"]) | {templates})
+        shared_procedural.add(mesh_loader)
     # The world helper is a real shared dependency, not a second preview mesh.
     world_helper="scripts/world_asset_geometry.gd"
     world_families={
@@ -377,6 +395,8 @@ def build(root,paths=None,runtime=None,revision=None):
         # A working tree different from HEAD cannot inherit CI capture.
         regenerated_import_metadata=[]
         observed_paths = {p for sample in runtime["samples"] for p in runtime_resource_paths(sample) if p in resources and resources[p]["status"] != "missing"}
+        if "viewmodel:hands" in byid:
+            observed_paths.update(byid["viewmodel:hands"]["dependencies"]["resources"])
         for p in sorted(set(known)|set(baseline["source_registry"])|observed_paths|set(sources)):
             fp=resources.get(p) if p in resources else source_records.get(p)
             try:
