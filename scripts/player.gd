@@ -91,6 +91,7 @@ var viewmodel_depth: float = 0.0
 var viewmodel_scale: float = 0.95
 var viewmodel_rear_extent: float = 0.0
 var support_palm_rest: Vector3 = Vector3.ZERO
+var trigger_shoulder_rest: Vector3
 var support_motion_offset: Vector3 = Vector3.ZERO
 var magazine_part: Node3D
 var action_part: Node3D
@@ -1319,6 +1320,11 @@ func _animate_viewmodel(delta: float, sprint_ease: float) -> void:
     var hand_target := Vector3(0.0, -0.07 * mag_out, 0.0)
     hand_rig.position = hand_rig.position.lerp(hand_target, minf(1.0, delta * 16.0))
     hand_rig.rotation.z = lerpf(hand_rig.rotation.z, 0.12 * mag_out, minf(1.0, delta * 15.0))
+    if is_instance_valid(trigger_elbow_joint):
+        # Magazine motion belongs to the supporting arm. Keep the trigger
+        # shoulder in weapon space while its local elbow and wrist articulate.
+        var trigger_shoulder := trigger_elbow_joint.get_parent_node_3d()
+        trigger_shoulder.transform = hand_rig.transform.affine_inverse() * Transform3D(Basis.IDENTITY, trigger_shoulder_rest)
     # Local elbow/wrist motion is blended separately from the weapon body.
     if is_instance_valid(trigger_elbow_joint):
         trigger_elbow_joint.rotation.x = lerpf(trigger_elbow_joint.rotation.x,
@@ -1461,6 +1467,8 @@ func _add_first_person_arm(elbow: Vector3, wrist: Vector3, trigger_hand: bool) -
     var shoulder_joint := Node3D.new()
     shoulder_joint.name = "TriggerShoulder" if trigger_hand else "SupportShoulder"
     shoulder_joint.position = shoulder
+    if trigger_hand:
+        trigger_shoulder_rest = shoulder
     old_parent.add_child(shoulder_joint)
     active_arm_parent = shoulder_joint
     _arm_link(Vector3.ZERO, elbow - shoulder, "upper", uniform)
