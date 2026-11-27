@@ -39,13 +39,26 @@ func _ready() -> void:
         box.material_override = mat
         add_child(box)
         var band := MeshInstance3D.new()
-        var strip := WorldAssetGeometry.machined(Vector3(0.08, 0.202, 0.235))
+        var strip := WorldAssetGeometry.machined(Vector3(0.29, 0.046, 0.235))
         band.mesh = strip
-        band.position = box.position
+        band.name = "CaseLid"
+        band.position = box.position + Vector3(0, 0.078, 0)
         var band_mat := StandardMaterial3D.new()
-        band_mat.albedo_color = Color(0.75, 0.63, 0.31)
+        band_mat.albedo_color = Color(0.46, 0.45, 0.30)
+        band_mat.roughness = 0.78
         band.material_override = band_mat
         add_child(band)
+        var latch_mesh := WorldAssetGeometry.machined(Vector3(0.042, 0.053, 0.022))
+        var latch_material := StandardMaterial3D.new()
+        latch_material.albedo_color = Color(0.75, 0.63, 0.31)
+        latch_material.roughness = 0.55
+        for side in [-1.0, 1.0]:
+            var latch := MeshInstance3D.new()
+            latch.name = "CaseLatch"
+            latch.mesh = latch_mesh
+            latch.position = box.position + Vector3(0.088 * side, 0.054, -0.113)
+            latch.material_override = latch_material
+            add_child(latch)
     rotation.y = randf_range(-PI, PI)
     initial_scale = scale
 

@@ -82,6 +82,9 @@ func _ready() -> void:
     chest.scale = Vector3(0.85, 0.84, 0.40)
     var backpack := _capsule(visual, Vector3(0, 0.12, 0.23), 0.23, 0.48, armor, "Pack")
     backpack.scale.z = 0.52
+    _box(visual, Vector3(0, 0.12, 0.321), Vector3(0.30, 0.30, 0.078), armor.darkened(0.12), "PackGusset")
+    for strap_x in [-0.10, 0.10]:
+        _box(visual, Vector3(strap_x, 0.12, 0.366), Vector3(0.034, 0.32, 0.024), boots, "PackWebbing")
     _box(visual, Vector3(0, -0.28, 0), Vector3(0.50, 0.15, 0.31), boots, "Belt")
     for x in [-0.14, 0.0, 0.14]:
         _box(visual, Vector3(x, 0.02, -0.35), Vector3(0.115, 0.18, 0.075), armor.darkened(0.22), "Pouch")

@@ -194,6 +194,9 @@ func _ready() -> void:
     _box(torso_pivot, Vector3(0, -0.20, 0), Vector3(0.49, 0.16, 0.30), dark, "UtilityBelt")
     var pack_mesh := _capsule(torso_pivot, Vector3(0, 0.10, 0.32), 0.21, 0.44, armor_color, "Pack")
     pack_mesh.scale.z = 0.56
+    _box(torso_pivot, Vector3(0, 0.10, 0.409), Vector3(0.29, 0.27, 0.075), armor_color.darkened(0.12), "PackGusset")
+    for strap_x in [-0.095, 0.095]:
+        _box(torso_pivot, Vector3(strap_x, 0.10, 0.453), Vector3(0.034, 0.29, 0.024), dark, "PackWebbing")
     for x in [-0.19, -0.06, 0.07, 0.20]:
         _box(torso_pivot, Vector3(x, 0.12, -0.345), Vector3(0.105, 0.19, 0.09), armor_color.darkened(0.20), "MagazinePouch")
     for side in [-1.0, 1.0]:
