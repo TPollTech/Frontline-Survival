@@ -91,6 +91,7 @@ var viewmodel_depth: float = 0.0
 var viewmodel_scale: float = 0.95
 var viewmodel_rear_extent: float = 0.0
 var support_palm_rest: Vector3 = Vector3.ZERO
+var support_motion_offset: Vector3 = Vector3.ZERO
 var magazine_part: Node3D
 var action_part: Node3D
 var reload_elapsed: float = 0.0
@@ -937,6 +938,7 @@ func _update_gun_mesh() -> void:
     support_finger_knuckles.clear()
     support_finger_tips.clear()
     support_palm_rest = Vector3.ZERO
+    support_motion_offset = Vector3.ZERO
     # Retain model proportions and hand sockets; framing is a separate shared pose.
     var profile: Vector2 = VIEWMODEL_PROFILES[weapon_id]
     viewmodel_scale = profile.x
@@ -1341,12 +1343,13 @@ func _animate_viewmodel(delta: float, sprint_ease: float) -> void:
         # Magazine-fed guns release the foregrip to reach the magazine; the
         # shotgun stays on the sliding pump instead of reaching a fake magazine.
         var support_reload_offset := Vector3.ZERO
+        var pump_offset := Vector3.ZERO
         if weapon_id == "shotgun" and is_instance_valid(action_part):
             # Hold the actual pump through its animation and bolt cycling. The
             # support wrist's resting pose already matches this mesh socket.
             var pump_grip_root: Vector3 = action_part.transform * SHOTGUN_PUMP_GRIP_POINT
             var pump_grip_hands: Vector3 = hand_rig.transform.affine_inverse() * pump_grip_root
-            support_reload_offset = pump_grip_hands - support_palm_rest
+            pump_offset = pump_grip_hands - support_palm_rest
         elif weapon_id != "pistol" and reloading:
             if is_instance_valid(magazine_part) and MAGAZINE_GRIP_POINTS.has(weapon_id):
                 # Translate the hand towards a real point on the moving mag,
@@ -1364,12 +1367,14 @@ func _animate_viewmodel(delta: float, sprint_ease: float) -> void:
         var palm_correction := support_palm_rest - palm_offset
         # Sprint/grenade motion remains additive and returns to a neutral grip
         # when their timers (and the reload animation) finish.
-        left_hand_rig.position = left_hand_rig.position.lerp(
+        support_motion_offset = support_motion_offset.lerp(
             Vector3(-0.18, -0.41 + sprint_stride * 0.046, 0.25) * sprint_ease +
             Vector3(0.0, 0.13, 0.06) * sin(PI * clampf(grenade_throw_timer / 0.45, 0.0, 1.0)) +
-            support_reload_offset + palm_correction,
+            support_reload_offset,
             minf(1.0, delta * (24.0 if reloading else 11.0))
         )
+        # Follow the already animated pump and cancel pose drift in this frame.
+        left_hand_rig.position = support_motion_offset + pump_offset + palm_correction
     # Curl the trigger finger separately; clench the rest of the glove during
     # melee. Support fingers open around the magazine and close on return.
     for finger in range(trigger_finger_knuckles.size()):

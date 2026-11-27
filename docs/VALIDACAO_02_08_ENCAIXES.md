@@ -34,3 +34,13 @@ No Godot 4.5.2 Compatibility, Windows e AMD Radeon integrada, a sonda mediu a po
 Foram renderizadas 24 poses FPS por revisão, em repouso, mira e recarga. Na comparação de recarga inspecionada, a mão de apoio da escopeta está visível junto ao guarda-mão. As outras armas longas ocultam parte do contato com o carregador pelo ângulo e pelo limite inferior da câmera. A pistola mantém a mesma pose visível. [Comparação no Godot a 1280 × 720](qa/02-08/recarga-antes-depois.jpg).
 
 O 02-08 segue parcial. Faltam inspeção de contato dos dedos e das transições em movimento, inclusive troca de arma, e inspeção da composição atual no Asset Studio. O teste por poses isolou o erro de translação e não mediu a distância aos polígonos nem o desvio com a interpolação em tempo real.
+
+## Encaixe durante a interpolação — 27/11/2026
+
+Base `a6df74d`. A compensação da palma é aplicada depois da interpolação de translação, no mesmo quadro das rotações do braço. A mão de apoio da escopeta acompanha a posição efetiva do guarda-mão deslizante, que já é animado separadamente. O alcance ao carregador e o deslocamento de corrida e granada continuam interpolados. O deslocamento acumulado é zerado ao reconstruir o viewmodel na troca. As 231 amostras matemáticas anteriores serviram de base e não foram repetidas.
+
+Antes da solicitação de usar somente a página publicada para a inspeção visual restante, a cena principal foi executada no Godot 4.5.2 Compatibility, Windows e AMD Radeon integrada, a 1280 × 720. O animador de produção recebeu incrementos de 1/60 s. Em 130 passos de recarga da escopeta, o maior desvio entre o centro da palma e o ponto do guarda-mão caiu de 0,00854343 para 0,00000039 unidade de jogo. A métrica mede dois pontos, sem verificar interseção de superfícies ou curvatura dos dedos.
+
+A comparação FPS é composta de seis quadros por família e por revisão, em repouso, mira, dois momentos da recarga e duas fases da troca. A escopeta mantém a mão junto ao guarda-mão nas poses observadas. Em várias famílias, o carregador e os dedos saem do enquadramento durante a recarga. Na troca, a arma sai pelo limite inferior da câmera e a seguinte reaparece. A sequência confirma o fluxo de troca amostrado e não resolve a inspeção dos dedos ocultos. [Oito famílias no Godot](qa/02-08/fps-oito-familias.jpg) · [Escopeta antes e depois](qa/02-08/pump-antes-depois.jpg).
+
+O [Asset Studio publicado](https://tpolltech.github.io/Frontline-Survival/) identificou a revisão `828426a`, anterior a esta alteração. O catálogo público tem 24 poses estáticas das oito famílias, em repouso, mira e recarga, sem amostras de troca. O 02-08 permanece parcial. A página pública não demonstra contato dos dedos e deformações em movimento na revisão entregue.
