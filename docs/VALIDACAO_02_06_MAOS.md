@@ -71,3 +71,18 @@ Teste adicional de continuidade geométrica: soma de ângulos sólidos dos triâ
 Para as palmas, os quatro centros de pivô dos dedos e o do polegar foram transformados ao espaço local pela inversa da rotação X de pi/2 da palma. 8/10 pontos internos; dedo 0 da mão principal direita e dedo 3 da mão de apoio esquerda externos (ângulo sólido normalizado aproximadamente zero). Demais pontos aproximadamente um. Centro externo não prova descontinuidade, pois o volume do segmento pode intersectar a palma; inspecionar a união e a flexão reais antes de alterar a geometria. O consumidor gera normais, mas não UV/tangentes; revisão de acabamento e integração/inspeção no Studio permanecem abertas. Não confundir esses testes numéricos com execução de SurfaceTool, captura ou revisão de deformações no FPS.
 
 Ambiente verificado nesta execução: Chromium e Node disponíveis; Godot/Godot4/Godot Mono, Blender e Firefox ausentes do PATH; git ls-remote falhou por resolução DNS para github.com. Sem checkout funcional do jogo. Não foi alterado nenhum modelo, pivô, rig, animação, material ou outro ID; sem Actions ou instaladores. Estado parcial.
+
+## Quinta execução — continuidade local dos dois dedos investigados
+
+Base `7c6199301abd8434b7f9f0af3720038cbbca93bf`. Sem repetir os seis testes das receitas, as 18 poses históricas, as 18 reconstruções ou os 30 extremos de eixo da quarta execução. Os mesmos blobs de player.gd (16b9a1673d5bd2059acca254d2cd1d670753f8e4) e fps_hand_templates.json (b1e17f16d1b341240add1154690c4ef3df0c5136) foram usados.
+
+Verificação numérica em JavaScript sobre os dados reais do template: para cada um dos dois segmentos proximais investigados, reconstruídos os vértices com o comprimento determinado pelo código, aplicada a rotação de menor arco de +Y para o vetor do segmento, translação para seu centro, rotação X do pivô e translação para a raiz do dedo. Transformação inversa para o espaço local da palma. Para cada vértice resultante, calculado o número de winding por soma de ângulos sólidos dos triângulos da palma; considerado interno se o desvio da unidade for inferior a 1e-7.
+
+| Mão / dedo | Intervalo de rotação X (rad) | Amostras uniformes, inclusive extremos | Vértices internos por amostra (mín–máx) | Amostras com sobreposição |
+|---|---|---:|---:|---:|
+| Principal direita / 0 | 0 a 0,38 | 39 | 4–5 | 39/39 |
+| Apoio esquerda / 3 | 0 a 0,34 | 39 | 1–2 | 39/39 |
+
+Intervalos incluem a pose inicial zero e os extremos dos alvos de flexão do código para esses dedos, considerando mag_out e melee_punch entre zero e um. A existência de vértices estritamente internos é evidência de interseção volumétrica local nas amostras, não mede volume de interseção, nem garante ausência de abertura em toda a junção ou entre amostras. Não foram simulados frames reais, colisões, deformações de pele ou renderização. Não há justificativa nesta evidência para deslocar os pivôs automaticamente. A continuidade visual durante animações e inspeção no Asset Studio continuam abertas.
+
+Verificação local nesta sessão: command -v godot godot4 blender sem resultado; git ls-remote para o repositório falhou por resolução DNS. Sem execução do Godot/Studio. Nenhuma alteração de geometria, rig, pivôs, animações ou materiais; sem Actions ou instaladores. Estado parcial.
