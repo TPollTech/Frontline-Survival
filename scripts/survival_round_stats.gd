@@ -137,7 +137,7 @@ func summary_text() -> String:
     var precision := "--" if float(d["accuracy"]) < 0.0 else "%d%%" % roundi(d["accuracy"])
     return "ONDA %02d  /  RELATORIO\nABATES %d   HEADSHOTS %d   PRECISAO %s\nTEMPO %02d:%02d   DANO %.0f\nABATES +$%d  BONUS HS +$%d\nMETAS +$%d  ONDA +$%d  TOTAL +$%d" % [
         int(d["wave"]), int(d["kills"]), int(d["headshots"]), precision,
-        int(d["seconds"]) / 60, int(d["seconds"]) % 60, float(d["damage"]),
+        floori(int(d["seconds"]) / 60.0), int(d["seconds"]) % 60, float(d["damage"]),
         int(d["kills_money"]), int(d["headshot_money"]),
         int(d["challenge_money"]), int(d["wave_money"]), int(d["earned_total"])
     ]

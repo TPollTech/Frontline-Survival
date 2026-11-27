@@ -13,8 +13,9 @@ static func machined(size: Vector3) -> ArrayMesh:
 
 static func world_box(size: Vector3, solid: bool) -> Mesh:
     # Preserve the legacy thin-decoration threshold and solid box silhouette.
-    var cube := box(size)
-    return cube if solid or size[size.min_axis_index()] < 0.035 else machined(size)
+    if solid or size[size.min_axis_index()] < 0.035:
+        return box(size)
+    return machined(size)
 
 static func cylinder(top_radius: float, bottom_radius: float, height: float) -> CylinderMesh:
     var mesh := CylinderMesh.new()

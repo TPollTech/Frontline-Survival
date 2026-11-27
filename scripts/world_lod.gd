@@ -58,7 +58,7 @@ func register_assembly(parts: Array[MeshInstance3D], per_part: Array, anchor: No
             var mesh: ArrayMesh = levels[i]
             if mesh.get_surface_count()!=1 or mesh.surface_get_primitive_type(0)!=Mesh.PRIMITIVE_TRIANGLES:
                 return false
-            var count := int(mesh.surface_get_array_index_len(0)/3)
+            var count := floori(mesh.surface_get_array_index_len(0) / 3.0)
             if count<=0 or count>=previous:
                 return false
             previous=count

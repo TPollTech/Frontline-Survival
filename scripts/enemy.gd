@@ -125,12 +125,12 @@ func configure(enemy_kind: String, wave_num: int, target: SurvivalPlayer, loadou
 func _joint(parent: Node3D, location: Vector3, joint_name: String) -> Node3D:
     return CharacterGeometry.joint(parent, location, joint_name)
 
-func _part(parent: Node3D, shape: Mesh, location: Vector3, tint: Color, name_hint: String = "Part", rotation: Vector3 = Vector3.ZERO) -> MeshInstance3D:
+func _part(parent: Node3D, shape: Mesh, location: Vector3, tint: Color, name_hint: String = "Part", part_rotation: Vector3 = Vector3.ZERO) -> MeshInstance3D:
     var piece := MeshInstance3D.new()
     piece.name = name_hint
     piece.mesh = shape
     piece.position = location
-    piece.rotation = rotation
+    piece.rotation = part_rotation
     var material := StandardMaterial3D.new()
     material.albedo_color = tint
     material.metallic = 0.10
@@ -329,10 +329,10 @@ func _physics_process(delta: float) -> void:
     var distance := to_player.length()
     var direction := to_player.normalized() if distance > 0.1 else Vector3.ZERO
     var goal_distance := 4.5 if kind == "runner" else (10.0 if kind == "heavy" else (5.5 if weapon_class == "shotgun" else 9.0))
-    var visible := _has_sight()
-    _update_tactics(delta, distance, visible)
+    var has_line_of_sight := _has_sight()
+    _update_tactics(delta, distance, has_line_of_sight)
     _update_crowd_avoidance(delta)
-    var chase := distance > goal_distance or not visible
+    var chase := distance > goal_distance or not has_line_of_sight
     var steer := direction
     if tactical_state == "seek_cover":
         var towards_cover := cover_goal - global_position
@@ -350,7 +350,7 @@ func _physics_process(delta: float) -> void:
         if tactical_state in ["seek_cover", "peek"]:
             _update_obstacle_navigation(delta, steer, distance, 0.0, false)
         else:
-            _update_obstacle_navigation(delta, direction, distance, goal_distance, visible)
+            _update_obstacle_navigation(delta, direction, distance, goal_distance, has_line_of_sight)
     if detour_remaining > 0.0:
         # Blend only once with the tactical goal, preserving a committed flank.
         steer = (steer * 0.40 + detour_direction * 0.90).normalized()
@@ -370,7 +370,7 @@ func _physics_process(delta: float) -> void:
         var desired_speed := move_speed * (0.76 if tactical_state == "seek_cover" else 1.0)
         velocity.x = steer.x * desired_speed
         velocity.z = steer.z * desired_speed
-    elif visible and distance > 4.0 and kind != "heavy" and stagger_remaining <= 0.0:
+    elif has_line_of_sight and distance > 4.0 and kind != "heavy" and stagger_remaining <= 0.0:
         var lateral := Vector3(-direction.z, 0, direction.x) * strafe_sign
         if is_on_wall() and lateral.dot(get_wall_normal()) < 0.0:
             strafe_sign *= -1.0
@@ -407,7 +407,7 @@ func _physics_process(delta: float) -> void:
                 detour_direction = tangent.normalized()
                 detour_remaining = 1.20
                 break
-    if attack_cooldown <= 0.0 and stagger_remaining <= 0.0 and distance < attack_range and visible \
+    if attack_cooldown <= 0.0 and stagger_remaining <= 0.0 and distance < attack_range and has_line_of_sight \
             and reload_remaining <= 0.0 and ammo_in_mag > 0 and tactical_state != "hold_cover":
         shot_audio.play()
         ammo_in_mag -= 1
@@ -449,13 +449,13 @@ func _update_crowd_avoidance(delta: float) -> void:
 
 
 func _update_obstacle_navigation(delta: float, direction: Vector3,
-        distance: float, goal_distance: float, visible: bool) -> void:
+        distance: float, goal_distance: float, has_line_of_sight: bool) -> void:
     navigation_check -= delta
     if navigation_check > 0.0:
         return
     navigation_check = randf_range(0.23, 0.36)
     # Even at preferred firing distance the player may be behind a wall.
-    if (distance <= goal_distance and visible) or not ObstacleSteering.blocked(self, direction, 2.35):
+    if (distance <= goal_distance and has_line_of_sight) or not ObstacleSteering.blocked(self, direction, 2.35):
         return
     if detour_remaining <= 0.0 or detour_direction.length_squared() < 0.01:
         detour_direction = ObstacleSteering.choose_detour(self, direction, obstacle_preference)
@@ -499,7 +499,7 @@ func _set_tactical_posture(next_posture: String) -> void:
         capsule.height = height
     hit_collider.position.y = -(1.8 - height) * 0.5
 
-func _update_tactics(delta: float, distance: float, visible: bool) -> void:
+func _update_tactics(delta: float, distance: float, has_line_of_sight: bool) -> void:
     tactical_timer = maxf(0.0, tactical_timer - delta)
     tactical_timeout = maxf(0.0, tactical_timeout - delta)
     tactical_think -= delta
@@ -533,7 +533,7 @@ func _update_tactics(delta: float, distance: float, visible: bool) -> void:
     tactical_think = randf_range(2.0, 3.3)
     if tactical_state != "advance" or distance < 7.0 or distance > 26.0:
         return
-    if not visible and suppressed_timer <= 0.0:
+    if not has_line_of_sight and suppressed_timer <= 0.0:
         return
     var chance: float = 0.78 if suppressed_timer > 0.0 or reload_remaining > 0.0 else 0.50
     if randf() > chance:

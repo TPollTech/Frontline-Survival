@@ -93,7 +93,7 @@ func _capture() -> void:
             return
         rendered.resize(CELL_W, CELL_H, Image.INTERPOLATE_BILINEAR)
         sheet.blit_rect(rendered, Rect2i(0, 0, CELL_W, CELL_H),
-            Vector2i((idx % 3) * CELL_W, (idx / 3) * CELL_H))
+            Vector2i((idx % 3) * CELL_W, floori(idx / 3.0) * CELL_H))
     var file_path: String = ProjectSettings.globalize_path("res://docs/qa/viewmodel_current.png")
     DirAccess.make_dir_recursive_absolute(file_path.get_base_dir())
     if sheet.save_png(file_path) != OK:

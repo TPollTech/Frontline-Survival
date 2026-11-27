@@ -1399,11 +1399,11 @@ func _animate_viewmodel(delta: float, sprint_ease: float) -> void:
             0.24 - 0.16 * mag_out + 0.08 * melee_punch,
             minf(1.0, delta * 14.0))
 
-func _arm_piece(shape: Mesh, at: Vector3, tint: Color, rotation: Vector3 = Vector3.ZERO) -> MeshInstance3D:
+func _arm_piece(shape: Mesh, at: Vector3, tint: Color, part_rotation: Vector3 = Vector3.ZERO) -> MeshInstance3D:
     var part := MeshInstance3D.new()
     part.mesh = shape
     part.position = at
-    part.rotation = rotation
+    part.rotation = part_rotation
     # All segments of a glove/sleeve share one material to keep draw state low.
     var material_key: String = tint.to_html()
     if not arm_materials.has(material_key):

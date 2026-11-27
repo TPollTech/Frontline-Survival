@@ -66,18 +66,18 @@ static func body_lods(size: Vector3, profile: Profile = Profile.MOLDED) -> Array
         var old_indices := PackedInt32Array()
         for face in range(6):
             _grid(old_indices, face * (STEPS + 1) * (STEPS + 1), stride)
-        var remap: Dictionary = {}
+        var vertex_indices: Dictionary = {}
         var vertices := PackedVector3Array()
         var normals := PackedVector3Array()
         var uv := PackedVector2Array()
         var indices := PackedInt32Array()
         for old in old_indices:
-            if not remap.has(old):
-                remap[old] = vertices.size()
+            if not vertex_indices.has(old):
+                vertex_indices[old] = vertices.size()
                 vertices.append(source[Mesh.ARRAY_VERTEX][old])
                 normals.append(source[Mesh.ARRAY_NORMAL][old])
                 uv.append(source[Mesh.ARRAY_TEX_UV][old])
-            indices.append(int(remap[old]))
+            indices.append(int(vertex_indices[old]))
         var arrays: Array = []
         arrays.resize(Mesh.ARRAY_MAX)
         arrays[Mesh.ARRAY_VERTEX] = vertices

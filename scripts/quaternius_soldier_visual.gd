@@ -57,11 +57,11 @@ func _looks_like_a_person() -> bool:
     skeleton.force_update_all_bone_transforms()
     var bone_names: Array[String] = ["Head", "pelvis", "foot_l", "foot_r", "hand_l", "hand_r"]
     var bone_y: Dictionary = {}
-    for name in bone_names:
-        var index: int = skeleton.find_bone(name)
+    for bone_name in bone_names:
+        var index: int = skeleton.find_bone(bone_name)
         if index < 0:
             return false
-        bone_y[name] = skeleton.to_global(skeleton.get_bone_global_pose(index).origin).y
+        bone_y[bone_name] = skeleton.to_global(skeleton.get_bone_global_pose(index).origin).y
     var head_y: float = bone_y["Head"]
     var pelvis_y: float = bone_y["pelvis"]
     var feet_y: float = (float(bone_y["foot_l"]) + float(bone_y["foot_r"])) * 0.5
@@ -94,19 +94,19 @@ func _paint_character_meshes(root: Node) -> void:
     for child in root.get_children():
         _paint_character_meshes(child)
 
-func _bone_toward(name: String, direction: Vector3) -> void:
-    var idx: int = skeleton.find_bone(name)
+func _bone_toward(bone_name: String, direction: Vector3) -> void:
+    var idx: int = skeleton.find_bone(bone_name)
     if idx == -1:
         return
     # Compute a relative pose from the imported rig's real rest axis.
     # Setting local Euler angles directly causes broken elbows for retargeted
     # models whose local bone axes differ from the procedural soldier's.
     var global_rest: Transform3D = skeleton.get_bone_global_rest(idx)
-    var global_basis: Basis = global_rest.basis.orthonormalized()
-    var current_axis: Vector3 = global_basis.y.normalized()
+    var rest_basis: Basis = global_rest.basis.orthonormalized()
+    var current_axis: Vector3 = rest_basis.y.normalized()
     var target_axis: Vector3 = direction.normalized()
     var rotation_global := Quaternion(current_axis, target_axis)
-    var global_rest_quaternion := global_basis.get_rotation_quaternion()
+    var global_rest_quaternion := rest_basis.get_rotation_quaternion()
     var relative_pose: Quaternion = global_rest_quaternion.inverse() * rotation_global * global_rest_quaternion
     # Key fix: never overwrite imported rest pose with a naked quaternion.
     # A small delta over the original bone pose keeps elbows, shoulders and
@@ -175,20 +175,20 @@ func animate(delta: float, moving: bool, speed: float, weapon_kick: float) -> vo
     if moving and speed > 4.0:
         leg_swing = 0.41
     var smooth: float = minf(1.0, delta * 11.0)
-    for name in ["thigh_l", "thigh_r"]:
-        var idx: int = skeleton.find_bone(name)
-        var opposite: float = 1.0 if name == "thigh_l" else -1.0
-        var rest: Quaternion = base_bone_rotations.get(name, Quaternion.IDENTITY)
+    for bone_name in ["thigh_l", "thigh_r"]:
+        var idx: int = skeleton.find_bone(bone_name)
+        var opposite: float = 1.0 if bone_name == "thigh_l" else -1.0
+        var rest: Quaternion = base_bone_rotations.get(bone_name, Quaternion.IDENTITY)
         var target: Quaternion = (rest * Quaternion(Vector3.RIGHT, gait * leg_swing * opposite)).normalized()
         skeleton.set_bone_pose_rotation(
             idx,
             skeleton.get_bone_pose_rotation(idx).slerp(target, smooth)
         )
-    for name in ["calf_l", "calf_r"]:
-        var idx: int = skeleton.find_bone(name)
-        var phase: float = -gait if name == "calf_l" else gait
+    for bone_name in ["calf_l", "calf_r"]:
+        var idx: int = skeleton.find_bone(bone_name)
+        var phase: float = -gait if bone_name == "calf_l" else gait
         var bend := maxf(0.0, phase) * 0.24
-        var rest: Quaternion = base_bone_rotations.get(name, Quaternion.IDENTITY)
+        var rest: Quaternion = base_bone_rotations.get(bone_name, Quaternion.IDENTITY)
         var target: Quaternion = (rest * Quaternion(Vector3.RIGHT, bend)).normalized()
         skeleton.set_bone_pose_rotation(
             idx,

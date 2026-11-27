@@ -471,11 +471,11 @@ func _add_sandbags(center: Vector3, count: int, levels: int) -> void:
     for level in range(levels):
         for i in range(count):
             var x := center.x + (float(i) - float(count - 1) * 0.5) * 0.85 + (0.23 if level % 2 == 1 else 0.0)
-            var position := Vector3(x, 0.21 + float(level) * 0.34, center.z)
+            var bag_position := Vector3(x, 0.21 + float(level) * 0.34, center.z)
             # Base invisivel simplificada para impedir atravessar a barricada.
             var item := MeshInstance3D.new()
             item.mesh = lod_meshes[0]
-            item.position = position
+            item.position = bag_position
             item.rotation.y = sin(float(i * 7 + level)) * 0.09
             var mat := StandardMaterial3D.new()
             mat.albedo_color = color.lightened(randf_range(0.0, 0.12))
@@ -802,7 +802,7 @@ func _end_wave() -> void:
 
 func _clock(seconds: float) -> String:
     var remaining: int = maxi(0, ceili(seconds))
-    return "%02d:%02d" % [remaining / 60, remaining % 60]
+    return "%02d:%02d" % [floori(remaining / 60.0), remaining % 60]
 
 func _is_humanoid_preview_enabled() -> bool:
     return ENABLE_EXPERIMENTAL_HUMANOIDS
