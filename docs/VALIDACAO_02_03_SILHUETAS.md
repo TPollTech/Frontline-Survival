@@ -100,3 +100,11 @@ O ajuste de geometria segue aberto. O envelope é consumido pelo enquadramento, 
 Windows x64, Python 3.11. Com NumPy 2.2.6, trimesh 4.11.1 e SciPy 1.15.3 obtidos do PyPI e usados em pasta isolada, `python tools/build_weapons.py --out <diretório-temporário>` exportou 31 GLBs das oito famílias. SciPy é usado indiretamente na conversão de cores de faces para vértices no trimesh. Versões registradas em `tools/requirements-arsenal.txt`.
 
 Esta execução confirma o funcionamento do gerador canônico com a fonte atual. Os arquivos gerados foram gravados fora do repositório. A correção dimensional e a homologação visual continuam abertas.
+
+## Ensaio dimensional no Windows — 27/11/2026
+
+Base `541ba01ba4b70240df38f42da00647ce40a69553`. As receitas canônicas geraram 31 GLBs em isolamento. O ensaio levou o comprimento das oito famílias aos alvos da tabela anterior e ajustou também a altura da pistola. Os comprimentos foram medidos na geometria antes da gravação. A largura da pistola e as demais proporções exigem revisão de seções e interfaces. Nenhuma receita candidata foi integrada.
+
+Godot 4.7.2 oficial, Compatibility/OpenGL 3.3, Windows x64 e RTX 4060, viewport de 1280 × 720, cena real e oito famílias em repouso, ADS e quadro intermediário de recarga. O script de captura existente produziu 24 quadros por revisão. Na [comparação inspecionada](qa/02-03/godot-ensaio-dimensional-windows.jpg), a base está à esquerda e o ensaio à direita. A escala isolada deslocou as miras em relação ao alvo e deixou a mão de apoio visivelmente fora do guarda-mão, especialmente no rifle e na escopeta. O êxito do script indica geração das imagens. A inspeção rejeitou a substituição dos modelos.
+
+Prioridade alta no 02-03. A próxima correção precisa levar os pontos de mira, apoios e pivôs para o mesmo espaço dos modelos redimensionados, preservando os contratos das poses publicadas. O aceite exige inspeção de todas as famílias no Studio e no Godot, com recarga em movimento, e conferência das composições de mundo atingidas. O ensaio não cobriu Studio, movimento contínuo nem jogo exportado. O editor usado é 4.7.2 e os templates Windows locais identificados são 4.7.1. Nenhum ZIP foi gerado.
