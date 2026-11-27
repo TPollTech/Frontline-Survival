@@ -94,3 +94,9 @@ Base ec99f6f. A AABB local dos oito GLBs completos foi medida pela união dos li
 Na pistola, os 387,5 mm de altura correspondem a 3,03 vezes os 128 mm da referência com carregador. A razão altura/comprimento é 98,6% no GLB e 69,2% na referência. Logo, a escala uniforme conservaria a divergência de proporção. A largura externa total do GLB e a largura de armação de 34 mm da referência têm pontos de medição diferentes.
 
 O ajuste de geometria segue aberto. O envelope é consumido pelo enquadramento, pelas poses e pelo encaixe das mãos. A correção precisa validar a pistola na fonte e reavaliar seus pontos de referência visuais no jogador, inimigos e itens coletáveis, com novas capturas antes de promover a 02-03. Esta comparação não alterou modelos ou arquivos de jogo.
+
+## Ambiente de geração restaurado
+
+Windows x64, Python 3.11. Com NumPy 2.2.6, trimesh 4.11.1 e SciPy 1.15.3 obtidos do PyPI e usados em pasta isolada, `python tools/build_weapons.py --out <diretório-temporário>` exportou 31 GLBs das oito famílias. SciPy é usado indiretamente na conversão de cores de faces para vértices no trimesh. Versões registradas em `tools/requirements-arsenal.txt`.
+
+Esta execução confirma o funcionamento do gerador canônico com a fonte atual. Os arquivos gerados foram gravados fora do repositório. A correção dimensional e a homologação visual continuam abertas.
