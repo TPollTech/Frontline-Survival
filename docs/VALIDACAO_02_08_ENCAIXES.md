@@ -50,3 +50,12 @@ O [Asset Studio publicado](https://tpolltech.github.io/Frontline-Survival/) iden
 A captura do usuário mostrou uma junção irregular entre a luva e a manga da mão de apoio. O antebraço era construído até o ponto anterior à compensação da rotação do punho. Para a rotação de repouso de −1,25 rad, a diferença entre os dois pontos era de 52,66 mm. O antebraço e o nó do punho passam a usar a mesma âncora compensada. A verificação algébrica confirma distância zero entre esses pontos e posição de repouso da palma preservada. Isso mede âncoras, sem avaliar interseção dos volumes ou curvatura dos dedos.
 
 O 02-08 permanece parcial. O Asset Studio público ainda serve a revisão anterior. A inspeção da junção e dos dedos em movimento na revisão atual segue aberta.
+
+
+## Mão do gatilho durante a recarga — 27/11/2026
+
+Na base 333884a, a mão do gatilho herdava a translação vertical de até 0,07 unidade e a rotação de até 0,12 rad do nó compartilhado durante a extração. Em c039e18, o ombro do gatilho cancela essa transformação no espaço do viewmodel, mantendo a articulação local de cotovelo e punho. A compensação já validada da mão de apoio e as 231 amostras históricas foram reaproveitadas.
+
+No Godot 4.7.2 Compatibility, Windows x64, RTX 4060 e 1280 × 720, o QA do arsenal passou nas oito famílias (249 verificações). Foram inspecionados repouso, ADS e um quadro intermediário de recarga por família na câmera FPS e na lateral auxiliar. Na [comparação lateral](qa/02-08/mao-gatilho-recarga.jpg), antes à esquerda e depois à direita, a maior diferença visual aparece na mão do gatilho do rifle e da pistola. A escopeta conserva o apoio no pump no quadro observado. A câmera FPS ainda encobre parte dos dedos.
+
+O [Studio WebGL local](qa/02-08/studio-oito-familias.jpg) reconstruiu as mesmas oito famílias em 24 estados estáticos usando buffers exportados pela engine em c039e18. A inspeção mostrou as mãos e os carregadores em repouso, ADS e recarga. A escala da folha e as oclusões limitam o julgamento do contato de cada dedo. Os estados de troca e a animação contínua não foram inspecionados nesta revisão. A exportação falhou por falta dos templates Windows 4.7.2. Estado parcial. Continua aberta a validação de contato dos dedos e da continuidade em movimento com as dependências 02-03, 02-06 e 02-07.
