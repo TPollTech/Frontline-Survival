@@ -8,7 +8,7 @@ SPECS = {
     "scope_canvas": ("effect:scope_overlay", 0, 0, 0),
     "turret": ("object:turret", 2, 0, 1),
     "loot_weapon": ("object:loot", None, 0, 0),
-    "loot_ammo": ("object:loot", 2, 0, 0),
+    "loot_ammo": ("object:loot", 4, 0, 0),
     "grenade_body": ("object:grenade", 3, 1, 0),
     "grenade_fx": ("effect:grenade", 24, 0, 1),
     "blood": ("effect:blood", 7, 0, 0),
