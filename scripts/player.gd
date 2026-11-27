@@ -1415,20 +1415,19 @@ func _arm_piece(shape: Mesh, at: Vector3, tint: Color, rotation: Vector3 = Vecto
     active_arm_parent.add_child(part)
     return part
 
-func _arm_link(start: Vector3, finish: Vector3, top_radius: float, bottom_radius: float, tint: Color) -> void:
+func _arm_link(start: Vector3, finish: Vector3, profile: String, tint: Color) -> void:
     var direction := finish - start
-    var part := _arm_piece(CharacterGeometry.sleeve(direction.length(), top_radius, bottom_radius), (start + finish) * 0.5, tint)
+    var part := _arm_piece(preload("res://scripts/fps_hand_mesh.gd").mesh(profile, direction.length()), (start + finish) * 0.5, tint)
     if direction.length() > 0.001:
         part.quaternion = Quaternion(Vector3.UP, direction.normalized())
 
-func _arm_capsule_link(start: Vector3, finish: Vector3, radius: float, tint: Color, label: String) -> void:
+func _arm_digit_link(start: Vector3, finish: Vector3, digit: int, distal: bool, tint: Color, label: String) -> void:
     var axis := finish - start
     if axis.length_squared() < 0.000001:
         return
-    var capsule := CapsuleMesh.new()
-    capsule.radius = radius
-    capsule.height = axis.length() + 2.0 * radius
-    var part := _arm_piece(capsule, (start + finish) * 0.5, tint)
+    var profile := "digit_%d_%d" % [digit, int(distal)]
+    var shape := preload("res://scripts/fps_hand_mesh.gd").mesh(profile, axis.length())
+    var part := _arm_piece(shape, (start + finish) * 0.5, tint)
     part.name = label
     part.quaternion = Quaternion(Vector3.UP, axis.normalized())
 
@@ -1450,39 +1449,31 @@ func _add_first_person_arm(elbow: Vector3, wrist: Vector3, trigger_hand: bool) -
     shoulder_joint.position = shoulder
     old_parent.add_child(shoulder_joint)
     active_arm_parent = shoulder_joint
-    _arm_link(Vector3.ZERO, elbow - shoulder, 0.068, 0.075, uniform)
+    _arm_link(Vector3.ZERO, elbow - shoulder, "upper", uniform)
     var elbow_joint := Node3D.new()
     elbow_joint.name = "Elbow"
     elbow_joint.position = elbow - shoulder
     shoulder_joint.add_child(elbow_joint)
     active_arm_parent = elbow_joint
-    _arm_link(Vector3.ZERO, wrist - elbow, 0.052, 0.063, uniform)
+    _arm_link(Vector3.ZERO, wrist - elbow, "forearm", uniform)
     var wrist_joint := Node3D.new()
     wrist_joint.name = "Wrist"
     wrist_joint.position = wrist - elbow
     elbow_joint.add_child(wrist_joint)
     active_arm_parent = wrist_joint
-    _arm_link(Vector3(0, -0.045, 0.025), Vector3(0, 0.043, -0.032), 0.054, 0.062, cuff)
+    _arm_link(Vector3(0, -0.045, 0.025), Vector3(0, 0.043, -0.032), "cuff", cuff)
     if not trigger_hand:
         wrist_joint.rotation.z = -1.25
         # Keep the glove center on its socket when turning the fingers around the fore-end.
         var palm_offset := Vector3(0, 0.045, -0.06)
         wrist_joint.position += palm_offset - wrist_joint.basis * palm_offset
     var palm_location := Vector3(0, 0.045, -0.06)
-    var palm := CapsuleMesh.new()
-    palm.radius = 0.052
-    palm.height = 0.15
+    var organic := preload("res://scripts/fps_hand_mesh.gd")
+    var palm := organic.mesh("palm_right" if trigger_hand else "palm_left")
     var palm_part := _arm_piece(palm, palm_location, glove, Vector3(PI * 0.5, 0, 0))
     palm_part.name = "Palm"
-    palm_part.scale = Vector3(1.06, 1.0, 0.65)
-    # A single low-profile leather panel runs across the back of the glove.
-    var guard := SphereMesh.new()
-    guard.radius = 1.0
-    guard.height = 2.0
-    guard.radial_segments = 16
-    guard.rings = 6
-    var back := _arm_piece(guard, palm_location + Vector3(0, 0.024, -0.012), Color(0.19, 0.20, 0.19))
-    back.scale = Vector3(0.047, 0.013, 0.047)
+    _arm_piece(organic.mesh("panel"), palm_location + Vector3(0, 0.024, -0.012),
+        Color(0.19, 0.20, 0.19), Vector3(PI * 0.5, 0, 0))
     for finger in range(4):
         var x: float = (float(finger) - 1.5) * 0.030
         var length_scale: float = 0.75 if finger == 3 else (0.91 if finger == 0 else 1.0)
@@ -1498,13 +1489,13 @@ func _add_first_person_arm(elbow: Vector3, wrist: Vector3, trigger_hand: bool) -
         knuckle_joint.position = knuckle
         wrist_joint.add_child(knuckle_joint)
         active_arm_parent = knuckle_joint
-        _arm_capsule_link(Vector3.ZERO, middle - knuckle, 0.014, glove, "Finger%dProximal" % finger)
+        _arm_digit_link(Vector3.ZERO, middle - knuckle, finger, false, glove, "Finger%dProximal" % finger)
         var tip_joint := Node3D.new()
         tip_joint.name = "Finger%dTipJoint" % finger
         tip_joint.position = middle - knuckle
         knuckle_joint.add_child(tip_joint)
         active_arm_parent = tip_joint
-        _arm_capsule_link(Vector3.ZERO, fingertip - middle, 0.012, glove, "Finger%dDistal" % finger)
+        _arm_digit_link(Vector3.ZERO, fingertip - middle, finger, true, glove, "Finger%dDistal" % finger)
         if trigger_hand:
             trigger_finger_knuckles.append(knuckle_joint)
             trigger_finger_tips.append(tip_joint)
@@ -1521,13 +1512,13 @@ func _add_first_person_arm(elbow: Vector3, wrist: Vector3, trigger_hand: bool) -
     thumb_joint.position = thumb_root
     wrist_joint.add_child(thumb_joint)
     active_arm_parent = thumb_joint
-    _arm_capsule_link(Vector3.ZERO, thumb_bend - thumb_root, 0.022, glove, "ThumbProximal")
+    _arm_digit_link(Vector3.ZERO, thumb_bend - thumb_root, 4, false, glove, "ThumbProximal")
     var thumb_tip_joint := Node3D.new()
     thumb_tip_joint.name = "ThumbTipJoint"
     thumb_tip_joint.position = thumb_bend - thumb_root
     thumb_joint.add_child(thumb_tip_joint)
     active_arm_parent = thumb_tip_joint
-    _arm_capsule_link(Vector3.ZERO, thumb_tip - thumb_bend, 0.017, glove, "ThumbDistal")
+    _arm_digit_link(Vector3.ZERO, thumb_tip - thumb_bend, 4, true, glove, "ThumbDistal")
     if trigger_hand:
         trigger_elbow_joint = elbow_joint
         trigger_wrist_joint = wrist_joint
