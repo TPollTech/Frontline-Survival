@@ -59,6 +59,7 @@ const MAGAZINE_GRIP_POINTS := {
 # The shotgun pump is a separate action mesh; the left glove holds its
 # lower-left grip surface while it racks, not the gun receiver.
 const SHOTGUN_PUMP_GRIP_POINT := Vector3(-0.108, -0.12, -0.42)
+const FPS_PALM_CENTER := Vector3(0, 0.045, -0.06)
 
 # x: mesh scale; y: existing local longitudinal offset. Preserve hand/part
 # transforms, and calculate the shared rest pose outside these transforms.
@@ -984,7 +985,7 @@ func _update_gun_mesh() -> void:
         support_palm_rest = Vector3(-0.045, -0.042, support_z)
         if weapon_id == "shotgun":
             support_palm_rest = action_part.transform * SHOTGUN_PUMP_GRIP_POINT
-        _add_first_person_arm(Vector3(-0.25, -0.40, support_z + 0.23), support_palm_rest - Vector3(0, 0.045, -0.06), false)
+        _add_first_person_arm(Vector3(-0.25, -0.40, support_z + 0.23), support_palm_rest - FPS_PALM_CENTER, false)
     active_arm_parent = hand_rig
     var muzzle_z: float = viewmodel_depth + viewmodel_scale * float({"pistol": -0.29, "smg": -0.69, "rifle": -0.95, "shotgun": -1.04, "lmg": -1.13, "sniper": -1.35, "sentinela":-1.12, "bolt_sniper": -1.41}.get(weapon_id, -0.69))
     var muzzle_height := float({"pistol": 0.061, "rifle": 0.039, "shotgun": 0.065}.get(weapon_id, 0.018))
@@ -1316,7 +1317,26 @@ func _animate_viewmodel(delta: float, sprint_ease: float) -> void:
     var hand_target := Vector3(0.0, -0.07 * mag_out, 0.0)
     hand_rig.position = hand_rig.position.lerp(hand_target, minf(1.0, delta * 16.0))
     hand_rig.rotation.z = lerpf(hand_rig.rotation.z, 0.12 * mag_out, minf(1.0, delta * 15.0))
-    if is_instance_valid(left_hand_rig):
+    # Local elbow/wrist motion is blended separately from the weapon body.
+    if is_instance_valid(trigger_elbow_joint):
+        trigger_elbow_joint.rotation.x = lerpf(trigger_elbow_joint.rotation.x,
+            -0.09 * visual_shot + 0.10 * reload_tilt + 0.05 * equip_tilt,
+            minf(1.0, delta * 13.0))
+    if is_instance_valid(trigger_wrist_joint):
+        trigger_wrist_joint.rotation.z = lerpf(trigger_wrist_joint.rotation.z,
+            -0.11 * visual_shot + 0.06 * reload_tilt + 0.14 * melee_punch,
+            minf(1.0, delta * 16.0))
+    if is_instance_valid(support_elbow_joint):
+        support_elbow_joint.rotation.x = lerpf(support_elbow_joint.rotation.x,
+            -0.05 * visual_shot - 0.12 * mag_out - 0.08 * pump + 0.07 * sprint_ease,
+            minf(1.0, delta * 13.0))
+    if is_instance_valid(support_wrist_joint):
+        support_wrist_joint.rotation.z = lerpf(support_wrist_joint.rotation.z,
+            -1.25 + 0.13 * mag_out - 0.07 * reload_tilt + 0.08 * sprint_ease,
+            minf(1.0, delta * 16.0))
+        left_hand_rig.rotation.z = lerpf(
+            left_hand_rig.rotation.z, -0.43 * sprint_ease + sprint_stride * 0.10, minf(1.0, delta * 11.0)
+        )
         # The support hand must follow the moving weapon mechanism during reload.
         # Magazine-fed guns release the foregrip to reach the magazine; the
         # shotgun stays on the sliding pump instead of reaching a fake magazine.
@@ -1336,34 +1356,20 @@ func _animate_viewmodel(delta: float, sprint_ease: float) -> void:
                 var grip_root: Vector3 = magazine_part.transform * grip_model
                 var grip_hands: Vector3 = hand_rig.transform.affine_inverse() * grip_root
                 support_reload_offset = (grip_hands - support_palm_rest) * mag_out
+        # Evaluate the palm after updating the arm, elbow and wrist rotations.
+        var shoulder := support_elbow_joint.get_parent_node_3d()
+        var palm_offset := left_hand_rig.basis * (shoulder.transform * (
+            support_elbow_joint.transform * (support_wrist_joint.transform * FPS_PALM_CENTER)
+        ))
+        var palm_correction := support_palm_rest - palm_offset
         # Sprint/grenade motion remains additive and returns to a neutral grip
         # when their timers (and the reload animation) finish.
         left_hand_rig.position = left_hand_rig.position.lerp(
             Vector3(-0.18, -0.41 + sprint_stride * 0.046, 0.25) * sprint_ease +
             Vector3(0.0, 0.13, 0.06) * sin(PI * clampf(grenade_throw_timer / 0.45, 0.0, 1.0)) +
-            support_reload_offset,
+            support_reload_offset + palm_correction,
             minf(1.0, delta * (24.0 if reloading else 11.0))
         )
-        left_hand_rig.rotation.z = lerpf(
-            left_hand_rig.rotation.z, -0.43 * sprint_ease + sprint_stride * 0.10, minf(1.0, delta * 11.0)
-        )
-    # Local elbow/wrist motion is blended separately from the weapon body.
-    if is_instance_valid(trigger_elbow_joint):
-        trigger_elbow_joint.rotation.x = lerpf(trigger_elbow_joint.rotation.x,
-            -0.09 * visual_shot + 0.10 * reload_tilt + 0.05 * equip_tilt,
-            minf(1.0, delta * 13.0))
-    if is_instance_valid(trigger_wrist_joint):
-        trigger_wrist_joint.rotation.z = lerpf(trigger_wrist_joint.rotation.z,
-            -0.11 * visual_shot + 0.06 * reload_tilt + 0.14 * melee_punch,
-            minf(1.0, delta * 16.0))
-    if is_instance_valid(support_elbow_joint):
-        support_elbow_joint.rotation.x = lerpf(support_elbow_joint.rotation.x,
-            -0.05 * visual_shot - 0.12 * mag_out - 0.08 * pump + 0.07 * sprint_ease,
-            minf(1.0, delta * 13.0))
-    if is_instance_valid(support_wrist_joint):
-        support_wrist_joint.rotation.z = lerpf(support_wrist_joint.rotation.z,
-            -1.25 + 0.13 * mag_out - 0.07 * reload_tilt + 0.08 * sprint_ease,
-            minf(1.0, delta * 16.0))
     # Curl the trigger finger separately; clench the rest of the glove during
     # melee. Support fingers open around the magazine and close on return.
     for finger in range(trigger_finger_knuckles.size()):
@@ -1465,9 +1471,8 @@ func _add_first_person_arm(elbow: Vector3, wrist: Vector3, trigger_hand: bool) -
     if not trigger_hand:
         wrist_joint.rotation.z = -1.25
         # Keep the glove center on its socket when turning the fingers around the fore-end.
-        var palm_offset := Vector3(0, 0.045, -0.06)
-        wrist_joint.position += palm_offset - wrist_joint.basis * palm_offset
-    var palm_location := Vector3(0, 0.045, -0.06)
+        wrist_joint.position += FPS_PALM_CENTER - wrist_joint.basis * FPS_PALM_CENTER
+    var palm_location := FPS_PALM_CENTER
     var organic := preload("res://scripts/fps_hand_mesh.gd")
     var palm := organic.mesh("palm_right" if trigger_hand else "palm_left")
     var palm_part := _arm_piece(palm, palm_location, glove, Vector3(PI * 0.5, 0, 0))

@@ -24,3 +24,13 @@ Grade de 21 valores de mag_out e 11 de reload_tilt em [0,1], rotação de Suppor
 ## Pendências e ambiente
 
 Chromium, Node e Python presentes; command -v godot godot4 godot-mono blender sem resultado; git ls-remote falhou por resolução DNS de github.com. Sem checkout funcional. Nenhuma nova renderização, alteração de modelo, socket, rig, animação ou gameplay. Não publicar correções de encaixe como homologadas sem a câmera FPS e Studio. Em ambiente funcional, integrar a compensação somente quando o erro visual for confirmado, comparar poses e transições nas oito famílias, avaliar afastamento/interpenetração das palmas/dedos e a continuidade da mão de apoio no contato desejado. Manter os refinamentos 02-06 e as dependências dimensionais 02-03/rig 02-07 independentes. Sem Actions, instaladores ou alteração de outros IDs. Estado parcial.
+
+## Compensação integrada em 27/11/2026
+
+No animador FPS, a translação da mão de apoio passou a considerar a posição da palma após as rotações do ombro, cotovelo e pulso. A correção usa o mesmo centro da malha e os alvos já usados pelo animador, preservando a interpolação temporal. A pistola não tem articulação de apoio e fica fora do cálculo.
+
+No Godot 4.5.2 Compatibility, Windows e AMD Radeon integrada, a sonda mediu a posição real da palma contra os alvos do animador em 61 poses de recarga por arma longa (427 no total). Com a interpolação saturada para isolar o erro geométrico, o desvio máximo caiu de 0,04984907 para 0,00000056 unidade de jogo. O QA do arsenal passou nas oito armas (249 verificações). Os testes Python de mãos e IK passaram (6/6 e 7/7).
+
+Foram renderizadas 24 poses FPS por revisão, em repouso, mira e recarga. Na comparação de recarga inspecionada, a mão de apoio da escopeta está visível junto ao guarda-mão. As outras armas longas ocultam parte do contato com o carregador pelo ângulo e pelo limite inferior da câmera. A pistola mantém a mesma pose visível. [Comparação no Godot a 1280 × 720](qa/02-08/recarga-antes-depois.jpg).
+
+O 02-08 segue parcial. Faltam inspeção de contato dos dedos e das transições em movimento, inclusive troca de arma, e inspeção da composição atual no Asset Studio. O teste por poses isolou o erro de translação e não mediu a distância aos polígonos nem o desvio com a interpolação em tempo real.
