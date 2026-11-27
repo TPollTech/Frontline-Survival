@@ -46,8 +46,19 @@ static func _paint_recursive(node: Node) -> void:
                     if not profiled_materials.has(source):
                         var material := _build_surface(PROFILES[source.resource_name])
                         material.resource_name = source.resource_name
-                        material.metallic = source.metallic
-                        material.roughness = source.roughness
+                        var texture_path := "res://assets/textures/weapon_surfaces/" + source.resource_name
+                        material.albedo_texture = load(texture_path + "_base_color.png")
+                        material.normal_texture = load(texture_path + "_normal.png")
+                        var orm := load(texture_path + "_orm.png") as Texture2D
+                        # ORM contains absolute factors in G and B.
+                        material.roughness = 1.0
+                        material.metallic = 1.0
+                        material.roughness_texture = orm
+                        material.metallic_texture = orm
+                        material.roughness_texture_channel = BaseMaterial3D.TEXTURE_CHANNEL_GREEN
+                        material.metallic_texture_channel = BaseMaterial3D.TEXTURE_CHANNEL_BLUE
+                        if source.resource_name == "wood":
+                            material.uv1_scale = Vector3(5.0, 5.0, 2.0)
                         profiled_materials[source] = material
                     part.set_surface_override_material(i, profiled_materials[source])
                 elif source == null or source.vertex_color_use_as_albedo:

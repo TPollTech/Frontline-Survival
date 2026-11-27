@@ -6,18 +6,20 @@ const decode=s=>Uint8Array.from(atob(s),x=>x.charCodeAt(0));
 async function checked(row){const b=decode(row.data);require(b.byteLength===row.bytes&&await hex(b)===row.sha256,'Buffer divergente');return b;}
 async function payload(name,hash,revision){require(name&&hash,'Payload ausente');const r=await fetch('./'+name,{cache:'no-store'});require(r.ok,'HTTP '+r.status);const b=await r.arrayBuffer();require(await hex(b)===hash,'Payload divergente');const data=JSON.parse(new TextDecoder().decode(b));require(data.revision===revision,'Revisão divergente');return data;}
 // Apply the captured local projection and blend used by StandardMaterial3D.
-function triplanarMaterial(material, source, normalTexture) {
+function triplanarMaterial(material, source, normalTexture, ormTexture) {
  const scale = new THREE.Vector3(...(source.uv_scale || [1,1,1]));
  const offset = new THREE.Vector3(...(source.uv_offset || [0,0,0]));
  const sharpness = Math.max(.01, source.triplanar_sharpness ?? 1);
  const world = !!source.triplanar_world;
  const varyings = 'varying vec3 fsPosition, fsWeights, fsTangent, fsBinormal;';
  material.triplanarNormal = normalTexture;
- material.customProgramCacheKey = () => 'frontline-triplanar-v2-' + world + '-' + !!normalTexture;
+ material.triplanarOrm = ormTexture;
+ material.customProgramCacheKey = () => 'frontline-triplanar-v2-' + world + '-' + !!normalTexture + '-' + !!ormTexture;
  material.onBeforeCompile = shader => {
   shader.uniforms.fsScale = {value: scale};
   shader.uniforms.fsOffset = {value: offset};
   shader.uniforms.fsSharpness = {value: sharpness};
+  shader.uniforms.fsOrmTexture = {value: ormTexture};
   shader.uniforms.fsNormalTexture = {value: normalTexture};
   shader.uniforms.fsNormalStrength = {value: source.normal_scale ?? 1};
   shader.vertexShader = shader.vertexShader
@@ -34,7 +36,7 @@ function triplanarMaterial(material, source, normalTexture) {
   shader.fragmentShader = shader.fragmentShader
    .replace('#include <common>', `#include <common>
     ${varyings}
-    uniform sampler2D fsNormalTexture;
+    uniform sampler2D fsNormalTexture, fsOrmTexture;
     uniform float fsNormalStrength;
     vec4 fsSample(sampler2D tex) {
      return texture2D(tex, fsPosition.zy * vec2(-1.0,1.0)) * fsWeights.x +
@@ -43,6 +45,11 @@ function triplanarMaterial(material, source, normalTexture) {
     }
    `)
    .replace('#include <map_fragment>', '#ifdef USE_MAP\n diffuseColor *= fsSample(map);\n#endif');
+  if (ormTexture) {
+   shader.fragmentShader = shader.fragmentShader
+    .replace('#include <roughnessmap_fragment>', 'float roughnessFactor = roughness * fsSample(fsOrmTexture).g;')
+    .replace('#include <metalnessmap_fragment>', 'float metalnessFactor = metalness * fsSample(fsOrmTexture).b;');
+  }
   if (normalTexture) {
    shader.fragmentShader = shader.fragmentShader.replace('#include <normal_fragment_maps>', `
     vec2 xy = fsSample(fsNormalTexture).rg * 2.0 - 1.0;
@@ -87,13 +94,17 @@ export function createRuntimeComposition(catalog){
     const projectedNormal=m.normal_enabled&&!m.triplanar_world
       ? await texture(m.normal_texture,'normalMap',m) : null;
     if(m.normal_enabled&&!projectedNormal)warnings.add('Normal triplanar indisponível para este material');
-    if(mat.map||projectedNormal)triplanarMaterial(mat,m,projectedNormal);
+    const packed=m.metallic_texture?.studio_sha256 &&
+     m.metallic_texture.studio_sha256===m.roughness_texture?.studio_sha256 &&
+     m.metallic_channel===2&&m.roughness_channel===1;
+    const orm=packed ? await texture(m.metallic_texture,'orm',m) : null;
+    if(mat.map||projectedNormal||orm)triplanarMaterial(mat,m,projectedNormal,orm);
    }
    if(mat.isMeshStandardMaterial){
     mat.normalMap=m?.normal_enabled&&!m?.triplanar?await texture(m.normal_texture,'normalMap',m):null;
     mat.normalScale.set(m?.normal_scale??1,m?.normal_scale??1);
     if(m?.emission_enabled){mat.emissive.setRGB(...m.emission.slice(0,3),THREE.SRGBColorSpace);mat.emissiveIntensity=m.emission_energy??1;}
-    if(m?.metallic_texture||m?.roughness_texture)warnings.add('Canais metálico/rugosidade: inspeção escalar, packing Godot pendente');
+    if(!mat.triplanarOrm&&(m?.metallic_texture||m?.roughness_texture))warnings.add('Canais metálico/rugosidade: inspeção escalar, packing Godot pendente');
    }
    materials.set(key,mat);return mat;
   }

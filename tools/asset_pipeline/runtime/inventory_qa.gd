@@ -70,6 +70,8 @@ func _material(m: Material) -> Variant:
             "normal_enabled": mat.normal_enabled, "normal_scale": mat.normal_scale,
             "metallic_texture": _texture(mat.metallic_texture),
             "roughness_texture": _texture(mat.roughness_texture),
+            "metallic_channel": mat.metallic_texture_channel,
+            "roughness_channel": mat.roughness_texture_channel,
             "emission_enabled": mat.emission_enabled, "emission": _color(mat.emission),
             "emission_energy":mat.emission_energy_multiplier,"uv_offset":_vec(mat.uv1_offset),
             "alpha_scissor_threshold":mat.alpha_scissor_threshold})

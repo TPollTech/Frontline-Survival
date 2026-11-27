@@ -1,4 +1,4 @@
-"""Original, tileable surface-map candidates for 02-05 (not runtime-bound).
+"""Original, tileable surface maps for the production materials.
 
 RGB base-color is a neutral sRGB multiplier for existing authored colours;
 normal is tangent-space +Y, ORM stores absolute linear factors. Reuse the
@@ -37,9 +37,12 @@ def height_at(profile, u, v, seed=205):
     nx, ny, _, _, _ = STYLE[profile]
     u, v = u % 1, v % 1
     if profile == "wood":
-        warp = .045 * math.sin(math.tau * v) + .025 * (_noise(u, v, 3, 3, seed)-.5)
-        vein = .5 + .5 * math.sin(math.tau * (nx*u + nx*warp))
-        return .65 * vein + .35 * _noise(u+warp, v, nx, ny, seed+1)
+        warp = .075 * (_noise(u, v, 3, 3, seed) - .5)
+        warped = u + warp
+        coarse = _noise(warped, v, 19, 3, seed + 1)
+        fine = _noise(warped, v, 57, 5, seed + 2)
+        pores = _noise(warped, v, 83, 13, seed + 3)
+        return .58 * coarse + .32 * fine + .10 * pores
     coarse = _noise(u, v, nx, ny, seed)
     fine = _noise(u, v, nx*2, ny*2, seed+1)
     return .76 * coarse + .24 * fine
