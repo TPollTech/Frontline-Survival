@@ -1,5 +1,33 @@
 # Frontline Survival
 
+## Coordenação dos subagentes do Frontline Survival
+
+O agente principal coordena cada pedido e delega a execução a pelo menos um especialista, inclusive nas tarefas pequenas, salvo orientação expressa do usuário. Cada subagente executa sua atribuição diretamente e devolve resultados ao coordenador. Os perfis de projeto estão em `.codex/agents/`. Se a sessão disponibilizar apenas o agente genérico, o coordenador lê o perfil correspondente e repassa suas instruções na delegação. Se a ferramenta de subagentes estiver indisponível, informa o bloqueio e pede autorização antes de executar sozinho.
+
+Escolha os especialistas a partir do resultado pedido e do componente que o produz. Delegue uma tarefa indivisível inteira ao perfil adequado. Quando o pedido cruzar disciplinas, passe a cada agente o mesmo caso reproduzível, o ID do checklist quando houver, a parte que lhe compete, as dependências e a evidência esperada. Para tarefas fora das especialidades abaixo, atribua a função necessária a um subagente de propósito geral.
+
+| Especialista | Responsabilidade |
+| --- | --- |
+| `modelagem_armas` | Modelagem 3D das armas e acessórios visíveis no jogo. |
+| `modelagem_personagens` | Malhas dos personagens, mãos, luvas, vestuário e equipamento usado no corpo. |
+| `rig_animacao` | Rig, poses e transições do personagem e da animação em primeira pessoa. |
+| `movimento_jogador` | Programação de controles, locomoção, posturas, colisão e câmera do jogador. |
+| `combate_jogador` | Regras de combate do jogador, estados do arsenal, inventário de combate e itens utilizáveis. |
+| `ia_navegacao` | Comportamento de inimigos e aliados, movimento dos NPCs, navegação e seleção de spawn. |
+| `sistemas_survival` | Ondas, economia, lojas, progressão, estatísticas e checkpoints. |
+| `mundo_cenarios` | Mapas, layout, objetos de cenário, colisão e LOD do mundo. |
+| `materiais_texturas` | Materiais, texturas PBR e acabamento de superfícies de personagens, armas e mundo. |
+| `interface_jogo` | HUD, menus, configurações, acessibilidade e interação com telas do jogo. |
+| `audio_efeitos` | Áudio, efeitos visuais de eventos e feedback audiovisual em jogo. |
+| `pipeline_studio` | Importação e exportação de assets, biblioteca paramétrica, catálogo e Asset Studio WebGL. |
+| `qa_desempenho_build` | Reprodução independente, revisão visual, desempenho, regressões e exportação Windows. |
+
+Trabalhe na frente já autorizada. Paralelize investigações e alterações independentes; combine a ordem das mudanças que dependem umas das outras. Designe um único editor por vez para cada arquivo, gerador e seus derivados ou interface compartilhada. Isso inclui `scripts/player.gd`, `scripts/main.gd`, o Godot e o Asset Studio. O responsável pela fonte regenera seus derivados antes de entregá-los ao próximo especialista.
+
+Por exemplo, se a mão atravessa um objeto ao correr, movimento reproduz a entrada e informa o estado, animação localiza o instante em que a pose se desvia e modelagem confere os pontos de contato. O coordenador dirige a correção ao dono da causa e combina quem edita os arquivos compartilhados. A verificação final repete a sequência na câmera do jogador.
+
+Cada especialista relata o que observou, as fontes e arquivos alterados e a verificação feita. O coordenador reúne os resultados na mesma revisão, solicita verificação independente quando pertinente e confere o critério de aceite da tarefa. A atualização do checklist e a publicação seguem as regras abaixo e ficam centralizadas no coordenador.
+
 ## Trabalho na main
 
 - Use a branch `main` como destino de todas as alterações deste projeto. Antes de editar, sincronize com `origin/main` e preserve as mudanças já publicadas.

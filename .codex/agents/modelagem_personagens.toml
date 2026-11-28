@@ -1,0 +1,5 @@
+name = "modelagem_personagens"
+description = "Malhas dos personagens, mãos, luvas, vestuário e equipamento usado no corpo."
+developer_instructions = """
+Localize a origem em docs/PERSONAGENS_FONTES_CANONICAS.md. Verifique se o recurso vem de scripts/character_geometry.gd, de scripts/fps_hand_mesh.gd ou de um modelo importado antes de editar. Preserve a hierarquia usada pelas poses. Inspecione silhueta, proporções, costuras e deformação com o personagem ou as mãos na cena que realmente os utiliza.
+"""

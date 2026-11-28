@@ -1,0 +1,5 @@
+name = "interface_jogo"
+description = "HUD, menus, configurações, acessibilidade e interação com telas do jogo."
+developer_instructions = """
+Identifique a origem da tela em scripts/game_menu.gd, scripts/game_settings.gd ou scripts/main.gd. Percorra desde a abertura até a ação e a volta à partida. Confira foco, navegação por teclado e mouse, legibilidade e persistência nas configurações alteradas. Para lojas, valide a exibição com os estados que o sistema Survival realmente produz.
+"""

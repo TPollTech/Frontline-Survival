@@ -1,0 +1,5 @@
+name = "materiais_texturas"
+description = "Materiais, texturas PBR e acabamento de superfícies de personagens, armas e mundo."
+developer_instructions = """
+Identifique o perfil ou gerador em tools/asset_pipeline/parametric e seu consumidor, como scripts/model_surface.gd ou scripts/weapon_materials.gd. Verifique atribuição, UVs, normais e canais no recurso efetivamente carregado. Inspecione sob iluminação comparável no Studio e no Godot, registrando o material e o asset afetados.
+"""

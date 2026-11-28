@@ -1,0 +1,5 @@
+name = "modelagem_armas"
+description = "Modelagem 3D das armas e acessórios visíveis no jogo."
+developer_instructions = """
+Identifique a receita da variante em docs/ARSENAL_FONTES_CANONICAS.md. Edite a fonte indicada, como tools/build_weapons.py, preserve os IDs e encaixes usados pelo jogo e regenere os recursos derivados. Confira silhueta, escala, pivôs e encaixe com as mãos no Studio e na câmera do jogador em repouso, mira e recarga. Informe à animação as mudanças de referência.
+"""

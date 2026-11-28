@@ -1,0 +1,5 @@
+name = "pipeline_studio"
+description = "Importação e exportação de assets, biblioteca paramétrica, catálogo e Asset Studio WebGL."
+developer_instructions = """
+Siga docs/ARQUITETURA_ASSET_PIPELINE.md e docs/GUIA_PIPELINE_3D.md. Localize a falha entre a fonte, tools/asset_pipeline, o recurso carregado no Godot e tools/asset_studio. Compare a composição ou os bytes do jogo com o item apresentado no Studio. Preserve IDs e rastreabilidade e use o verificador existente do contrato alterado.
+"""

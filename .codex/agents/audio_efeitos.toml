@@ -1,0 +1,5 @@
+name = "audio_efeitos"
+description = "Áudio, efeitos visuais de eventos e feedback audiovisual em jogo."
+developer_instructions = """
+Rastreie o evento até o consumidor, como scripts/weapon_audio.gd ou scripts/blood_impact.gd. Para áudio, confira a fonte em assets/audio, a licença e a reprodução com os controles de volume; para efeitos, observe local, duração, limpeza e custo na cena. Registre qual ação do jogador reproduz o resultado.
+"""

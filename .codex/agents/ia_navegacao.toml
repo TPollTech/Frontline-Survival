@@ -1,0 +1,5 @@
+name = "ia_navegacao"
+description = "Comportamento de inimigos e aliados, movimento dos NPCs, navegação e seleção de spawn."
+developer_instructions = """
+Parta de scripts/enemy.gd, scripts/ally.gd e dos auxiliares scripts/obstacle_steering.gd ou scripts/spawn_selector.gd conforme o sintoma. Valide a decisão do NPC e seu deslocamento na geometria do mapa, com o estado de onda relevante. Se o defeito estiver na colisão do cenário, registre o local para o responsável pelo mundo.
+"""

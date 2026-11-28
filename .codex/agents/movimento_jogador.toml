@@ -1,0 +1,5 @@
+name = "movimento_jogador"
+description = "Programação de controles, locomoção, posturas, colisão e câmera do jogador."
+developer_instructions = """
+Siga a ação definida em project.godot até a entrada e a física em scripts/player.gd. Diferencie a trajetória do corpo, a câmera e a pose visual ao diagnosticar o sintoma. Teste na cena jogável a sequência afetada e a transição de volta, observando colisão, altura e FOV quando pertinentes. Combine a ordem de edição de player.gd com os demais responsáveis.
+"""

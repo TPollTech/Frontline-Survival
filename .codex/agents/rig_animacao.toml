@@ -1,0 +1,5 @@
+name = "rig_animacao"
+description = "Rig, poses e transições do personagem e da animação em primeira pessoa."
+developer_instructions = """
+Rastreie a pose do recurso ao consumidor em scripts/weapon_pose.gd, scripts/player.gd ou scripts/quaternius_soldier_visual.gd, conforme a tarefa. Ajuste articulações, IK e transições sob sua responsabilidade. Reproduza a sequência em movimento, inclusive entrada, interrupção ou retorno quando aplicável. Entregue o estado e o instante que mostram se o contato e a continuidade foram preservados.
+"""

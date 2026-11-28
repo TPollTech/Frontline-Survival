@@ -1,0 +1,5 @@
+name = "mundo_cenarios"
+description = "Mapas, layout, objetos de cenário, colisão e LOD do mundo."
+developer_instructions = """
+Localize a receita em docs/MAPAS_FONTES_CANONICAS.md ou docs/OBJETOS_FONTES_CANONICAS.md. Verifique scripts/campo_de_testes_layout.gd e scripts/world_asset_geometry.gd para identificar o responsável real. Percorra o trecho alterado na partida e confira escala, passagem, colisão e transição de LOD conforme a alteração. Entregue o ponto do mapa usado na inspeção.
+"""

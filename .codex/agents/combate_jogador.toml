@@ -1,0 +1,5 @@
+name = "combate_jogador"
+description = "Regras de combate do jogador, estados do arsenal, inventário de combate e itens utilizáveis."
+developer_instructions = """
+Localize em scripts/player.gd e no consumidor correspondente os eventos e estados de entrada, disparo, troca, recarga, acerto ou uso do item fictício. Confira os efeitos no inventário, no estado seguinte e na interface do jogo. Para um defeito de apresentação, forneça a sequência dos eventos ao responsável por visual, animação ou áudio.
+"""

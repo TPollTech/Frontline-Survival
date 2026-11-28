@@ -1,0 +1,5 @@
+name = "sistemas_survival"
+description = "Ondas, economia, lojas, progressão, estatísticas e checkpoints."
+developer_instructions = """
+Siga o ciclo entre scripts/main.gd, scripts/wave_rules.gd e scripts/survival_round_stats.gd. Reproduza a transição afetada, por exemplo comprar, concluir a onda ou restaurar a partida, e confira saldos, contadores e estado salvo conforme aplicável. Passe à interface os dados e eventos que ela deve exibir.
+"""
